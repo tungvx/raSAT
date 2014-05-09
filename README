@@ -1,0 +1,67 @@
+raSAT: The SMT solver for Polynomial Constraints on Real numbers
+
+Version 0.1   21 January 2014
+
+1. REQUIREMENTS
+	- packages: iRRAM, make, automake, gcc, ocaml, zlib, curses, bash
+	- Environments: confirmed on Win7, Win8 / cygwin 64 bit, linux
+
+2. BUILDING raSAT (run in bash)
+	*Let <raSAT-dir> be a directory where un-rared "raSAT" is placed*
+	*go to <raSAT-dir>*
+	cd camlside
+	make				(Build the library camllib.a)
+	cd ..
+	export MROOT=<raSAT-dir>
+	cd solver
+	make				(Build raSAT in the folder solver)
+
+3. Set PATH for <raSAT-dir>
+	PATH=<raSAT-dir>/solver:$PATH
+
+4. RUNNING raSAT 
+	raSAT <smt2 file> bound="lb ub"
+	
+Usage example: 
+raSAT Test/zankl/matrix-1-all-2.smt2 bound="-10 10" sbox=0.5 tout=120
+
+=======================
+Notes on usage: 
+- raSAT accepts SMT-LIB format (version 2.0, confirmed on meta-tarski, 
+Hong, Zankl, and inequality problems only).
+
+- raSAT requires to specify an input range (i.e., the range is specified bound="lb ub", 
+which are the lower and upper bounds), to avoid open-ended ranges. 
+For example, if 0 < x < 2 and 2 < y < 4, bound = "0 4" will not restrict anything. 
+Note that current implementation assigns the same input range to each variable. 
+
+- "sbox" is the bound for isHalt (i.e., the minimum range of the decomposition), 
+and "tout" is the timeout in seconds, and they are optional. 
+(Default values are 0.1 for sbox and 60 seconds for tout, respectively). 
+
+=======================
+Notes on installation: 
+- Older version of cygwin 32bit also worked (with flexdll package), but 
+the latest cygwin 32bit fails to link (at least in our environment). 
+
+- Win7, Win8 / cygwin 64bit also sometimes fails to compile. 
+This is often recovered by re-installation of cygwin.
+
+========================
+Benchmarks: raSAT accepts inequality problems only (acceptance of ">=" and "<=" in formulae).
+zankl: 		http://smtexec.org/2012_benchmarks/main/QF_NRA/zankl/
+meti-tarski:	http://smtexec.org/2012_benchmarks/main/QF_NRA/meti-tarski/
+hong: 		http://smtexec.org/2012_benchmarks/main/QF_NRA/hong/
+
+========================
+Reference: To Van Khanh, Mizuhito Ogawa, raSAT: SMT for polynomial inequality. 
+JAIST Research Report IS-RR-2013-003 
+http://www.jaist.ac.jp/~mizuhito/papers/report/JAIST-IS-RR-2013-003.pdf
+
+========================
+Future works: 
+- Development version also handles open-ended ranges, e.g., x > 0, 
+which will be included in later release. 
+- Due to the floating point arithmetic nature, we cannot convince the detection of "=". 
+Later release will include precise SAT detection. (Development version includes precise 
+single equality detection.) 

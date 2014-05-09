@@ -1,0 +1,39 @@
+
+Input problem         : n-points/5_points.smt2 
+Number of variables   : 15 
+Number of constraints : 15 
+Interval Arithmetic   : AF2
+Unit searching box    : 0.1
+Timeout setting       : 500 seconds
+
+Total running time    : 65.18 seconds
+
+IA time               : 16.264 seconds
+
+Testing time          : 0.112 seconds
+
+UNSAT Core time       : 1.78 seconds
+
+Parsing time          : 38.104 seconds
+
+Decomposition time    : 0.028 seconds
+
+Ocaml time            : 56.336 seconds
+
+MiniSAT time          : 7.932 seconds
+
+MiniSAT vars          : 337
+
+MiniSAT max clauses   : 17269
+
+MiniSAT calls         : 10984
+
+raSAT clauses         : 18165
+
+Decomposed clauses    : 644
+
+UNSAT learned clauses : 17205
+
+UNKOWN learned clauses: 316
+Result                : UNKNOWN
+

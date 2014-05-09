@@ -1,0 +1,4 @@
+Problem,nVars,nAPIs,time<500,result
+Test/meti-tarski/atan-problem-1-chunk-0015.smt2,3,4,0,SAT
+Test/meti-tarski/atan-problem-1-chunk-0030.smt2,3,5,.004,UNSAT
+Test/meti-tarski/atan-problem-1-chunk-0050.smt2,3,4,0,UNSAT

@@ -1,0 +1,21 @@
+Problem,nVars,nAPIs,time<500 for bound: 0 -> 10,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,result
+Test/hong/hong_1.smt2,1,2,.004,0,0,0,0,0,0,UNSAT
+Test/hong/hong_10.smt2,10,2,280.704,30.228,.032,20.128,107.124,0,112.124,UNSAT
+Test/hong/hong_11.smt2,11,2,425.952,42.536,.06,28.36,178.604,0,160.608,UNSAT
+Test/hong/hong_12.smt2,12,2,500,60.088,.096,39.54,155.7,0,226.64,Timeout
+Test/hong/hong_13.smt2,13,2,500,63.656,.22,42.596,167.924,0,207.832,Timeout
+Test/hong/hong_14.smt2,14,2,500,73.128,.344,49.08,133.512,0,226.072,Timeout
+Test/hong/hong_15.smt2,15,2,500,78.796,.76,52.936,146.444,0,203.988,Timeout
+Test/hong/hong_16.smt2,16,2,500,83.932,1.624,57.332,143.668,0,197.008,Timeout
+Test/hong/hong_17.smt2,17,2,500,89.624,3.732,58.988,130.416,0,201.116,Timeout
+Test/hong/hong_18.smt2,18,2,500,88.388,8.048,59.136,132.892,0,195.628,Timeout
+Test/hong/hong_19.smt2,19,2,500,99.012,8.872,66.86,102.624,0,206.276,Timeout
+Test/hong/hong_2.smt2,2,2,.008,0,0,0,0,0,.004,UNSAT
+Test/hong/hong_20.smt2,20,2,500,104.424,19.9,69.904,105.4,0,184.848,Timeout
+Test/hong/hong_3.smt2,3,2,.012,0,.004,0,.004,0,.004,UNSAT
+Test/hong/hong_4.smt2,4,2,.128,.016,0,.004,.064,0,.04,UNSAT
+Test/hong/hong_5.smt2,5,2,.264,.012,0,.02,.072,0,.144,UNSAT
+Test/hong/hong_6.smt2,6,2,1.288,.116,0,.052,.492,0,.528,UNSAT
+Test/hong/hong_7.smt2,7,2,10.156,.928,.004,.584,4.132,0,4.076,UNSAT
+Test/hong/hong_8.smt2,8,2,176.288,14.936,.004,8.908,71.136,0,73.516,UNSAT
+Test/hong/hong_9.smt2,9,2,134.836,12.892,.016,8.364,58.348,0,49.584,UNSAT

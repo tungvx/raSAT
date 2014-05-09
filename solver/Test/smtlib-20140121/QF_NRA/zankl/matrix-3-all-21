@@ -1,0 +1,39 @@
+
+Input problem         : smtlib-20140121/QF_NRA/zankl/matrix-3-all-21.smt2 
+Number of variables   : 47 
+Number of constraints : 82 
+Interval Arithmetic   : AF2
+Unit searching box    : 0.1
+Timeout setting       : 500 seconds
+
+Total running time    : 12.976 seconds
+
+IA time               : 0.7 seconds
+
+Testing time          : 12.172 seconds
+
+UNSAT Core time       : 0 seconds
+
+Parsing time          : 0.096 seconds
+
+Decomposition time    : 0 seconds
+
+Ocaml time            : 12.888 seconds
+
+MiniSAT time          : 0.076 seconds
+
+MiniSAT vars          : 125
+
+MiniSAT max clauses   : 153
+
+MiniSAT calls         : 26
+
+raSAT clauses         : 165
+
+Decomposed clauses    : 156
+
+UNSAT learned clauses : 7
+
+UNKOWN learned clauses: 2
+Result                : UNKNOWN
+

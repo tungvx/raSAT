@@ -1,0 +1,21 @@
+Problem	nVars	nAPIs	time<500 for bound: 0 -> 10	iaTime	testingTime	usTime	parsingTime	decompositionTime	miniSATTime	miniSATVars	miniSATClauses	miniSATCalss	raSATClauses	decomposedClauses	UNSATLearnedClauses	UNKNOWNLearnedClauses	result
+hong/hong_1.smt2	1	2	0	0	0	0	0	0	0	1	0	2	1	0	1	0	UNSAT
+hong/hong_10.smt2	10	2	0.228	0	0.064	0.028	0.012	0.128	0.004	30	2	22	51	40	11	0	UNSAT
+hong/hong_11.smt2	11	2	0.404	0	0.18	0.048	0	0.152	0.02	33	2	24	56	44	12	0	UNSAT
+hong/hong_12.smt2	12	2	0.728	0.004	0.424	0.06	0.008	0.216	0.02	36	2	26	61	48	13	0	UNSAT
+hong/hong_13.smt2	13	2	1.352	0.012	1.036	0.072	0	0.224	0.012	39	2	28	66	52	14	0	UNSAT
+hong/hong_14.smt2	14	2	2.844	0.008	2.412	0.104	0.008	0.288	0.032	42	2	30	71	56	15	0	UNSAT
+hong/hong_15.smt2	15	2	6.412	0.004	5.88	0.14	0.008	0.38	0.016	45	2	32	76	60	16	0	UNSAT
+hong/hong_16.smt2	16	2	14.128	0.02	13.484	0.172	0.008	0.428	0.028	48	2	34	81	64	17	0	UNSAT
+hong/hong_17.smt2	17	2	32.52	0.016	31.736	0.22	0.008	0.532	0.024	51	2	36	86	68	18	0	UNSAT
+hong/hong_18.smt2	18	2	80.656	0.02	79.428	0.48	0.012	0.76	0.024	54	2	38	91	72	19	0	UNSAT
+hong/hong_19.smt2	19	2	191.1	0.028	189.808	0.516	0	1.04	0.052	57	2	40	96	76	20	0	UNSAT
+hong/hong_2.smt2	2	2	0.004	0	0.004	0	0	0	0	6	2	6	11	8	3	0	UNSAT
+hong/hong_20.smt2	20	2	407.956	0.032	406.916	0.512	0.028	1.016	0.048	60	2	42	101	80	21	0	UNSAT
+hong/hong_3.smt2	3	2	0.016	0	0	0	0	0.012	0.004	9	2	8	16	12	4	0	UNSAT
+hong/hong_4.smt2	4	2	0.016	0	0	0	0	0.012	0.004	12	2	10	21	16	5	0	UNSAT
+hong/hong_5.smt2	5	2	0.024	0	0	0.004	0	0.024	0	15	2	12	26	20	6	0	UNSAT
+hong/hong_6.smt2	6	2	0.044	0.004	0	0	0	0.032	0	18	2	14	31	24	7	0	UNSAT
+hong/hong_7.smt2	7	2	0.068	0	0	0.004	0	0.06	0.004	21	2	16	36	28	8	0	UNSAT
+hong/hong_8.smt2	8	2	0.088	0.004	0.012	0.004	0	0.056	0.012	24	2	18	41	32	9	0	UNSAT
+hong/hong_9.smt2	9	2	0.136	0.004	0.024	0.016	0	0.088	0.008	27	2	20	46	36	10	0	UNSAT
