@@ -2,6 +2,7 @@ open List
 open Util
 open IA
 open Assignments
+open InfiniteList
 
 (*raSAT expression*)
 type poly_expr = 
@@ -53,13 +54,24 @@ let leftExp = function
   | _ -> Real 0.         (*This case never happen*)
 
 (* get the right expression of comparision operators*)
-let rightExp = function
+let rightExp = function  
   | Eq (e1, e2)  -> e2
   | Leq (e1, e2) -> e2
   | Le (e1, e2)  -> e2
   | Geq (e1, e2) -> e2
   | Gr (e1, e2)  -> e2
   | _ -> Real 0.         (*This case never happen*)
+  
+
+(* This function return the left and right expression of a boolean expresion *)  
+let get_left_right = function 
+  | Eq (e1, e2)  -> (e1, e2)
+  | Leq (e1, e2) -> (e1, e2)
+  | Le (e1, e2)  -> (e1, e2)
+  | Geq (e1, e2) -> (e1, e2)
+  | Gr (e1, e2)  -> (e1, e2)
+  | _ -> (Real 0., Real 0.)         (*This case never happen*)
+
 
 (* evalFloat compute the value of a polynomial function from an assignment*)
 let rec evalFloat ass = function
@@ -113,6 +125,56 @@ let rec bool_vars e =
 	let left = leftExp e in
 	let right = rightExp e in
 	List.append (get_vars left) (get_vars right)
+	
+	
+(* This function insert a new variable into a variables list
+using the alphabet ordering, duplicated variable will not 
+be inserted *)	
+let rec insert_sort var vars = match vars with
+  | [] -> [var]
+  | h::t -> 
+    let compareVarH = compare var h in
+    if compareVarH > 0 then h::(insert_sort var t)
+    else if compareVarH < 0 then var::vars
+    else vars
+	
+	
+(* This function insert the first variables list into the second list
+using alphabet ordering for sorting elements. 
+The first list is represented as a lazy list (in InfiniteList.ml) *)	
+let rec insert_list_sort infiniteVars secondVars = match infiniteVars with
+  | Nil -> secondVars
+  | Cons (var, remainings) -> 
+    let insertedList = insert_sort var secondVars in
+    insert_list_sort (remainings()) insertedList
+	
+	
+(* This function returns all th evariables of a polynomial expression
+in the form of lazy list *)
+let rec get_infinite_vars_polyExp = function
+  | Var x -> Cons(x, fun() -> Nil)
+	| Add(e1, e2) -> (get_infinite_vars_polyExp e1) @@ (get_infinite_vars_polyExp e2)
+	| Sub(e1, e2) -> (get_infinite_vars_polyExp e1) @@ (get_infinite_vars_polyExp e2)
+	| Mul(e1, e2) -> (get_infinite_vars_polyExp e1) @@ (get_infinite_vars_polyExp e2)
+	| Pow(e1, n)  -> (get_infinite_vars_polyExp e1)
+	| _ -> Nil
+	
+	
+(* This function returns all the variables of a boolean expression
+in the form of lazy list *)	
+let get_infinite_vars_boolExp boolExp = 
+  let (left, right) = get_left_right boolExp in
+  let leftVars = get_infinite_vars_polyExp left in
+  let rightVars = get_infinite_vars_polyExp right in
+  leftVars @@ rightVars
+	
+
+(* This function returns a compact list of sorted 
+variables of a boolean expression. The sort critia is
+using alphabet ordering *)	
+let get_sorted_vars boolExp = 
+  let infiniteVars = get_infinite_vars_boolExp boolExp in
+  insert_list_sort infiniteVars []
 
 (*==================== START poly_expr_to_infix_string ==============================*)	
 (* This function converts a polynomial expression into infix string form *)

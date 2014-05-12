@@ -2372,6 +2372,7 @@ let rec bool_toString = function
         let startTime = Sys.time() in
         (*print_string "Start check sat: ";
         print_endline (bool_expr_to_infix_string h);
+        print_endline (Util.vars_to_string (get_sorted_vars h)); (* get_sorted_vars is in ast.ml *)
         flush stdout;*)
         (*let res1 = checkSat h ia assIntv in*)
         let res1 = check_sat_af_two_ci h assIntv in
@@ -2414,10 +2415,6 @@ let rec bool_toString = function
             eval_all (-1) us [] t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
           else
             eval_all 0 us (h::uk_cl) t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
-            (*if (ia = 0) then
-              eval_all 0 us (h::uk_cl) t 2 assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
-            else
-              eval_all 0 us uk_cl e 0 assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)*)
         )
 
   (*function for compute the list of pairs of variable and ID from the list of ID of interval constraints*)
