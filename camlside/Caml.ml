@@ -2512,7 +2512,6 @@ let rec bool_toString = function
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in        
     (*print_endline "Start IA";*)
-    let eAss = sort_boolExp_dependency eAss in
     let (res, us, uk_cl, iaTime, usTime) = eval_all 1 "" [] eAss ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime) in
       (*print_endline "EndIA";
       flush stdout;*)

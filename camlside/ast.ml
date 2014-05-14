@@ -427,29 +427,8 @@ let rec add_info boolExps = match boolExps with
     let variablesNum = VariablesSet.cardinal variablesSet in
     (h, variablesSet, variablesNum) :: (add_info t)
 
-
-(* This function compares two boolean expressions using 
-dependency between variables. Two criteria:
-. boolExp1 <= boolExp2 if vars(boolExp1) is a subset of vars(boolExp2) 
-. boolExp1 < boolExp2 if length(vars(boolExp1)) < length(vars(boolExp2)) 
-. otherwise, boolExp1 > boolExp2
-. each argument contains a boolean expression, its compact sorted variables
-and its number of variables *)
-let rec compare_dependency (boolExp1, variablesSet1, variablesNum1) (boolExp2, variablesSet2, variablesNum2) = 
-  if VariablesSet.subset variablesSet1 variablesSet2 then -1 
-  else if VariablesSet.subset variablesSet2 variablesSet1 then 1
-  else if variablesNum1 < variablesNum2 then -1
-  else 1
-
-
-(* This function extracts a list of boolean expresions 
-from the list of expressive boolean expressions *)
-let rec extract_boolExps = function 
-  | [] -> []
-  | (boolExp, vars, varsNum)::t -> boolExp::(extract_boolExps t)
-
 (* This function sort the list of the apis using variables dependency *)
 let sort_boolExp_dependency boolExps = 
   let expressiveBoolExps = add_info boolExps in
-  let sortedEBoolExps = List.fast_sort compare_dependency expressiveBoolExps in
-  extract_boolExps sortedEBoolExps
+  let sortedEBoolExps = List.fast_sort Util.compare_dependency expressiveBoolExps in
+  Util.extract_boolExps sortedEBoolExps

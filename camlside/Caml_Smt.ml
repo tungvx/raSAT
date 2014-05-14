@@ -1,5 +1,7 @@
 open Exp           (*type: literal, clause, formula... declaration*)   
 open Expr          (*Simplify expression module*)
+open Variable
+open Util
 
 
 (*This module will generate form for Solver from SMT benchmark files*)
@@ -664,7 +666,7 @@ let rec get_bExpr e = match e with
   let rec list_toBool lst = match lst with
     |[] -> Eq (Real 0., Real 0.) (*This case will never happen*)
     |[a] -> a
-    |h::t -> And (list_toBool t, h)
+    |h::t -> And (h, list_toBool t)
 
   let list_remove element lst = List.filter (fun x-> x <> element) lst
 
@@ -831,6 +833,42 @@ let rec simplify_bool e = match e with
   | Not (e1) -> Not (simplify_bool e1)
 
 
+(* This function returns the set of all variables of a polynomial expression *)
+let rec get_varsSet_polyExpr polyExpr = match polyExpr with
+  | Var v  -> VariablesSet.singleton v
+  | Add(e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | Sub(e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2) 
+  | Mul(e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | _ -> VariablesSet.empty
+
+
+(* This function returns the set of all variables of a single boolean expression *)
+let rec get_varsSet_boolExpr smtBoolExpr = match smtBoolExpr with
+  | BVar b -> VariablesSet.singleton b
+  | Eq  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | Le  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | Leq (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | Gr  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | Geq (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | And (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
+  | Not (e1) -> get_varsSet_boolExpr e1
+
+
+(* This function add information into each expression *)
+let rec add_info exprs = match exprs with
+  | [] -> []
+  | h::t -> 
+    let varsSet = get_varsSet_boolExpr h in
+    let varsNum = VariablesSet.cardinal varsSet in
+    (h, varsSet, varsNum) :: (add_info t)
+
+
+let sort_expr exprs =
+  let expressiveExprs = add_info exprs in
+  let sortedExpressiveExprs = List.fast_sort Util.compare_dependency expressiveExprs in
+  Util.extract_boolExps sortedExpressiveExprs
+
+
 let genSmtForm sIntv sAssert loBound upBound =       
   (*get Assert expression from sAssert *)  
   let eAss = read sAssert in
@@ -860,8 +898,10 @@ let genSmtForm sIntv sAssert loBound upBound =
 
   (*remove redundant expression, i.e., remove a >= 0 when a >0 occurs*)
   let eList = bool_toList expr in
-  let simp_list = red_cons (red_list eList) in  
-  let new_expr = list_toBool simp_list in
+  let simp_list = red_cons (red_list eList) in
+  (* sort the apis using variables dependency *)  
+  let sortedList = sort_expr simp_list in
+  let new_expr = list_toBool sortedList in
 
   (*Get bound constraints of variables from assert expression eAss*)
   let bound_cons = remov_nil (getBound new_expr) in

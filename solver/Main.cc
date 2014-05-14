@@ -631,7 +631,6 @@ int main(int argc, char** argv) {
 					fprintf(res, "INDET\n");
 					fclose(res);
 				}
-				check = false; // force the loop to be executed once only
 			}							 // End while loop
 
 			caml_remove_global_root(&theoCheck);
