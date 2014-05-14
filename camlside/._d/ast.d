@@ -1,2 +1,2 @@
-ast.cmo: Util.cmo InfiniteList.cmo IA.cmo Assignments.cmo
-ast.cmx: Util.cmx InfiniteList.cmx IA.cmx Assignments.cmx
+ast.cmo: Variable.cmo Util.cmo IA.cmo Assignments.cmo
+ast.cmx: Variable.cmx Util.cmx IA.cmx Assignments.cmx

@@ -2,7 +2,7 @@ open List
 open Util
 open IA
 open Assignments
-open InfiniteList
+open Variable
 
 (*raSAT expression*)
 type poly_expr = 
@@ -126,55 +126,6 @@ let rec bool_vars e =
 	let right = rightExp e in
 	List.append (get_vars left) (get_vars right)
 	
-	
-(* This function insert a new variable into a variables list
-using the alphabet ordering, duplicated variable will not 
-be inserted *)	
-let rec insert_sort var vars = match vars with
-  | [] -> [var]
-  | h::t -> 
-    let compareVarH = compare var h in
-    if compareVarH > 0 then h::(insert_sort var t)
-    else if compareVarH < 0 then var::vars
-    else vars
-	
-	
-(* This function insert the first variables list into the second list
-using alphabet ordering for sorting elements. 
-The first list is represented as a lazy list (in InfiniteList.ml) *)	
-let rec insert_list_sort infiniteVars secondVars = match infiniteVars with
-  | Nil -> secondVars
-  | Cons (var, remainings) -> 
-    let insertedList = insert_sort var secondVars in
-    insert_list_sort (remainings()) insertedList
-	
-	
-(* This function returns all th evariables of a polynomial expression
-in the form of lazy list *)
-let rec get_infinite_vars_polyExp = function
-  | Var x -> Cons(x, fun() -> Nil)
-	| Add(e1, e2) -> (get_infinite_vars_polyExp e1) @@ (get_infinite_vars_polyExp e2)
-	| Sub(e1, e2) -> (get_infinite_vars_polyExp e1) @@ (get_infinite_vars_polyExp e2)
-	| Mul(e1, e2) -> (get_infinite_vars_polyExp e1) @@ (get_infinite_vars_polyExp e2)
-	| Pow(e1, n)  -> (get_infinite_vars_polyExp e1)
-	| _ -> Nil
-	
-	
-(* This function returns all the variables of a boolean expression
-in the form of lazy list *)	
-let get_infinite_vars_boolExp boolExp = 
-  let (left, right) = get_left_right boolExp in
-  let leftVars = get_infinite_vars_polyExp left in
-  let rightVars = get_infinite_vars_polyExp right in
-  leftVars @@ rightVars
-	
-
-(* This function returns a compact list of sorted 
-variables of a boolean expression. The sort critia is
-using alphabet ordering *)	
-let get_sorted_vars boolExp = 
-  let infiniteVars = get_infinite_vars_boolExp boolExp in
-  insert_list_sort infiniteVars []
 
 (*==================== START poly_expr_to_infix_string ==============================*)	
 (* This function converts a polynomial expression into infix string form *)
@@ -446,4 +397,59 @@ let check_sat_af_two_ci boolExp intv =
     let newRightBound = new IA.interval newRightLowerBound newRightHigherBound in
     check_sat_providedBounds boolExp newLeftBound newRightBound
   else sat
+  
+	
+(* This function returns a set of all variables of a polynomial expression *)
+let rec get_vars_set_polyExp = function
+  | Var x -> VariablesSet.singleton x
+	| Add(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Sub(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Mul(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Pow(e1, n)  -> get_vars_set_polyExp e1
+	| _ -> VariablesSet.empty
+	
 
+(* This function returns a set of 
+variables of a boolean expression. The sort critia is
+using alphabet ordering *)	
+let get_vars_set_boolExp boolExp = 
+  let (left, right) = get_left_right boolExp in
+  let leftVarsSet = get_vars_set_polyExp left in
+  let rightVarsSet = get_vars_set_polyExp right in
+  VariablesSet.union leftVarsSet rightVarsSet  
+
+(* This function add information of variables set and 
+number of variables into boolean expression *)
+let rec add_info boolExps = match boolExps with
+  | [] -> []
+  | h::t ->
+    let variablesSet = get_vars_set_boolExp h in
+    let variablesNum = VariablesSet.cardinal variablesSet in
+    (h, variablesSet, variablesNum) :: (add_info t)
+
+
+(* This function compares two boolean expressions using 
+dependency between variables. Two criteria:
+. boolExp1 <= boolExp2 if vars(boolExp1) is a subset of vars(boolExp2) 
+. boolExp1 < boolExp2 if length(vars(boolExp1)) < length(vars(boolExp2)) 
+. otherwise, boolExp1 > boolExp2
+. each argument contains a boolean expression, its compact sorted variables
+and its number of variables *)
+let rec compare_dependency (boolExp1, variablesSet1, variablesNum1) (boolExp2, variablesSet2, variablesNum2) = 
+  if VariablesSet.subset variablesSet1 variablesSet2 then -1 
+  else if VariablesSet.subset variablesSet2 variablesSet1 then 1
+  else if variablesNum1 < variablesNum2 then -1
+  else 1
+
+
+(* This function extracts a list of boolean expresions 
+from the list of expressive boolean expressions *)
+let rec extract_boolExps = function 
+  | [] -> []
+  | (boolExp, vars, varsNum)::t -> boolExp::(extract_boolExps t)
+
+(* This function sort the list of the apis using variables dependency *)
+let sort_boolExp_dependency boolExps = 
+  let expressiveBoolExps = add_info boolExps in
+  let sortedEBoolExps = List.fast_sort compare_dependency expressiveBoolExps in
+  extract_boolExps sortedEBoolExps

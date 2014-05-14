@@ -6,6 +6,8 @@ open Decomposer
 open Assignments
 open Equalities_handler
 open Unsat_Core
+open Testing
+open Variable
 
 module Caml = struct
 
@@ -1608,6 +1610,8 @@ let rec bool_toString = function
     
     (* afsmt_us 
     let si = "(or ("^ var ^ " in " ^ string_of_float (0.5*.(ci#h+.ci#l)) ^ " " ^ string_of_float ci#h ^ ") " ^
+
+
                "(" ^ var ^ " in " ^ string_of_float ci#l ^ " " ^ string_of_float (0.5*.(ci#h+.ci#l)) ^ "))" in
     *)
 
@@ -2371,9 +2375,9 @@ let rec bool_toString = function
      |h::t -> 
         let startTime = Sys.time() in
         (*print_string "Start check sat: ";
-        print_endline (bool_expr_to_infix_string h);
-        print_endline (Util.vars_to_string (get_sorted_vars h)); (* get_sorted_vars is in ast.ml *)
-        flush stdout;*)
+        print_string (bool_expr_to_infix_string h ^ ": ");*)
+        print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
+        flush stdout;
         (*let res1 = checkSat h ia assIntv in*)
         let res1 = check_sat_af_two_ci h assIntv in
         (*print_endline "End check sat";
@@ -2508,6 +2512,7 @@ let rec bool_toString = function
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in        
     (*print_endline "Start IA";*)
+    let eAss = sort_boolExp_dependency eAss in
     let (res, us, uk_cl, iaTime, usTime) = eval_all 1 "" [] eAss ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime) in
       (*print_endline "EndIA";
       flush stdout;*)
