@@ -28,3 +28,8 @@
 *.exe
 *.out
 *.app
+
+# SMT files
+*.rs
+*.in
+*.out
