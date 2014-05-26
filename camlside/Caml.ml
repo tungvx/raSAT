@@ -2376,8 +2376,8 @@ let rec bool_toString = function
         let startTime = Sys.time() in
         (*print_string "Start check sat: ";
         print_string (bool_expr_to_infix_string h ^ ": ");*)
-        print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
-        flush stdout;
+        (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
+        flush stdout;*)
         (*let res1 = checkSat h ia assIntv in*)
         let res1 = check_sat_af_two_ci h assIntv in
         (*print_endline "End check sat";
@@ -2521,10 +2521,8 @@ let rec bool_toString = function
       else if (res = 1) then (*if all clauses are satisfiable*)
         (res, "", "", (allLog eAss ia assIntv), dIntv, "", "", tmp, "", iaTime, testingTime, usTime, parsingTime, decompositionTime)      
       else (*if unknown, testing will be implemented here*)(
-        (*print_int (List.length uk_cl);
-        print_endline "";
-        print_endline (intervals_toString assIntv);
-        print_endline(bool_expr_list_to_infix_string uk_cl "");
+        let uk_cl = List.rev uk_cl in (* reverse the list so that the apis are sorted based on variables dependency *)
+        (*print_endline(bool_expr_list_to_infix_string uk_cl); (* bool_expr_list_to_infix_string is defined in ast.ml *)
         flush stdout;*)
         if (uk_cl = []) then (*This case will never happen*)
           (res, us, "", "", dIntv, "", "", tmp, "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
@@ -2532,8 +2530,10 @@ let rec bool_toString = function
           (*print_endline "Start Testing";
           flush stdout;*)
           let startTestingTime = Sys.time() in
+          let (tc, sTest, clTest_US, a) = test uk_cl assIntv strTestUS (remainingTime -. Sys.time() +. startTime) in
+          (*print_endline ("SAT: " ^ assignments_toString tc);*)
           (*let (sTest, clTest_US, a) = evalTest assIntv uk_cl checkVarID strTestUS in*)
-          let (tc, sTest, clTest_US, a) =  search_tc2 uk_cl assIntv strTestUS esl in
+          (*let (tc, sTest, clTest_US, a) =  search_tc2 uk_cl assIntv strTestUS esl in *)
           (*print_endline "End Testing";
           flush stdout;*)
           let testingTime = testingTime +. Sys.time() -. startTestingTime in

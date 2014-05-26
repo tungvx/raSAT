@@ -88,25 +88,25 @@ let rec evalFloat ass = function
 let checkSAT_computeValues boolExp assignments = 
 	let leftExpression = leftExp boolExp in
 	let rightExpression = rightExp boolExp in
-	let lowerBoundLeftValue = evalFloat assignments leftExpression in
-	let upperBoundRightValue = evalFloat assignments rightExpression in 
+	let leftValue = evalFloat assignments leftExpression in
+	let rightValue = evalFloat assignments rightExpression in 
 	match boolExp with
 	|Eq (e1, e2) -> 
-		if (lowerBoundLeftValue = upperBoundRightValue) then (true, lowerBoundLeftValue, upperBoundRightValue)
-		else (false, lowerBoundLeftValue, upperBoundRightValue)
+		if (leftValue = rightValue) then (true, leftValue, rightValue)
+		else (false, leftValue, rightValue)
 	|Leq(e1, e2) -> 
-		if (lowerBoundLeftValue <= upperBoundRightValue) then (true, lowerBoundLeftValue, upperBoundRightValue)
-		else (false, lowerBoundLeftValue, upperBoundRightValue)
+		if (leftValue <= rightValue) then (true, leftValue, rightValue)
+		else (false, leftValue, rightValue)
 	|Le (e1, e2) -> 
-		if (lowerBoundLeftValue < upperBoundRightValue) then (true, lowerBoundLeftValue, upperBoundRightValue)
-		else (false, lowerBoundLeftValue, upperBoundRightValue)
+		if (leftValue < rightValue) then (true, leftValue, rightValue)
+		else (false, leftValue, rightValue)
 	|Geq(e1, e2) -> 
-		if (lowerBoundLeftValue >= upperBoundRightValue) then (true, lowerBoundLeftValue, upperBoundRightValue)
-		else (false, lowerBoundLeftValue, upperBoundRightValue)
+		if (leftValue >= rightValue) then (true, leftValue, rightValue)
+		else (false, leftValue, rightValue)
 	|Gr (e1, e2) -> 
-		if (lowerBoundLeftValue > upperBoundRightValue) then (true, lowerBoundLeftValue, upperBoundRightValue)
-		else (false, lowerBoundLeftValue, upperBoundRightValue)
-	| _ -> (true, lowerBoundLeftValue, upperBoundRightValue)     (*This case never happen*)
+		if (leftValue > rightValue) then (true, leftValue, rightValue)
+		else (false, leftValue, rightValue)
+	| _ -> (true, leftValue, rightValue)     (*This case never happen*)
 
 
 
