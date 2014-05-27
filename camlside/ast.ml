@@ -220,7 +220,7 @@ let rec e_toAf1 ass id numVar = match ass with
 let rec e_toAf2 ass id numVar = match ass with
   |[] -> []
   |a::b -> match a with
-  |(x, ix) -> (x, Util.toAf2 ix id numVar):: e_toAf2 b (id+1) numVar
+  |(x, ix) -> ((x, Util.toAf2 ix id numVar), (x, id-1)):: e_toAf2 b (id+1) numVar
 
 (* e_toCai1 compute the CAI1 assignment from interval constraints*)
 let rec e_toCai1 ass id numVar = match ass with
@@ -268,7 +268,7 @@ let rec evalAf1 ass n = function
   | Pow (u,c) -> IA.AF1.(evalAf1 ass n u ^ c)
  
 (* evalAf2 compute the bound of a polynomial function from an assignment ass by AF2 form*)
-let rec evalAf2 ass n= function
+let rec evalAf2 ass n = function
   | Real c -> Util.toAf2 (new IA.interval c c) 0 n
   | Var v -> List.assoc v ass
   | Add (u,v) -> IA.AF2.(evalAf2 ass n u + evalAf2 ass n v)
@@ -304,37 +304,66 @@ let rec evalCai3 ass n= function
   | Pow (u,c) -> IA.CAI3.(evalCai3 ass n u ^ c)
   
 
+(* This function returns a set of all variables of a polynomial expression *)
+let rec get_vars_set_polyExp = function
+  | Var x -> VariablesSet.singleton x
+	| Add(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Sub(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Mul(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Pow(e1, n)  -> get_vars_set_polyExp e1
+	| _ -> VariablesSet.empty
+	
+
+(* This function returns a set of 
+variables of a boolean expression. The sort critia is
+using alphabet ordering *)	
+let get_vars_set_boolExp boolExp = 
+  let (left, right) = get_left_right boolExp in
+  let leftVarsSet = get_vars_set_polyExp left in
+  let rightVarsSet = get_vars_set_polyExp right in
+  VariablesSet.union leftVarsSet rightVarsSet
+  
+
+(* Check if a variables is in the set *)
+let check_mem varsSet (var, intv) = 
+  VariablesSet.mem var varsSet
+
+
 (*evaluate the bound of poly expression by type of interval arithmetic*)						     
 let poly_eval e ia assIntv = 
+  let varsSet = get_vars_set_polyExp e in
+  let assIntv = List.filter (check_mem varsSet) assIntv in
   let iIntvVar = List.length assIntv in
   if (ia=1) then (
     let assAf1 = e_toAf1 assIntv 1 iIntvVar in
     let res = evalAf1 assAf1 iIntvVar e in
-    res#evaluate;
+    (res#evaluate, []);
   )  
   else if (ia=2) then (
-    let assAf2 = e_toAf2 assIntv 1 iIntvVar in
+    let assAf2VarPos = e_toAf2 assIntv 1 iIntvVar in
+    let (assAf2, varPos) = List.split assAf2VarPos in
     let res = evalAf2 assAf2 iIntvVar e in
-    res#evaluate;
+    let varsSensitivity = res#extract_varsSen varPos in
+    (res#evaluate, varsSensitivity);
   )  
   else if (ia=3) then (
     let assCai1 = e_toCai1 assIntv 1 iIntvVar in
     let res = evalCai1 assCai1 iIntvVar e in
-    res#evaluate;
+    (res#evaluate, []);
   )  
   else if (ia=4) then (
     let assCai2 = e_toCai2 assIntv 1 iIntvVar in
     let res = evalCai2 assCai2 iIntvVar e in
-    res#evaluate;
+    (res#evaluate, []);
   )  
   else if (ia=5) then (
     let assCai3 = e_toCai3 assIntv 1 iIntvVar in
     let res = evalCai3 assCai3 iIntvVar e in
-    res#evaluate;
+    (res#evaluate, []);
   )  
   else (
     let res = evalCI assIntv e in
-    res;
+    (res, []);
   )  
     
 
@@ -368,11 +397,26 @@ let check_sat_providedBounds boolExp leftBound rightBound =
 let checkSat e ia assIntv =
   let left = leftExp e in
   let right = rightExp e in
-  let leftBound  = poly_eval left ia assIntv in
-  let rightBound = poly_eval right ia assIntv in
+  let (leftBound, _)  = poly_eval left ia assIntv in
+  let (rightBound, _) = poly_eval right ia assIntv in
   (*print_endline ("Approximating: " ^ bool_expr_to_infix_string e ^ " = [" ^ string_of_float leftBound#l ^ ", " ^ string_of_float leftBound#h ^ "] with " ^ intervals_to_string assIntv);
   flush stdout;*)
   check_sat_providedBounds e leftBound rightBound
+  
+  
+(* Substract variables sensitivity from the right hand side to the left handside of the expression *)  
+let rec substract_varSen leftVarsSen (var, varSen) = match leftVarsSen with
+  | [] -> [(var, ~-. varSen)]
+  | (currentVar, currentVarSen)::remaining -> 
+    if var = currentVar then (currentVar, currentVarSen -. varSen)::remaining
+    else (currentVar, currentVarSen)::(substract_varSen leftVarsSen (var, varSen))
+  
+(* This function merge the sensitivity of vars in left handside with right handside of an expression*)  
+let rec merge_varsSen leftVarsSen = function 
+  | [] -> leftVarsSen
+  | h::t -> 
+    let newLeftVarsSen = substract_varSen leftVarsSen h in
+    merge_varsSen newLeftVarsSen t
   
     
 (* Check sat with combination of AF2 and CI *)      
@@ -380,14 +424,16 @@ let check_sat_af_two_ci boolExp intv =
   let left = leftExp boolExp in (* get the left expression *)
   let right = rightExp boolExp in (* get the right expression *)
   (* evaluate the expression using AF2 *)
-  let afTwoLeftBound  = poly_eval left 2 intv in
-  let afTwoRightBound = poly_eval right 2 intv in
+  let (afTwoLeftBound, afTwoLeftVarsSen)  = poly_eval left 2 intv in
+  let (afTwoRightBound, afTwoRightVarsSen) = poly_eval right 2 intv in
+  let afTwoVarsSen = merge_varsSen afTwoLeftVarsSen afTwoRightVarsSen in
+  print_endline (assignments_toString afTwoVarsSen);
+  flush stdout;
   let sat = check_sat_providedBounds boolExp afTwoLeftBound afTwoRightBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
-    
     (* Compute bouds of polynomial using *)
-    let ciLeftBound  = poly_eval left 0 intv in
-    let ciRightBound = poly_eval right 0 intv in
+    let (ciLeftBound, ciLeftVarsSen)  = poly_eval left 0 intv in
+    let (ciRightBound, ciRightVarsSen) = poly_eval right 0 intv in
     
     let newLeftLowerBound = max afTwoLeftBound#l ciLeftBound#l in
     let newLeftHigherBound = min afTwoLeftBound#h ciLeftBound#h in
@@ -397,26 +443,7 @@ let check_sat_af_two_ci boolExp intv =
     let newRightBound = new IA.interval newRightLowerBound newRightHigherBound in
     check_sat_providedBounds boolExp newLeftBound newRightBound
   else sat
-  
-	
-(* This function returns a set of all variables of a polynomial expression *)
-let rec get_vars_set_polyExp = function
-  | Var x -> VariablesSet.singleton x
-	| Add(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Sub(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Mul(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Pow(e1, n)  -> get_vars_set_polyExp e1
-	| _ -> VariablesSet.empty
-	
-
-(* This function returns a set of 
-variables of a boolean expression. The sort critia is
-using alphabet ordering *)	
-let get_vars_set_boolExp boolExp = 
-  let (left, right) = get_left_right boolExp in
-  let leftVarsSet = get_vars_set_polyExp left in
-  let rightVarsSet = get_vars_set_polyExp right in
-  VariablesSet.union leftVarsSet rightVarsSet  
+    
 
 (* This function add information of variables set and 
 number of variables into boolean expression *)

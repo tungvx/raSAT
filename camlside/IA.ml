@@ -668,6 +668,15 @@ module IA = struct
        let result = new interval !lo !hi in
        result;
       
+      method extract_varsSen varsPos = 
+        let rec rec_extract_varsSen = function
+        | [] -> []
+        | ((var:string), pos)::remaining ->
+          let varSen = Array.get ar pos in
+          (var, varSen)::(rec_extract_varsSen remaining)
+        in
+        rec_extract_varsSen varsPos
+      
       method printForm = 
         Printf.printf "%f " a;
 	for i = 1 to Array.length ar do

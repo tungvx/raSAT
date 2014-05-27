@@ -299,18 +299,18 @@ let rec bool_toString = function
   let logSat e ia assIntv = 
     let left = leftExp e in
     let right = rightExp e in
-    let leftBound  = poly_eval left ia assIntv in
-    let rightBound = poly_eval right ia assIntv in
+    let (leftBound, _)  = poly_eval left ia assIntv in
+    let (rightBound, _) = poly_eval right ia assIntv in
     match e with
     |Eq (e1, e2) -> 
-  (poly_toString "" e1) ^ "=" ^
-  "["^(string_of_float leftBound#l) ^","^(string_of_float leftBound#h) ^ "]"^" = "^
-  ( match e2 with 
-    | Real c -> (poly_toString "" e2)
-    | _ -> 
-  (poly_toString "" e2) ^ "=" ^ 
-  "["^(string_of_float rightBound#l) ^","^(string_of_float rightBound#h) ^ "]" 
-     )  
+      (poly_toString "" e1) ^ "=" ^
+      "["^(string_of_float leftBound#l) ^","^(string_of_float leftBound#h) ^ "]"^" = "^
+      ( match e2 with 
+        | Real c -> (poly_toString "" e2)
+        | _ -> 
+          (poly_toString "" e2) ^ "=" ^ 
+          "["^(string_of_float rightBound#l) ^","^(string_of_float rightBound#h) ^ "]" 
+          )  
 
     |Leq(e1, e2) -> 
   (poly_toString "" e1) ^ "=" ^
@@ -2275,7 +2275,7 @@ let rec bool_toString = function
   (*Check whether polynomials are unsat or not*)
   let isUnsat fpos neg ia assIntv =
     let poly = collect (Real 0.) (List.append fpos neg) in
-    let bound = poly_eval poly ia assIntv in
+    let (bound,_) = poly_eval poly ia assIntv in
     if (bound#h < 0.) then
       true
     else 

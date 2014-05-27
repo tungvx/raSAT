@@ -10,7 +10,7 @@ let rec generate_tc_var var interval =
     let bound = upperBound -. lowerBound in
     Random.self_init();
     let firstRandomNum = Random.float bound in (* random number from 0 to bound *)
-    let firstTC = lowerBound +. firstRandomNum in
+    let firstTC = lowerBound (*+. firstRandomNum*) in
     let secondRandomNum = Random.float bound in (* random number from 0 to bound *)
     let secondTC = lowerBound +. secondRandomNum in
     [firstTC; secondTC]
