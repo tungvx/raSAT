@@ -860,7 +860,7 @@ let rec add_info exprs = match exprs with
   | h::t -> 
     let varsSet = get_varsSet_boolExpr h in
     let varsNum = VariablesSet.cardinal varsSet in
-    (h, varsSet, varsNum) :: (add_info t)
+    (h, [], varsSet, varsNum) :: (add_info t)
 
 
 let sort_expr exprs =

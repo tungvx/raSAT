@@ -21,11 +21,11 @@ for file in $1/*.smt2; do
    fDecomposedLearnedClauses=0;
    fUNSATLearnedClauses=0;
    fUnknownLearnedClauses=0;
-   result="UNKNOWN"
-   while [ $(echo "$time < $5" | bc) -ne 0 -a "$result" = "UNKNOWN" ]
+   result="unknown"
+   while [ $(echo "$time < $5" | bc) -ne 0 -a "$result" = "unknown" ]
    do
 	./raSAT $file lb="$2 $3" $4 `echo $5 - $time | bc`
-        read problem nVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < ${file%.smt2}
+        read problem nVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < $file.tmp
 	time=`echo $time + $currentTime | bc`
 	fIaTime=`echo $fIaTime + $iaTime | bc`
 	fTestingTime=`echo $fTestingTime + $testingTime | bc`
@@ -40,5 +40,5 @@ for file in $1/*.smt2; do
   fUnknownLearnedClauses=`echo $fUnknownLearnedClauses + $unknownLearnedClauses | bc`
    done	
    echo "$problem,$nVars,$nAPIs,$time,$fIaTime,$fTestingTime,$fUsTime,$fParsingTime,$fDecompositionTime,$fMiniSATTime,$miniSATVars,$miniSATClauses,$fMiniSATCalls,$fRaSATClauses,$fDecomposedLearnedClauses,$fUNSATLearnedClauses,$fUnknownLearnedClauses,$result" >> $RESULT 
-   rm -f ${file%.smt2}
+   rm -f $file.tmp
 done

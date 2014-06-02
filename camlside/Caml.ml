@@ -2379,7 +2379,7 @@ let rec bool_toString = function
         (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
         flush stdout;*)
         (*let res1 = checkSat h ia assIntv in*)
-        let res1 = check_sat_af_two_ci h assIntv in
+        let (res1, varsSen) = check_sat_af_two_ci h assIntv in
         (*print_endline "End check sat";
         flush stdout;*)
         let iaTime = iaTime +. Sys.time() -. startTime in
@@ -2418,7 +2418,7 @@ let rec bool_toString = function
           if (res = -1) then
             eval_all (-1) us [] t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
           else
-            eval_all 0 us (h::uk_cl) t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
+            eval_all 0 us ((h,varsSen)::uk_cl) t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
         )
 
   (*function for compute the list of pairs of variable and ID from the list of ID of interval constraints*)
@@ -2531,6 +2531,7 @@ let rec bool_toString = function
           flush stdout;*)
           let startTestingTime = Sys.time() in
           let (tc, sTest, clTest_US, a) = test uk_cl assIntv strTestUS (remainingTime -. Sys.time() +. startTime) in
+          let (uk_cl, _) = List.split uk_cl in
           (*print_endline ("SAT: " ^ assignments_toString tc);*)
           (*let (sTest, clTest_US, a) = evalTest assIntv uk_cl checkVarID strTestUS in*)
           (*let (tc, sTest, clTest_US, a) =  search_tc2 uk_cl assIntv strTestUS esl in *)

@@ -180,6 +180,7 @@ static void SIGINT_exit(int signum) {
 // Main:
 
 int main(int argc, char** argv) {
+	bool debug = false;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -187,7 +188,8 @@ int main(int argc, char** argv) {
 
 	//Preprocess for parameter and generate MiniSat form here
 	if (argc < 3) {
-		cout << "Missing arguments...";
+		if (debug)
+			cout << "Missing arguments...";
 		return 0;
 	}
 
@@ -233,7 +235,8 @@ int main(int argc, char** argv) {
 
 	int r = writeFile(rsFile, smtContent);
 	if (r != 1) {
-		cout << "Can not create " << rsFile << " file!";
+		if (debug)
+			cout << "Can not create " << rsFile << " file!";
 		return 0;
 	}
 
@@ -310,7 +313,8 @@ int main(int argc, char** argv) {
 
 	r = writeFile(inFile, satContent);
 	if (r != 1) {
-		cout << "Can not create " << inFile << " file!";
+		if (debug)
+			cout << "Can not create " << inFile << " file!";
 		return 0;
 	}
 
@@ -358,7 +362,7 @@ int main(int argc, char** argv) {
 #if defined(__linux__)
 			fpu_control_t oldcw, newcw;
 			_FPU_GETCW(oldcw); newcw = (oldcw & ~_FPU_EXTENDED) | _FPU_DOUBLE; _FPU_SETCW(newcw);
-			printf("WARNING: for repeatability, setting FPU to use double precision\n");
+			if (debug) printf("WARNING: for repeatability, setting FPU to use double precision\n");
 #endif 
 
 			// Extra options:
@@ -395,8 +399,9 @@ int main(int argc, char** argv) {
 						|| (rlim_t) cpu_lim < rl.rlim_max) {
 					rl.rlim_cur = cpu_lim;
 					if (setrlimit(RLIMIT_CPU, &rl) == -1)
-						printf(
-								"WARNING! Could not set resource limit: CPU-time.\n");
+						if (debug)
+							printf(
+									"WARNING! Could not set resource limit: CPU-time.\n");
 				}
 			}
 
@@ -408,19 +413,22 @@ int main(int argc, char** argv) {
 				if (rl.rlim_max == RLIM_INFINITY || new_mem_lim < rl.rlim_max) {
 					rl.rlim_cur = new_mem_lim;
 					if (setrlimit(RLIMIT_AS, &rl) == -1)
-						printf(
-								"WARNING! Could not set resource limit: Virtual memory.\n");
+						if (debug)
+							printf(
+									"WARNING! Could not set resource limit: Virtual memory.\n");
 				}
 			}
 
 			if (argc == 1)
-				printf(
-						"Reading from standard input... Use '--help' for help.\n");
+				if (debug)
+					printf(
+							"Reading from standard input... Use '--help' for help.\n");
 
 			gzFile in = (argc == 1) ? gzdopen(0, "rb") : gzopen(inFile, "rb");
 			if (in == NULL)
-				printf("ERROR! Could not open file: %s\n",
-						argc == 1 ? "<stdin>" : inFile), exit(1);
+				if (debug)
+					printf("ERROR! Could not open file: %s\n",
+							argc == 1 ? "<stdin>" : inFile), exit(1);
 			/*
 			 if (S.verbosity > 0){
 			 printf("\n============================[ Problem Statistics ]=============================\n");
@@ -455,14 +463,15 @@ int main(int argc, char** argv) {
 					fclose(res);
 				}
 				check = false;
-				if (S.verbosity > 0) {
+				if (S.verbosity > 0 && debug) {
 					printf(
 							"===============================================================================\n");
 					printf("Solved by unit propagation\n");
 					printStats(S);
 					printf("\n");
 				}
-				printf("UNSATISFIABLE\n");
+				if (debug)
+					printf("UNSATISFIABLE\n");
 				exit(20);
 			}
 
@@ -476,8 +485,10 @@ int main(int argc, char** argv) {
 			caml_register_global_root(&theoCheck);
 			//placed while here
 
-			cout << "\nStart searching, ";
-			cout << "please wait....\n";
+			if (debug)
+				cout << "\nStart searching, ";
+			if (debug)
+				cout << "please wait....\n";
 			while (check) {
 				miniSATCalls++;
 				if (maxClauses < S.nClauses())
@@ -584,6 +595,7 @@ int main(int argc, char** argv) {
 						check = false;
 						finalRes = -2;
 					} else if (sat == 1) {
+						#ifdef iRRAM_INC
 						// get the assignments of testing.
 						char* assignments = String_val(Field(theoCheck, 1));
 						// get the tested expresions.
@@ -595,12 +607,18 @@ int main(int argc, char** argv) {
 							check = false;
 							finalRes = sat;
 						} else {
-							cout
-									<< "iRRAM detects round off error:.....................\n";
-							cout << logResult << endl;
-							cout
-									<< "............................................. end iRRAM\n";
+							if (debug) {
+								cout
+										<< "iRRAM detects round off error:.....................\n";
+								cout << logResult << endl;
+								cout
+										<< "............................................. end iRRAM\n";
+							}
 						}
+						#else 
+						check = false;
+						finalRes = sat;
+						#endif
 					} else if (sat == 0) { //adding unknown reason to solver
 						finalRes = sat;
 						string cl_uk = String_val(Field(theoCheck, 2));
@@ -641,7 +659,7 @@ int main(int argc, char** argv) {
 			if (!check) {
 				// file for output compact result
 				ofstream final_result;
-				final_result.open(getFileNameWithoutExt(argv[1]));
+				final_result.open((string(smtfile) + ".tmp").c_str());
 				// For theory result
 				double totalTime = cpuTime() - initial_time;
 				char *sta = new char[1024];
@@ -649,8 +667,9 @@ int main(int argc, char** argv) {
 						(ia == 0) ? "CI" : (ia == 1) ? "AF1" :
 						(ia == 2) ? "AF2" : (ia == 3) ? "CAI1" :
 						(ia == 4) ? "CAI2" : (ia == 5) ? "CAI3" : "CI");
-				printf(
-						"\n===========================[ Problem Statistic ]===================================\n");
+				if (debug)
+					printf(
+							"\n===========================[ Problem Statistic ]===================================\n");
 
 				final_result << argv[1] << ","; //output problem name to the final compact result file:
 				sprintf(sta, "\nInput problem         : %s ", argv[1]);
@@ -726,43 +745,53 @@ int main(int argc, char** argv) {
 					//cout <<"\nTIMEOUT";
 					final_result << "Timeout\n"; // output the result to final compact result.
 					sprintf(sta, "%sResult                : Timeout\n\n", sta);
-					cout << sta;
+					if (debug)
+						cout << sta;
 					fprintf(res, sta);
 					fclose(res);
 				}
 
 				else if (finalRes == 0) {
 					//cout <<"\nUNKNOWN";
-					final_result << "UNKNOWN\n"; // output the result to final compact result.
+					cout << "unknown";
+					final_result << "unknown\n"; // output the result to final compact result.
 					sprintf(sta, "%sResult                : UNKNOWN\n\n", sta);
-					cout << sta;
+					if (debug)
+						cout << sta;
 					fprintf(res, sta);
 					fclose(res);
 				} else if (finalRes == -1) {
 					//cout <<"\nUNSAT";
-					final_result << "UNSAT\n"; // output the result to final compact result.
+					cout << "unsat";
+					final_result << "unsat\n"; // output the result to final compact result.
 					sprintf(sta,
 							"%sResult                : UNSAT			(in the searching bound [%g, %g])\n\n",
 							sta, lb, ub);
-					cout << sta;
+					if (debug)
+						cout << sta;
 					fprintf(res, sta);
 					fclose(res);
 				} else if (finalRes == 1) {
-					//cout <<"\nSAT\n";	    
-					final_result << "SAT\n"; // output the result to final compact result.
+					//cout <<"\nSAT\n";
+					cout << "sat";
+					final_result << "sat\n"; // output the result to final compact result.
 					sprintf(sta, "%sResult                : SAT\n\n", sta);
-					cout << sta;
+					if (debug)
+						cout << sta;
 					char * logContent = new char[logResult.size() + 1];
 					strcpy(logContent, logResult.c_str());
-					cout
-							<< "=================================[ SAT instances ]================================="
-							<< endl;
-					cout << endl << logContent;
+					if (debug)
+						cout
+								<< "=================================[ SAT instances ]================================="
+								<< endl;
+					if (debug)
+						cout << endl << logContent;
 					fprintf(res, sta);
 					fprintf(res, logContent);
 					fclose(res);
 				}
-				cout << endl;
+				if (debug)
+					cout << endl;
 				final_result.close();
 			}
 			// End screen information
@@ -773,9 +802,11 @@ int main(int argc, char** argv) {
 			return (ret == l_True ? 10 : ret == l_False ? 20 : 0);
 #endif
 		} catch (OutOfMemoryException&) {
-			printf(
-					"===============================================================================\n");
-			printf("INDETERMINATE\n");
+			if (debug)
+				printf(
+						"===============================================================================\n");
+			if (debug)
+				printf("INDETERMINATE\n");
 			exit(0);
 		}
 	} //End combination of SAT and IA

@@ -1,6 +1,5 @@
 /home/tungvx/raSAT/development_ver/raSAT/solver/exactRealArithmetics.o /home/tungvx/raSAT/development_ver/raSAT/solver/exactRealArithmetics.or /home/tungvx/raSAT/development_ver/raSAT/solver/exactRealArithmetics.od /home/tungvx/raSAT/development_ver/raSAT/solver/exactRealArithmetics.op: \
- /home/tungvx/raSAT/development_ver/raSAT/solver/exactRealArithmetics.cc \
- /home/tungvx/raSAT/development_ver/raSAT/solver/exactRealArithmetics.h
+ /home/tungvx/raSAT/development_ver/raSAT/solver/exactRealArithmetics.cc
 /home/tungvx/raSAT/development_ver/raSAT/solver/Main.o /home/tungvx/raSAT/development_ver/raSAT/solver/Main.or /home/tungvx/raSAT/development_ver/raSAT/solver/Main.od /home/tungvx/raSAT/development_ver/raSAT/solver/Main.op: /home/tungvx/raSAT/development_ver/raSAT/solver/Main.cc \
  /home/tungvx/raSAT/development_ver/raSAT/utils/System.h \
  /home/tungvx/raSAT/development_ver/raSAT/mtl/IntTypes.h \

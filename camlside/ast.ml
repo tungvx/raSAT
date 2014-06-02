@@ -427,8 +427,8 @@ let check_sat_af_two_ci boolExp intv =
   let (afTwoLeftBound, afTwoLeftVarsSen)  = poly_eval left 2 intv in
   let (afTwoRightBound, afTwoRightVarsSen) = poly_eval right 2 intv in
   let afTwoVarsSen = merge_varsSen afTwoLeftVarsSen afTwoRightVarsSen in
-  print_endline (assignments_toString afTwoVarsSen);
-  flush stdout;
+  (*print_endline (assignments_toString afTwoVarsSen);
+  flush stdout;*)
   let sat = check_sat_providedBounds boolExp afTwoLeftBound afTwoRightBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
@@ -441,18 +441,37 @@ let check_sat_af_two_ci boolExp intv =
     let newRightLowerBound = max afTwoRightBound#l ciRightBound#l in
     let newRightHigherBound = min afTwoRightBound#h ciRightBound#h in
     let newRightBound = new IA.interval newRightLowerBound newRightHigherBound in
-    check_sat_providedBounds boolExp newLeftBound newRightBound
-  else sat
+    let sat = check_sat_providedBounds boolExp newLeftBound newRightBound in
+    (sat, afTwoVarsSen)
+  else (sat, afTwoVarsSen)
+    
+    
+(* This function compare two variables by their sensitivity *)
+let compare_sensitivity (firstVar, firstSen) (secondVar, secondSen) =
+  compare firstSen secondSen    
+    
+    
+(* This function change the value of sensitivities into positive values *)
+let rec change_toPosSen varsSen = match varsSen with
+  | [] -> []
+  | (var, sen) :: t -> 
+    let posSen = abs_float sen in
+    (var, posSen)::(change_toPosSen t)    
     
 
 (* This function add information of variables set and 
 number of variables into boolean expression *)
 let rec add_info boolExps = match boolExps with
   | [] -> []
-  | h::t ->
-    let variablesSet = get_vars_set_boolExp h in
+  | (boolExp, varsSen)::t ->
+    (* Change all the sensitivity values into positive ones *)
+    let posVarsSen = change_toPosSen varsSen in
+    (* sort the sensitivities of variables *)
+    let sortedVarsSen = List.fast_sort compare_sensitivity posVarsSen in
+    (*print_endline (assignments_toString sortedVarsSen);*)
+    let variablesSet = get_vars_set_boolExp boolExp in
     let variablesNum = VariablesSet.cardinal variablesSet in
-    (h, variablesSet, variablesNum) :: (add_info t)
+    (boolExp, sortedVarsSen, variablesSet, variablesNum) :: (add_info t)
 
 (* This function sort the list of the apis using variables dependency *)
 let sort_boolExp_dependency boolExps = 

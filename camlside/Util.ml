@@ -149,7 +149,7 @@ module Util = struct
   . otherwise, boolExp1 > boolExp2
   . each argument contains a boolean expression, its compact sorted variables
   and its number of variables *)
-  let rec compare_dependency (boolExp1, variablesSet1, variablesNum1) (boolExp2, variablesSet2, variablesNum2) = 
+  let rec compare_dependency (boolExp1, _, variablesSet1, variablesNum1) (boolExp2, _, variablesSet2, variablesNum2) = 
     if VariablesSet.subset variablesSet1 variablesSet2 then -1 
     else if VariablesSet.subset variablesSet2 variablesSet1 then 1
     else if variablesNum1 < variablesNum2 then -1
@@ -160,6 +160,6 @@ module Util = struct
   from the list of expressive boolean expressions *)
   let rec extract_boolExps = function 
     | [] -> []
-    | (boolExp, vars, varsNum)::t -> boolExp::(extract_boolExps t)
+    | (boolExp, _, vars, varsNum)::t -> boolExp::(extract_boolExps t)
   
 end

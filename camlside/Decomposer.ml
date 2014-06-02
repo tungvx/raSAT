@@ -132,7 +132,7 @@ let rec decompose_find_unsat_point boolExp assIntv dIntv lstVarID ivar esl var l
     in 
     (*print_endline ("Next Point: " ^ string_of_float newPoint ^ " Lower Bound: " ^ string_of_float lowerBound ^ " " ^ string_of_bool (newPoint > lowerBound));
     flush stdout;*)
-    let sat = check_sat_af_two_ci boolExp ((var, newIntv)::assIntv) in
+    let (sat,_) = check_sat_af_two_ci boolExp ((var, newIntv)::assIntv) in
     if sat = -1 then decompose_find_unsat_point boolExp assIntv dIntv lstVarID ivar esl var lowerBound upperBound newPoint true isIncreasing
     else (isFound, currentPoint)
   else (isFound, currentPoint)

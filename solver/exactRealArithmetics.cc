@@ -1,3 +1,4 @@
+#ifdef iRRAM_INC
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -259,7 +260,7 @@ bool checkSAT(char* clausesList, char* assignments) {
 	for (std::vector<string>::iterator it = clauses.begin();
 			it != clauses.end(); ++it)
 		if (!check(*it, ass)) { // if one exression is UNSAT, reuturn false.
-			cout << "iRRAM detects error at: " << *it << std::endl;
+			// cout << "iRRAM detects error at: " << *it << std::endl;
 			return false;
 		}
 	return true; // all the expressions are checked to be SAT.
@@ -270,7 +271,7 @@ bool checkSAT(char* clausesList, char* assignments) {
  */
 bool checkRangeSAT(string expression, std::map<string, INTERVAL> intervals,
 		bool checingkSAT) {
-	cout << expression << " : ";
+//	cout << expression << " : ";
 // convert the string format of the expression to the list of tokens:
 	std::vector < std::string > expTokens = string_split(expression, ' ');
 // In real computer, we have one stack.
@@ -433,8 +434,8 @@ bool checkRangeSAT(string expression, std::map<string, INTERVAL> intervals,
 			stack.pop();
 			INTERVAL i2 = stack.top();
 			stack.pop();
-			cout << "[" << i2.low << ", " << i2.upp << "] >= [" << i1.low
-					<< ", " << i1.upp << "]\n";
+//			cout << "[" << i2.low << ", " << i2.upp << "] >= [" << i1.low
+//					<< ", " << i1.upp << "]\n";
 			try {
 				if (i2.low >= i1.upp)
 					boolStack.push(true); // if i2.low > i1.upp, i2 >= i1
@@ -473,7 +474,7 @@ bool checkRange(char* clausesAndVarsIntervals, bool checkingSAT) {
 		return true;
 	string clausesString = clausesAndIntervals[0];
 	string intervalsString = clausesAndIntervals[1];
-	cout << intervalsString << std::endl;
+//	cout << intervalsString << std::endl;
 
 // first, parse list of intervals into a map.
 	std::map < string, INTERVAL > intervals;
@@ -499,3 +500,4 @@ bool checkRange(char* clausesAndVarsIntervals, bool checkingSAT) {
 	return true;
 }
 
+#endif

@@ -31,7 +31,7 @@ let check_unsatcore_vars boolExp currentIntv originalIntv varsList =
   let newIntv = extract_append_first varsList currentIntv originalIntv in (* extract_append_first is defined in Asssignments.ml *)
   (*print_endline (intervals_to_string newIntv); (* intervals_to_string is definied in Assignments.ml *)
   flush stdout;*)
-  let sat = check_sat_af_two_ci boolExp newIntv in (* check_sat_af_two_ci is in ast.ml *)
+  let (sat, _) = check_sat_af_two_ci boolExp newIntv in (* check_sat_af_two_ci is in ast.ml *)
   sat = -1
 
 
