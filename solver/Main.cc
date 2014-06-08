@@ -33,7 +33,6 @@
 #include "exactRealArithmetics.h"
 
 //Caml interaction
-#include <iostream>
 #include "modwrap.h"
 #include "file.h"
 
@@ -42,7 +41,7 @@ extern "C" {
 #include <caml/mlvalues.h>
 #include <caml/callback.h>
 }
-using namespace std;
+
 using namespace Minisat;
 
 //=================================================================================================
@@ -179,7 +178,8 @@ static void SIGINT_exit(int signum) {
 //=================================================================================================
 // Main:
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
+	////cout << "Run" << endl;
 	bool debug = false;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
@@ -194,19 +194,22 @@ int main(int argc, char** argv) {
 	}
 
 	//generate ebg format form from SMT2 format (raSAT input form)
+	////cout << "Run1" << endl;	
 	double lb = getLoBound(argv[2]);
 	double ub = getUpBound(argv[2]);
 
+	////cout << "Run2" << endl;	
 	char *smtfile = argv[1];
 	int nvar = num_var(smtfile);
-	//cout <<endl<< "number of variables: "<<nvar<<endl;
-
+	//cout << "number of variables: "<<nvar<<endl;
+	
 	string str = get_listvars(smtfile, nvar, lb);
 	char *sInt = new char[str.size() + 1];
 	strcpy(sInt, str.c_str());
 
 //	cout << endl << "string of interval: " << str << endl;
 
+	////cout << "Run3" << endl;
 	string strAs = get_cons(smtfile, nvar);
 	char *sAs = new char[strAs.size() + 1];
 	strcpy(sAs, strAs.c_str());
@@ -216,6 +219,7 @@ int main(int argc, char** argv) {
 	CAMLlocal1 (smt);
 	caml_register_global_root(&smt);
 
+	////cout << "Run4" << endl;
 	smt = caml_genSmtForm(sInt, sAs, lb, ub);
 	string smtContent = String_val(Field(smt, 0));
 //	cout << endl << "raSAT input form: " << smtContent << endl;
@@ -227,12 +231,12 @@ int main(int argc, char** argv) {
 	//cout <<endl<<"up: "<<up<<endl;
 
 	//generate raSAT input file *.rs
-	string sfile = "";
-	sfile = toFileRs(argv[1]);
+	string sfile = toFileRs(argv[1]);
 
 	char * rsFile = new char[sfile.size() + 1];
 	strcpy(rsFile, sfile.c_str());
 
+	////cout << "Run5" << endl;
 	int r = writeFile(rsFile, smtContent);
 	if (r != 1) {
 		if (debug)
@@ -240,6 +244,7 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
+	////cout << "Run6" << endl;
 	string strIntv = smt_getintv(rsFile);
 	//printf("%s", strIntv);
 	//cout <<endl<<strIntv<<endl;
@@ -247,7 +252,9 @@ int main(int argc, char** argv) {
 	strcpy(sIntv, strIntv.c_str());
 	//printf("\n%s\n", sIntv);
 
+	////cout << "Run7" << endl;
 	string strAss = smt_ass(rsFile);
+
 	char *sAss = new char[strAss.size() + 1];
 	strcpy(sAss, strAss.c_str());
 
@@ -273,7 +280,6 @@ int main(int argc, char** argv) {
 	double unknownLearnedClauses = 0;
 	char *sta = new char[2048];
 	char *typeIA = new char[5];
-	char *sSAT = new char[4000];
 
 	//interval arithmetic type
 	//Jan 14, 2014: force ia = "af2"
@@ -307,6 +313,7 @@ int main(int argc, char** argv) {
 	string satContent = String_val(Field(intv, 1));
 	caml_remove_global_root(&intv);
 
+	////cout << "Run8" << endl;
 	sfile = toFilein(argv[1]);
 	char * inFile = new char[sfile.size() + 1];
 	strcpy(inFile, sfile.c_str());
@@ -318,6 +325,7 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
+	////cout << "Run9" << endl;
 	sfile = toFileout(argv[1]);
 	char * outFile = new char[sfile.size() + 1];
 	strcpy(outFile, sfile.c_str());
@@ -355,30 +363,39 @@ int main(int argc, char** argv) {
 		string strTestUS = "";
 
 		try {
+			//cout << "Run10" << endl;
 			setUsageHelp(
 					"USAGE: %s [options] <input-file> <result-output-file>\n\n  where input may be either in plain or gzipped DIMACS.\n");
 			// printf("This is MiniSat 2.0 beta\n");
 
 #if defined(__linux__)
+			//cout << "Run11" << endl;
 			fpu_control_t oldcw, newcw;
+			//cout << "Run12" << endl;
 			_FPU_GETCW(oldcw); newcw = (oldcw & ~_FPU_EXTENDED) | _FPU_DOUBLE; _FPU_SETCW(newcw);
+			//cout << "Run13" << endl;
 			if (debug) printf("WARNING: for repeatability, setting FPU to use double precision\n");
 #endif 
 
 			// Extra options:
 			//
+			//cout << "Run14" << endl;	
 			IntOption verb("MAIN", "verb",
 					"Verbosity level (0=silent, 1=some, 2=more).", 1,
 					IntRange(0, 2));
+			//cout << "Run15" << endl;
 			IntOption cpu_lim("MAIN", "cpu-lim",
 					"Limit on CPU time allowed in seconds.\n", INT32_MAX,
 					IntRange(0, INT32_MAX));
+			//cout << "Run16" << endl;
 			IntOption mem_lim("MAIN", "mem-lim",
 					"Limit on memory usage in megabytes.\n", INT32_MAX,
 					IntRange(0, INT32_MAX));
 
+			//cout << "Run17" << endl;
 			parseOptions(argc, argv, true);
 
+			//cout << "Run18" << endl;
 			Solver S;
 			//double initial_time = cpuTime();
 
@@ -387,11 +404,13 @@ int main(int argc, char** argv) {
 			solver = &S;
 			// Use signal handlers that forcibly quit until the solver will be able to respond to
 			// interrupts:
+			//cout << "Run19" << endl;
 			signal(SIGINT, SIGINT_exit);
+			//cout << "Run20" << endl;	
 			signal(SIGXCPU, SIGINT_exit);
 
 			// Set limit on CPU-time:
-
+			//cout << "Run21" << endl;
 			if (cpu_lim != INT32_MAX) {
 				rlimit rl;
 				getrlimit(RLIMIT_CPU, &rl);
@@ -406,6 +425,7 @@ int main(int argc, char** argv) {
 			}
 
 			// Set limit on virtual memory:
+			//cout << "Run22" << endl;	
 			if (mem_lim != INT32_MAX) {
 				rlim_t new_mem_lim = (rlim_t) mem_lim * 1024 * 1024;
 				rlimit rl;
@@ -419,12 +439,14 @@ int main(int argc, char** argv) {
 				}
 			}
 
+			//cout << "Run23" << endl;
 			if (argc == 1)
 				if (debug)
 					printf(
 							"Reading from standard input... Use '--help' for help.\n");
-
+			//cout << "Run24" << endl;
 			gzFile in = (argc == 1) ? gzdopen(0, "rb") : gzopen(inFile, "rb");
+			//cout << "Run25" << endl;
 			if (in == NULL)
 				if (debug)
 					printf("ERROR! Could not open file: %s\n",
@@ -434,9 +456,11 @@ int main(int argc, char** argv) {
 			 printf("\n============================[ Problem Statistics ]=============================\n");
 			 printf("|                                                                             |\n"); }
 			 */
-
+			//cout << "Run26" << endl;
 			parse_DIMACS(in, S);
+			//cout << "Run27" << endl;
 			gzclose(in);
+			//cout << "Run28" << endl;
 
 			/*
 			 if (S.verbosity > 0){
@@ -451,10 +475,14 @@ int main(int argc, char** argv) {
 
 			// Change to signal-handlers that will only notify the solver and allow it to terminate
 			// voluntarily:
+			//cout << "Run29" << endl;
 			signal(SIGINT, SIGINT_interrupt);
+			//cout << "Run30" << endl;
 			signal(SIGXCPU, SIGINT_interrupt);
 
+			//cout << "Run30" << endl;
 			if (!S.simplify()) {
+				//cout << "Run31" << endl;
 				if (res != NULL) {
 					if (finalRes == 0)
 						fprintf(res, "UNKNOWN\n");
@@ -462,12 +490,15 @@ int main(int argc, char** argv) {
 						fprintf(res, "UNSAT\n");
 					fclose(res);
 				}
+				//cout << "Run32" << endl;
 				check = false;
 				if (S.verbosity > 0 && debug) {
+					//cout << "Run33" << endl;	
 					printf(
 							"===============================================================================\n");
 					printf("Solved by unit propagation\n");
 					printStats(S);
+					//cout << "Run34" << endl;
 					printf("\n");
 				}
 				if (debug)
@@ -475,27 +506,36 @@ int main(int argc, char** argv) {
 				exit(20);
 			}
 
+			//cout << "Run35" << endl;
 			vec < Lit > dummy;
 			//int nLearn=0;
 			lbool ret = l_False;
 			string str_dIntv = "";
 			string bump_vars = "";
 			string tmp = "";
+			//cout << "Run36" << endl;	
 			CAMLlocal1 (theoCheck);
+			//cout << "Run37" << endl;
 			caml_register_global_root(&theoCheck);
+			//cout << "Run38" << endl;
 			//placed while here
 
 			if (debug)
 				cout << "\nStart searching, ";
 			if (debug)
 				cout << "please wait....\n";
+			//cout << "Run39" << endl;
 			while (check) {
+				//cout << "Run40" << endl;	
 				miniSATCalls++;
 				if (maxClauses < S.nClauses())
 					maxClauses = S.nClauses();
 				double miniSATStart = cpuTime();
+				//cout << "Run41" << endl;
 				S.model.clear(true);
+				//cout << "Run42" << endl;
 				ret = S.solveLimited(dummy);
+				//cout << "Run43" << endl;	
 				if (ret != l_True) {
 					check = false;
 				}
@@ -503,15 +543,22 @@ int main(int argc, char** argv) {
 				miniSATTime += cpuTime() - miniSATStart;
 
 				if (ret == l_True) {
-					sprintf(sSAT, "%s", "");
+					//cout << "Run44" << endl;
+					int varsNum = S.nVars();	
+					char sSAT[2 * varsNum + 1];
+					strcpy (sSAT, "");
+					//cout << "Run45" << endl;
 					for (int i = 0; i < S.nVars(); i++) {
 						if (S.model[i] != l_Undef) {
 							int c = (S.model[i] == l_True) ? i + 1 : -(i + 1);
-							if (c > 0)
-								sprintf(sSAT, "%s%s%d", sSAT,
-										(i == 0) ? "" : " ", c);
+							if (c > 0) {
+								char numstr[21];
+								sprintf(numstr, "%s%d", (i == 0) ? "" : " ", c);
+								strcat (sSAT, numstr);
+							}
 						}
 					}
+					//cout << "Run46" << endl;
 //					cout << "clauses: " << S.nClauses() << endl;
 					//theoCheck = caml_doTest (sIntv, sAss, sSAT, ia);
 
@@ -519,13 +566,14 @@ int main(int argc, char** argv) {
 					strcpy(c_dIntv, str_dIntv.c_str());
 
 					char *c_strTestUS = ""; //sua ngay 10/01/2014
-
+					//cout << "Run47" << endl;
 					if (strTestUS == "") {
 						strcpy(c_strTestUS, "");
 					} else {
 						c_strTestUS = new char[strTestUS.size() + 1];
 						strcpy(c_strTestUS, strTestUS.c_str());
 					}
+					//cout << "Run48" << endl;
 
 					/* 
 					 cout <<endl<<"sIntv: "<<sIntv<<endl;
@@ -543,21 +591,25 @@ int main(int argc, char** argv) {
 					 cout << endl << "ia:" << ia << endl;
 					 cout << endl << "esl:" << esl << endl;
 					 cout << endl << "c_strTestUS: " << c_strTestUS << endl;
-					 */
+					*/
 //					cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
+					//cout << "Run49" << endl;
 					theoCheck = caml_dynTest(sIntv, c_dIntv, sAss, sSAT, ia,
 							esl, c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
 							timeout - (cpuTime() - initial_time));
+					//cout << "Run50" << endl;
 					dummy.clear();
 //					cout << "Searched \n\n";
 					ocamlTime += cpuTime() - startCheck;
 //					cout << "Check: " << cpuTime() - startCheck << endl;
+					//cout << "Run51" << endl;
 					int sat = Int_val(Field(theoCheck, 0));
 					logResult = String_val(Field(theoCheck, 3));
-
+					//cout << "Run52" << endl;	
+					
 					strTestUS = String_val(Field(theoCheck, 5));
 					//cout <<endl<<"strTestUS: "<<strTestUS<<endl;
 
@@ -589,6 +641,7 @@ int main(int argc, char** argv) {
 					parsingTime = Double_val(Field(theoCheck, 12));
 
 					decompositionTime = Double_val(Field(theoCheck, 13));
+					//cout << "Run53" << endl;
 
 					//check timeout occurs
 					if ((cpuTime() - initial_time) >= timeout) {
@@ -660,6 +713,7 @@ int main(int argc, char** argv) {
 				// file for output compact result
 				ofstream final_result;
 				final_result.open((string(smtfile) + ".tmp").c_str());
+				//final_result.open(string("tmp.tmp").c_str());	
 				// For theory result
 				double totalTime = cpuTime() - initial_time;
 				char *sta = new char[1024];
@@ -753,7 +807,7 @@ int main(int argc, char** argv) {
 
 				else if (finalRes == 0) {
 					//cout <<"\nUNKNOWN";
-					cout << "unknown";
+					//cout << "unknown";
 					final_result << "unknown\n"; // output the result to final compact result.
 					sprintf(sta, "%sResult                : UNKNOWN\n\n", sta);
 					if (debug)
@@ -762,7 +816,7 @@ int main(int argc, char** argv) {
 					fclose(res);
 				} else if (finalRes == -1) {
 					//cout <<"\nUNSAT";
-					cout << "unsat";
+					//cout << "unsat";
 					final_result << "unsat\n"; // output the result to final compact result.
 					sprintf(sta,
 							"%sResult                : UNSAT			(in the searching bound [%g, %g])\n\n",
@@ -773,7 +827,7 @@ int main(int argc, char** argv) {
 					fclose(res);
 				} else if (finalRes == 1) {
 					//cout <<"\nSAT\n";
-					cout << "sat";
+					//cout << "sat";
 					final_result << "sat\n"; // output the result to final compact result.
 					sprintf(sta, "%sResult                : SAT\n\n", sta);
 					if (debug)

@@ -4,6 +4,8 @@ extern "C" {
 #include <caml/mlvalues.h>
 #include <caml/callback.h>
 }
+#include <iostream>
+using namespace std;
 
 value caml_genSmtForm(char * sIntv, char *sAssert, double lb, double ub);
 value caml_genSatForm(char * sIntv, double esl);
