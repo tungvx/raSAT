@@ -35,9 +35,9 @@ let rec assignments_toString ass = match ass with
 
 (* =================================== START intervals_toString =========================================== *)
 (* This functions converts the list of intervals of variables into the string format*)
-let rec intervals_to_string intervals = match intervals with
+let rec string_of_intervals intervals = match intervals with
   | [] -> ""
-  | (x, it)::t -> (x ^ " " ^ string_of_float it#l ^ " " ^ string_of_float it#h) ^ " " ^ (intervals_to_string t)
+  | (x, it)::t -> (x ^ " " ^ string_of_float it#l ^ " " ^ string_of_float it#h) ^ " " ^ (string_of_intervals t)
 (* =================================== END intervals_toString ============================================== *)
 
 (* This function extracts the intervals of variables in varsList from the first intervals and attach them 

@@ -1,2 +1,2 @@
-Expr.cmo : Exp.cmo
-Expr.cmx : Exp.cmx
+Expr.cmo: Exp.cmo
+Expr.cmx: Exp.cmx

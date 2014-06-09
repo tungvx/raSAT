@@ -103,7 +103,7 @@ module IA = struct
   	|Neg_inf -> Neg_inf  
   	|Pos_inf -> Pos_inf 
        )
-
+    
   (*Interval class with infinite bounds*)  
   class inf_interval lo hi = object (self)
       val mutable l = (lo: bound)
@@ -540,6 +540,7 @@ module IA = struct
 	let nar = Array.create size1 0.0 in
 	for i = 0 to size1 - 1 do
 	  Array.set nar i (self#ar.(i) +. other#ar.(i));
+
 	done;
 	result#set_ar nar;
 	result;
@@ -1078,6 +1079,7 @@ module IA = struct
 	done;
 	Printf.printf "\n";
 	for i=1 to size do
+
 	  for j=1 to size do
 	    Printf.printf "[%f,%f]e%d*e%d " m2.(i-1).(j-1)#l m2.(i-1).(j-1)#h i (j+size)
 	  done;
@@ -1086,6 +1088,7 @@ module IA = struct
 	for i=1 to size-1 do
 	  for j=i+1 to size do
 	    Printf.printf "[%f,%f]e%d*e%d " m3.(i-1).(j-1)#l m3.(i-1).(j-1)#h (i+size) (j+size)
+
 	  done;
 	done;
 	Printf.printf "\n";

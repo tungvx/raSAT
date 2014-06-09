@@ -139,6 +139,7 @@ int solver_addClause(Solver& solv, string reason) {
 			vec < Lit > cl;
 			for (int i = prevPos; i < endPos; i++) {
 				int var = abs(a[i]) - 1;
+				while (var >= solv.nVars()) solv.newVar();
 				if (miniSATVars < var + 1)
 					miniSATVars = var + 1;
 				bool sign = (a[i] > 0) ? false : true;
@@ -187,23 +188,18 @@ int main(int argc, char* argv[]) {
 	caml_startup(argv); //for bytecode compilation in ocaml
 
 	//Preprocess for parameter and generate MiniSat form here
-	if (argc < 3) {
+	if (argc < 2) {
 		if (debug)
 			cout << "Missing arguments...";
 		return 0;
 	}
-
-	//generate ebg format form from SMT2 format (raSAT input form)
-	////cout << "Run1" << endl;	
-	double lb = getLoBound(argv[2]);
-	double ub = getUpBound(argv[2]);
 
 	////cout << "Run2" << endl;	
 	char *smtfile = argv[1];
 	int nvar = num_var(smtfile);
 	//cout << "number of variables: "<<nvar<<endl;
 	
-	string str = get_listvars(smtfile, nvar, lb);
+	string str = get_listvars(smtfile, nvar);
 	char *sInt = new char[str.size() + 1];
 	strcpy(sInt, str.c_str());
 
@@ -220,15 +216,10 @@ int main(int argc, char* argv[]) {
 	caml_register_global_root(&smt);
 
 	////cout << "Run4" << endl;
-	smt = caml_genSmtForm(sInt, sAs, lb, ub);
+	smt = caml_genSmtForm(sInt, sAs);
 	string smtContent = String_val(Field(smt, 0));
-//	cout << endl << "raSAT input form: " << smtContent << endl;
+//	cout << "raSAT input form: " << smtContent << endl;
 	caml_remove_global_root(&smt);
-
-	//return 1;
-
-	//cout <<endl<<"lo: "<<lo<<endl;
-	//cout <<endl<<"up: "<<up<<endl;
 
 	//generate raSAT input file *.rs
 	string sfile = toFileRs(argv[1]);
@@ -246,8 +237,7 @@ int main(int argc, char* argv[]) {
 
 	////cout << "Run6" << endl;
 	string strIntv = smt_getintv(rsFile);
-	//printf("%s", strIntv);
-	//cout <<endl<<strIntv<<endl;
+//	cout <<strIntv<<endl;
 	char *sIntv = new char[strIntv.size() + 1];
 	strcpy(sIntv, strIntv.c_str());
 	//printf("\n%s\n", sIntv);
@@ -263,7 +253,7 @@ int main(int argc, char* argv[]) {
 	//nCons store the number of constraints
 	int nCons = caml_getNumCons(sAss);
 
-	//cout <<endl<<"Number of constraints:  "<< nCons<<endl;
+//	cout <<endl<<"Number of constraints:  "<< nCons<<endl;
 
 	double totalTime = 0;
 	double iaTime = 0;
@@ -283,22 +273,19 @@ int main(int argc, char* argv[]) {
 
 	//interval arithmetic type
 	//Jan 14, 2014: force ia = "af2"
-	int ia = 0;
-	//if (argc >= 3)
-	// ia = getIA (argv[2]);
-	ia = 2; // ia = "AF2"
+	int ia = 2;
 
 	//bound for dynamic interval decomposition
 	double esl = 0.1;	//default searching box is 0.1
-	if (argc >= 4)
+	if (argc >= 3)
 		//esl = atof(argv[3]);
-		esl = getSearchingBox(argv[3]);
+		esl = getSearchingBox(argv[2]);
 	//cout <<endl<<"esl = "<<esl<<endl;
 
 	//get the timeout, Jan 14, 2014
 	double timeout = 60.0; //default timeout = 60 seconds
-	if (argc >= 5)
-		timeout = getTimeout(argv[4]);
+	if (argc >= 4)
+		timeout = getTimeout(argv[3]);
 
 	//cout <<endl <<"time out" <<timeout<<endl;
 
@@ -307,13 +294,14 @@ int main(int argc, char* argv[]) {
 	//ebg -> form of minisat in string 
 	CAMLlocal1 (intv);
 	caml_register_global_root(&intv);
+//	cout << sIntv << endl;
 	intv = caml_genSatForm(sIntv, esl);
-	//nVars store the number variables for SAT content
-	int nVars = Int_val(Field(intv, 0));
+	int nVars = Int_val(Field(intv, 0)); //nVars store the number variables for SAT content
 	string satContent = String_val(Field(intv, 1));
+//	cout << satContent << endl;
 	caml_remove_global_root(&intv);
 
-	////cout << "Run8" << endl;
+//	cout << "Run8" << endl;
 	sfile = toFilein(argv[1]);
 	char * inFile = new char[sfile.size() + 1];
 	strcpy(inFile, sfile.c_str());
@@ -526,7 +514,7 @@ int main(int argc, char* argv[]) {
 				cout << "please wait....\n";
 			//cout << "Run39" << endl;
 			while (check) {
-				//cout << "Run40" << endl;	
+//				cout << "Run40" << endl;	
 				miniSATCalls++;
 				if (maxClauses < S.nClauses())
 					maxClauses = S.nClauses();
@@ -595,7 +583,7 @@ int main(int argc, char* argv[]) {
 //					cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
-					//cout << "Run49" << endl;
+//					cout << "Run49" << endl;
 					theoCheck = caml_dynTest(sIntv, c_dIntv, sAss, sSAT, ia,
 							esl, c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
@@ -819,8 +807,8 @@ int main(int argc, char* argv[]) {
 					//cout << "unsat";
 					final_result << "unsat\n"; // output the result to final compact result.
 					sprintf(sta,
-							"%sResult                : UNSAT			(in the searching bound [%g, %g])\n\n",
-							sta, lb, ub);
+							"%sResult                : UNSAT			\n\n",
+							sta);
 					if (debug)
 						cout << sta;
 					fprintf(res, sta);

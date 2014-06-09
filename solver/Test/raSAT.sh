@@ -1,12 +1,10 @@
-# Usage: sh raSAT.sh testDir lb ub sbox tout
+# Usage: sh raSAT.sh testDir sbox tout
 # testDir: the directory containing testing .smt2 files.
-# lb: lower bound of the variables
-# up: upper bound of the variables.
 # sbox: search box, epsilon
 # tout: time out
 export IFS=","
 RESULT=$1/SUM_UP.xls
-echo "Problem,nVars,nAPIs,time<$5 for bound: $2 -> $3,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result" > $RESULT
+echo "Problem,nVars,nAPIs,time<$3 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result" > $RESULT
 ls $1/*.smt2
 for file in $1/*.smt2; do
    fIaTime=0;
@@ -22,9 +20,9 @@ for file in $1/*.smt2; do
    fUNSATLearnedClauses=0;
    fUnknownLearnedClauses=0;
    result="unknown"
-   while [ $(echo "$time < $5" | bc) -ne 0 -a "$result" = "unknown" ]
+   while [ $(echo "$time < $3" | bc) -ne 0 -a "$result" = "unknown" ]
    do
-	./raSAT $file lb="$2 $3" $4 `echo $5 - $time | bc`
+	./raSAT $file $2 `echo $3 - $time | bc`
         read problem nVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < $file.tmp
 	time=`echo $time + $currentTime | bc`
 	fIaTime=`echo $fIaTime + $iaTime | bc`

@@ -70,8 +70,9 @@ intv_expr:
   | intv_clause                  { Cl $1 }
   | IC intv_expr intv_expr       { Ic ($2, $3) }
   | LPAREN intv_expr RPAREN      { $2 }
+  
 
 intv_clause: 
-  | ID IN NUM NUM                { In ($1, float_of_string $3, float_of_string $4) }
+  | ID IN NUM NUM  { In ($1, float_of_string $3, float_of_string $4)}
   | OR intv_clause intv_clause   { Or ($2, $3) }
   | LPAREN intv_clause RPAREN    { $2 }

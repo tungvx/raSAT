@@ -598,14 +598,14 @@ string get_namevar(string s) {
 }
 
 //get list of name of variables and assign lower bound for them
-string get_listvars(char *filename, int nvar, double lb) {
+string get_listvars(char *filename, int nvar) {
 	string line, svar = "";
 	size_t pos;
 	int ivar = nvar;
 	ifstream myfile(filename);
 
 	char str_lb[20] = "";
-	sprintf(str_lb, "%f", lb);
+	sprintf(str_lb, "%s", "-inf");
 
 	if (myfile.is_open()) {
 		while (myfile.good()) {

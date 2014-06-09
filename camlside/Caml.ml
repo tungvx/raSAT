@@ -165,13 +165,13 @@ let rec bool_toString = function
   | Geq(e1, e2) -> (poly_toString "" e1)^" >= " ^(poly_toString "" e2)
   | And(e1, e2) -> (bool_toString  e1)^"\nand "^(bool_toString  e2)
 
-  let rec getMaxBound m cl = match cl with
-    |In (x, l, h) -> max (h-.l) m
-    |Or (cl1, cl2) -> 
-  let m1 = getMaxBound m cl1 in
-  getMaxBound m1 cl2
+let rec getMaxBound m cl = match cl with
+  |In (x, l, h) -> max (h-.l) m
+  |Or (cl1, cl2) -> 
+    let m1 = getMaxBound m cl1 in
+    getMaxBound m1 cl2
 
-  let rec getMB m constr = match constr with
+let rec getMB m constr = match constr with
     |Cl c -> getMaxBound m c
     |Ic (f1, f2) -> 
   let m1 = getMB m f1 in
@@ -283,11 +283,15 @@ let rec bool_toString = function
     let totalClauses = cl + iClause in 
 
     (*Compute the total of variables for SAT encoding*)
-    let max_bound = getMB 0.0 eIntv in
+    (*let max_bound = getMB 0.0 eIntv in
     let para = int_of_float (max_bound /. esl) in
 
     (*let totalVars = iLit * 4 * para in*)
-    let totalVars = 1 + 2* iLit * (sum_total_var 1 para) in
+    let totalVars = 
+      if max_bound = infinity then 10
+      else 1 + 2* iLit * (sum_total_var 1 para) 
+    in*)
+    let totalVars = iLit in
 
     let sTrivialClause = "-" ^string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in
 
@@ -1484,10 +1488,16 @@ let rec bool_toString = function
   let rec decomp_reduce ass esl = match ass with
     |[] -> []
     |(x, ci)::t ->
-  if (ci#h > (round_off (esl +. ci#l) 5)) then 
-    (x,ci):: (decomp_reduce t esl)
-  else
-    decomp_reduce t esl
+      let lowerBound = ci#l in
+      let upperBound = ci#h in
+      if lowerBound = neg_infinity && upperBound < (round_off (esl +. min_float) 5) then 
+        decomp_reduce t esl
+      else if upperBound = infinity && lowerBound > (round_off (max_float -. esl) 5) then
+        decomp_reduce t esl
+      else if (ci#h > (round_off (esl +. ci#l) 5)) then 
+        (x,ci):: (decomp_reduce t esl)
+      else
+        decomp_reduce t esl
        
   let var_decomp (var, ci) lstVarID code = 
     let id = List.assoc var lstVarID in
@@ -1594,6 +1604,8 @@ let rec bool_toString = function
  
   (*Target decomposition on neither Positive nor Negative part*)
   let var_decomp_pn (var, ci) lstVarID code = 
+    let lowerBound = ci#l in
+    let upperBound = ci#h in
     let id = List.assoc var lstVarID in
     (* afsmt1
     let si = "(or ("^ var ^ " in " ^ string_of_float (0.5*.(ci#l+.ci#h)) ^ " " ^ string_of_float ci#h ^ ") " ^
@@ -1605,8 +1617,16 @@ let rec bool_toString = function
     *)
 
     (* afsmt_sat *)
-    let si = "(or ("^ var ^ " in " ^ string_of_float ci#l ^ " " ^ string_of_float (0.5*.(ci#l+.ci#h)) ^ ") " ^
-               "(" ^ var ^ " in " ^ string_of_float (0.5*.(ci#l+.ci#h)) ^ " " ^ string_of_float ci#h ^ "))" in
+    let newPoint = 
+      if lowerBound = neg_infinity then 
+        if upperBound = infinity then 0.
+        else min_float
+      else 
+        if upperBound = infinity then max_float 
+        else 0.5 *. (lowerBound +. upperBound)
+    in    
+    let si = "(or ("^ var ^ " in " ^ string_of_float ci#l ^ " " ^ string_of_float newPoint ^ ") " ^
+               "(" ^ var ^ " in " ^ string_of_float newPoint ^ " " ^ string_of_float ci#h ^ "))" in
     
     (* afsmt_us 
     let si = "(or ("^ var ^ " in " ^ string_of_float (0.5*.(ci#h+.ci#l)) ^ " " ^ string_of_float ci#h ^ ") " ^
@@ -1993,9 +2013,9 @@ let rec bool_toString = function
           (sInterval, sLearn, bump_vars, true)
       )
       else (  
-        let (sInterval_pos, sLearn_pos, bump_pos) = ass_decomp_pos subPos lstVarID (iVar + 1) esl in
+        let (sInterval_pos, sLearn_pos, bump_pos) = ass_decomp_pn subPos lstVarID (iVar + 1) esl in
         let iPos = List.length subPos in
-        let (sInterval_neg, sLearn_neg, bump_neg) = ass_decomp_neg subNeg lstVarID (iVar + iPos * 2 + 1) esl in    
+        let (sInterval_neg, sLearn_neg, bump_neg) = ass_decomp_pn subNeg lstVarID (iVar + iPos * 2 + 1) esl in    
         let sInterval = ref "" in
         let sLearn = ref "" in
         if (sInterval_pos <> "") && (sInterval_neg <> "") then
@@ -2476,8 +2496,7 @@ let rec bool_toString = function
         f_toLit edIntv
       )
       else [] 
-    in 
-    (*print_float (Sys.time() -. startTime);*)
+    in
     (*print_endline "End parsing";
     flush stdout;*)
 
@@ -2505,7 +2524,7 @@ let rec bool_toString = function
 
     (*assIntv is an assignment of classical interval*)
     let assIntv = ci_ass lstCheck iVar lstIDLit in
-    (*print_endline (intervals_toString assIntv); (* intervals_toString is defined in Assignments.ml *)
+    (*print_endline (string_of_intervals assIntv); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout;*)
     let originalIntv = List.flatten (List.map e_toIntv lstLit) in
     (*print_endline (intervals_toString originalIntv); (* intervals_toString is defined in Assignments.ml *)
@@ -2543,7 +2562,7 @@ let rec bool_toString = function
                let assignmentsString = assignments_toString a in
                let uk_cl_string = contraints_list_toString uk_cl in
                (sTest, assignmentsString , uk_cl_string, sLog, dIntv, "", "", tmp, 
-                    contraints_list_toString (sub_list eAss uk_cl) ^ " ; " ^ intervals_to_string assIntv
+                    contraints_list_toString (sub_list eAss uk_cl) ^ " ; " ^ string_of_intervals assIntv
                     , iaTime, testingTime, usTime, parsingTime, decompositionTime)
              )
              else

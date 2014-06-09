@@ -2,6 +2,7 @@ open Exp           (*type: literal, clause, formula... declaration*)
 open Expr          (*Simplify expression module*)
 open Variable
 open Util
+open IA
 
 
 (*This module will generate form for Solver from SMT benchmark files*)
@@ -764,15 +765,16 @@ let rec get_bExpr e = match e with
     | And (e1, e2) -> And (remove_not e1, remove_not e2)
     | _ -> e
 
-  let rec make_lstIntv eIntv ub = match eIntv with
-    | Geq (Var x, Real a) -> [(x, a, ub)]
-    | And (e1, e2) -> List.append (make_lstIntv e1 ub) (make_lstIntv e2 ub)
+  let rec make_lstIntv eIntv = match eIntv with
+    | Geq (Var x, Real a) -> [(x, a, infinity)]
+    | And (e1, e2) -> List.append (make_lstIntv e1) (make_lstIntv e2)
     | _ -> [] (*This case is never happen*) 
 
   let rec update_var (x, lb, ub) l = match l with
     | [] -> (x, lb, ub)
     | (y, a1, a2) :: t-> 
         if (x=y) then
+          (*update_var (x, (max lb a1), (min ub a2)) t*)
           update_var (x, (max lb a1), (min ub a2)) t
         else
           update_var (x, lb, ub) t
@@ -783,19 +785,19 @@ let rec get_bExpr e = match e with
         let lst = (update_var h l2)::l in
           update_list lst t l2
   
-  let rec tolist_bc l lb ub = match l with
+  let rec tolist_bc l = match l with
     | Nil -> []
     | BC (e) -> (match e with
-        |Geq (Var x, Real c) -> [(x, (max lb c), ub)]
-        |Geq (Real c, Var x) -> [(x, lb, (min ub c))]
-        |Gr (Var x, Real c) -> [(x, (max lb c), ub)]
-        |Gr (Real c, Var x) -> [(x, lb, (min ub c))]
-        |Leq (Var x, Real c) -> [(x, lb, (min ub c))]
-        |Leq (Real c, Var x) -> [(x, (max lb c), ub)]
-        |Le (Var x, Real c) -> [(x, lb, (min ub c))]
-        |Le (Real c, Var x) -> [(x, (max lb c), ub)]
+        |Geq (Var x, Real c) -> [(x, c, infinity)]
+        |Geq (Real c, Var x) -> [(x, neg_infinity, c)]
+        |Gr (Var x, Real c) -> [(x, c, infinity)]
+        |Gr (Real c, Var x) -> [(x, neg_infinity, c)]
+        |Leq (Var x, Real c) -> [(x, neg_infinity, c)]
+        |Leq (Real c, Var x) -> [(x, c, infinity)]
+        |Le (Var x, Real c) -> [(x, neg_infinity, c)]
+        |Le (Real c, Var x) -> [(x, c, infinity)]
         |_ -> [])
-    |AND (e1, e2) -> List.append (tolist_bc e1 lb ub) (tolist_bc e2 lb ub) 
+    |AND (e1, e2) -> List.append (tolist_bc e1) (tolist_bc e2) 
 
   let rec toString_lstIntv l = match l with
     | [] -> ""
@@ -869,7 +871,7 @@ let sort_expr exprs =
   Util.extract_boolExps sortedExpressiveExprs
 
 
-let genSmtForm sIntv sAssert loBound upBound =       
+let genSmtForm sIntv sAssert =       
   (*get Assert expression from sAssert *)  
   let eAss = read sAssert in
   (*print_endline (ass_expr_to_infix_string eAss);
@@ -899,6 +901,7 @@ let genSmtForm sIntv sAssert loBound upBound =
   (*remove redundant expression, i.e., remove a >= 0 when a >0 occurs*)
   let eList = bool_toList expr in
   let simp_list = red_cons (red_list eList) in
+  
   (* sort the apis using variables dependency *)  
   let sortedList = sort_expr simp_list in
   let new_expr = list_toBool sortedList in
@@ -908,10 +911,10 @@ let genSmtForm sIntv sAssert loBound upBound =
 
   (*generate interval constraints *)  
   let eIntv = get_bExpr (read sIntv) in
-  let lstIntv = make_lstIntv eIntv upBound in
+  let lstIntv = make_lstIntv eIntv in
 
   (*get a list of bound constraints*)
-  let lst_bounds = tolist_bc bound_cons loBound upBound in
+  let lst_bounds = tolist_bc bound_cons in
 
   (*update bounds for interval constraints from bound_cons*)  
   let new_lstIntv = update_list [] lstIntv lst_bounds in
@@ -919,9 +922,6 @@ let genSmtForm sIntv sAssert loBound upBound =
   let strIntv = toString_lstIntv new_lstIntv in  
 
   let strAss = "(assert "^(bool_toPrefix new_expr)^")" in
-  (*let strBound = "(assert "^(bound_toPrefix bound_cons)^")" in *)
-
-  (*strBound ^ "\n" ^ strIntv ^ strAss*)
   (strIntv ^ strAss, 1)
 
   

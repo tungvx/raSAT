@@ -1,4 +1,8 @@
-Problem,nVars,nAPIs,time<500 for bound: 0 -> 10,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
+Problem,nVars,nAPIs,time<500 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
 hong/hong_1.smt2,1,2,0,0,0,0,0,0,0,1,0,2,1,0,1,0,unsat
-hong/hong_10.smt2,10,2,.556,.02,.644,.052,.044,0,.016,90,186,65,366,160,206,0,unsat
-hong/hong_11.smt2,11,2,2.332,.004,2.812,.108,.052,0,.028,99,243,76,441,176,265,0,unsat
+hong/hong_10.smt2,10,2,1.848,.144,.16,1.408,.212,0,.004,30,542,1026,1064,40,1024,0,unsat
+hong/hong_11.smt2,11,2,4.76,.304,.716,3.5,.436,0,.012,33,1059,2050,2092,44,2048,0,unsat
+hong/hong_12.smt2,12,2,19.896,.744,1.508,17.052,.952,0,.048,36,2190,4098,4144,48,4096,0,unsat
+hong/hong_13.smt2,13,2,51.404,1.968,6.988,41.536,2.312,0,.148,39,4149,8194,8244,52,8192,0,unsat
+hong/hong_13.smt2,13,2,514.040,19.680,69.880,415.360,23.120,0,1.480,39,4149,81940,82440,520,81920,0,unknown
+hong/hong_13.smt2,13,2,514.040,19.680,69.880,415.360,23.120,0,1.480,39,4149,81940,82440,520,81920,0,unknown
