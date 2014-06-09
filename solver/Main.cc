@@ -180,7 +180,7 @@ static void SIGINT_exit(int signum) {
 
 int main(int argc, char* argv[]) {
 	////cout << "Run" << endl;
-	bool debug = false;
+	bool debug = true;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
 //	cout << endl << "string of interval: " << str << endl;
 
 	////cout << "Run3" << endl;
-	string strAs = get_cons(smtfile, nvar);
+	string strAs = get_cons(smtfile, nvar); // get constraints
 	char *sAs = new char[strAs.size() + 1];
 	strcpy(sAs, strAs.c_str());
 
