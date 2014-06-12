@@ -9,14 +9,28 @@ let rec generate_tc_var var interval tcNum isFirst =
   else
     let lowerBound = interval#l in
     let upperBound = interval#h in
-    let bound = upperBound -. lowerBound in
-    Random.self_init();
-    let randomNum = Random.float bound in (* random number from 0 to bound *)
-    let tc =
-      if isFirst then lowerBound (*+. randomNum*)
-      else lowerBound +. randomNum 
-    in
-    tc :: (generate_tc_var var interval (tcNum - 1) false)
+		
+		(* if the upper bound is -max_float, stop testing*)
+		if upperBound < 0.1 -. max_float then []
+		(* if the lowerBound is max_float, stop testing *)
+		else if lowerBound -. 0.1 > max_float then []
+		else
+		  let bound = upperBound -. lowerBound in
+		  Random.self_init();
+			let newBound =
+				if bound = infinity then max_float
+				else bound
+			in
+		  let randomNum = Random.float newBound in (* random number from 0 to bound *)
+			let baseNum =
+				if lowerBound = neg_infinity then -.max_float
+				else lowerBound	
+			in
+		  let tc =
+		    if isFirst && (baseNum >= 0.1 -. max_float) then baseNum (*+. randomNum*)
+		    else baseNum +. randomNum 
+		  in
+		  tc :: (generate_tc_var var interval (tcNum - 1) false)
       
 
 (* This function generates the test cases for a list of variables *)

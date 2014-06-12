@@ -328,7 +328,7 @@ double getTimeout(char *tout) {
 }
 
 //parse argument to get the lower bound
-double getLoBound(char* bound) {
+string getLoBound(char* bound) {
 	string s = string(bound);
 	string s1 = "=";
 	string str = s.substr(s.find(s1) + s1.length(), s.length());
@@ -336,19 +336,21 @@ double getLoBound(char* bound) {
 	string strLo = first_word(str);
 	strLo = remove_space(strLo);
 
-	double lo = atof(strLo.c_str());
-	return lo;
+	//double lo = atof(strLo.c_str());
+	//return lo;
+	return strLo;
 }
 
 //parse argument to get the upper bound
-double getUpBound(char* bound) {
+string getUpBound(char* bound) {
 	string s = string(bound);
 
 	string strUp = last_word(s);
 	strUp = remove_space(strUp);
 
-	double up = atof(strUp.c_str());
-	return up;
+	//double up = atof(strUp.c_str());
+	//return up;
+	return strUp;
 }
 
 //This part works on conf.ini file: config parameters
@@ -598,14 +600,14 @@ string get_namevar(string s) {
 }
 
 //get list of name of variables and assign lower bound for them
-string get_listvars(char *filename, int nvar) {
+string get_listvars(char *filename, int nvar, string lb) {
 	string line, svar = "";
 	size_t pos;
 	int ivar = nvar;
 	ifstream myfile(filename);
 
 	char str_lb[20] = "";
-	sprintf(str_lb, "%s", "-inf");
+	sprintf(str_lb, "%s", lb.c_str());
 
 	if (myfile.is_open()) {
 		while (myfile.good()) {

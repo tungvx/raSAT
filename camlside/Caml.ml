@@ -283,15 +283,14 @@ let rec getMB m constr = match constr with
     let totalClauses = cl + iClause in 
 
     (*Compute the total of variables for SAT encoding*)
-    (*let max_bound = getMB 0.0 eIntv in
+    let max_bound = getMB 0.0 eIntv in
     let para = int_of_float (max_bound /. esl) in
 
     (*let totalVars = iLit * 4 * para in*)
     let totalVars = 
-      if max_bound = infinity then 10
+      if max_bound = infinity then 10000
       else 1 + 2* iLit * (sum_total_var 1 para) 
-    in*)
-    let totalVars = iLit in
+    in
 
     let sTrivialClause = "-" ^string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in
 
@@ -1490,7 +1489,7 @@ let rec getMB m constr = match constr with
     |(x, ci)::t ->
       let lowerBound = ci#l in
       let upperBound = ci#h in
-      if lowerBound = neg_infinity && upperBound < (round_off (esl +. min_float) 5) then 
+      if lowerBound = neg_infinity && upperBound < (round_off (esl -. max_float) 5) then 
         decomp_reduce t esl
       else if upperBound = infinity && lowerBound > (round_off (max_float -. esl) 5) then
         decomp_reduce t esl
@@ -1620,10 +1619,10 @@ let rec getMB m constr = match constr with
     let newPoint = 
       if lowerBound = neg_infinity then 
         if upperBound = infinity then 0.
-        else min_float
+        else -.max_float
       else 
         if upperBound = infinity then max_float 
-        else 0.5 *. (lowerBound +. upperBound)
+        else 0.5 *. lowerBound +. 0.5 *. upperBound
     in    
     let si = "(or ("^ var ^ " in " ^ string_of_float ci#l ^ " " ^ string_of_float newPoint ^ ") " ^
                "(" ^ var ^ " in " ^ string_of_float newPoint ^ " " ^ string_of_float ci#h ^ "))" in
@@ -1634,6 +1633,10 @@ let rec getMB m constr = match constr with
 
                "(" ^ var ^ " in " ^ string_of_float ci#l ^ " " ^ string_of_float (0.5*.(ci#h+.ci#l)) ^ "))" in
     *)
+    let bumpVar =
+      if newPoint < 0. then code + 1
+      else code
+    in
 
     let sl = 
              (*string_of_int code ^ " -" ^ string_of_int code ^ " 0 "  ^*)
@@ -1642,7 +1645,7 @@ let rec getMB m constr = match constr with
              "-" ^ string_of_int code ^ " -"^string_of_int (code+1) ^ " 0 " ^
              string_of_int id ^ " -"^string_of_int (code+1) ^ " 0 " in
              
-    (si, sl)
+    (si, sl, bumpVar)
 
   (*Target decomposition on Positive part of a test point*)
   let var_decomp_test_pos (var, ci) lstVarID code esl tc= 
@@ -1888,11 +1891,11 @@ let rec getMB m constr = match constr with
     |[] -> ("", "", "")
     |h::t ->
       let (s1, s2, svars) = ass_decomp_pn t lstVarID (code + 2) esl in
-      let (s3, s4) = var_decomp_pn h lstVarID code in (* s3 is the decomposed prefix form, s4 is some kind of encoding to pass to minisat*)
+      let (s3, s4, bumpVar) = var_decomp_pn h lstVarID code in (* s3 is the decomposed prefix form, s4 is some kind of encoding to pass to minisat*)
       if (s1 = "") then
-         (s3, s4^s2, (string_of_int (code+1)) ^ " " ^ svars )
+         (s3, s4^s2, (string_of_int bumpVar) ^ " " ^ svars )
       else 
-         ("(ic "^s3 ^" "^s1^")", s4^s2, (string_of_int (code+1)) ^ " " ^ svars )       
+         ("(ic "^s3 ^" "^s1^")", s4^s2, (string_of_int bumpVar) ^ " " ^ svars )       
 
   let rec ass_decomp_test_pos ass lstVarID code esl tc = match ass with
     |[] -> ("", "", "", code)
@@ -1986,6 +1989,8 @@ let rec getMB m constr = match constr with
     (*let red_ass = decomp_reduce new_ass esl in*)
     let red_pos = decomp_reduce pos_ass esl in (* red_pos contains intervals of positive vars with length greater than epsilon esl *)
     let red_neg = decomp_reduce neg_ass esl in (* red_neg contains intervals of negative vars with length greater than epsilon esl *)
+		(*print_endline "after reduce";
+		flush stdout;*)
 
     if (red_pos = []) && (red_neg = []) then (* all the intervals are small enough, stop decomposition*) 
     (
@@ -2475,7 +2480,9 @@ let rec getMB m constr = match constr with
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
   let dynTest sIntv dIntv sAss strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
-    let startTime = Sys.time() in
+		(*print_endline dIntv;
+		flush stdout;*)    
+		let startTime = Sys.time() in
     let olstCheck = toIntList strCheck in 
     let eIntv = sub_intv (read sIntv) in
     let ass = sub_ass (read sAss) in      
@@ -2488,11 +2495,14 @@ let rec getMB m constr = match constr with
 
     (* lstLit stored the list of literals from interval constraints *)
     let lstLit = f_toLit eIntv in
-
+		(*print_endline "f_toLit";
+		flush stdout;*)
     (* dlstLit stored the list of literals from dynamic interval constraints*)
     let dlstLit = 
       if (dIntv <> "") then (
-        let edIntv = sub_intv (read dIntv) in 
+        let edIntv = sub_intv (read dIntv) in
+				(*print_endline "after reading decomposed intervals";
+				flush stdout;*)
         f_toLit edIntv
       )
       else [] 
@@ -2555,6 +2565,7 @@ let rec getMB m constr = match constr with
           (*let (sTest, clTest_US, a) = evalTest assIntv uk_cl checkVarID strTestUS in*)
           (*let (tc, sTest, clTest_US, a) =  search_tc2 uk_cl assIntv strTestUS esl in *)
           (*print_endline "End Testing";
+					print_endline (string_of_int sTest);
           flush stdout;*)
           let testingTime = testingTime +. Sys.time() -. startTestingTime in
              if (sTest = 1) then (
@@ -2591,7 +2602,7 @@ let rec getMB m constr = match constr with
                       else clTest_US
                     in
                     (*print_endline "decomposing";
-                    print_endline(bool_expr_list_to_infix_string decomposedExpr "");
+                    print_endline(bool_expr_list_to_infix_string decomposedExpr);
                     flush stdout;*)
                     let (sInterval, sLearn, bump_vars, isDecomp) = 
                       (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID iVar esl in*)
@@ -2600,6 +2611,8 @@ let rec getMB m constr = match constr with
                         (newInterval, newLearn, newBumpVars, isDecomposed)
                       else*)
                         dynamicDecom_pos assIntv dIntv checkVarID iVar decomposedExpr esl in
+										(*print_endline "after decomposed";
+										flush stdout;*)
                     let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
                                
                     (*decomposed interval based on test values 

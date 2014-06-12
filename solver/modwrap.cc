@@ -10,17 +10,18 @@ extern "C" {
 #include <caml/fail.h>
 }
 
-value caml_genSmtForm(char * sIntv, char *sAssert) {
+value caml_genSmtForm(char * sIntv, char *sAssert, string ub) {
 	CAMLparam0();
-	CAMLlocalN(ml_args, 2);
+	CAMLlocalN(ml_args, 3);
 	ml_args[0] = caml_copy_string(sIntv);
 	ml_args[1] = caml_copy_string(sAssert);
+	ml_args[2] = caml_copy_string(ub.c_str());
 
 	static value * caml_gen_closure = NULL;
 	if (caml_gen_closure == NULL)
 		caml_gen_closure = caml_named_value("caml_genSmtForm");
 	//return strdup(String_val(caml_callbackN(*caml_gen_closure, 4, ml_args)));
-	CAMLreturn(caml_callbackN(*caml_gen_closure, 2, ml_args));
+	CAMLreturn(caml_callbackN(*caml_gen_closure, 3, ml_args));
 }
 
 value caml_genSatForm(char * sIntv, double esl) {

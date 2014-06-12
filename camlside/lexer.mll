@@ -9,7 +9,7 @@ let num   = ['0'-'9' '.']
 rule lex = parse
   | [' ' '\r' '\t'] {  lex lexbuf }
   | '\n'   { new_line lexbuf; lex lexbuf }
-  | ('-'? num+) | ("inf") | ("-inf") as s { NUM s }
+  | ('-'? num+ (['e''E'] ['+''-']? ['0'-'9']+)?) | ("inf") | ("-inf") as s { NUM s }
   | "and"  { AND }
   | "or"   { OR }
   | "in"   { IN }

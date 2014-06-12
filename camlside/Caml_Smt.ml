@@ -785,19 +785,19 @@ let rec get_bExpr e = match e with
         let lst = (update_var h l2)::l in
           update_list lst t l2
   
-  let rec tolist_bc l = match l with
+  let rec tolist_bc l upperBound = match l with
     | Nil -> []
     | BC (e) -> (match e with
-        |Geq (Var x, Real c) -> [(x, c, infinity)]
+        |Geq (Var x, Real c) -> [(x, c, upperBound)]
         |Geq (Real c, Var x) -> [(x, neg_infinity, c)]
-        |Gr (Var x, Real c) -> [(x, c, infinity)]
+        |Gr (Var x, Real c) -> [(x, c, upperBound)]
         |Gr (Real c, Var x) -> [(x, neg_infinity, c)]
         |Leq (Var x, Real c) -> [(x, neg_infinity, c)]
-        |Leq (Real c, Var x) -> [(x, c, infinity)]
+        |Leq (Real c, Var x) -> [(x, c, upperBound)]
         |Le (Var x, Real c) -> [(x, neg_infinity, c)]
-        |Le (Real c, Var x) -> [(x, c, infinity)]
+        |Le (Real c, Var x) -> [(x, c, upperBound)]
         |_ -> [])
-    |AND (e1, e2) -> List.append (tolist_bc e1) (tolist_bc e2) 
+    |AND (e1, e2) -> List.append (tolist_bc e1 upperBound) (tolist_bc e2 upperBound) 
 
   let rec toString_lstIntv l = match l with
     | [] -> ""
@@ -871,7 +871,7 @@ let sort_expr exprs =
   Util.extract_boolExps sortedExpressiveExprs
 
 
-let genSmtForm sIntv sAssert =       
+let genSmtForm sIntv sAssert ub =       
   (*get Assert expression from sAssert *)  
   let eAss = read sAssert in
   (*print_endline (ass_expr_to_infix_string eAss);
@@ -914,7 +914,8 @@ let genSmtForm sIntv sAssert =
   let lstIntv = make_lstIntv eIntv in
 
   (*get a list of bound constraints*)
-  let lst_bounds = tolist_bc bound_cons in
+  let upperBound = float_of_string ub in
+  let lst_bounds = tolist_bc bound_cons upperBound in
 
   (*update bounds for interval constraints from bound_cons*)  
   let new_lstIntv = update_list [] lstIntv lst_bounds in
