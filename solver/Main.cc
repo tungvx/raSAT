@@ -192,7 +192,7 @@ static void SIGINT_exit(int signum) {
 
 int main(int argc, char* argv[]) {
 	////cout << "Run" << endl;
-	bool debug = true;
+	bool debug = false;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -568,7 +568,7 @@ int main(int argc, char* argv[]) {
 					//cout << "Run46" << endl;
 //					cout << "clauses: " << S.nClauses() << endl;
 					//theoCheck = caml_doTest (sIntv, sAss, sSAT, ia);
-					cout << "dyndecom size: " << str_dIntv.size() << endl;
+					//cout << "dyndecom size: " << str_dIntv.size() << endl;
 					char *c_dIntv = new char[str_dIntv.size() + 1];
 					strcpy(c_dIntv, str_dIntv.c_str());
 
@@ -604,21 +604,21 @@ int main(int argc, char* argv[]) {
 					//cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
-					cout << "Run49" << endl;
+					//cout << "Run49" << endl;
 					theoCheck = caml_dynTest(sIntv, c_dIntv, sAss, sSAT, ia,
 							esl, c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
 							timeout - (cpuTime() - initial_time));
 					delete [] c_dIntv;
 					if (needDeleted) delete[] c_strTestUS;
-					cout << "Run50" << endl;
+					//cout << "Run50" << endl;
 					dummy.clear(true);
 //					cout << "Searched \n\n";
 					ocamlTime += cpuTime() - startCheck;
 //					cout << "Check: " << cpuTime() - startCheck << endl;
 					//cout << "Run51" << endl;
 					int sat = Int_val(Field(theoCheck, 0));
-					cout << sat << endl;
+					//cout << sat << endl;
 					logResult = String_val(Field(theoCheck, 3));
 					//cout << "Run52" << endl;	
 					
