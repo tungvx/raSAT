@@ -25,17 +25,20 @@ let rec power_set aList =
   gen_power_set aList 1 (List.length aList);;
 
 
-let check_unsatcore_vars boolExp currentIntv originalIntv varsList = 
+let check_unsatcore_vars boolExp currentIntv originalIntv varsList isInfinite = 
   (*print_endline ("Checking: " ^ Util.vars_to_string varsList);
   flush stdout;*)
   let newIntv = extract_append_first varsList currentIntv originalIntv in (* extract_append_first is defined in Asssignments.ml *)
   (*print_endline (intervals_to_string newIntv); (* intervals_to_string is definied in Assignments.ml *)
   flush stdout;*)
-  let (sat, _) = check_sat_af_two_ci boolExp newIntv in (* check_sat_af_two_ci is in ast.ml *)
+  let (sat, _) = 
+    if isInfinite then check_sat_inf_ci boolExp newIntv
+    else check_sat_af_two_ci boolExp newIntv (* check_sat_af_two_ci is in ast.ml *)
+  in
   sat = -1
 
 
-let rec get_unsatcore_vars_from_list boolExp currentIntv originalIntv unsatCoreVarsCandidates limitedTime = 
+(*let rec get_unsatcore_vars_from_list boolExp currentIntv originalIntv unsatCoreVarsCandidates limitedTime = 
   if limitedTime <= 0. then []
   else 
     match unsatCoreVarsCandidates with
@@ -51,7 +54,7 @@ let rec get_unsatcore_vars_from_list boolExp currentIntv originalIntv unsatCoreV
       )
       else  
         get_unsatcore_vars_from_list boolExp currentIntv originalIntv (remainingCandidates()) (limitedTime -. (Sys.time() -. startTime))
-        
+*)        
 
 (* This functions check whether a new unsat core constains a current unsat core *)
 let rec checkCompact newUnsatCore unsatCore = 
@@ -78,7 +81,7 @@ let rec addUnsatCores newUnsatCore unsatCores =
     else unsatCore :: (addUnsatCores newUnsatCore nextUnsatCores)
   )
         
-let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv limitedTime remainingCandidates result =
+let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite limitedTime remainingCandidates result =
   if limitedTime <= 0. then result
   else 
     match remainingCandidates with 
@@ -88,8 +91,8 @@ let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv limitedTime re
       else 
         let startTime = Sys.time() in
         let (newResult, newRemainingCandidates) = 
-          if shouldCheck && check_unsatcore_vars boolExp currentIntv originalIntv choosenVars then (
-            (*print_endline ("UnSAT core of " ^ bool_expr_to_infix_string boolExp ^ " is " ^ Util.vars_to_string choosenVars ^ "with " ^ intervals_to_string currentIntv);
+          if shouldCheck && check_unsatcore_vars boolExp currentIntv originalIntv choosenVars isInfinite then (
+            (*print_endline ("UnSAT core of " ^ bool_expr_to_infix_string boolExp ^ " is " ^ Util.vars_to_string choosenVars ^ "with " ^ string_of_intervals currentIntv);
             (* bool_expr_to_infix_string is defined in ast.ml *)
             (* intervals_to_string is defined in Assignments.ml *)
             flush stdout;*)
@@ -107,17 +110,17 @@ let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv limitedTime re
               (result, tail() @@ nextVarChoosenCandidates)
           )
         in 
-        get_unsatcore_vars_extra boolExp currentIntv originalIntv (limitedTime -. (Sys.time() -. startTime)) newRemainingCandidates newResult
+        get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite (limitedTime -. (Sys.time() -. startTime)) newRemainingCandidates newResult
     )
       
-let get_unsatcore_vars boolExp currentIntv originalIntv varsId limitedTime =
+let get_unsatcore_vars boolExp currentIntv originalIntv varsId isInfinite limitedTime =
   let startTime = Sys.time() in 
   let varsList = Util.red_list (bool_vars boolExp) in (* bool_vars is defined in Ast.ml *)
   (*print_endline ("Variables List: " ^ Util.vars_to_string varsList);
   flush stdout;*)
   let nVars = List.length varsList in
   let initialCandidate = Cons(([], varsList, false, 0, nVars), fun() -> Nil) in
-  let unsatVarsCores = get_unsatcore_vars_extra boolExp currentIntv originalIntv (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
+  let unsatVarsCores = get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
   if unsatVarsCores = [] then Util.learn_vars varsList varsId
   else Util.learn_vars_cores unsatVarsCores varsId
   

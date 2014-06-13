@@ -53,6 +53,14 @@ let rec extract_append_first varsList firstIntv secondIntv =
       extract_append_first remainingVars firstIntv ((var, intv)::(List.remove_assoc var secondIntv)) (* remove var in the second Intv would improve the perfomance because of IA operations.*)
     with Not_found -> extract_append_first remainingVars firstIntv secondIntv
   )
+
+
+(* This function check if an list of intervals contain any infinity number *)
+let rec check_infinity assIntv = match assIntv with
+  | [] -> false
+  | (x, intv)::t -> 
+    if intv#l = neg_infinity || intv#h = infinity then true
+    else check_infinity t
   
 
 (* \/\/\/\/\/\/\/\/\/\/ MODULE for assignments related definitions and operations \/\/\/\/\/\/\\/\/\/\/\/\/\/\/\/\/*)

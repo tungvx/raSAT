@@ -62,7 +62,7 @@ void printStats(Solver& solver) {
 // bumping activities of some variables
 void solver_bumping(Solver& solv, string bump_vars) {
 	//remove space at the beginning and the end of a string
-	cout << bump_vars << "\n";
+	//cout << bump_vars << "\n";
 	string s = remove_space(bump_vars);
 	int l = s.length();
 	int size = 0;
@@ -87,9 +87,9 @@ void solver_bumping(Solver& solv, string bump_vars) {
 
 // add a list of lit into a vector:
 void addLitListToVector(vec<Lit> &litVector, string litList) {
-	cout << "Start\n";
+	//cout << "Start\n";
 	string s = remove_space(litList);
-	cout << "End Remove space\n";
+	//cout << "End Remove space\n";
 	int l = s.length();
 	int size = 0;
 	for (int i = 0; i < l; i++)
@@ -97,7 +97,7 @@ void addLitListToVector(vec<Lit> &litVector, string litList) {
 			size++;
 	int *a = new int[size + 1];
 	int pos = 0, prev = 0;
-	cout << "StartAtoi\n";
+	//cout << "StartAtoi\n";
 	for (int i = 0; i < l; i++) {
 		if (s[i] == ' ') {
 			a[pos] = atoi(s.substr(prev, i - prev).c_str());
@@ -105,18 +105,18 @@ void addLitListToVector(vec<Lit> &litVector, string litList) {
 			pos++;
 		}
 	}
-	cout << "End Atoi\n";
-	cout << atoi(s.substr(prev, l - prev).c_str()) << " converted\n";
+	//cout << "End Atoi\n";
+	//cout << atoi(s.substr(prev, l - prev).c_str()) << " converted\n";
 	a[pos] = atoi(s.substr(prev, l - prev).c_str());
-	cout << litVector.size() << "\n";
-	cout << "assumption: ";
+	//cout << litVector.size() << "\n";
+	//cout << "assumption: ";
 	for (int i = 0; i <= pos; i++) {
 		int var = abs(a[i]) - 1;
-		cout << var << " ";
+		//cout << var << " ";
 		litVector.push((a[i] > 0) ? mkLit(var) : ~mkLit(var));
 	}
 	delete [] a;
-	cout << "\n";
+	//cout << "\n";
 }
 
 double miniSATVars = 0;
@@ -234,7 +234,7 @@ int main(int argc, char* argv[]) {
 	////cout << "Run4" << endl;
 	smt = caml_genSmtForm(sInt, sAs, ub);
 	string smtContent = String_val(Field(smt, 0));
-//	cout << "raSAT input form: " << smtContent << endl;
+	//cout << "raSAT input form: " << smtContent << "\n";
 	caml_remove_global_root(&smt);
 	delete[] sInt;
 	delete[] sAs;
@@ -508,6 +508,7 @@ int main(int argc, char* argv[]) {
 					printStats(S);
 					//cout << "Run34" << endl;
 					printf("\n");
+
 				}
 				if (debug)
 					printf("UNSATISFIABLE\n");

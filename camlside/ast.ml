@@ -213,32 +213,42 @@ let rec first_inequation boolExprs =
 let rec e_toAf1 ass id numVar = match ass with
   |[] -> []
   |a::b -> match a with
-  |(x, ix) -> (x, Util.toAf1 ix id numVar):: e_toAf1 b (id+1) numVar
+    |(x, ix) -> (x, Util.toAf1 ix id numVar):: e_toAf1 b (id+1) numVar
 
 
 (* e_toAf2 compute the AF2 assignment from interval constraints*)
 let rec e_toAf2 ass id numVar = match ass with
   |[] -> []
   |a::b -> match a with
-  |(x, ix) -> ((x, Util.toAf2 ix id numVar), (x, id-1)):: e_toAf2 b (id+1) numVar
+    |(x, ix) -> ((x, Util.toAf2 ix id numVar), (x, id-1)):: e_toAf2 b (id+1) numVar
 
 (* e_toCai1 compute the CAI1 assignment from interval constraints*)
 let rec e_toCai1 ass id numVar = match ass with
   |[] -> []
   |a::b -> match a with
-  |(x, ix) -> (x, Util.toCai1 ix id numVar):: e_toCai1 b (id+1) numVar
+    |(x, ix) -> (x, Util.toCai1 ix id numVar):: e_toCai1 b (id+1) numVar
 
 (* e_toCai2 compute the CAI2 assignment from interval constraints*)
 let rec e_toCai2 ass id numVar = match ass with
   |[] -> []
   |a::b -> match a with
-  |(x, ix) -> (x, Util.toCai2 ix id numVar):: e_toCai2 b (id+1) numVar
+    |(x, ix) -> (x, Util.toCai2 ix id numVar):: e_toCai2 b (id+1) numVar
 
 (* e_toCai3 compute the CAI3 assignment from interval constraints*)
 let rec e_toCai3 ass id numVar = match ass with
   |[] -> []
   |a::b -> match a with
-  |(x, ix) -> (x, Util.toCai3 ix id numVar):: e_toCai3 b (id+1) numVar
+    |(x, ix) -> (x, Util.toCai3 ix id numVar):: e_toCai3 b (id+1) numVar
+
+
+(* This function convert intervals of float into intervals of inf *)
+let rec infIntervals_of_intervals intervals = match intervals with
+  | [] -> []
+  | (x, interval)::t -> 
+    let lowerBound = IA.bound_of_float interval#l in
+    let upperBound = IA.bound_of_float interval#h in
+    (x, new IA.inf_interval lowerBound upperBound) :: (infIntervals_of_intervals t)
+
   
 (* evalCI compute the bound of a polynomial function from an assignment ass by CI form*)
 let rec evalCI ass = function
@@ -251,7 +261,7 @@ let rec evalCI ass = function
 
 (* evalICI compute the bound of a polynomial function from an assignment ass by ICI form*)
 let rec evalICI ass = function
-  | Real c -> new IA.inf_interval IA.(Float c) IA.(Float c)
+  | Real c -> let newC = IA.bound_of_float c in new IA.inf_interval newC newC
   | Var v -> List.assoc v ass
   | Add (u,v) -> IA.ICI.(evalICI ass u + evalICI ass v)
   | Sub (u,v) -> IA.ICI.(evalICI ass u - evalICI ass v)
@@ -360,7 +370,12 @@ let poly_eval e ia assIntv =
     let assCai3 = e_toCai3 assIntv 1 iIntvVar in
     let res = evalCai3 assCai3 iIntvVar e in
     (res#evaluate, []);
-  )  
+  )
+  else if (ia = -1) then (
+    let infiniteIntervals = infIntervals_of_intervals assIntv in
+    let res = evalICI infiniteIntervals e in
+    (res#to_interval, []);
+  )
   else (
     let res = evalCI assIntv e in
     (res, []);
@@ -432,8 +447,8 @@ let check_sat_af_two_ci boolExp intv =
   let sat = check_sat_providedBounds boolExp afTwoLeftBound afTwoRightBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
-    let (ciLeftBound, ciLeftVarsSen)  = poly_eval left 0 intv in
-    let (ciRightBound, ciRightVarsSen) = poly_eval right 0 intv in
+    let (ciLeftBound, _)  = poly_eval left 0 intv in
+    let (ciRightBound, _i) = poly_eval right 0 intv in
     
     let newLeftLowerBound = max afTwoLeftBound#l ciLeftBound#l in
     let newLeftHigherBound = min afTwoLeftBound#h ciLeftBound#h in
@@ -445,6 +460,19 @@ let check_sat_af_two_ci boolExp intv =
     (sat, afTwoVarsSen)
   else (sat, afTwoVarsSen)
     
+
+(* This function check sat with CI only *)
+let check_sat_inf_ci boolExp intv = 
+  let left = leftExp boolExp in (* get the left expression *)
+  let right = rightExp boolExp in (* get the right expression *)
+  let (iciLeftBound, _)  = poly_eval left (-1) intv in (* -1 is ICI *)
+  (*print_endline ("left Bound: " ^ (string_of_float iciLeftBound#l) ^ " " ^ (string_of_float iciLeftBound#h));
+  flush stdout;*)
+  let (iciRightBound, _) = poly_eval right (-1) intv in
+  (*print_endline ("right Bound: " ^ (string_of_float iciRightBound#l) ^ " " ^ (string_of_float iciRightBound#h));
+  flush stdout;*)
+  let sat = check_sat_providedBounds boolExp iciLeftBound iciRightBound in
+  (sat, [])
     
 (* This function compare two variables by their sensitivity *)
 let compare_sensitivity (firstVar, firstSen) (secondVar, secondSen) =

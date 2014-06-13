@@ -103,7 +103,91 @@ module IA = struct
   	|Neg_inf -> Neg_inf  
   	|Pos_inf -> Pos_inf 
        )
+
+  let float_of_bound f = match f with
+    | Pos_inf -> infinity
+    | Neg_inf -> neg_infinity
+    | Float c -> c
+
+
+  (* This function convert a float number into bound value *)
+  let bound_of_float f = 
+    if f = infinity then Pos_inf
+    else if f = neg_infinity then Neg_inf
+    else Float f 
     
+  (*Interval class denoted interval*)  
+  class interval lo hi = object (self)
+      val mutable l = (lo: float)
+      val mutable h = (hi: float)
+	  
+      (*get interface*)
+      method l = l
+      method h = h
+      
+      (*set interface*)
+      method set_l l1 = l<-l1
+
+      method set_h h1 = h<-h1
+
+      (*addition operator*)
+      method add (other: interval)= 
+	let result = new interval (self#l+.other#l) (self#h+.other#h) in
+	result;
+       
+      (*addition by a coeff*)
+      method add2 (c: float)= 
+	let result = new interval (self#l+.c) (self#h+.c) in
+	result;
+
+      (*subtraction operator*)
+      method sub (other: interval)= 
+	let result = new interval (self#l-.other#h) (self#h-.other#l) in
+	result;
+
+      (*subtraction by a coeff*)
+      method sub2 (c: float)= 
+	let result = new interval (self#l-.c) (self#h-.c) in
+	result;
+
+      (*multiplication operator*)
+      method mul (other: interval)= 
+	let mi = min (min (self#l*.other#l) (self#l*.other#h)) (min (self#h*.other#l) (self#h*.other#h)) in 
+	let ma = max (max (self#l*.other#l) (self#l*.other#h)) (max (self#h*.other#l) (self#h*.other#h)) in 
+	let result = new interval mi ma in
+	result;     
+      (*multiple an interval with a coeff*)
+       method mul2 (other: float) = 
+	let result = 
+	  new interval (self#l*.other) (self#h*.other) in
+	result; 
+	
+       (*meet operator for interval*)
+       method meet (other: interval) =
+	 let result =
+	   new interval (min self#l other#l) (max self#h other#h) in
+	 result;
+
+       (*power function*)
+       method pow (n: int) = 
+	 let mi = ref self#l in
+	 let ma = ref self#h in	 
+	 for i = 1 to n-1 do
+   	   let lo = min (min (!mi*.self#l) (!mi*.self#h)) (min (!ma*.self#l) (!ma*.self#h)) in
+	   let hi = max (max (!mi*.self#l) (!mi*.self#h)) (max (!ma*.self#l) (!ma*.self#h)) in
+	   mi := lo;
+	   ma := hi;
+	 done;
+	 let result = new interval !mi !ma in
+	 result;
+	       
+       method printForm =
+	 Printf.printf "[%f,%f]\n" self#l self#h;  
+
+  end
+
+
+
   (*Interval class with infinite bounds*)  
   class inf_interval lo hi = object (self)
       val mutable l = (lo: bound)
@@ -239,6 +323,11 @@ module IA = struct
 	   |Neg_inf -> "-w"
 	   |Pos_inf -> "+w" in
 	 Printf.printf "[%s, %s]" sl su;
+
+       method to_interval = 
+         let floatL = float_of_bound l in
+         let floatH = float_of_bound h in
+         new interval floatL floatH	
   end
  (*Define inf_interval arithmetic operators*)
   module ICI = struct
@@ -257,74 +346,6 @@ module IA = struct
     let ( < ) (i1: bound) (i2: bound) = le i1 i2  
   end
 
-  (*Interval class denoted interval*)  
-  class interval lo hi = object (self)
-      val mutable l = (lo: float)
-      val mutable h = (hi: float)
-	  
-      (*get interface*)
-      method l = l
-      method h = h
-      
-      (*set interface*)
-      method set_l l1 = l<-l1
-      method set_h h1 = h<-h1
-
-      (*addition operator*)
-      method add (other: interval)= 
-	let result = new interval (self#l+.other#l) (self#h+.other#h) in
-	result;
-       
-      (*addition by a coeff*)
-      method add2 (c: float)= 
-	let result = new interval (self#l+.c) (self#h+.c) in
-	result;
-
-      (*subtraction operator*)
-      method sub (other: interval)= 
-	let result = new interval (self#l-.other#h) (self#h-.other#l) in
-	result;
-
-      (*subtraction by a coeff*)
-      method sub2 (c: float)= 
-	let result = new interval (self#l-.c) (self#h-.c) in
-	result;
-
-      (*multiplication operator*)
-      method mul (other: interval)= 
-	let mi = min (min (self#l*.other#l) (self#l*.other#h)) (min (self#h*.other#l) (self#h*.other#h)) in 
-	let ma = max (max (self#l*.other#l) (self#l*.other#h)) (max (self#h*.other#l) (self#h*.other#h)) in 
-	let result = new interval mi ma in
-	result;     
-      (*multiple an interval with a coeff*)
-       method mul2 (other: float) = 
-	let result = 
-	  new interval (self#l*.other) (self#h*.other) in
-	result; 
-	
-       (*meet operator for interval*)
-       method meet (other: interval) =
-	 let result =
-	   new interval (min self#l other#l) (max self#h other#h) in
-	 result;
-
-       (*power function*)
-       method pow (n: int) = 
-	 let mi = ref self#l in
-	 let ma = ref self#h in	 
-	 for i = 1 to n-1 do
-   	   let lo = min (min (!mi*.self#l) (!mi*.self#h)) (min (!ma*.self#l) (!ma*.self#h)) in
-	   let hi = max (max (!mi*.self#l) (!mi*.self#h)) (max (!ma*.self#l) (!ma*.self#h)) in
-	   mi := lo;
-	   ma := hi;
-	 done;
-	 let result = new interval !mi !ma in
-	 result;
-	       
-       method printForm =
-	 Printf.printf "[%f,%f]\n" self#l self#h;  
-
-  end
 
  (*Define arithmetic operators*)
   module CI = struct

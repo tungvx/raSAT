@@ -1619,9 +1619,9 @@ let rec getMB m constr = match constr with
     let newPoint = 
       if lowerBound = neg_infinity then 
         if upperBound = infinity then 0.
-        else -.max_float
+        else upperBound -. 10.
       else 
-        if upperBound = infinity then max_float 
+        if upperBound = infinity then lowerBound +. 10. 
         else 0.5 *. lowerBound +. 0.5 *. upperBound
     in    
     let si = "(or ("^ var ^ " in " ^ string_of_float ci#l ^ " " ^ string_of_float newPoint ^ ") " ^
@@ -2394,22 +2394,25 @@ let rec getMB m constr = match constr with
    
  
   (*Rewrite eval_all for UNSAT cores computations*)
-  let rec eval_all res us uk_cl e ia assIntv originalIntv checkVarID iaTime usTime remainingTime =
+  let rec eval_all res us uk_cl e ia assIntv originalIntv checkVarID iaTime usTime isInfinite remainingTime =
     match e with
      |[] -> (res, us, uk_cl, iaTime, usTime)
      |h::t -> 
         let startTime = Sys.time() in
         (*print_string "Start check sat: ";
-        print_string (bool_expr_to_infix_string h ^ ": ");*)
+        print_endline (bool_expr_to_infix_string h);*)
         (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
         flush stdout;*)
         (*let res1 = checkSat h ia assIntv in*)
-        let (res1, varsSen) = check_sat_af_two_ci h assIntv in
+        let (res1, varsSen) = 
+          if isInfinite then check_sat_inf_ci h assIntv (* We only use CI for infinity bounds *)
+          else check_sat_af_two_ci h assIntv 
+        in
         (*print_endline "End check sat";
         flush stdout;*)
         let iaTime = iaTime +. Sys.time() -. startTime in
         if (res1 = 1) then 
-          eval_all res us uk_cl t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
+          eval_all res us uk_cl t ia assIntv originalIntv checkVarID iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
         else if (res1 = -1) then (
           (*let str = (var_exp h checkVarID)^"0 " in *)
           (*let lstUC = get_unsatcore h 0 assIntv in *)
@@ -2418,10 +2421,8 @@ let rec getMB m constr = match constr with
           print_endline (bool_expr_to_infix_string h);
           flush stdout;*)
           (*let lstUC = get_unsatcore h ia assIntv in*)
-          let unsatCoreVars = get_unsatcore_vars h assIntv originalIntv checkVarID ((remainingTime -. Sys.time() +. startTime) (*/. 4.*)) in (* get_unsatcore_vars is defined in Unsat_core.ml *)
+          let unsatCoreVars = get_unsatcore_vars h assIntv originalIntv checkVarID isInfinite ((remainingTime -. Sys.time() +. startTime) (*/. 4.*)) in (* get_unsatcore_vars is defined in Unsat_core.ml *)
           (* bool_expr_to_infix_string and bool_expr_list_to_infix_string is defined in ast.ml *)
-          (* print_endline ("End UNSAT core of " ^ (bool_expr_to_infix_string h) ^ " is " ^ (bool_expr_list_to_infix_string lstUC)); 
-          flush stdout; *)
           let usTime = usTime +. Sys.time() -. startUSCoreTime in
           (*let str = 
             let s = var_exp_list lstUC checkVarID in 
@@ -2437,13 +2438,13 @@ let rec getMB m constr = match constr with
              str
           in*)
           (*eval_all (-1) (str^us) [] t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)*)
-          eval_all (-1) (unsatCoreVars^"0 "^us) [] t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
+          eval_all (-1) (unsatCoreVars^"0 "^us) [] t ia assIntv originalIntv checkVarID iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
         )
         else ( (*res1 = 0*)     
           if (res = -1) then
-            eval_all (-1) us [] t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
+            eval_all (-1) us [] t ia assIntv originalIntv checkVarID iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
           else
-            eval_all 0 us ((h,varsSen)::uk_cl) t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)
+            eval_all 0 us ((h,varsSen)::uk_cl) t ia assIntv originalIntv checkVarID iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
         )
 
   (*function for compute the list of pairs of variable and ID from the list of ID of interval constraints*)
@@ -2481,7 +2482,7 @@ let rec getMB m constr = match constr with
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
   let dynTest sIntv dIntv sAss strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
 		(*print_endline dIntv;
-		flush stdout;*)    
+		flush stdout;*)
 		let startTime = Sys.time() in
     let olstCheck = toIntList strCheck in 
     let eIntv = sub_intv (read sIntv) in
@@ -2541,7 +2542,10 @@ let rec getMB m constr = match constr with
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in        
     (*print_endline "Start IA";*)
-    let (res, us, uk_cl, iaTime, usTime) = eval_all 1 "" [] eAss ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime) in
+    let isInfinite = check_infinity assIntv in (* check_infinity is defined in assignments.ml *)
+    (*print_endline (string_of_bool isInfinite);
+    flush stdout;*)
+    let (res, us, uk_cl, iaTime, usTime) = eval_all 1 "" [] eAss ia assIntv originalIntv checkVarID iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime) in
       (*print_endline "EndIA";
       flush stdout;*)
       if (res = -1) then (*if existing unsat clause*) (
@@ -2559,7 +2563,12 @@ let rec getMB m constr = match constr with
           (*print_endline "Start Testing";
           flush stdout;*)
           let startTestingTime = Sys.time() in
-          let (tc, sTest, clTest_US, a) = test uk_cl assIntv strTestUS (remainingTime -. Sys.time() +. startTime) in
+          let (tc, sTest, clTest_US, a) = 
+            if isInfinite then
+              (let (firstUkCl,_) = List.hd uk_cl in
+              ([], -1 ,[firstUkCl], []))
+            else test uk_cl assIntv strTestUS (remainingTime -. Sys.time() +. startTime) 
+          in
           let (uk_cl, _) = List.split uk_cl in
           (*print_endline ("SAT: " ^ assignments_toString tc);*)
           (*let (sTest, clTest_US, a) = evalTest assIntv uk_cl checkVarID strTestUS in*)
