@@ -34,3 +34,7 @@
 *.in
 *.out
 *.tmp
+camlside/a
+solver/Test/bin/raSAT
+solver/Test/raSAT
+solver/raSAT
