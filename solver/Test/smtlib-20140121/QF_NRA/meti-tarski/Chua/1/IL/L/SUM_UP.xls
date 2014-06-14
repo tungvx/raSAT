@@ -1,0 +1,2 @@
+Problem,nVars,nAPIs,time<60 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
+smtlib-20140121/QF_NRA/meti-tarski/Chua/1/IL/L/Chua-1-IL-L-chunk-0014.smt2,3,3,.012,0,0,0,0,0,0,7,4,2,8,8,0,0,sat

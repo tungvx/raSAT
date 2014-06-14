@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
 	CAMLlocal1 (smt);
 	caml_register_global_root(&smt);
 
-	////cout << "Run4" << endl;
+	//cout << "Run4" << endl;
 	smt = caml_genSmtForm(sInt, sAs, ub);
 	string smtContent = String_val(Field(smt, 0));
 	//cout << "raSAT input form: " << smtContent << "\n";
@@ -507,6 +507,7 @@ int main(int argc, char* argv[]) {
 					printf("Solved by unit propagation\n");
 					printStats(S);
 					//cout << "Run34" << endl;
+
 					printf("\n");
 
 				}

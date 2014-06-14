@@ -1,0 +1,4 @@
+Problem,nVars,nAPIs,time<60 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0005.smt2,4,3,.008,0,0,0,0,0,.004,8,4,2,8,8,0,0,sat
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0005.smt2,4,3,60.000,0,0,0,0,0,30.000,8,4,15000,60000,60000,0,0,unknown
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0005.smt2,4,3,60.000,0,0,0,0,0,30.000,8,4,15000,60000,60000,0,0,unknown
