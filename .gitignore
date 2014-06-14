@@ -38,3 +38,6 @@ camlside/a
 solver/Test/bin/raSAT
 solver/Test/raSAT
 solver/raSAT
+*.zip
+*.gz
+*.smt2
