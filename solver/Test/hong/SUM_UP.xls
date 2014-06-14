@@ -1,21 +1,2 @@
-Problem,nVars,nAPIs,time<10 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
-hong/hong_1.smt2,1,2,0,0,0,0,0,0,0,1,0,2,1,0,1,0,unsat
-hong/hong_10.smt2,10,2,.01,0,0,.01,0,0,0,10,0,2,10,0,10,0,unsat
-hong/hong_11.smt2,11,2,0,.01,0,0,0,0,0,11,0,2,11,0,11,0,unsat
-hong/hong_12.smt2,12,2,0,0,0,.01,0,0,0,12,0,2,12,0,12,0,unsat
-hong/hong_13.smt2,13,2,.01,0,0,.01,0,0,0,13,0,2,13,0,13,0,unsat
-hong/hong_14.smt2,14,2,0,0,0,0,0,0,0,14,0,2,14,0,14,0,unsat
-hong/hong_15.smt2,15,2,0,0,0,0,0,0,0,15,0,2,15,0,15,0,unsat
-hong/hong_16.smt2,16,2,0,0,0,.01,0,0,0,16,0,2,16,0,16,0,unsat
-hong/hong_17.smt2,17,2,0,0,0,0,0,0,0,17,0,2,17,0,17,0,unsat
-hong/hong_18.smt2,18,2,.01,0,0,0,0,0,.01,18,0,2,18,0,18,0,unsat
-hong/hong_19.smt2,19,2,.01,0,0,.01,0,0,0,19,0,2,19,0,19,0,unsat
-hong/hong_2.smt2,2,2,0,0,0,0,0,0,0,2,0,2,1,0,1,0,unsat
-hong/hong_20.smt2,20,2,.01,0,0,.01,0,0,0,20,0,2,20,0,20,0,unsat
-hong/hong_3.smt2,3,2,0,0,0,0,0,0,0,3,0,2,1,0,1,0,unsat
-hong/hong_4.smt2,4,2,0,0,0,0,0,0,0,4,0,2,4,0,4,0,unsat
-hong/hong_5.smt2,5,2,0,0,0,0,0,0,0,5,0,2,5,0,5,0,unsat
-hong/hong_6.smt2,6,2,0,0,0,0,0,0,0,6,0,2,6,0,6,0,unsat
-hong/hong_7.smt2,7,2,0,0,0,0,0,0,0,7,0,2,7,0,7,0,unsat
-hong/hong_8.smt2,8,2,0,0,0,.01,0,0,0,8,0,2,8,0,8,0,unsat
-hong/hong_9.smt2,9,2,.01,0,0,0,0,0,.01,9,0,2,9,0,9,0,unsat
+Problem,nVars,nAPIs,time< ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
+hong/hong_1.smt2,1,2,.004,0,0,0,0,0,.004,1,0,4,2,0,2,0,unsat
