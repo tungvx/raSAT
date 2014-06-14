@@ -30,8 +30,7 @@
 *.app
 
 # SMT files
-*
-!*.*
 *.rs
 *.in
 *.out
+*.tmp
