@@ -1,1 +1,1 @@
-parser.cmi: ast.cmx
+parser.cmi : ast.cmx

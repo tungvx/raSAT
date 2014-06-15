@@ -65,7 +65,6 @@ smt_bool_expr:
   | LE smt_poly_expr smt_poly_expr       { Le  ($2, $3) }
   | LPAREN smt_bool_expr RPAREN      { $2 }
   | AND smt_bool_expr smt_bool_expr      { And ($2, $3) }
-  (*| NOT smt_bool_expr                { Not $2 }*)
   | SUBVAR                       { BVar $1 }
 
 smt_poly_expr:

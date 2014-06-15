@@ -1,2 +1,2 @@
 Problem,nVars,nAPIs,time< ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
-hong/hong_1.smt2,1,2,0,0,0,0,0,0,0,1,0,4,2,0,2,0,unsat
+,,,,,,,,,,,,,,,,,unknown
