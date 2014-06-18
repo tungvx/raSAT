@@ -1,12 +1,10 @@
-# Usage: sh raSAT.sh testDir lb ub sbox tout
+# Usage: sh raSAT.sh testDir sbox tout
 # testDir: the directory containing testing .smt2 files.
-# lb: lower bound of variabes
-# ub: upper bound of variables
 # sbox: search box, epsilon
 # tout: time out
 export IFS=","
 RESULT=$1/SUM_UP.xls
-echo "Problem,nVars,nAPIs,time<$5 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result" > $RESULT
+echo "Problem,nVars,nAPIs,time<$3 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result" > $RESULT
 ls $1/*.smt2
 for file in $1/*.smt2; do
    fIaTime=0;

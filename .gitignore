@@ -12,6 +12,9 @@
 *.lo
 *.o
 *.obj
+*.d
+*.di
+*.xls#
 
 # Compiled Dynamic libraries
 *.so

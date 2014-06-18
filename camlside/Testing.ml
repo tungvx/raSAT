@@ -124,8 +124,8 @@ let check_varWithSen_inSet varsSet (var, sen) =
 let rec set_tc_num_extra varsSen priorityNum = match varsSen with
   | [] -> []
   | (var, _) :: t -> 
-    if priorityNum > 0 then (var, 2) :: (set_tc_num_extra t (priorityNum - 1))
-    else (var, 4) :: (set_tc_num_extra t 0)  
+    if priorityNum > 0 then (var, 1) :: (set_tc_num_extra t (priorityNum - 1))
+    else (var, 2) :: (set_tc_num_extra t 0)  
     
 let set_tc_num varsSen = 
   let length = List.length varsSen in
