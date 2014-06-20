@@ -115,7 +115,7 @@ void addLitListToVector(vec<Lit> &litVector, string litList) {
 		//cout << var << " ";
 		litVector.push((a[i] > 0) ? mkLit(var) : ~mkLit(var));
 	}
-	delete [] a;
+	delete[] a;
 	//cout << "\n";
 }
 
@@ -147,9 +147,10 @@ int solver_addClause(Solver& solv, string reason) {
 		if (a[endPos] == 0) {
 			vec < Lit > cl;
 			for (int i = prevPos; i < endPos; i++) {
-				int var = abs(a[i]) - 1;	
+				int var = abs(a[i]) - 1;
 				//printf ("adding %d\n", var);	
-				while (var >= solv.nVars()) solv.newVar();
+				while (var >= solv.nVars())
+					solv.newVar();
 				if (miniSATVars < var + 1)
 					miniSATVars = var + 1;
 				bool sign = (a[i] > 0) ? false : true;
@@ -192,7 +193,7 @@ static void SIGINT_exit(int signum) {
 
 int main(int argc, char* argv[]) {
 	////cout << "Run" << endl;
-	bool debug = false;
+	bool debug = true;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -214,7 +215,7 @@ int main(int argc, char* argv[]) {
 	char *smtfile = argv[1];
 	int nvar = num_var(smtfile);
 	//cout << "number of variables: "<<nvar<<endl;
-	
+
 	string str = get_listvars(smtfile, nvar, lb);
 	char *sInt = new char[str.size() + 1];
 	strcpy(sInt, str.c_str());
@@ -333,11 +334,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	////cout << "Run9" << endl;
-	//sfile = toFileout(argv[1]);
-	//char * outFile = new char[sfile.size() + 1];
-	//strcpy(outFile, sfile.c_str());
+	sfile = toFileout(argv[1]);
+	char * outFile = new char[sfile.size() + 1];
+	strcpy(outFile, sfile.c_str());
 
-	//FILE* res = (argc >= 2) ? fopen(outFile, "wb") :  NULL;
+	FILE* res = (argc >= 2) ? fopen(outFile, "wb") : NULL;
 
 	/*End preprocess side*/
 
@@ -553,9 +554,9 @@ int main(int argc, char* argv[]) {
 
 				if (ret == l_True) {
 					//cout << "Run44" << endl;
-					int varsNum = S.nVars();	
+					int varsNum = S.nVars();
 					char sSAT[2 * varsNum + 1];
-					strcpy (sSAT, "");
+					strcpy(sSAT, "");
 					//cout << "Run45" << endl;
 					for (int i = 0; i < S.nVars(); i++) {
 						if (S.model[i] != l_Undef) {
@@ -563,7 +564,7 @@ int main(int argc, char* argv[]) {
 							if (c > 0) {
 								char numstr[21];
 								sprintf(numstr, "%s%d", (i == 0) ? "" : " ", c);
-								strcat (sSAT, numstr);
+								strcat(sSAT, numstr);
 							}
 						}
 					}
@@ -602,7 +603,7 @@ int main(int argc, char* argv[]) {
 					 cout << endl << "ia:" << ia << endl;
 					 cout << endl << "esl:" << esl << endl;
 					 cout << endl << "c_strTestUS: " << c_strTestUS << endl;
-					*/
+					 */
 					//cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
@@ -611,8 +612,9 @@ int main(int argc, char* argv[]) {
 							esl, c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
 							timeout - (cpuTime() - initial_time));
-					delete [] c_dIntv;
-					if (needDeleted) delete[] c_strTestUS;
+					delete[] c_dIntv;
+					if (needDeleted)
+						delete[] c_strTestUS;
 					//cout << "Run50" << endl;
 					dummy.clear(true);
 //					cout << "Searched \n\n";
@@ -623,7 +625,7 @@ int main(int argc, char* argv[]) {
 					//cout << sat << endl;
 					logResult = String_val(Field(theoCheck, 3));
 					//cout << "Run52" << endl;	
-					
+
 					strTestUS = String_val(Field(theoCheck, 5));
 					//cout <<endl<<"strTestUS: "<<strTestUS<<endl;
 
@@ -663,7 +665,7 @@ int main(int argc, char* argv[]) {
 						check = false;
 						finalRes = -2;
 					} else if (sat == 1) {
-						#ifdef iRRAM_INC
+#ifdef iRRAM_INC
 						// get the assignments of testing.
 						char* assignments = String_val(Field(theoCheck, 1));
 						// get the tested expresions.
@@ -677,16 +679,16 @@ int main(int argc, char* argv[]) {
 						} else {
 							if (debug) {
 								cout
-										<< "iRRAM detects round off error:.....................\n";
+								<< "iRRAM detects round off error:.....................\n";
 								cout << logResult << endl;
 								cout
-										<< "............................................. end iRRAM\n";
+								<< "............................................. end iRRAM\n";
 							}
 						}
-						#else 
+#else 
 						check = false;
 						finalRes = sat;
-						#endif
+#endif
 					} else if (sat == 0) { //adding unknown reason to solver
 						finalRes = sat;
 						string cl_uk = String_val(Field(theoCheck, 2));
@@ -720,8 +722,8 @@ int main(int argc, char* argv[]) {
 					check = false;
 				} else {
 					check = false;
-					//fprintf(res, "INDET\n");
-					//fclose(res);
+					fprintf(res, "INDET\n");
+					fclose(res);
 				}
 				//break; // force the loop to be executed once only
 			}							 // End while loop
@@ -738,141 +740,139 @@ int main(int argc, char* argv[]) {
 				// file for output compact result
 				ofstream final_result;
 				final_result.open((string(smtfile) + ".tmp").c_str());
-				//final_result.open(string("tmp.tmp").c_str());	
+
 				// For theory result
 				double totalTime = cpuTime() - initial_time;
-				//char *sta = new char[1024];
-				//sprintf(typeIA, "%s",
-				//		(ia == 0) ? "CI" : (ia == 1) ? "AF1" :
-				//		(ia == 2) ? "AF2" : (ia == 3) ? "CAI1" :
-				//		(ia == 4) ? "CAI2" : (ia == 5) ? "CAI3" : "CI");
-				//if (debug)
-				//	printf(
-				//			"\n===========================[ Problem Statistic ]===================================\n");
+				char *sta = new char[1024];
+				if (debug)
+					printf(
+							"\n===========================[ Problem Statistic ]===================================\n");
 
 				final_result << argv[1] << ","; //output problem name to the final compact result file:
-				//sprintf(sta, "\nInput problem         : %s ", argv[1]);
+				sprintf(sta, "\nInput problem         : %s ", argv[1]);
+
 				final_result << nVars << ","; // output the number of variables to final compact result.
-				//sprintf(sta, "%s\nNumber of variables   : %d ", sta, nVars);
+				sprintf(sta, "%s\nNumber of variables   : %d ", sta, nVars);
+
 				final_result << nCons << ","; // output the number of apis to final compact result.
-				//sprintf(sta, "%s\nNumber of constraints : %d ", sta, nCons);
-				//sprintf(sta, "%s\nInterval Arithmetic   : %s", sta, typeIA);
-				//sprintf(sta, "%s\nUnit searching box    : %g", sta, esl);
-				//sprintf(sta, "%s\nTimeout setting       : %g seconds\n", sta,
-				//		timeout);
+				sprintf(sta, "%s\nNumber of constraints : %d ", sta, nCons);
+				sprintf(sta, "%s\nUnit searching box    : %g", sta, esl);
+				sprintf(sta, "%s\nTimeout setting       : %g seconds\n", sta,
+						timeout);
 
 				final_result << totalTime << ","; // output the total running time to final compact result.
-				//sprintf(sta, "%s\nTotal running time    : %g seconds\n", sta,
-				//		totalTime);
+				sprintf(sta, "%s\nTotal running time    : %g seconds\n", sta,
+						totalTime);
 
 				final_result << iaTime << ","; // output the total time of IA operations
-				//sprintf(sta, "%s\nIA time               : %g seconds\n", sta,
-				//		iaTime);
+				sprintf(sta, "%s\nIA time               : %g seconds\n", sta,
+						iaTime);
 
 				final_result << testingTime << ","; // output the total time of testing operations
-				//sprintf(sta, "%s\nTesting time          : %g seconds\n", sta,
-				//		testingTime);
+				sprintf(sta, "%s\nTesting time          : %g seconds\n", sta,
+						testingTime);
 
 				final_result << usTime << ","; // output the total time of unsat core computations
-				//sprintf(sta, "%s\nUNSAT Core time       : %g seconds\n", sta,
-				//		usTime);
+				sprintf(sta, "%s\nUNSAT Core time       : %g seconds\n", sta,
+						usTime);
 
 				final_result << parsingTime << ",";
-				//sprintf(sta, "%s\nParsing time          : %g seconds\n", sta,
-				//		parsingTime);
+				sprintf(sta, "%s\nParsing time          : %g seconds\n", sta,
+						parsingTime);
 
 				final_result << decompositionTime << ",";
-				//sprintf(sta, "%s\nDecomposition time    : %g seconds\n", sta,
-				//		decompositionTime);
+				sprintf(sta, "%s\nDecomposition time    : %g seconds\n", sta,
+						decompositionTime);
 
-				//sprintf(sta, "%s\nOcaml time            : %g seconds\n", sta,
-				//		ocamlTime);
+				sprintf(sta, "%s\nOcaml time            : %g seconds\n", sta,
+						ocamlTime);
 
 				final_result << miniSATTime << ",";
-				//sprintf(sta, "%s\nMiniSAT time          : %g seconds\n", sta,
-				//		miniSATTime);
+				sprintf(sta, "%s\nMiniSAT time          : %g seconds\n", sta,
+						miniSATTime);
 
 				final_result << miniSATVars << ",";
-				//sprintf(sta, "%s\nMiniSAT vars          : %g\n", sta,
-				//		miniSATVars);
+				sprintf(sta, "%s\nMiniSAT vars          : %g\n", sta,
+						miniSATVars);
 
 				final_result << maxClauses << ",";
-				//sprintf(sta, "%s\nMiniSAT max clauses   : %g\n", sta,
-				//		maxClauses);
+				sprintf(sta, "%s\nMiniSAT max clauses   : %g\n", sta,
+						maxClauses);
 
 				final_result << miniSATCalls << ",";
-				//sprintf(sta, "%s\nMiniSAT calls         : %g\n", sta,
-				//		miniSATCalls);
+				sprintf(sta, "%s\nMiniSAT calls         : %g\n", sta,
+						miniSATCalls);
 
 				final_result << clauses << ",";
-				//sprintf(sta, "%s\nraSAT clauses         : %g\n", sta, clauses);
+				sprintf(sta, "%s\nraSAT clauses         : %g\n", sta, clauses);
 
 				final_result << nDecompositions << ",";
-				//sprintf(sta, "%s\nDecomposed clauses    : %g\n", sta,
-				//		nDecompositions);
+				sprintf(sta, "%s\nDecomposed clauses    : %g\n", sta,
+						nDecompositions);
 
 				final_result << UNSATLearnedClauses << ",";
-				//sprintf(sta, "%s\nUNSAT learned clauses : %g\n", sta,
-				//		UNSATLearnedClauses);
+				sprintf(sta, "%s\nUNSAT learned clauses : %g\n", sta,
+						UNSATLearnedClauses);
 
 				final_result << unknownLearnedClauses << ",";
-				//sprintf(sta, "%s\nUNKOWN learned clauses: %g\n", sta,
-				//		unknownLearnedClauses);
+				sprintf(sta, "%s\nUNKOWN learned clauses: %g\n", sta,
+						unknownLearnedClauses);
 
-				//cout<<sta;
+//				cout<<sta;
 				if (finalRes == -2) {
 					//cout <<"\nTIMEOUT";
 					final_result << "Timeout\n"; // output the result to final compact result.
-					//sprintf(sta, "%sResult                : Timeout\n\n", sta);
-					//if (debug)
-					//	cout << sta;
-					//fprintf(res, sta);
-					//fclose(res);
+					sprintf(sta, "%sResult                : Timeout\n\n", sta);
+					if (debug)
+						cout << sta;
+					fprintf(res, sta);
+					fclose(res);
 				}
 
 				else if (finalRes == 0) {
 					//cout <<"\nUNKNOWN";
 					//cout << "unknown";
 					final_result << "unknown\n"; // output the result to final compact result.
-					//sprintf(sta, "%sResult                : UNKNOWN\n\n", sta);
-					//if (debug)
-					//	cout << sta;
-					//fprintf(res, sta);
-					//fclose(res);
+					sprintf(sta, "%sResult                : UNKNOWN\n\n", sta);
+					if (debug)
+						cout << sta;
+					fprintf(res, sta);
+					fclose(res);
 				} else if (finalRes == -1) {
 					//cout <<"\nUNSAT";
 					//cout << "unsat";
 					final_result << "unsat\n"; // output the result to final compact result.
-					//sprintf(sta,
-					//		"%sResult                : UNSAT			\n\n",
-					///		sta);
-					//if (debug)
-					//	cout << sta;
-					//fprintf(res, sta);
-					//fclose(res);
+					sprintf(sta,
+							"%sResult                : UNSAT			\n\n",
+							sta);
+					if (debug)
+						cout << sta;
+					fprintf(res, sta);
+					fclose(res);
 				} else if (finalRes == 1) {
 					//cout <<"\nSAT\n";
 					//cout << "sat";
 					final_result << "sat\n"; // output the result to final compact result.
-					//sprintf(sta, "%sResult                : SAT\n\n", sta);
-					//if (debug)
-					//	cout << sta;
-					//char * logContent = new char[logResult.size() + 1];
-					//strcpy(logContent, logResult.c_str());
-					///if (debug)
-					//	cout
-					//			<< "=================================[ SAT instances ]================================="
-					//			<< endl;
-					//if (debug)
-					//	cout << endl << logContent;
-					//fprintf(res, sta);
-					//fprintf(res, logContent);
-					//fclose(res);
+					sprintf(sta, "%sResult                : SAT\n\n", sta);
+					if (debug)
+						cout << sta;
+					char * logContent = new char[logResult.size() + 1];
+					strcpy(logContent, logResult.c_str());
+					if (debug)
+						cout
+								<< "=================================[ SAT instances ]================================="
+								<< endl;
+					if (debug)
+						cout << endl << logContent;
+					fprintf(res, sta);
+					fprintf(res, logContent);
+					fclose(res);
 				}
 				if (debug)
 					cout << endl;
 				final_result.close();
 			}
+			
 			// End screen information
 
 #ifdef NDEBUG

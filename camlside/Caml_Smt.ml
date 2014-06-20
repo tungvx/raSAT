@@ -211,26 +211,26 @@ let rec div_constr e = match e with
   | _ -> bool_toPrefix e
 
 let poly_isCons = function
-  | Real c -> true
+  | Real 0. -> true
   | _ -> false
 
 (*Simplify a boolean expression: a constant placed in right hand side*)
 let rec bool_simp = function
   | BVar bVar -> BVar bVar
   | Eq (e1, e2) -> 
-      if ((poly_isCons e1) || (poly_isCons e2)) then Eq (e1, e2)
+      if poly_isCons e2 then Eq (e1, e2)
       else Eq (Sub(e1, e2), Real 0.)
   | Le (e1, e2) -> 
-      if (poly_isCons e1) || (poly_isCons e2) then Le (e1, e2)
+      if poly_isCons e2 then Le (e1, e2)
       else Le (Sub(e1, e2), Real 0.)
   | Leq(e1, e2) -> 
-      if (poly_isCons e1) || (poly_isCons e2) then Leq (e1, e2)
+      if poly_isCons e2 then Leq (e1, e2)
       else Leq (Sub(e1, e2), Real 0.)
   | Gr (e1, e2) -> 
-      if (poly_isCons e1) || (poly_isCons e2) then Gr (e1, e2)
+      if poly_isCons e2 then Gr (e1, e2)
       else Gr (Sub(e1, e2), Real 0.)
   | Geq(e1, e2) -> 
-      if (poly_isCons e1) || (poly_isCons e2) then Geq (e1, e2)
+      if poly_isCons e2 then Geq (e1, e2)
       else Geq (Sub(e1, e2), Real 0.)
   | And(e1, e2) -> And (bool_simp e1, bool_simp e2)
   | Not (e1) -> Not (bool_simp e1)

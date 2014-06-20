@@ -2,28 +2,6 @@ open Util
 open Ast
 open Assignments
 open InfiniteList
-  
-let rec gen_power_set_of_length aList currentLength = 
-  if currentLength > List.length aList then Nil
-  else if currentLength = 1 then convert_toInfList aList
-  else
-    let tail = List.tl aList in
-    let subPowerSet = gen_power_set_of_length tail (currentLength - 1) in
-    let currentPowerSet = append_first (List.hd aList) subPowerSet in 
-      let nextPowerSet = gen_power_set_of_length tail currentLength in
-      currentPowerSet @@ nextPowerSet
-
-let rec gen_power_set aList currentLength maxLength =
-  if (currentLength <= 0 || currentLength > maxLength) then 
-    Nil
-  else 
-    let currentPowerSet = gen_power_set_of_length aList currentLength in
-    let remainingPowerSet = gen_power_set aList (currentLength + 1) maxLength in
-    currentPowerSet @@ remainingPowerSet
-
-let rec power_set aList =
-  gen_power_set aList 1 (List.length aList);;
-
 
 let check_unsatcore_vars boolExp currentIntv originalIntv varsList isInfinite = 
   (*print_endline ("Checking: " ^ Util.vars_to_string varsList);

@@ -47,7 +47,7 @@ let rec check_SAT testedEBoolExps assignments unsatBoolExp = match testedEBoolEx
   | [] -> (true, unsatBoolExp)
   | (boolExp, _, _, _) :: remaining -> 
     (*print_endline (bool_expr_to_infix_string boolExp);*)
-    let (sat, leftValue, rightValue) = checkSAT_computeValues boolExp assignments in
+    let (sat, _) = checkSAT_computeValues boolExp assignments in
     if sat then check_SAT remaining assignments unsatBoolExp
     else (false, boolExp)
     

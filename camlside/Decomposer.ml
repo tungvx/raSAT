@@ -1,4 +1,4 @@
-open Ast           (*type: literal, clause, formula... declaration*)
+(*open Ast           (*type: literal, clause, formula... declaration*)
 open Util
 open Assignments
 open IA
@@ -29,15 +29,11 @@ let rec decompose_new_clause_extra (currentDIntv, currentMinisatCode, currentBum
 	| [] -> (currentDIntv, currentMinisatCode, currentBumpVars, currentWasDecomposed)
 	| var::t -> 
 		(
-    let leftExpression = leftExp clause in
-		let leftDerivative = getDerivative leftExpression var in
-		let leftDerivativeValue = evalFloat assignments leftDerivative in		
-    let rightExpression = rightExp clause in
-		let rightDerivative = getDerivative rightExpression var in
-		let rightDerivativeValue = evalFloat assignments rightDerivative in
-		let finalDerivative = leftDerivativeValue -. rightDerivativeValue in
+    let polyExp = get_exp clause in
+		let derivative = getDerivative polyExp var in
+		let derivativeValue = evalFloat assignments derivative in
 		let differentValue = leftValue -. rightValue in
-		if isLowerBound = (differentValue *. finalDerivative < 0.) then
+		if isLowerBound = (differentValue *. derivativeValue < 0.) then
 			let decomposedPoint = (List.assoc var assignments) -. differentValue /. finalDerivative in
 			let interval = List.assoc var assIntv in
 				if decomposedPoint -. interval#l > 0. && interval#h -. decomposedPoint > 0. then (
@@ -182,5 +178,5 @@ let rec decompose_list_unsat_detection boolExpList assIntv dIntv lstVarID iVar e
   | boolExp::remainingBoolExps -> 
     let (newDIntv, minisatCode, bumpVars, wasDecomposed) = decompose_unsat_detection boolExp assIntv dIntv lstVarID iVar esl in
     if wasDecomposed then (newDIntv, minisatCode, bumpVars, wasDecomposed)
-    else decompose_list_unsat_detection remainingBoolExps assIntv dIntv lstVarID iVar esl
+    else decompose_list_unsat_detection remainingBoolExps assIntv dIntv lstVarID iVar esl *)
 

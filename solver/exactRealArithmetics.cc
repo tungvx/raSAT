@@ -243,6 +243,8 @@ bool check(string expression, std::map<string, REAL> ass) {
  * check SAT of list of clauses (expressions) provided the assignments of variables.
  */
 bool checkSAT(char* clausesList, char* assignments) {
+	//cout << "ClausesList: " << clausesList << "\n";
+	//cout << "Assignments: " << assignments << "\n";
 // first, try to parse the assignments from the string and store them into a map for later uses.
 	std::map < string, REAL > ass;
 	std::vector < std::string > tokens = string_split(assignments, ' '); // extract list of tokens.
@@ -252,7 +254,7 @@ bool checkSAT(char* clausesList, char* assignments) {
 		string var = tokens[i++]; // name of the variable.
 		if (i >= length) // we need one more Real number in the list.
 			break;
-		ass[var] = atoREAL(tokens[i++].c_str()); // store the value of of the variable into the map. 
+		ass[var] = atoREAL(tokens[i++].c_str()); // store the value of of the variable into the map.
 	}
 
 // parse and check the list of SAT clauses.
@@ -260,7 +262,7 @@ bool checkSAT(char* clausesList, char* assignments) {
 	for (std::vector<string>::iterator it = clauses.begin();
 			it != clauses.end(); ++it)
 		if (!check(*it, ass)) { // if one exression is UNSAT, reuturn false.
-			// cout << "iRRAM detects error at: " << *it << std::endl;
+			cout << "iRRAM detects error at: " << *it << std::endl;
 			return false;
 		}
 	return true; // all the expressions are checked to be SAT.

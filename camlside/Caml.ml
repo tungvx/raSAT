@@ -54,7 +54,7 @@ module Caml = struct
 
   let sub_ass = function
     | Ass (e) -> e
-    | _ -> Eq (Real 0., Real 0.)                (*This case never happen*)  
+    | _ -> Eq (Real 0.)                (*This case never happen*)  
 
   (*toIntList convert a string to an int list*)
   let rec toIntList str = 
@@ -158,12 +158,12 @@ let rec poly_toString sign  = function
 
 (*Represent a bool expression by a string*)
 let rec bool_toString = function
-  | Eq (e1, e2) -> (poly_toString "" e1)^" = " ^ (poly_toString "" e2)
-  | Le (e1, e2) -> (poly_toString "" e1)^" < " ^ (poly_toString "" e2)
-  | Leq(e1, e2) -> (poly_toString "" e1)^" <= " ^(poly_toString "" e2)
-  | Gr (e1, e2) -> (poly_toString "" e1)^" > " ^ (poly_toString "" e2)
-  | Geq(e1, e2) -> (poly_toString "" e1)^" >= " ^(poly_toString "" e2)
-  | And(e1, e2) -> (bool_toString  e1)^"\nand "^(bool_toString  e2)
+  | Eq e -> (poly_toString "" e)^" = 0"
+  | Le e -> (poly_toString "" e)^" < 0"
+  | Leq e -> (poly_toString "" e)^" <= 0"
+  | Gr  e -> (poly_toString "" e)^" > 0"
+  | Geq e -> (poly_toString "" e)^" >= 0"
+  | And (e1, e2) -> (bool_toString  e1)^"\nand "^(bool_toString  e2)
 
 let rec getMaxBound m cl = match cl with
   |In (x, l, h) -> max (h-.l) m
@@ -192,11 +192,11 @@ let rec getMB m constr = match constr with
 
   (*Constraints to prefix representation*)      
   let rec toPrefix  = function
-  | Eq (e1, e2) -> "(= " ^ (poly_toPrefix e1)^" " ^ (poly_toPrefix e2)^")"
-  | Le (e1, e2) -> "(< " ^ (poly_toPrefix e1)^" " ^ (poly_toPrefix e2)^")"
-  | Leq(e1, e2) -> "(<= "^ (poly_toPrefix e1)^" " ^ (poly_toPrefix e2)^")"
-  | Gr (e1, e2) -> "(> " ^ (poly_toPrefix e1)^" " ^ (poly_toPrefix e2)^")"
-  | Geq(e1, e2) -> "(>= "^ (poly_toPrefix e1)^" " ^ (poly_toPrefix e2)^")"
+  | Eq e -> "(= " ^ (poly_toPrefix e)^" 0)"
+  | Le e -> "(< " ^ (poly_toPrefix e)^" 0)"
+  | Leq e -> "(<= "^ (poly_toPrefix e)^" 0)"
+  | Gr e -> "(> " ^ (poly_toPrefix e)^" 0)"
+  | Geq e -> "(>= "^ (poly_toPrefix e)^" 0)"
   | And(e1, e2) -> "(and "^(toPrefix e1)^" " ^ (toPrefix e2)^")"
 
   (*=== polynomial functions to postfix representation ===*)
@@ -211,11 +211,11 @@ let rec getMB m constr = match constr with
 
   (*=== Constraints to postfix representation ===*)      
   let rec contraint_toPostfix  = function
-  | Eq (e1, e2) -> (poly_toPostfix e1) ^ (poly_toPostfix e2) ^ "= "
-  | Le (e1, e2) -> (poly_toPostfix e1) ^ (poly_toPostfix e2) ^ "< " 
-  | Leq(e1, e2) -> (poly_toPostfix e1) ^ (poly_toPostfix e2) ^ "<= "
-  | Gr (e1, e2) -> (poly_toPostfix e1) ^ (poly_toPostfix e2) ^ "> " 
-  | Geq(e1, e2) -> (poly_toPostfix e1) ^ (poly_toPostfix e2) ^ ">= " 
+  | Eq e -> (poly_toPostfix e) ^ "real 0 = "
+  | Le e -> (poly_toPostfix e) ^ "real 0 < " 
+  | Leq e -> (poly_toPostfix e) ^ "real 0 <= "
+  | Gr e -> (poly_toPostfix e) ^ "real 0 > " 
+  | Geq e -> (poly_toPostfix e) ^ "real 0 >= " 
   | And(e1, e2) -> (contraint_toPostfix e1) ^ (contraint_toPostfix e2) ^ "and "
   (*=== End contraint_toPostfix function ===*)
 
@@ -299,61 +299,29 @@ let rec getMB m constr = match constr with
     (*^ string_of_int totalVars ^ " 0"*)
 
   (*log result for satisfiable solution in an expression e*)
-  let logSat e ia assIntv = 
-    let left = leftExp e in
-    let right = rightExp e in
-    let (leftBound, _)  = poly_eval left ia assIntv in
-    let (rightBound, _) = poly_eval right ia assIntv in
-    match e with
-    |Eq (e1, e2) -> 
-      (poly_toString "" e1) ^ "=" ^
-      "["^(string_of_float leftBound#l) ^","^(string_of_float leftBound#h) ^ "]"^" = "^
-      ( match e2 with 
-        | Real c -> (poly_toString "" e2)
-        | _ -> 
-          (poly_toString "" e2) ^ "=" ^ 
-          "["^(string_of_float rightBound#l) ^","^(string_of_float rightBound#h) ^ "]" 
-          )  
+  let logSat boolExp ia assIntv = 
+    let polyExp = get_exp boolExp in
+    let (bound, _)  = poly_eval polyExp ia assIntv in
+    match boolExp with
+    |Eq e -> 
+      (poly_toString "" e) ^ "=" ^
+        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" = 0"  
 
-    |Leq(e1, e2) -> 
-  (poly_toString "" e1) ^ "=" ^
-  "["^(string_of_float leftBound#l) ^","^(string_of_float leftBound#h) ^ "]"^" <= "^
-  ( match e2 with 
-    | Real c -> (poly_toString "" e2)
-    | _ -> 
-  (poly_toString "" e2) ^ "=" ^ 
-  "["^(string_of_float rightBound#l) ^","^(string_of_float rightBound#h) ^ "]" 
-     )
+    |Leq e -> 
+      (poly_toString "" e) ^ "=" ^
+        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" <= 0"
 
-     |Le (e1, e2) -> 
-  (poly_toString "" e1) ^ "=" ^
-  "["^(string_of_float leftBound#l) ^","^(string_of_float leftBound#h) ^ "]"^" < "^
-  ( match e2 with 
-    | Real c -> (poly_toString "" e2)
-    | _ -> 
-  (poly_toString "" e2) ^ "=" ^ 
-  "["^(string_of_float rightBound#l) ^","^(string_of_float rightBound#h) ^ "]" 
-     )
+    |Le e -> 
+      (poly_toString "" e) ^ "=" ^
+      "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" < 0"
 
-    |Geq(e1, e2) -> 
-  (poly_toString "" e1) ^ "=" ^
-  "["^(string_of_float leftBound#l) ^","^(string_of_float leftBound#h) ^ "]"^" >= "^
-  ( match e2 with 
-    | Real c -> (poly_toString "" e2)
-    | _ -> 
-  (poly_toString "" e2) ^ "=" ^ 
-  "["^(string_of_float rightBound#l) ^","^(string_of_float rightBound#h) ^ "]" 
-     )
+    |Geq e -> 
+      (poly_toString "" e) ^ "=" ^
+        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" >= 0"
 
-    |Gr (e1, e2) -> 
-  (poly_toString "" e1) ^ "=" ^
-  "["^(string_of_float leftBound#l) ^","^(string_of_float leftBound#h) ^ "]"^" > "^
-  ( match e2 with 
-    | Real c -> (poly_toString "" e2)
-    | _ -> 
-  (poly_toString "" e2) ^ "=" ^ 
-  "["^(string_of_float rightBound#l) ^","^(string_of_float rightBound#h) ^ "]" 
-     )
+    |Gr e -> 
+      (poly_toString "" e) ^ "=" ^
+        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" > 0"
 
     | _ -> ""        (*This case never happen*)
 
@@ -624,15 +592,13 @@ let rec getMB m constr = match constr with
     | (x, it)::t -> (g x it#l it#h):: (genAss_test g t)  
   *)
 
-  (*check whether an expression is satisfiable for an expression e by binding a test case*)
+(*  (*check whether an expression is satisfiable for an expression e by binding a test case*)
   let checkValue e ass = 
-    let left = leftExp e in
-    let right = rightExp e in
-    let leftValue  = evalFloat ass left in
-    let rightValue = evalFloat ass right in
+    let polyExp = get_exp e in
+    let value = evalFloat ass polyExp in
 
     match e with
-    |Eq (e1, e2) -> 
+    |Eq e1 -> 
       if (leftValue = rightValue) then 1  
       else -1 
     |Leq(e1, e2) -> 
@@ -673,7 +639,7 @@ let rec getMB m constr = match constr with
     |Gr (e1, e2) -> 
       if (leftValue > rightValue) then (1, d)   
       else (-1, d)   
-    | _ -> (1, d)      (*This case never happen*)
+    | _ -> (1, d)      (*This case never happen*)*)
 
   (*Generate information about a test case*)
   let rec logTestCase ass = match ass with
@@ -681,40 +647,29 @@ let rec getMB m constr = match constr with
     | (x, a):: t -> (x ^" = "^ string_of_float a) ^ "\n" ^ (logTestCase t)
   
   (*record the result for each constraint by a test case*)
-  let logValue e ass = 
-    let left = leftExp e in
-    (*let right = rightExp e in*)
+  let logValue boolExp ass = 
+    let polyExp = get_exp boolExp in
     
-    let leftVal = evalFloat ass left in
-    (*let rightVal = evalFloat ass right in*)
+    let value = evalFloat ass polyExp in
     
-    match e with
-    |Eq (e1, e2) -> 
-      (poly_toString "" e1) ^"="^ (string_of_float leftVal) ^" = "^
-      (poly_toString "" e2)
-      (*"="^ (string_of_float rightVal)*)
-    |Leq(e1, e2) -> 
-      (poly_toString "" e1) ^"="^ (string_of_float leftVal) ^" <= "^
-      (poly_toString "" e2) 
+    match boolExp with
+    |Eq e -> 
+      (poly_toString "" e) ^"="^ (string_of_float value) ^" = 0"
+    |Leq e -> 
+      (poly_toString "" e) ^"="^ (string_of_float value) ^" <= 0" 
       (*^"="^ (string_of_float rightVal)*)
-    |Le (e1, e2) -> 
-      (poly_toString "" e1) ^"="^ (string_of_float leftVal) ^" < "^
-      (poly_toString "" e2) 
-      (*^"="^ (string_of_float rightVal)*)
-    |Geq(e1, e2) -> 
-      (poly_toString "" e1) ^"="^ (string_of_float leftVal) ^" >= "^
-      (poly_toString "" e2) 
-      (*^"="^ (string_of_float rightVal)*)
-    |Gr (e1, e2) -> 
-      (poly_toString "" e1) ^"="^ (string_of_float leftVal) ^" > "^
-      (poly_toString "" e2) 
-      (*^"="^ (string_of_float rightVal)*)
+    |Le e -> 
+      (poly_toString "" e) ^"="^ (string_of_float value) ^" < 0"
+    |Geq e -> 
+      (poly_toString "" e) ^"="^ (string_of_float value) ^" >= 0"
+    |Gr e -> 
+      (poly_toString "" e) ^"="^ (string_of_float value) ^" > 0"
     | _ -> ""     (*This case never happen*)
 
   (*End logValue*)
   
   (*check all constraints in assertion constraints satisfiable or not*)
-  let rec valSat e ass= match e with
+(*  let rec valSat e ass= match e with
     |[] -> 1
     |[a] -> checkValue a ass
     |h::t -> 
@@ -744,14 +699,14 @@ let rec getMB m constr = match constr with
       let res = unsat_test a ass in    
       if (res = -1) then [a]
       else []
-    |h::t -> List.append (list_unsat [h] ass) (list_unsat t ass)
-        
+    |h::t -> List.append (list_unsat [h] ass) (list_unsat t ass) 
+*)        
   let rec logValue_all e ass = match e with
     |[] -> ""
     |[a] -> logValue a ass    
     |h::t->
       (logValue h ass) ^"\n"^ (logValue_all t ass)
-    
+  
   (*compute the list of variables from a list of constraints*)
   let lstVars lst = 
     let rec get_list = function
@@ -769,15 +724,15 @@ let rec getMB m constr = match constr with
     red_ass t lstVar 
 
   (*get the constradiction of encoded literal for unknown reason*)
-  let rec uk_reason l1 l2 = match l1 with
+(*  let rec uk_reason l1 l2 = match l1 with
       |[] -> "0"
       |h::t -> ("-" ^ string_of_int (List.assoc h l2)) ^ " " ^ (uk_reason  t l2)
-
+*)
   (*get the reason from set of unknown literals*)
    let rec uk_lit l1 l2 = match l1 with
       |[] -> ""
       |h::t -> (var_exp h l2) ^ "0 " ^ (uk_lit t l2)
-
+      
 
   (*New version for testing -------------------------*)
   (*=================================================*)
@@ -787,7 +742,7 @@ let rec getMB m constr = match constr with
     |And (e1, e2) -> List.append (f_toList e1) (f_toList e2)
     |_ -> [e]
 
-  (*Compute the list of variables from a boolean constraints*)
+(*  (*Compute the list of variables from a boolean constraints*)
   let rec f_listVar e = match e with
     | And (e1, e2) -> List.append (f_listVar e1) (f_listVar e2)
     | _ -> bool_vars e
@@ -807,7 +762,7 @@ let rec getMB m constr = match constr with
     if (l1 > l2) then 1
     else if (l1 < l2) then -1
     else 0
-
+*)
   (*Inclusion between two lists: l1 is a subset of l2*)
   let rec subset_list l1 l2 = match l1 with
     |[] -> true
@@ -836,7 +791,7 @@ let rec getMB m constr = match constr with
     )
 
   (*Divide list of constraints to small one for generating test cases*)
-  let rec build_ass eList lstVar = match eList with
+(*  let rec build_ass eList lstVar = match eList with
     |[] -> []
     |h::t -> 
   if (lstVar = []) then []
@@ -906,7 +861,7 @@ let rec getMB m constr = match constr with
   if (res = 1) then h:: sat_find e t
         else sat_find e t *)
   
-  (*New version of sat_find: tail recursion*)
+(*  (*New version of sat_find: tail recursion*)
   let rec sat_find r e vass ass = match ass with
     |[] -> r
     |h::t -> 
@@ -915,10 +870,10 @@ let rec getMB m constr = match constr with
   if (res = 1) then
     sat_find (h::r) e vass t
         else 
-    sat_find r e vass t 
+    sat_find r e vass t *)
 
   (*New version of sat_find1: tail recursion*)
-  let rec sat_find1 (e1, d1) r e vass ass =
+ (* let rec sat_find1 (e1, d1) r e vass ass =
     match ass with
     |[] -> (e1, d1, r)
     |h::t -> 
@@ -930,7 +885,7 @@ let rec getMB m constr = match constr with
       if (res = 1) then
         sat_find1 (e2, d2) (h::r) e vass t
       else 
-        sat_find1 (e2, d2) r e vass t
+        sat_find1 (e2, d2) r e vass t*)
   
   (*remove empty element in list*)
   let rec remove_empty r l = match l with
@@ -945,7 +900,7 @@ let rec getMB m constr = match constr with
     |(x, l)::t -> extract ([x]::lvar) (l::ltc) t
 
   (*find test cases that satisfying a constraint (clause) e *)
-  let find_tc lvars oAss e uAss =
+(*  let find_tc lvars oAss e uAss =
     let vars = Util.red_list (bool_vars e) in
     let tc = get_index_all [] vars uAss in (* tc contains the test cases of variables in vars *)
     let big_number = max_float in 
@@ -960,7 +915,7 @@ let rec getMB m constr = match constr with
       let (e1, d1, new_ass) = sat_find1 ([], big_number) [] e lvars oAss in
       (e1, lvars, new_ass, uAss)
     )
-    
+*)    
   (*find test cases that satisfying list of constraints 
   let rec find_tc_all oAss lstAss ass = match lstAss with
     |[]-> (oAss, ass, [])
@@ -1008,7 +963,7 @@ let rec getMB m constr = match constr with
       let lstGroup = list_group [] gr in
       sub_list uk lstGroup
 
-  let rec is_sat e ass = match e with
+(*  let rec is_sat e ass = match e with
       |[] -> 1
       |h::t -> 
     let res = checkValue h ass in
@@ -1035,7 +990,7 @@ let rec getMB m constr = match constr with
   |h::t->let res = unsat_test h ass in    
         if (res = -1) then list_unsat (h::l) t ass 
         else list_unsat l t ass
-
+*)
   (*The main function for testing*)
   (*
   let search_tc lstAss assIntv =
@@ -1101,7 +1056,7 @@ let rec getMB m constr = match constr with
     | . uAss: List of test cases for each variable. Each one has two values.    |  
     | . first_list: list of tested clauses             |
     |_____________________________________________________________________________|*)
-  let rec first_search lvars oAss uAss first_list = 
+(*  let rec first_search lvars oAss uAss first_list = 
     match first_list with
     |[] -> ([], lvars, oAss, uAss, [])
     |_ -> (
@@ -1135,7 +1090,7 @@ let rec getMB m constr = match constr with
         search_inside new_lvars new_Ass new_uAss new_uk_cl
       )
     )
-  
+*)  
   (*compute all sub constraints of e = subset variables of e from list l*)
   let rec sub_constraints e l = match l with
     |[] -> []
@@ -1177,7 +1132,7 @@ let rec getMB m constr = match constr with
   (* ============================ END get_maxdep ========================= *)
 
 
-  (* ============================ START search_tc2 ========================= *)
+(*  (* ============================ START search_tc2 ========================= *)
   (*search a satisfiable test case*)
   let search_tc2 uk_cl assIntv strTestUS esl =
     (*GENERATE TEST CASE: CAN BE GENERATE MORE TEST CASES HERE*)    
@@ -1230,7 +1185,7 @@ let rec getMB m constr = match constr with
           ([], 1, reason, List.combine lv (List.hd satTC))
       )
   (* ============================ END search_tc2 ========================= *)
-
+*)
       (*
       let (fvars, first_tc, uAss) = find_tc [] [] first_cons lstTc in
       if (first_tc = []) then
@@ -1288,7 +1243,7 @@ let rec getMB m constr = match constr with
        ) 
     )
   *)
-     
+*)     
   let logTest assIntv ass all_cl uk_cl ia = 
     let list_vars = lstVars uk_cl in
     let new_ass = red_ass assIntv list_vars in
@@ -1973,7 +1928,7 @@ let rec getMB m constr = match constr with
 
   (*Decomposition intervals based on positive and negative parts*)
   let dynamicDecom_pos assIntv dIntv lstVarID iVar uk_cl esl =
-    let cl_TestUS = leftExp (List.hd uk_cl) in
+    let cl_TestUS = get_exp (List.hd uk_cl) in
 
     (*Get the positive and negative list of variables*)
     let (sign, pos, neg) = get_pos_neg ([], []) 1.0 cl_TestUS in
@@ -1995,7 +1950,7 @@ let rec getMB m constr = match constr with
     if (red_pos = []) && (red_neg = []) then (* all the intervals are small enough, stop decomposition*) 
     (
       (*print_endline ("UNKNOWN API: " ^ (bool_expr_to_infix_string (List.hd uk_cl))); (* bool_expr_to_infix_string is defined in ast.ml *)
-      (*print_endline ("Intervals: " ^ (intervals_toString assIntv));*)
+      print_endline ("Intervals: " ^ (string_of_intervals assIntv));
       flush stdout;*)
       let s = uk_lit uk_cl lstVarID in
       (dIntv, s, "", false)
@@ -2042,31 +1997,9 @@ let rec getMB m constr = match constr with
     )
   (* ====================== END dynamicDecom_pos ======================== *)
 
-
-  (* ====================== START dynamicDecom_new ======================== *)
-  (* Decomposing intervals based on Newton's method *)
-  let rec dynamicDecom_new assIntv dIntv lstVarID iVar uk_cl esl = 
-    let sorted_uk_cl = List.sort compare_cons uk_cl in (* sort the unknow clauses by their length *) 
-      match sorted_uk_cl with
-      | [] -> ("", "", "", false)
-      | h::t -> (
-        let (new_dIntv, minisat_code, bump_vars, was_decomposed) =
-        let (tmp_dIntv, tmp_minisat_code, tmp_bump_vars, tmp_was_decomposed) = 
-          decompose_new_clause h assIntv dIntv lstVarID iVar esl
-        in
-          if tmp_was_decomposed then (tmp_dIntv, tmp_minisat_code, tmp_bump_vars, tmp_was_decomposed)
-          else dynamicDecom_new assIntv dIntv lstVarID iVar t esl
-        in 
-          if was_decomposed then (
-            (new_dIntv, minisat_code, bump_vars, was_decomposed) )
-          else (
-            dynamicDecom_pos assIntv dIntv lstVarID iVar uk_cl esl )
-      )
-  (* ====================== END dynamicDecom_new ======================== *)
-
   (*Decomposition based on a test case*)
   let dynamicDecom_test assIntv dIntv lstVarID iVar uk_cl esl t = 
-    let cl_TestUS = leftExp (List.hd uk_cl) in
+    let cl_TestUS = get_exp (List.hd uk_cl) in
 
     (*round off test cases tc*)
     let tc = round_test t in
@@ -2338,7 +2271,7 @@ let rec getMB m constr = match constr with
     |[] -> []
     |h::t -> 
        let l = collect (Real 0.) (List.append fpos h) in
-       (Gr (l, Real 0.)):: (merge_list fpos t)
+       (Gr l):: (merge_list fpos t)
 
   (*Decide whether l is a minimal element in list lst*)
   let rec is_minimal l lst = match lst with
@@ -2361,7 +2294,7 @@ let rec getMB m constr = match constr with
     get_minimal res t
 
   (*Assume that all constraints are formed as f > 0.*)
-  let get_unsatcore f ia assIntv =
+(*  let get_unsatcore f ia assIntv =
     let f_new = Sub (leftExp f, rightExp f) in
     let (p, n) = get_pn 1.0 f_new in
     (*print_int ia;
@@ -2381,7 +2314,7 @@ let rec getMB m constr = match constr with
     (*lstRed_UC*)
     get_minimal [] lstRed_UC
     (*merge_list p lstUnsatCores*)
-
+*)
   let rec var_exp_list lst checkVarID = match lst with
   |[] -> ""
   |h::t -> 
@@ -2652,7 +2585,7 @@ let rec getMB m constr = match constr with
     | Cl cl -> cl_infAssign cl
     | Ic (f1, f2) -> List.append (f_infAssign f1) (f_infAssign f2)
 
-  (*check whether an expression is satisfiable for an expression e*)
+  (*check whether an expression is satisfiable for an expression e*)(*
   let inf_checkSat e assIntv = 
     let left = leftExp e in
     let right = rightExp e in
@@ -2705,7 +2638,7 @@ let rec getMB m constr = match constr with
     let inf_ass = f_infAssign eIntv in
     let result = inf_eval_all eAss inf_ass in
     result
-
+*)
   (*let divide a b = a/b*)
 
 (*========================================================================*)
@@ -2744,6 +2677,7 @@ let rec lstBVar = function
   | BEq (svar, e) -> [(svar, e)]
   | Let (e1, e2) -> List.append (getBVar e1) (getBVar e2)
   | _ -> [] in
+
       List.append (getBVar e1) (lstBVar e2)
   | _ -> []
 
@@ -3528,6 +3462,6 @@ let _ = Callback.register "caml_logResult" Caml.logResult;;
 (*let _ = Callback.register "caml_doTest" Caml.doTest;; *)
 let _ = Callback.register "caml_dynTest" Caml.dynTest;; 
 let _ = Callback.register "caml_getNumCons" Caml.getNumCons;; 
-let _ = Callback.register "caml_InfCheck" Caml.infCheck;; 
+(*let _ = Callback.register "caml_InfCheck" Caml.infCheck;;*)
 (*let _ = Callback.register "caml_divide" Caml.divide;; *) 
 

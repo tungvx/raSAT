@@ -14,11 +14,11 @@ type poly_expr =
   | Var of string
 
 type bool_expr = 
-  | Eq of poly_expr * poly_expr
-  | Geq of poly_expr * poly_expr
-  | Leq of poly_expr * poly_expr
-  | Gr of poly_expr * poly_expr
-  | Le of poly_expr * poly_expr
+  | Eq of poly_expr
+  | Geq of poly_expr
+  | Leq of poly_expr
+  | Gr of poly_expr
+  | Le of poly_expr
   | And of bool_expr * bool_expr
 
 type intv_clause =                         (*interval constraint for each variable*)
@@ -45,32 +45,13 @@ let rec getDerivative smtPolynomial var =
 
 
 (* get the left expression of comparision operators*)
-let leftExp = function
-  | Eq (e1, e2)  -> e1
-  | Leq (e1, e2) -> e1
-  | Le (e1, e2)  -> e1
-  | Geq (e1, e2) -> e1
-  | Gr (e1, e2)  -> e1
+let get_exp = function
+  | Eq e  -> e
+  | Leq e -> e
+  | Le e  -> e
+  | Geq e -> e
+  | Gr e  -> e
   | _ -> Real 0.         (*This case never happen*)
-
-(* get the right expression of comparision operators*)
-let rightExp = function  
-  | Eq (e1, e2)  -> e2
-  | Leq (e1, e2) -> e2
-  | Le (e1, e2)  -> e2
-  | Geq (e1, e2) -> e2
-  | Gr (e1, e2)  -> e2
-  | _ -> Real 0.         (*This case never happen*)
-  
-
-(* This function return the left and right expression of a boolean expresion *)  
-let get_left_right = function 
-  | Eq (e1, e2)  -> (e1, e2)
-  | Leq (e1, e2) -> (e1, e2)
-  | Le (e1, e2)  -> (e1, e2)
-  | Geq (e1, e2) -> (e1, e2)
-  | Gr (e1, e2)  -> (e1, e2)
-  | _ -> (Real 0., Real 0.)         (*This case never happen*)
 
 
 (* evalFloat compute the value of a polynomial function from an assignment*)
@@ -86,27 +67,25 @@ let rec evalFloat ass = function
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
 let checkSAT_computeValues boolExp assignments = 
-	let leftExpression = leftExp boolExp in
-	let rightExpression = rightExp boolExp in
-	let leftValue = evalFloat assignments leftExpression in
-	let rightValue = evalFloat assignments rightExpression in 
+	let expression = get_exp boolExp in
+	let value = evalFloat assignments expression in
 	match boolExp with
-	|Eq (e1, e2) -> 
-		if (leftValue = rightValue) then (true, leftValue, rightValue)
-		else (false, leftValue, rightValue)
-	|Leq(e1, e2) -> 
-		if (leftValue <= rightValue) then (true, leftValue, rightValue)
-		else (false, leftValue, rightValue)
-	|Le (e1, e2) -> 
-		if (leftValue < rightValue) then (true, leftValue, rightValue)
-		else (false, leftValue, rightValue)
-	|Geq(e1, e2) -> 
-		if (leftValue >= rightValue) then (true, leftValue, rightValue)
-		else (false, leftValue, rightValue)
-	|Gr (e1, e2) -> 
-		if (leftValue > rightValue) then (true, leftValue, rightValue)
-		else (false, leftValue, rightValue)
-	| _ -> (true, leftValue, rightValue)     (*This case never happen*)
+	|Eq e -> 
+		if value = 0. then (true, value)
+		else (false, value)
+	|Leq e -> 
+		if value <= 0. then (true, value)
+		else (false, value)
+	|Le e -> 
+		if value < 0. then (true, value)
+		else (false, value)
+	|Geq e -> 
+		if value >= 0. then (true, value)
+		else (false, value)
+	|Gr e -> 
+		if value > 0. then (true, value)
+		else (false, value)
+	| _ -> (true, value)     (*This case never happen*)
 
 
 
@@ -122,9 +101,8 @@ let rec get_vars = function
 
 (*bool_vars gets the list of variables from a boolean constraint*)
 let rec bool_vars e = 
-	let left = leftExp e in
-	let right = rightExp e in
-	List.append (get_vars left) (get_vars right)
+	let exp = get_exp e in
+	get_vars exp
 	
 
 (*==================== START poly_expr_to_infix_string ==============================*)	
@@ -151,16 +129,16 @@ let rec poly_expr_list_to_infix_string = function
 (* This function converts a bool expression into the string of infix form *)
 let rec bool_expr_to_infix_string boolExpr =
   match boolExpr with
-  |Eq (e1, e2) -> 
-		(poly_expr_to_infix_string e1) ^ " = " ^ (poly_expr_to_infix_string e2)
-	|Leq(e1, e2) -> 
-		(poly_expr_to_infix_string e1) ^ " <= " ^ (poly_expr_to_infix_string e2)
-	|Le (e1, e2) -> 
-    (poly_expr_to_infix_string e1) ^ " < " ^ (poly_expr_to_infix_string e2)
-	|Geq(e1, e2) -> 
-		(poly_expr_to_infix_string e1) ^ " >= " ^ (poly_expr_to_infix_string e2)
-	|Gr (e1, e2) -> 
-		(poly_expr_to_infix_string e1) ^ " > " ^ (poly_expr_to_infix_string e2)
+  |Eq e -> 
+		(poly_expr_to_infix_string e) ^ " = 0"
+	|Leq e -> 
+		(poly_expr_to_infix_string e) ^ " <= 0"
+	|Le e -> 
+    (poly_expr_to_infix_string e) ^ " < 0"
+	|Geq e -> 
+		(poly_expr_to_infix_string e) ^ " >= 0"
+	|Gr e -> 
+		(poly_expr_to_infix_string e) ^ " > 0"
 	| _ -> ""     (*This case never happen*)
 (*==================== END bool_expr_to_infix_string ==============================*)			
 	
@@ -182,7 +160,7 @@ let rec bool_expr_list_to_infix_string boolExprs =
 (* This function checks if a list of boolean expressions are all equalities *)
 let rec is_equation boolExpr = 
   match boolExpr with
-  | Eq (e1, e2) -> true
+  | Eq e -> true
   | _ -> false
 (*==================== END is_equality ==============================*)
     
@@ -203,7 +181,7 @@ let rec first_inequation boolExprs =
   | [] -> []
   | h::t -> (
     match h with 
-    | Eq(e1, e2) -> first_inequation t
+    | Eq e -> first_inequation t
     | _ -> [h]
   )
 (*==================== END first_uk_cl ==============================*)
@@ -328,10 +306,8 @@ let rec get_vars_set_polyExp = function
 variables of a boolean expression. The sort critia is
 using alphabet ordering *)	
 let get_vars_set_boolExp boolExp = 
-  let (left, right) = get_left_right boolExp in
-  let leftVarsSet = get_vars_set_polyExp left in
-  let rightVarsSet = get_vars_set_polyExp right in
-  VariablesSet.union leftVarsSet rightVarsSet
+  let polyExp = get_exp boolExp in
+  get_vars_set_polyExp polyExp
   
 
 (* Check if a variables is in the set *)
@@ -383,40 +359,39 @@ let poly_eval e ia assIntv =
     
 
 (* Check whether an expression e is satisfiable or not provided the over-approximation of sides *)
-let check_sat_providedBounds boolExp leftBound rightBound = 
+let check_sat_providedBounds boolExp bound = 
   match boolExp with
-  |Eq (e1, e2) -> 
-    if (leftBound#l = leftBound#h && leftBound#h = rightBound#l  && rightBound#l = rightBound#h) then 1
-    else if (leftBound#h < rightBound#l || leftBound#l > rightBound#h) then -1
+  |Eq e -> 
+    if (bound#l = bound#h && bound#h = 0.) then 1
+    else if (bound#h < 0. || bound#l > 0.) then -1
     else 0
-  |Leq(e1, e2) -> 
-    if (leftBound#h <= rightBound#l) then 1
-    else if (leftBound#l > rightBound#h) then -1
+  |Leq e -> 
+    if (bound#h <= 0.) then 1
+    else if (bound#l > 0.) then -1
     else 0
-  |Le (e1, e2) -> 
-    if (leftBound#h < rightBound#l) then 1
-    else if (leftBound#l >= rightBound#h) then -1
+  |Le e -> 
+    if (bound#h < 0.) then 1
+    else if (bound#l >= 0.) then -1
     else 0
-  |Geq(e1, e2) -> 
-    if (leftBound#l >= rightBound#h) then 1
-    else if (leftBound#h < rightBound#l) then -1
+  |Geq e -> 
+    if (bound#l >= 0.) then 1
+    else if (bound#h < 0.) then -1
     else 0
-  |Gr (e1, e2) -> 
-    if (leftBound#l > rightBound#h) then 1
-    else if (leftBound#h <= rightBound#l) then -1
+  |Gr e -> 
+    if (bound#l > 0.) then 1
+    else if (bound#h <= 0.) then -1
     else 0
   | _ -> 1     (*This case never happen*)
     
 
 (*check whether an expression e is satisfiable*)
 let checkSat e ia assIntv =
-  let left = leftExp e in
-  let right = rightExp e in
-  let (leftBound, _)  = poly_eval left ia assIntv in
-  let (rightBound, _) = poly_eval right ia assIntv in
+  let polyExp = get_exp e in
+  let (bound, _)  = poly_eval polyExp ia assIntv in
   (*print_endline ("Approximating: " ^ bool_expr_to_infix_string e ^ " = [" ^ string_of_float leftBound#l ^ ", " ^ string_of_float leftBound#h ^ "] with " ^ intervals_to_string assIntv);
+
   flush stdout;*)
-  check_sat_providedBounds e leftBound rightBound
+  check_sat_providedBounds e bound
   
   
 (* Substract variables sensitivity from the right hand side to the left handside of the expression *)  
@@ -436,42 +411,31 @@ let rec merge_varsSen leftVarsSen = function
     
 (* Check sat with combination of AF2 and CI *)      
 let check_sat_af_two_ci boolExp intv = 
-  let left = leftExp boolExp in (* get the left expression *)
-  let right = rightExp boolExp in (* get the right expression *)
+  let polyExp = get_exp boolExp in
   (* evaluate the expression using AF2 *)
-  let (afTwoLeftBound, afTwoLeftVarsSen)  = poly_eval left 2 intv in
-  let (afTwoRightBound, afTwoRightVarsSen) = poly_eval right 2 intv in
-  let afTwoVarsSen = merge_varsSen afTwoLeftVarsSen afTwoRightVarsSen in
+  let (afTwoBound, afTwoVarsSen)  = poly_eval polyExp 2 intv in
   (*print_endline (assignments_toString afTwoVarsSen);
   flush stdout;*)
-  let sat = check_sat_providedBounds boolExp afTwoLeftBound afTwoRightBound in
+  let sat = check_sat_providedBounds boolExp afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
-    let (ciLeftBound, _)  = poly_eval left 0 intv in
-    let (ciRightBound, _i) = poly_eval right 0 intv in
+    let (ciBound, _)  = poly_eval polyExp 0 intv in
     
-    let newLeftLowerBound = max afTwoLeftBound#l ciLeftBound#l in
-    let newLeftHigherBound = min afTwoLeftBound#h ciLeftBound#h in
-    let newLeftBound = new IA.interval newLeftLowerBound newLeftHigherBound in
-    let newRightLowerBound = max afTwoRightBound#l ciRightBound#l in
-    let newRightHigherBound = min afTwoRightBound#h ciRightBound#h in
-    let newRightBound = new IA.interval newRightLowerBound newRightHigherBound in
-    let sat = check_sat_providedBounds boolExp newLeftBound newRightBound in
+    let newLowerBound = max afTwoBound#l ciBound#l in
+    let newHigherBound = min afTwoBound#h ciBound#h in
+    let newBound = new IA.interval newLowerBound newHigherBound in
+    let sat = check_sat_providedBounds boolExp newBound in
     (sat, afTwoVarsSen)
   else (sat, afTwoVarsSen)
     
 
 (* This function check sat with CI only *)
 let check_sat_inf_ci boolExp intv = 
-  let left = leftExp boolExp in (* get the left expression *)
-  let right = rightExp boolExp in (* get the right expression *)
-  let (iciLeftBound, _)  = poly_eval left (-1) intv in (* -1 is ICI *)
-  (*print_endline ("left Bound: " ^ (string_of_float iciLeftBound#l) ^ " " ^ (string_of_float iciLeftBound#h));
+  let polyExp = get_exp boolExp in (* get the expression *)
+  let (iciBound, _)  = poly_eval polyExp (-1) intv in (* -1 is ICI *)
+  (*print_endline ("Bound: " ^ (string_of_float iciLeftBound#l) ^ " " ^ (string_of_float iciLeftBound#h));
   flush stdout;*)
-  let (iciRightBound, _) = poly_eval right (-1) intv in
-  (*print_endline ("right Bound: " ^ (string_of_float iciRightBound#l) ^ " " ^ (string_of_float iciRightBound#h));
-  flush stdout;*)
-  let sat = check_sat_providedBounds boolExp iciLeftBound iciRightBound in
+  let sat = check_sat_providedBounds boolExp iciBound in
   (sat, [])
     
 (* This function compare two variables by their sensitivity *)

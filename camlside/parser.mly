@@ -49,13 +49,33 @@ f_expr:
   | LPAREN f_expr RPAREN         { $2 }
 
 bool_expr:
-  | EQ poly_expr poly_expr       { Eq  ($2, $3) }
-  | GEQ poly_expr poly_expr      { Geq ($2, $3) }
-  | LEQ poly_expr poly_expr      { Leq ($2, $3) }
-  | GR poly_expr poly_expr       { Gr  ($2, $3) }
-  | LE poly_expr poly_expr       { Le  ($2, $3) }
-  | LPAREN bool_expr RPAREN      { $2 }
-  | AND bool_expr bool_expr      { And ($2, $3) }
+  | EQ poly_expr NUM             { 
+                                    let number = float_of_string $3 in
+                                    if number = 0. then Eq  $2 
+                                    else Eq (Sub($2, Real number))
+                                 }
+  | GEQ poly_expr NUM            { 
+                                    let number = float_of_string $3 in
+                                    if number = 0. then Geq  $2 
+                                    else Geq (Sub($2, Real number))
+                                  }
+  | LEQ poly_expr NUM             { 
+                                     let number = float_of_string $3 in
+                                     if number = 0. then Leq  $2 
+                                     else Leq (Sub($2, Real number))
+                                  }
+  | GR poly_expr  NUM             { 
+                                     let number = float_of_string $3 in
+                                     if number = 0. then Gr  $2 
+                                     else Gr (Sub($2, Real number))
+                                  }
+  | LE poly_expr  NUM             { 
+                                     let number = float_of_string $3 in
+                                     if number = 0. then Le  $2 
+                                     else Le (Sub($2, Real number))
+                                  }
+  | LPAREN bool_expr RPAREN       { $2 }
+  | AND bool_expr bool_expr       { And ($2, $3) }
 
 poly_expr:
   | PLUS poly_expr poly_expr     { Add ($2, $3) }
