@@ -38,7 +38,7 @@ let rec generate_tc_vars varsList assIntv = match varsList with
   | [] -> []
   | (var, tcNum)::remainings -> 
     let interval = List.assoc var assIntv in
-    let testCases = generate_tc_var var interval tcNum true in
+    let testCases = generate_tc_var var interval tcNum false in
     (var, testCases)::(generate_tc_vars remainings assIntv)
     
     
@@ -121,23 +121,25 @@ let check_varWithSen_inSet varsSet (var, sen) =
   
   
 (* This functions set the number of test cases for each variable based on their sensitivity *)
-let rec set_tc_num_extra varsSen priorityNum = match varsSen with
-  | [] -> []
+let rec set_tc_num_extra varsSen result priorityNum = match varsSen with
+  | [] -> (result, priorityNum)
   | (var, _) :: t -> 
-    if priorityNum > 0 then (var, 1) :: (set_tc_num_extra t (priorityNum - 1))
-    else (var, 2) :: (set_tc_num_extra t 0)  
+    if priorityNum > 0 then
+      set_tc_num_extra t ((var, 2) :: result) (priorityNum - 1)
+    else
+      set_tc_num_extra t ((var, 1) :: result) 0
     
-let set_tc_num varsSen = 
-  let length = List.length varsSen in
-  let priorityNum = length / 2 in
-  set_tc_num_extra varsSen priorityNum
+let set_tc_num varsSen priorityNum = 
+  (*let length = List.length varsSen in
+  let priorityNum = length / 2 in*)
+  set_tc_num_extra varsSen [] priorityNum
   
 
 (* This is the helping function for the test function*)
 let rec test_extra abstractTCInfList assIntv unsatBoolExp remainingTime = 
   match abstractTCInfList with
   | Nil -> ([],-1, [unsatBoolExp],[])
-  | Cons((assignments, testCases, vars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps), tail) ->
+  | Cons((assignments, testCases, vars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps, priorityNum), tail) ->
     if remainingTime <= 0. then ([],-1, [unsatBoolExp],[])
     else 
       let startTime = Sys.time() in
@@ -151,9 +153,9 @@ let rec test_extra abstractTCInfList assIntv unsatBoolExp remainingTime =
             let (nextTestedBoolExp, nextTestedBoolExpVarsSen, nextTestedBoolExpVarsSet, nextTestedBoolExpVarsNum) = List.hd nextTestedEBoolExps in
             let nextVarsToGenerate = VariablesSet.diff nextTestedBoolExpVarsSet vars in
             let nextVarsToGenerateSen = List.filter (check_varWithSen_inSet nextVarsToGenerate) nextTestedBoolExpVarsSen in
-            let nextTestedVars = set_tc_num nextVarsToGenerateSen in
+            let (nextTestedVars, newPriorityNum) = set_tc_num nextVarsToGenerateSen priorityNum in
             let nextTestCases = generate_tc_vars nextTestedVars assIntv in
-            let newAbstractTCInfList = Cons((assignments, nextTestCases, vars, nextTestedBoolExpVarsSet, nextTestedEBoolExps, nextRemainingEBoolExps), tail) in
+            let newAbstractTCInfList = Cons((assignments, nextTestCases, vars, nextTestedBoolExpVarsSet, nextTestedEBoolExps, nextRemainingEBoolExps, newPriorityNum), tail) in
             test_extra newAbstractTCInfList assIntv unsatBoolExp (remainingTime -. Sys.time() +. startTime)
         else
           test_extra (tail()) assIntv nextUnsatBoolExp (remainingTime -. Sys.time() +. startTime)
@@ -164,10 +166,10 @@ let rec test_extra abstractTCInfList assIntv unsatBoolExp remainingTime =
           let newVars = VariablesSet.add var vars in
           let newAbstractTCInfList = 
             if remainingTC = [] then 
-              Cons((newFirstAss, remainingTCs, newVars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps), tail)
+              Cons((newFirstAss, remainingTCs, newVars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps, priorityNum), tail)
             else
-              Cons((newFirstAss, remainingTCs, newVars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps), 
-                    fun() -> Cons((assignments, (var, remainingTC)::remainingTCs, vars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps), tail))
+              Cons((newFirstAss, remainingTCs, newVars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps, priorityNum), 
+                    fun() -> Cons((assignments, (var, remainingTC)::remainingTCs, vars, testedBoolExpVarsSet, testedEBoolExps, remainingEBoolExps, priorityNum), tail))
           in
           test_extra newAbstractTCInfList assIntv unsatBoolExp (remainingTime -. Sys.time() +. startTime)
         | _ -> ([],-1, [unsatBoolExp],[]) (* Never happens*)
@@ -183,9 +185,9 @@ let test boolExpsWithVarsSen assIntv strTestUS remainingTime =
   (* Recursively generate test cases for each boolean expression *)
   let (testedEBoolExps, remainingEBoolExps) = get_tested_untested_eBoolExps eBoolExps VariablesSet.empty in
   let (firstBoolExp, firstBoolExpVarsSen, firstBoolExpVarsSet,_) = List.hd testedEBoolExps in
-  let firstBoolExpTestedVars = set_tc_num firstBoolExpVarsSen in  
+  let (firstBoolExpTestedVars, priorityNum) = set_tc_num firstBoolExpVarsSen 20 in  
   let firstTestCases = generate_tc_vars firstBoolExpTestedVars assIntv in
-  let abstractTCInfList = Cons(([], firstTestCases, VariablesSet.empty, firstBoolExpVarsSet, testedEBoolExps, remainingEBoolExps), fun() -> Nil) in 
+  let abstractTCInfList = Cons(([], firstTestCases, VariablesSet.empty, firstBoolExpVarsSet, testedEBoolExps, remainingEBoolExps, priorityNum), fun() -> Nil) in 
   test_extra abstractTCInfList assIntv firstBoolExp (remainingTime -. Sys.time() +. startTime)
   
   
