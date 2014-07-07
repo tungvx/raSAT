@@ -69,6 +69,7 @@ let rec subst_bool bass pass = function
   | Gr  (e1, e2) -> Gr  (subst_poly pass e1, subst_poly pass e2)
   | Geq (e1, e2) -> Geq (subst_poly pass e1, subst_poly pass e2)
   | And (b1, b2) -> And (subst_bool bass pass b1, subst_bool bass pass b2)
+  | Or (b1, b2) -> Or (subst_bool bass pass b1, subst_bool bass pass b2)
   | Not e -> Not (subst_bool bass pass e)
 
 let isVar = function
@@ -132,6 +133,7 @@ let rec bool_toString = function
   | Gr (e1, e2) -> (poly_toString "" e1)^" > " ^ (poly_toString "" e2)
   | Geq(e1, e2) -> (poly_toString "" e1)^" >= " ^(poly_toString "" e2)
   | And(e1, e2) -> (bool_toString  e1)^"\nand "^(bool_toString  e2)
+  | Or(e1, e2) -> (bool_toString  e1)^"\nor "^(bool_toString  e2)
   | Not (e1) ->  "Not " ^ (bool_toString e1)  
 
 (* ============================== START let_expr_to_infix_string =======================================*)
@@ -175,6 +177,7 @@ let rec bool_reduce = function
   | Gr (e1, e2) -> Gr (remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
   | Geq(e1, e2) -> Geq(remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
   | And(e1, e2) -> And(bool_reduce e1, bool_reduce e2)
+  | Or(e1, e2) -> Or(bool_reduce e1, bool_reduce e2)
   | Not (e1) -> Not (bool_reduce e1)
 
 
@@ -198,6 +201,7 @@ let rec bool_toPrefix = function
   | Gr (e1, e2) -> "(> " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | Geq(e1, e2) -> "(>= " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | And(e1, e2) ->"(and "^ bool_toPrefix e1 ^ " " ^ bool_toPrefix e2^ ")"
+  | Or(e1, e2) ->"(or "^ bool_toPrefix e1 ^ " " ^ bool_toPrefix e2^ ")"
   | Not (e1)    ->"(not "^bool_toPrefix e1^ ")"
 
 (*Represent a nil expression to a string by prefix order*)
@@ -233,6 +237,7 @@ let rec bool_simp = function
       if poly_isCons e2 then Geq (e1, e2)
       else Geq (Sub(e1, e2), Real 0.)
   | And(e1, e2) -> And (bool_simp e1, bool_simp e2)
+  | Or(e1, e2) -> Or (bool_simp e1, bool_simp e2)
   | Not (e1) -> Not (bool_simp e1)
 
 
@@ -832,6 +837,7 @@ let rec simplify_bool e = match e with
   | Gr  (e1, e2) -> Gr  (simplify_expr e1, simplify_expr e2)
   | Geq (e1, e2) -> Geq (simplify_expr e1, simplify_expr e2)
   | And (b1, b2) -> And (simplify_bool b1, simplify_bool b2)
+  | Or (b1, b2) -> Or (simplify_bool b1, simplify_bool b2)
   | Not (e1) -> Not (simplify_bool e1)
 
 
@@ -853,6 +859,7 @@ let rec get_varsSet_boolExpr smtBoolExpr = match smtBoolExpr with
   | Gr  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
   | Geq (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
   | And (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
+  | Or (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
   | Not (e1) -> get_varsSet_boolExpr e1
 
 

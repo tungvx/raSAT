@@ -4,6 +4,12 @@ open IA
 open Assignments
 open Variable
 
+(* miniSAT expressions *)
+type miniSAT_expr =
+  | Lit of int
+  | MAnd of miniSAT_expr * miniSAT_expr
+  | MOr of miniSAT_expr * miniSAT_expr
+
 (*raSAT expression*)
 type poly_expr = 
   | Add of poly_expr * poly_expr 
@@ -20,6 +26,7 @@ type bool_expr =
   | Gr of poly_expr
   | Le of poly_expr
   | And of bool_expr * bool_expr
+  | BOr of bool_expr * bool_expr
 
 type intv_clause =                         (*interval constraint for each variable*)
   | In of string * float * float
@@ -32,6 +39,56 @@ type intv_expr =
 type formula =
   | Ass of bool_expr
   | Intv of intv_expr  
+  
+
+(* This function convert the cnf miniSAT expression into string under the format of miniSAT input *)
+let rec string_of_cnf_miniSATExpr cnfMiniSATExpr isFinal = match cnfMiniSATExpr with
+  | Lit i -> 
+    let (ending, clauses) = 
+      if isFinal then (" 0\n", 1)
+      else (" ", 0)
+    in
+    (string_of_int i ^ ending, clauses)
+  | MAnd (e1, e2) -> 
+    let (string1, clauses1) = string_of_cnf_miniSATExpr e1 true in
+    let (string2, clauses2) = string_of_cnf_miniSATExpr e2 true in
+    (string1 ^ string2, clauses1 + clauses2)
+  | MOr (e1, e2) -> 
+    let (string1, clauses1) = string_of_cnf_miniSATExpr e1 false in
+    let (string2, clauses2) = string_of_cnf_miniSATExpr e2 true in
+    (string1 ^ string2, clauses1 + clauses2)
+
+
+let rec distributeLeft m1 m2 = match m2 with
+  | MAnd(e,f) -> MAnd(distributeLeft m1 e,distributeLeft m1 f)
+  | _ -> MOr(m1, m2)
+ 
+let rec distributeOr m1 m2 = match m1 with 
+  | MAnd(e,f) -> MAnd(distributeOr e m2 ,distributeOr f m2)
+  | _ -> distributeLeft m1 m2
+
+(* convert a miniSAT expression into conjunctive normal form *)  
+let rec cnf_of_miniSATExpr miniSATExpr = match miniSATExpr with 
+  | MAnd (m1, m2) -> MAnd (cnf_of_miniSATExpr m1, cnf_of_miniSATExpr m2)
+  | MOr (m1, m2) -> 
+    let cnfM1 = cnf_of_miniSATExpr m1 in
+    let cnfM2 = cnf_of_miniSATExpr m2 in
+    distributeOr cnfM1 cnfM2    
+  | _ -> miniSATExpr
+  
+
+(* encode the boolexpression into the form of miniSAT lit *)  
+let rec miniSATExpr_of_boolExpr boolExpr index = match boolExpr with
+  | And (b1, b2) -> 
+    let (mB1, index1) = miniSATExpr_of_boolExpr b1 index in
+    let (mB2, index2) = miniSATExpr_of_boolExpr b2 index1 in
+    (MAnd (mB1, mB2), index2)
+  | BOr (b1, b2) -> 
+    let (mB1, index1) = miniSATExpr_of_boolExpr b1 index in
+    let (mB2, index2) = miniSATExpr_of_boolExpr b2 index1 in
+    (MOr (mB1, mB2), index2)
+  | _ -> (Lit index, index + 1)
+  
 
 (* compute derivative of a polynomial by a variable *)
 let rec getDerivative smtPolynomial var =
@@ -139,7 +196,10 @@ let rec bool_expr_to_infix_string boolExpr =
 		(poly_expr_to_infix_string e) ^ " >= 0"
 	|Gr e -> 
 		(poly_expr_to_infix_string e) ^ " > 0"
-	| _ -> ""     (*This case never happen*)
+	|And(b1, b2)  -> 
+	  bool_expr_to_infix_string b1 ^ " And\n" ^ bool_expr_to_infix_string b2
+	|BOr(b1, b2) -> 
+	  bool_expr_to_infix_string b1 ^ " Or\n" ^ bool_expr_to_infix_string b2
 (*==================== END bool_expr_to_infix_string ==============================*)			
 	
 	

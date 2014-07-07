@@ -50,32 +50,33 @@ f_expr:
 
 bool_expr:
   | EQ poly_expr NUM             { 
-                                    let number = float_of_string $3 in
-                                    if number = 0. then Eq  $2 
-                                    else Eq (Sub($2, Real number))
+                                   let number = float_of_string $3 in
+                                   if number = 0. then Eq  $2 
+                                   else Eq (Sub($2, Real number))
                                  }
   | GEQ poly_expr NUM            { 
-                                    let number = float_of_string $3 in
-                                    if number = 0. then Geq  $2 
-                                    else Geq (Sub($2, Real number))
-                                  }
-  | LEQ poly_expr NUM             { 
-                                     let number = float_of_string $3 in
-                                     if number = 0. then Leq  $2 
-                                     else Leq (Sub($2, Real number))
-                                  }
-  | GR poly_expr  NUM             { 
-                                     let number = float_of_string $3 in
-                                     if number = 0. then Gr  $2 
-                                     else Gr (Sub($2, Real number))
-                                  }
-  | LE poly_expr  NUM             { 
-                                     let number = float_of_string $3 in
-                                     if number = 0. then Le  $2 
-                                     else Le (Sub($2, Real number))
-                                  }
-  | LPAREN bool_expr RPAREN       { $2 }
-  | AND bool_expr bool_expr       { And ($2, $3) }
+                                   let number = float_of_string $3 in
+                                   if number = 0. then Geq  $2 
+                                   else Geq (Sub($2, Real number))
+                                 }
+  | LEQ poly_expr NUM            { 
+                                   let number = float_of_string $3 in
+                                   if number = 0. then Leq  $2 
+                                   else Leq (Sub($2, Real number))
+                                 }
+  | GR poly_expr  NUM            { 
+                                   let number = float_of_string $3 in
+                                   if number = 0. then Gr  $2 
+                                   else Gr (Sub($2, Real number))
+                                 }
+  | LE poly_expr  NUM            { 
+                                   let number = float_of_string $3 in
+                                   if number = 0. then Le  $2 
+                                   else Le (Sub($2, Real number))
+                                 }
+  | LPAREN bool_expr RPAREN      { $2 }
+  | AND bool_expr bool_expr      { And ($2, $3) }
+  | OR bool_expr bool_expr       { BOr ($2, $3) }
 
 poly_expr:
   | PLUS poly_expr poly_expr     { Add ($2, $3) }

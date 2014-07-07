@@ -162,4 +162,9 @@ module Util = struct
     | [] -> []
     | (boolExp, _, vars, varsNum)::t -> boolExp::(extract_boolExps t)
   
+  
+  (* This function return a sublist of a list provided list of indices *)
+  let rec sublist aList indices = match indices with
+    | [] -> []
+    | h::t -> (List.nth aList (h-1))::(sublist aList t)
 end

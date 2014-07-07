@@ -1,6 +1,6 @@
 (*SMT expression*)
 type smt_poly_expr = 
-  | Add of smt_poly_expr * smt_poly_expr 
+  | Add of smt_poly_expr * smt_poly_expr
   | Sub of smt_poly_expr * smt_poly_expr
   | Mul of smt_poly_expr * smt_poly_expr
   | Div of smt_poly_expr * smt_poly_expr
@@ -16,6 +16,7 @@ type smt_bool_expr =
   | Gr of smt_poly_expr * smt_poly_expr
   | Le of smt_poly_expr * smt_poly_expr
   | And of smt_bool_expr * smt_bool_expr
+  | Or of smt_bool_expr * smt_bool_expr
   | BVar of string
   | Not of smt_bool_expr
 

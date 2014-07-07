@@ -31,10 +31,10 @@ module Caml = struct
     | Ic (f1, f2) -> List.append (f_toLit f1) (f_toLit f2)
     | Cl cl -> cl_toLit cl
 
-  (*idx generates list of number from 1 to n*)
-  let rec idx n = match n with
-    | 0 -> []
-    | _ -> List.append (idx (n-1))[n]
+  (*idx generates list of number from n0 to n0 + n - 1*)
+  let rec idx n0 n = 
+    if n = 0 then []
+    else n0 :: idx (n0 + 1) (n - 1)
 
   (*cl_count counts number of clauses in interval constraints*)
   let rec cl_count e = match e with 
@@ -164,6 +164,7 @@ let rec bool_toString = function
   | Gr  e -> (poly_toString "" e)^" > 0"
   | Geq e -> (poly_toString "" e)^" >= 0"
   | And (e1, e2) -> (bool_toString  e1)^"\nand "^(bool_toString  e2)
+  | BOr (e1, e2) -> (bool_toString  e1)^"\nor "^(bool_toString  e2)
 
 let rec getMaxBound m cl = match cl with
   |In (x, l, h) -> max (h-.l) m
@@ -198,6 +199,7 @@ let rec getMB m constr = match constr with
   | Gr e -> "(> " ^ (poly_toPrefix e)^" 0)"
   | Geq e -> "(>= "^ (poly_toPrefix e)^" 0)"
   | And(e1, e2) -> "(and "^(toPrefix e1)^" " ^ (toPrefix e2)^")"
+  | BOr(e1, e2) -> "(or "^(toPrefix e1)^" " ^ (toPrefix e2)^")"
 
   (*=== polynomial functions to postfix representation ===*)
   let rec poly_toPostfix = function
@@ -217,6 +219,7 @@ let rec getMB m constr = match constr with
   | Gr e -> (poly_toPostfix e) ^ "real 0 > " 
   | Geq e -> (poly_toPostfix e) ^ "real 0 >= " 
   | And(e1, e2) -> (contraint_toPostfix e1) ^ (contraint_toPostfix e2) ^ "and "
+  | BOr(e1, e2) -> (contraint_toPostfix e1) ^ (contraint_toPostfix e2) ^ "or "
   (*=== End contraint_toPostfix function ===*)
 
   (*=== Function for converting list of contraints to string of postfix form ===*)      
@@ -232,7 +235,19 @@ let rec getMB m constr = match constr with
   (*==================================================*)
 
   (*get miniSat form of interval constraints*)
-  let genSatForm sIntv esl =
+  let genSatForm sAss sIntv esl =
+    let ass = sub_ass (read sAss) in
+    (*print_endline (bool_expr_to_infix_string ass);*)
+    let (miniSATExpr, index) = miniSATExpr_of_boolExpr ass 1 in
+    
+    (* convert miniSATExpr into CNF *)
+    let cnfMiniSATExpr = cnf_of_miniSATExpr miniSATExpr in
+    
+    (* convert cnfMiniSATExpr to string under the format of miniSAT input *)
+    let (cnfMiniSATExprString, miniSATClauses) = string_of_cnf_miniSATExpr cnfMiniSATExpr true in
+    (*print_endline cnfMiniSATExprString;
+    flush stdout;*)
+    
     let eIntv = sub_intv (read sIntv) in
     (* lstLit stored the list of literals from interval constraints*)
     let lstLit = f_toLit eIntv in
@@ -244,12 +259,12 @@ let rec getMB m constr = match constr with
        = number of variables in a problem *)
     let iClause = cl_count eIntv in
     
-    let lst = idx iLit in 
+    let lst = idx 1 iLit in
     (*Encode each literal with an ID: Integer number*)    
     let lstLitID = List.combine lstLit lst in
 
     (*function for compute id or literal from parameter*)
-    let id_of_lit l = List.assoc l lstLitID in
+    let id_of_lit l = index - 1 + List.assoc l lstLitID in
 
     (* cnf_of_clause generate cnf form in each clause*)
     let cnf_of_clause cl=
@@ -271,11 +286,11 @@ let rec getMB m constr = match constr with
     let rec genCnfCons = function
       |Cl c -> (cnf_of_clause c)
       |Ic (f1, f2) -> 
-    let (i1, s1) = genCnfCons f1 in
-    let (i2, s2) = genCnfCons f2 in
-      (i1+i2, s1^s2) in
+        let (i1, s1) = genCnfCons f1 in
+        let (i2, s2) = genCnfCons f2 in
+        (i1+i2, s1^s2) in
 
-    (* sCnfCons stored miniSAT from of assertion constraints after encoding *)
+    (* sCnfCons stored miniSAT form of intervals after encoding *)
     let (cl, sCnfCons) = genCnfCons eIntv in
 
     (*add 1 variables and 1 clause for an unique assertion constraint*)
@@ -289,12 +304,12 @@ let rec getMB m constr = match constr with
     (*let totalVars = iLit * 4 * para in*)
     let totalVars = 
       if max_bound = infinity then 10000
-      else 1 + 2* iLit * (sum_total_var 1 para) 
+      else index + 2* iLit * (sum_total_var 1 para)
     in
 
     let sTrivialClause = "-" ^string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in
 
-    (iClause, "p cnf " ^ string_of_int totalVars ^ " " ^ string_of_int (totalClauses+1) ^"\n"^ sCnfCons ^ sTrivialClause)
+    (iClause, "p cnf " ^ string_of_int totalVars ^ " " ^ string_of_int (totalClauses+1+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ sCnfCons ^ sTrivialClause)
 
     (*^ string_of_int totalVars ^ " 0"*)
 
@@ -339,7 +354,7 @@ let rec getMB m constr = match constr with
       (* iVar stored the number of variables from interval constraints*)
       let iVar = List.length lstLit in
   
-      let lst = idx iVar in 
+      let lst = idx 0 iVar in 
       (*Encoded each literal with an ID: Integer number*)    
       let lstIDLit = List.combine lst lstLit in
       (*let lstLitID = List.combine lstLit lst in*)
@@ -400,7 +415,7 @@ let rec getMB m constr = match constr with
       (* iVar stored the number of variables from interval constraints*)
       let iVar = List.length lstLit in
   
-      let lst = idx iVar in 
+      let lst = idx 1 iVar in 
       (*Encoded each literal with an ID: Integer number*)    
       let lstIDLit = List.combine lst lstLit in
       (*let lstLitID = List.combine lstLit lst in*)
@@ -740,6 +755,7 @@ let rec getMB m constr = match constr with
   (*Compute the list of boolean constraints without and*)
   let rec f_toList e = match e with
     |And (e1, e2) -> List.append (f_toList e1) (f_toList e2)
+    |BOr (e1, e2) -> List.append (f_toList e1) (f_toList e2)
     |_ -> [e]
 
 (*  (*Compute the list of variables from a boolean constraints*)
@@ -1416,16 +1432,16 @@ let rec getMB m constr = match constr with
   let rec remLstCheck l e lstIDLit= match l with
     |[] -> [e]
     |h::t -> 
-  let lit_e = List.assoc e lstIDLit in
-  let lit_h = List.assoc h lstIDLit in
-  if (getVar lit_h = getVar lit_e) then (
-    if (isChildLit lit_h lit_e) then 
-      e::t
-    else 
-      h::t
-  )
-  else
-    h::(remLstCheck t e lstIDLit)
+      let lit_e = List.assoc e lstIDLit in
+      let lit_h = List.assoc h lstIDLit in
+      if (getVar lit_h = getVar lit_e) then (
+        if (isChildLit lit_h lit_e) then 
+          e::t
+        else 
+          h::t
+      )
+      else
+        h::(remLstCheck t e lstIDLit)
 
   (*Remove unnecessary assign intervals*)   
   let rec redLstCheck l1 l2 lstIDLit= match l2 with
@@ -1441,6 +1457,7 @@ let rec getMB m constr = match constr with
   
   let rec decomp_reduce ass esl = match ass with
     |[] -> []
+
     |(x, ci)::t ->
       let lowerBound = ci#l in
       let upperBound = ci#h in
@@ -1594,11 +1611,11 @@ let rec getMB m constr = match constr with
     in
 
     let sl = 
-             (*string_of_int code ^ " -" ^ string_of_int code ^ " 0 "  ^*)
-             "-" ^ string_of_int id ^ " " ^ string_of_int code ^ " " ^ string_of_int (code+1) ^ " 0 " ^
-             string_of_int id ^ " -" ^ string_of_int code ^ " 0 " ^
-             "-" ^ string_of_int code ^ " -"^string_of_int (code+1) ^ " 0 " ^
-             string_of_int id ^ " -"^string_of_int (code+1) ^ " 0 " in
+     (*string_of_int code ^ " -" ^ string_of_int code ^ " 0 "  ^*)
+     "-" ^ string_of_int id ^ " " ^ string_of_int code ^ " " ^ string_of_int (code+1) ^ " 0 " ^
+     string_of_int id ^ " -" ^ string_of_int code ^ " 0 " ^
+     "-" ^ string_of_int code ^ " -"^string_of_int (code+1) ^ " 0 " ^
+     string_of_int id ^ " -"^string_of_int (code+1) ^ " 0 " in
              
     (si, sl, bumpVar)
 
@@ -2381,31 +2398,33 @@ let rec getMB m constr = match constr with
         )
 
   (*function for compute the list of pairs of variable and ID from the list of ID of interval constraints*)
-  let rec var_list lstCheck iVar lstIDLit = match lstCheck with
+  let rec var_list lstCheck startIndex endIndex lstIDLit = match lstCheck with
     | [] -> []
     | h::t ->
-      if (h>=1) &&(h<=iVar) then (
+      if (h>=startIndex) &&(h<=endIndex) then (
         let lit = List.assoc h lstIDLit in
-        (getVar lit, h):: (var_list t iVar lstIDLit) )
+        (getVar lit, h):: (var_list t startIndex endIndex lstIDLit) )
       else
-        var_list t iVar lstIDLit
+        var_list t startIndex endIndex lstIDLit
 
   (*Just compute positive elements from olstCheck*)
-  let rec getPositive l iVar = match l with
-    |[] -> []
+  let rec getPositive l iVar clausesNum chosenIntervalsIndices chosenClausesIndices = match l with
+    |[] -> (chosenIntervalsIndices, chosenClausesIndices)
     |h::t -> 
-      if (h>=1)&&(h<=iVar) then
-        h:: getPositive t iVar
+      if (h>=1)&&(h<=clausesNum) then
+        getPositive t iVar clausesNum chosenIntervalsIndices (h::chosenClausesIndices)
+      else if h <= iVar + clausesNum then 
+        getPositive t iVar clausesNum (h::chosenIntervalsIndices) chosenClausesIndices
       else
-        getPositive t iVar
+        getPositive t iVar clausesNum chosenIntervalsIndices chosenClausesIndices
 
-  let rec ci_ass lstCheck iVar lstIDLit = match lstCheck with
+  let rec ci_ass lstCheck startIndex endIndex lstIDLit = match lstCheck with
     | [] -> []
     | h::t -> 
-      if (h>=1) && (h<=iVar) then 
-        List.append (e_toIntv (List.assoc h lstIDLit)) (ci_ass t iVar lstIDLit) 
+      if (h>=startIndex) && (h<=endIndex) then 
+        List.append (e_toIntv (List.assoc h lstIDLit)) (ci_ass t startIndex endIndex lstIDLit) 
       else     
-        ci_ass t iVar lstIDLit              
+        ci_ass t startIndex endIndex lstIDLit              
 
   let rec allLog e ia assIntv = match e with
     |[] -> ""
@@ -2419,12 +2438,15 @@ let rec getMB m constr = match constr with
 		let startTime = Sys.time() in
     let olstCheck = toIntList strCheck in 
     let eIntv = sub_intv (read sIntv) in
+    (*print_endline sAss;
+    flush stdout;*)
     let ass = sub_ass (read sAss) in      
       
     (*sort the list of constraints based on their length*)
     (*let eAss = List.rev (List.sort compare_cons (f_toList ass)) in *)
-    let eAss = f_toList ass in
-    (*print_endline(bool_expr_list_to_infix_string eAss); (* In ast.ml *)
+    let eAss1 = f_toList ass in
+    let clausesNum = List.length eAss1 in
+    (*print_endline(bool_expr_list_to_infix_string eAss1); (* In ast.ml *)
     flush stdout;*)
 
     (* lstLit stored the list of literals from interval constraints *)
@@ -2449,31 +2471,38 @@ let rec getMB m constr = match constr with
     (*print_endline ("Vars: " ^ (string_of_int iVar));
     flush stdout;*)
   
-    let lst = idx iVar in
+    let lst = idx (clausesNum + 1) iVar in
     (*Encoded each literal with an ID: Integer number*)    
     let lstIDLit = List.combine lst (List.append lstLit dlstLit) in
     (*let lstLitID = List.combine (List.append lstLit dlstLit) lst in*)
     (*let lstLitID = List.combine lstLit lst in*)
 
-    let positiveCheck = getPositive olstCheck iVar in
+    let (positiveCheck, choosenClausesIndices) = getPositive olstCheck iVar clausesNum [] [] in
+
+    let eAss = Util.sublist eAss1 choosenClausesIndices in
+    let eAss = List.rev eAss in
+    (*let parsingTime = parsingTime +. Sys.time() -. startTime in*)
+    (*print_endline(bool_expr_list_to_infix_string eAss); (* In ast.ml *)
+    flush stdout;*)
 
     (*Reduce lstCheck for Dynamic interval decomposition*)
     (*let l1 = list_IDtoLit positiveCheck lstIDLit in*)
-    let lstCheck = redLstCheck [] positiveCheck lstIDLit in
+    (*let lstCheck = redLstCheck [] positiveCheck lstIDLit in*)
+    let lstCheck = positiveCheck in
     (*let lstCheck = list_LittoID l2 lstLitID in*)
         
     (*checkVarID stored the list of pairs of variable and ID*)
-    let checkVarID = var_list lstCheck iVar lstIDLit in      
+    let checkVarID = var_list lstCheck (clausesNum + 1) (clausesNum + iVar) lstIDLit in      
     let tmp = (ftemp checkVarID) ^ ". lstCheck = " ^ (toString_list lstCheck) in
 
     (*assIntv is an assignment of classical interval*)
-    let assIntv = ci_ass lstCheck iVar lstIDLit in
+    let assIntv = ci_ass lstCheck (clausesNum + 1) (clausesNum + iVar) lstIDLit in
     (*print_endline (string_of_intervals assIntv); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout;*)
     let originalIntv = List.flatten (List.map e_toIntv lstLit) in
     (*print_endline (intervals_toString originalIntv); (* intervals_toString is defined in Assignments.ml *)
     flush stdout;*)
-    let parsingTime = parsingTime +. Sys.time() -. startTime in        
+    let parsingTime = parsingTime +. Sys.time() -. startTime in
     (*print_endline "Start IA";*)
     let isInfinite = check_infinity assIntv in (* check_infinity is defined in assignments.ml *)
     (*print_endline (string_of_bool isInfinite);
@@ -2552,7 +2581,7 @@ let rec getMB m constr = match constr with
                       if isDecomposed then 
                         (newInterval, newLearn, newBumpVars, isDecomposed)
                       else*)
-                        dynamicDecom_pos assIntv dIntv checkVarID iVar decomposedExpr esl in
+                        dynamicDecom_pos assIntv dIntv checkVarID (iVar + clausesNum) decomposedExpr esl in
 										(*print_endline "after decomposed";
 										flush stdout;*)
                     let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in

@@ -13,7 +13,7 @@ rule lex = parse
   | "and"  { AND }  
   | "&"	{ CONJ}   
   | "or"   { OR }
-  (*| "not"  { NOT }*)
+  | "not"  { NOT }
   | "let"  { LET }
   | "assert" { ASSERT }
   | alpha (alpha|num)* as s { ID s }

@@ -8,7 +8,7 @@ extern "C" {
 using namespace std;
 
 value caml_genSmtForm(char * sIntv, char *sAssert, string ub);
-value caml_genSatForm(char * sIntv, double esl);
+value caml_genSatForm(char* sAss, char * sIntv, double esl);
 value caml_isTheoConsis(char *sIntv, char *sCons, char *sCheck, int ia);
 char* caml_logResult(char * sIntv, char *sCons, char *sCheck, int ia);
 value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia);
