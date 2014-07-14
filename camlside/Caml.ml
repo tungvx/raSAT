@@ -1386,13 +1386,12 @@ let rec getMB m constr = match constr with
       )
   *)
   (*=====================================================================================*)    
-  (* getNumCons return the number of boolean constraints*)    
-  let getNumCons sAss =
+  (* getConsInfo return the number of boolean constraints and the list of constraints*)    
+  let getConsInfo sAss =
       let eAss = sub_ass (read sAss) in        
-
      (* lstCons stored the list of boolean constraints without and*)
       let lstCons = f_toList eAss in
-      List.length lstCons
+      (lstCons, List.length lstCons)
 
   (*===================================================================================*) 
    let getLU lit = match lit with
@@ -2381,6 +2380,7 @@ let rec getMB m constr = match constr with
             else
               s
           in*)
+
           (*let s2 = 
            if (str = "") then
              (bool_toString h) ^ str
@@ -2432,22 +2432,22 @@ let rec getMB m constr = match constr with
 
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
-  let dynTest sIntv dIntv sAss strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
-		(*print_endline dIntv;
+  let dynTest sIntv dIntv eAss1 strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
+		(*print_endline sIntv;
 		flush stdout;*)
 		let startTime = Sys.time() in
     let olstCheck = toIntList strCheck in 
     let eIntv = sub_intv (read sIntv) in
     (*print_endline sAss;
     flush stdout;*)
-    let ass = sub_ass (read sAss) in      
+    (*let ass = sub_ass (read sAss) in      
       
     (*sort the list of constraints based on their length*)
     (*let eAss = List.rev (List.sort compare_cons (f_toList ass)) in *)
-    let eAss1 = f_toList ass in
-    let clausesNum = List.length eAss1 in
+    let eAss1 = f_toList ass in*)
     (*print_endline(bool_expr_list_to_infix_string eAss1); (* In ast.ml *)
     flush stdout;*)
+    let clausesNum = List.length eAss1 in
 
     (* lstLit stored the list of literals from interval constraints *)
     let lstLit = f_toLit eIntv in
@@ -3490,7 +3490,7 @@ let _ = Callback.register "caml_isTheoConsis" Caml.isTheoConsis;;
 let _ = Callback.register "caml_logResult" Caml.logResult;; 
 (*let _ = Callback.register "caml_doTest" Caml.doTest;; *)
 let _ = Callback.register "caml_dynTest" Caml.dynTest;; 
-let _ = Callback.register "caml_getNumCons" Caml.getNumCons;; 
+let _ = Callback.register "caml_getConsInfo" Caml.getConsInfo;; 
 (*let _ = Callback.register "caml_InfCheck" Caml.infCheck;;*)
 (*let _ = Callback.register "caml_divide" Caml.divide;; *) 
 

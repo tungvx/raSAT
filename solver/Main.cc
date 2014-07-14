@@ -295,7 +295,17 @@ int main(int argc, char* argv[]) {
 	//cout <<endl<<strAss<<endl;
 
 	//nCons store the number of constraints
-	int nCons = caml_getNumCons(sAss);
+	CAMLlocal2(consInfo, eAss);
+	caml_register_generational_global_root (&eAss);
+	caml_register_generational_global_root (&consInfo);
+	//parse the constraints into a list of ocaml data.
+//	cout << "sAss: " << sAss << endl;
+	consInfo = caml_getConsInfo(sAss);
+//	cout << "Finish get info" << endl;
+	eAss = Field(consInfo, 0);
+//	cout << "Finish extracting constraints list" << endl;
+	int nCons = Int_val(Field(consInfo, 1));
+//	cout << "Finish get numbers of constraints" << endl;
 
 //	cout <<endl<<"Number of constraints:  "<< nCons<<endl;
 
@@ -631,15 +641,15 @@ int main(int argc, char* argv[]) {
 					//cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
-					//cout << "Run49" << endl;
-					theoCheck = caml_dynTest(sIntv, c_dIntv, sAss, sSAT, ia,
+//					cout << "Run49" << endl;
+					theoCheck = caml_dynTest(sIntv, c_dIntv, &eAss, sSAT, ia,
 							esl, c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
 							timeout - (cpuTime() - initial_time));
 					delete[] c_dIntv;
 					if (needDeleted)
 						delete[] c_strTestUS;
-					//cout << "Run50" << endl;
+//					cout << "Run50" << endl;
 					dummy.clear(true);
 //					cout << "Searched \n\n";
 					ocamlTime += cpuTime() - startCheck;

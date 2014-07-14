@@ -30,7 +30,7 @@ value caml_genSatForm(char* sAss, char * sIntv, double esl) {
 	ml_args[0] = caml_copy_string(sAss);
 	ml_args[1] = caml_copy_string(sIntv);
 	ml_args[2] = caml_copy_double(esl);
-	
+
 	static value * caml_gen_closure = NULL;
 	if (caml_gen_closure == NULL)
 		caml_gen_closure = caml_named_value("caml_genSatForm");
@@ -91,14 +91,14 @@ value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia) {
 }
 
 //including dynamic interval decomposition and testing
-value caml_dynTest(char *sIntv, char* dIntv, char *sCons, char *sCheck, int ia,
+value caml_dynTest(char *sIntv, char* dIntv, value *sCons, char *sCheck, int ia,
 		double esl, char *sTestUS, double iaTime, double testingTime,
 		double USTime, double parsingTime, double decompositionTime,
 		double remainingTime) {
-	//cout << "dynTest\n";
-	int const ARGS_NUM = 13;
-	//cout << "dynTest1\n";
+//	cout << "dynTest\n";
 	CAMLparam0();
+	//cout << "dynTest1\n";
+	int const ARGS_NUM = 13;
 	//cout << "dynTest2\n";
 	CAMLlocalN(ml_args, ARGS_NUM);
 	//cout << "dynTest3\n";
@@ -108,7 +108,7 @@ value caml_dynTest(char *sIntv, char* dIntv, char *sCons, char *sCheck, int ia,
 	//cout << "dynTest5\n";
 	ml_args[1] = caml_copy_string(dIntv);       //intervals are decomposed
 	//cout << "dynTest6\n";
-	ml_args[2] = caml_copy_string(sCons);
+	ml_args[2] = *sCons;
 	//cout << "dynTest7\n";
 	ml_args[3] = caml_copy_string(sCheck);
 	//cout << "dynTest8\n";
@@ -129,17 +129,17 @@ value caml_dynTest(char *sIntv, char* dIntv, char *sCons, char *sCheck, int ia,
 	ml_args[11] = caml_copy_double(decompositionTime);
 	//cout << "dynTest16\n";
 	ml_args[12] = caml_copy_double(remainingTime);
-	//cout << "dynTest17\n";
+//	cout << "dynTest17\n";
 
 	static value *caml_is_closure = NULL;
 	//cout << "dynTest18\n";
 	if (caml_is_closure == NULL)
 		caml_is_closure = caml_named_value("caml_dynTest");
-	//cout << "dynTest19\n";
+//	cout << "dynTest19\n";
 	//result = caml_alloc (2, 0);
 	//result = caml_callbackN(*caml_is_closure, 4, ml_args);
 	result = caml_callbackN_exn(*caml_is_closure, ARGS_NUM, ml_args);
-	//cout << "dynTest20\n";
+//	cout << "dynTest20\n";
 	if (Is_exception_result(result)) {
 		printf("Catched ocaml exception!\n");
 		printf("%s", String_val(Field(result, 0)));
@@ -150,11 +150,11 @@ value caml_dynTest(char *sIntv, char* dIntv, char *sCons, char *sCheck, int ia,
 	CAMLreturn(result);
 }
 
-int caml_getNumCons(char * sAss) {
+value caml_getConsInfo(char * sAss) {
 	static value * caml_gen_closure = NULL;
 	if (caml_gen_closure == NULL)
-		caml_gen_closure = caml_named_value("caml_getNumCons");
-	return Int_val(caml_callback(*caml_gen_closure, caml_copy_string(sAss)));
+		caml_gen_closure = caml_named_value("caml_getConsInfo");
+	return caml_callback(*caml_gen_closure, caml_copy_string(sAss));
 	/* We copy the C string returned by String_val to the C heap
 	 so that it remains valid after garbage collection. */
 }
