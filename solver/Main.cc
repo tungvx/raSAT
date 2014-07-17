@@ -617,7 +617,7 @@ int main(int argc, char* argv[]) {
 					 cout << endl << "esl:" << esl << endl;
 					 cout << endl << "c_strTestUS: " << c_strTestUS << endl;
 					 */
-					cout << endl << "sSAT:" << sSAT << endl;
+					//cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
 //					cout << "Run49" << endl;
@@ -705,18 +705,18 @@ int main(int argc, char* argv[]) {
 					} else if (sat == 0) { //adding unknown reason to solver
 						finalRes = sat;
 						string cl_uk = String_val(Field(theoCheck, 2));
-						cout << endl << "Add unknown clause:" << cl_uk << endl;
+						//cout << endl << "Add unknown clause:" << cl_uk << endl;
 						unknownLearnedClauses += solver_addClause(S, cl_uk);
 					} else if (sat == -2) { //adding decomposition clauses to solver
 //						cout << "start adding clauses" << endl;
 						string cl_uk = String_val(Field(theoCheck, 2));
-						cout << endl << "Add decomposition clauses:" << cl_uk
-								<< "|" << endl;
+						//cout << endl << "Add decomposition clauses:" << cl_uk
+						//		<< "|" << endl;
 						nDecompositions += solver_addClause(S, cl_uk);
 						//cout << S.nVars() << endl;	
 						//cout << "finish adding clauses" << endl;	
-						cout << endl << "Bumping activity of variables: "
-								<< bump_vars << endl;
+						//cout << endl << "Bumping activity of variables: "
+						//		<< bump_vars << endl;
 						//solver_bumping(S, bump_vars);
 						//cout << "finish bump" << endl;
 						//cout << S.nVars() << endl;
@@ -724,8 +724,8 @@ int main(int argc, char* argv[]) {
 					} else { // adding unsat reason to solver
 							 //finalRes = finalRes*sat;		  
 						string cl_us = String_val(Field(theoCheck, 1));
-						cout << endl << "Add unsat clause:" << cl_us << "|"
-						<< endl;
+						//cout << endl << "Add unsat clause:" << cl_us << "|"
+						//<< endl;
 						UNSATLearnedClauses += solver_addClause(S, cl_us);
 						//cout << "finish adding unsat clauses" << endl;
 					}
