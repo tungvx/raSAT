@@ -28,18 +28,9 @@ type bool_expr =
   | And of bool_expr * bool_expr
   | BOr of bool_expr * bool_expr
 
-type intv_clause =                         (*interval constraint for each variable*)
-  | In of string * float * float
-  | Or of intv_clause * intv_clause                
-
-type intv_expr = 
-  | Cl of intv_clause
-  | Ic of intv_expr * intv_expr            (*Ic: Interval constraints *)
-
 type formula =
   | Ass of bool_expr
-  | Intv of intv_expr  
-  
+  | Intv of (string * IA.interval) list
 
 (* This function convert the cnf miniSAT expression into string under the format of miniSAT input *)
 let rec string_of_cnf_miniSATExpr cnfMiniSATExpr isFinal = match cnfMiniSATExpr with
@@ -368,17 +359,22 @@ using alphabet ordering *)
 let get_vars_set_boolExp boolExp = 
   let polyExp = get_exp boolExp in
   get_vars_set_polyExp polyExp
-  
 
-(* Check if a variables is in the set *)
-let check_mem varsSet (var, intv) = 
-  VariablesSet.mem var varsSet
+
+let rec get_vars_set_boolExps boolExps = match boolExps with
+  | [] -> VariablesSet.empty
+  | h::t -> VariablesSet.union (get_vars_set_boolExp h) (get_vars_set_boolExps t) 
+
+
+let rec get_interval var (intvMap, intvList) =
+  let (intv,_) = VarIntvMap.find var intvMap in
+  (intvMap, (var, intv)::intvList)
 
 
 (*evaluate the bound of poly expression by type of interval arithmetic*)						     
-let poly_eval e ia assIntv = 
+let poly_eval e ia intv = 
   let varsSet = get_vars_set_polyExp e in
-  let assIntv = List.filter (check_mem varsSet) assIntv in
+  let (_, assIntv) = VariablesSet.fold get_interval varsSet (intv, []) in
   let iIntvVar = List.length assIntv in
   if (ia=1) then (
     let assAf1 = e_toAf1 assIntv 1 iIntvVar in

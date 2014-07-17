@@ -91,16 +91,16 @@ let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite lim
         get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite (limitedTime -. (Sys.time() -. startTime)) newRemainingCandidates newResult
     )
       
-let get_unsatcore_vars boolExp currentIntv originalIntv varsId isInfinite limitedTime =
+let get_unsatcore_vars boolExp currentIntvMap originalIntv isInfinite limitedTime =
   let startTime = Sys.time() in 
   let varsList = Util.red_list (bool_vars boolExp) in (* bool_vars is defined in Ast.ml *)
   (*print_endline ("Variables List: " ^ Util.vars_to_string varsList);
   flush stdout;*)
   let nVars = List.length varsList in
   let initialCandidate = Cons(([], varsList, false, 0, nVars), fun() -> Nil) in
-  let unsatVarsCores = get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
-  if unsatVarsCores = [] then Util.learn_vars varsList varsId
-  else Util.learn_vars_cores unsatVarsCores varsId
+  let unsatVarsCores = get_unsatcore_vars_extra boolExp currentIntvMap originalIntv isInfinite (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
+  if unsatVarsCores = [] then Util.learn_vars varsList currentIntvMap
+  else Util.learn_vars_cores unsatVarsCores currentIntvMap
   
   (*let varsPowerSet = gen_power_set varsList 1 (nVars - 1) in 
   let unsatCoreVars = get_unsatcore_vars_from_list boolExp currentIntv originalIntv varsPowerSet (limitedTime -. (Sys.time() -. startTime)) in

@@ -1,4 +1,6 @@
 module VariablesSet = Set.Make(String);;
+module IntvMap = Map.Make(struct type t = int let compare = compare end);;
+module VarIntvMap = Map.Make(String);;
 
 let varsSet_to_string varsSet = 
   let varsList = VariablesSet.elements varsSet in

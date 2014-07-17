@@ -13,10 +13,10 @@ let check_vars_ofEquation_notYetConsidered equation vars =
 
 let check_equality equation assIntv = 
   let polyExp = get_exp equation in
-  let lowerBound = getLowerBound assIntv [] in (* getLowerBound is defined in Assignments.ml *)
+  let lowerBound = getLowerBound assIntv in (* getLowerBound is defined in Assignments.ml *)
   (* checkSAT_computeValues is defined in ast.ml *)
   let lowerBoundValue = evalFloat lowerBound polyExp in
-  let upperBound = getUpperBound assIntv [] in
+  let upperBound = getUpperBound assIntv in (* getUpperBound is defined in Assignments.ml *)
   let upperBoundValue = evalFloat upperBound polyExp in
   (* Intermediate theorem f(a) . f(b) < 0 ==> f(x) has a root between a and b *)
   lowerBoundValue *. upperBoundValue < 0. 

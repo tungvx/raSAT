@@ -120,19 +120,20 @@ module Util = struct
 	
 	
 	(* Function for converting a list of variables to be learned into minisat codes*)
-	let rec learn_vars varsList varsId = match varsList with
+	let rec learn_vars varsList intvMap = match varsList with
 	  | [] -> ""
-    | h::t -> ("-" ^ string_of_int (List.assoc h varsId)) ^ " " ^ (learn_vars  t varsId)
+    | h::t -> 
+      let (_, varId) = VarIntvMap.find h intvMap in
+      "-" ^ string_of_int varId ^ " " ^ (learn_vars  t intvMap)
       
       
   (* This function convert the list of unsat cores into minisat learnt clauses.*)
-  let rec learn_vars_cores varsCores varsId = match varsCores with
+  let rec learn_vars_cores varsCores intvMap = match varsCores with
     | [] -> ""
-    | varsList :: [] -> learn_vars varsList varsId
+    | varsList :: [] -> learn_vars varsList intvMap
     | varsList :: remainingVarsCores -> (
-      let learntVars = learn_vars varsList varsId in
-      let remainingLearntVars = learn_vars_cores remainingVarsCores varsId in
-      learntVars ^ "0 " ^ remainingLearntVars
+      let learntVars = learn_vars varsList intvMap in
+      learntVars ^ " 0 " ^ learn_vars_cores remainingVarsCores intvMap
     )
     
       
@@ -161,10 +162,5 @@ module Util = struct
   let rec extract_boolExps = function 
     | [] -> []
     | (boolExp, _, vars, varsNum)::t -> boolExp::(extract_boolExps t)
-  
-  
-  (* This function return a sublist of a list provided list of indices *)
-  let rec sublist aList indices = match indices with
-    | [] -> []
-    | h::t -> (List.nth aList (h-1))::(sublist aList t)
+    
 end

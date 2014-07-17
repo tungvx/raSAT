@@ -37,7 +37,7 @@ let rec generate_tc_var var interval tcNum isFirst =
 let rec generate_tc_vars varsList assIntv = match varsList with
   | [] -> []
   | (var, tcNum)::remainings -> 
-    let interval = List.assoc var assIntv in
+    let (interval, _) = VarIntvMap.find var assIntv in
     let testCases = generate_tc_var var interval tcNum false in
     (var, testCases)::(generate_tc_vars remainings assIntv)
     

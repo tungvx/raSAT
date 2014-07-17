@@ -7,7 +7,7 @@ OC=ocamlopt
 
 #------------------------------------------------------------------------------
 
-SOURCES = InfiniteList.ml IA.ml Assignments.ml Variable.ml Util.ml ast.ml Testing.ml parser.mly lexer.mll Exp.ml SmtParser.mly SmtLexer.mll Expr.ml str.cma Decomposer.ml Equalities_handler.ml Unsat_Core.ml Caml.ml Caml_Smt.ml
+SOURCES = InfiniteList.ml IA.ml Variable.ml Assignments.ml Util.ml ast.ml Testing.ml parser.mly lexer.mll Exp.ml SmtParser.mly SmtLexer.mll Expr.ml str.cma Decomposer.ml Equalities_handler.ml Unsat_Core.ml Caml.ml Caml_Smt.ml
 
 RESULT = a
 
@@ -19,7 +19,7 @@ include OCamlMakefile
 
 modcaml.o: InfiniteList.cmx Variable.cmx Util.cmx ast.cmx Testing.cmx parser.cmx lexer.cmx Exp.cmx SmtParser.cmx SmtLexer.cmx Expr.cmx IA.cmx Caml.cmx Caml_Smt.cmx Assignments.cmx Decomposer.cmx Equalities_handler.cmx Unsat_Core.cmx
 
-	$(OC) -output-obj -o modcaml.o InfiniteList.cmx IA.cmx Assignments.cmx Variable.cmx Util.cmx ast.cmx Testing.cmx parser.cmx lexer.cmx Exp.cmx SmtParser.cmx SmtLexer.cmx Expr.cmx Decomposer.cmx Equalities_handler.cmx Unsat_Core.cmx Caml.cmx Caml_Smt.cmx
+	$(OC) -output-obj -o modcaml.o InfiniteList.cmx IA.cmx Variable.cmx Assignments.cmx Util.cmx ast.cmx Testing.cmx parser.cmx lexer.cmx Exp.cmx SmtParser.cmx SmtLexer.cmx Expr.cmx Decomposer.cmx Equalities_handler.cmx Unsat_Core.cmx Caml.cmx Caml_Smt.cmx
 
 $(OCAML_LIB): modcaml.o
 	@rm -f $(OCAML_LIB)
