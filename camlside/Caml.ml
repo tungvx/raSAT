@@ -1038,8 +1038,8 @@ let getConsInfo sAss =
   (*Binary balance decomposition on intervals*)
   let dynamicDecom assIntv intvMap iVar uk_cl esl = 
     let varsSet = get_vars_set_boolExp uk_cl in
-    let check_mem var value = VariablesSet.mem var varsSet in
-    let newIntv = VarIntvMap.filter check_mem assIntv in
+    let add_interval var newIntvMap = VarIntvMap.add var (VarIntvMap.find var assIntv) newIntvMap in
+    let newIntv = VariablesSet.fold add_interval varsSet VarIntvMap.empty in
     let not_smallIntv var (intv, _) =
       let lowerBound = intv#l in
       let upperBound = intv#h in
