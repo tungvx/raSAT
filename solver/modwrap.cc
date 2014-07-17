@@ -91,44 +91,43 @@ value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia) {
 }
 
 //including dynamic interval decomposition and testing
-value caml_dynTest(char *sIntv, char* dIntv, value *sCons, char *sCheck, int ia,
+value caml_dynTest(value *intvInfo, value *sCons, char *sCheck, int ia,
 		double esl, char *sTestUS, double iaTime, double testingTime,
 		double USTime, double parsingTime, double decompositionTime,
 		double remainingTime) {
 //	cout << "dynTest\n";
 	CAMLparam0();
 	//cout << "dynTest1\n";
-	int const ARGS_NUM = 13;
+	int const ARGS_NUM = 12;
 	//cout << "dynTest2\n";
 	CAMLlocalN(ml_args, ARGS_NUM);
 	//cout << "dynTest3\n";
 	CAMLlocal1 (result);
 	//cout << "dynTest4\n";
-	ml_args[0] = caml_copy_string(sIntv);
+	ml_args[0] = *intvInfo;
 	//cout << "dynTest5\n";
-	ml_args[1] = caml_copy_string(dIntv);       //intervals are decomposed
 	//cout << "dynTest6\n";
-	ml_args[2] = *sCons;
+	ml_args[1] = *sCons;
 	//cout << "dynTest7\n";
-	ml_args[3] = caml_copy_string(sCheck);
+	ml_args[2] = caml_copy_string(sCheck);
 	//cout << "dynTest8\n";
-	ml_args[4] = Val_int(ia);
+	ml_args[3] = Val_int(ia);
 	//cout << "dynTest9\n";
-	ml_args[5] = caml_copy_double(esl);
+	ml_args[4] = caml_copy_double(esl);
 	//cout << "dynTest10\n";
-	ml_args[6] = caml_copy_string(sTestUS);
+	ml_args[5] = caml_copy_string(sTestUS);
 	//cout << "dynTest11\n";
-	ml_args[7] = caml_copy_double(iaTime);
+	ml_args[6] = caml_copy_double(iaTime);
 	//cout << "dynTest12\n";
-	ml_args[8] = caml_copy_double(testingTime);
+	ml_args[7] = caml_copy_double(testingTime);
 	//cout << "dynTest13\n";
-	ml_args[9] = caml_copy_double(USTime);
+	ml_args[8] = caml_copy_double(USTime);
 	//cout << "dynTest14\n";
-	ml_args[10] = caml_copy_double(parsingTime);
+	ml_args[9] = caml_copy_double(parsingTime);
 	//cout << "dynTest15\n";
-	ml_args[11] = caml_copy_double(decompositionTime);
+	ml_args[10] = caml_copy_double(decompositionTime);
 	//cout << "dynTest16\n";
-	ml_args[12] = caml_copy_double(remainingTime);
+	ml_args[11] = caml_copy_double(remainingTime);
 //	cout << "dynTest17\n";
 
 	static value *caml_is_closure = NULL;

@@ -123,8 +123,7 @@ void addLitListToVector(vec<Lit> &litVector, string litList) {
 double miniSATVars = 0;
 double clauses = 0;
 // add some clauses to solver which stores information in reason
-int solver_addClause(Solver& solv, string reason, std::set<int>& leafLits,
-		bool isDecomposition) {
+int solver_addClause(Solver& solv, string reason) {
 	//solv.model.clear(true);
 	int addedClauses = 0;
 	//remove space at the beginning and the end of a string
@@ -145,32 +144,11 @@ int solver_addClause(Solver& solv, string reason, std::set<int>& leafLits,
 	}
 	a[pos] = atoi(s.substr(prev, l - prev).c_str());
 	int prevPos = 0, endPos = 0;
-	int count = 0;
-	bool firstClause = false;
-	bool firstLit = false;
 	while (endPos <= pos) {
 		if (a[endPos] == 0) {
-			if (count == 4)
-				count = 1;
-			else
-				count++;
-			if (count == 1) {
-				firstClause = true;
-				firstLit = true;
-			} else {
-				firstClause = false;
-				firstLit = false;
-			}
 			vec < Lit > cl;
 			for (int i = prevPos; i < endPos; i++) {
 				int var = abs(a[i]) - 1;
-				if (isDecomposition && firstClause) {
-					if (firstLit) {
-						leafLits.erase(var + 1);
-						firstLit = false;
-					} else
-						leafLits.insert(var + 1);
-				}
 				//printf ("adding %d\n", var);	
 				while (var >= solv.nVars())
 					solv.newVar();
@@ -215,7 +193,6 @@ static void SIGINT_exit(int signum) {
 // Main:
 
 int main(int argc, char* argv[]) {
-	set<int> leafLits;
 	////cout << "Run" << endl;
 	bool debug = true;
 	double initial_time = cpuTime();
@@ -346,12 +323,14 @@ int main(int argc, char* argv[]) {
 	//get information for polynomial constraints: number of variables, constraints
 
 	//ebg -> form of minisat in string 
-	CAMLlocal1 (intv);
+	CAMLlocal2 (intv, intvInfo);
 	caml_register_global_root(&intv);
+	caml_register_global_root(&intvInfo);
 //	cout << sIntv << endl;
 	intv = caml_genSatForm(sAss, sIntv, esl);
 	int nVars = Int_val(Field(intv, 0)); //nVars store the number variables for SAT content
 	string satContent = String_val(Field(intv, 1));
+	intvInfo = Field(intv, 2);
 //	cout << satContent << endl;
 	caml_remove_global_root(&intv);
 
@@ -499,7 +478,7 @@ int main(int argc, char* argv[]) {
 			 printf("|                                                                             |\n"); }
 			 */
 			//cout << "Run26" << endl;
-			parse_DIMACS(in, S, leafLits);
+			parse_DIMACS(in, S);
 			//cout << "Run27" << endl;
 			gzclose(in);
 			delete[] inFile;
@@ -595,7 +574,7 @@ int main(int argc, char* argv[]) {
 					for (int i = 0; i < S.nVars(); i++) {
 						if (S.model[i] != l_Undef) {
 							int c = (S.model[i] == l_True) ? i + 1 : -(i + 1);
-							if (c > 0 && leafLits.find(c) != leafLits.end()) {
+							if (c > 0) {
 								char numstr[21];
 								sprintf(numstr, "%s%d", (i == 0) ? "" : " ", c);
 								strcat(sSAT, numstr);
@@ -638,11 +617,11 @@ int main(int argc, char* argv[]) {
 					 cout << endl << "esl:" << esl << endl;
 					 cout << endl << "c_strTestUS: " << c_strTestUS << endl;
 					 */
-					//cout << endl << "sSAT:" << sSAT << endl;
+					cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
 //					cout << "Run49" << endl;
-					theoCheck = caml_dynTest(sIntv, c_dIntv, &eAss, sSAT, ia,
+					theoCheck = caml_dynTest(&intvInfo, &eAss, sSAT, ia,
 							esl, c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
 							timeout - (cpuTime() - initial_time));
@@ -656,7 +635,7 @@ int main(int argc, char* argv[]) {
 //					cout << "Check: " << cpuTime() - startCheck << endl;
 					//cout << "Run51" << endl;
 					int sat = Int_val(Field(theoCheck, 0));
-					//cout << sat << endl;
+//					cout << sat << endl;
 					logResult = String_val(Field(theoCheck, 3));
 					//cout << "Run52" << endl;	
 
@@ -665,7 +644,7 @@ int main(int argc, char* argv[]) {
 
 					//get list of variables for bumping
 					bump_vars = String_val(Field(theoCheck, 6));
-					//cout << "bump: " << bump_vars << endl;
+//					cout << "bump: " << bump_vars << endl;
 
 					tmp = String_val(Field(theoCheck, 7));
 
@@ -673,7 +652,7 @@ int main(int argc, char* argv[]) {
 //					cout << endl << "logResult: " << logResult << endl;
 
 					//dynamic interval decomposition
-					str_dIntv = String_val(Field(theoCheck, 4));
+					intvInfo = Field(theoCheck, 4);
 //					cout << endl << "str_dIntv: " << str_dIntv << endl;
 
 					//cout <<endl<<"checkVarID: "<<tmp<<endl;
@@ -692,7 +671,7 @@ int main(int argc, char* argv[]) {
 					parsingTime = Double_val(Field(theoCheck, 12));
 
 					decompositionTime = Double_val(Field(theoCheck, 13));
-					//cout << "Run53" << endl;
+//					cout << "Run53" << endl;
 
 					//check timeout occurs
 					if ((cpuTime() - initial_time) >= timeout) {
@@ -726,20 +705,18 @@ int main(int argc, char* argv[]) {
 					} else if (sat == 0) { //adding unknown reason to solver
 						finalRes = sat;
 						string cl_uk = String_val(Field(theoCheck, 2));
-//						cout << endl << "Add unknown clause:" << cl_uk << endl;
-						unknownLearnedClauses += solver_addClause(S, cl_uk,
-								leafLits, false);
+						cout << endl << "Add unknown clause:" << cl_uk << endl;
+						unknownLearnedClauses += solver_addClause(S, cl_uk);
 					} else if (sat == -2) { //adding decomposition clauses to solver
-						//cout << "start adding clauses" << endl;
+//						cout << "start adding clauses" << endl;
 						string cl_uk = String_val(Field(theoCheck, 2));
-//						cout << endl << "Add decomposition clauses:" << cl_uk
-//								<< "|" << endl;
-						nDecompositions += solver_addClause(S, cl_uk, leafLits,
-								true);
+						cout << endl << "Add decomposition clauses:" << cl_uk
+								<< "|" << endl;
+						nDecompositions += solver_addClause(S, cl_uk);
 						//cout << S.nVars() << endl;	
 						//cout << "finish adding clauses" << endl;	
-//						cout << endl << "Bumping activity of variables: "
-//								<< bump_vars << endl;
+						cout << endl << "Bumping activity of variables: "
+								<< bump_vars << endl;
 						//solver_bumping(S, bump_vars);
 						//cout << "finish bump" << endl;
 						//cout << S.nVars() << endl;
@@ -747,10 +724,9 @@ int main(int argc, char* argv[]) {
 					} else { // adding unsat reason to solver
 							 //finalRes = finalRes*sat;		  
 						string cl_us = String_val(Field(theoCheck, 1));
-//						cout << endl << "Add unsat clause:" << cl_us << "|"
-//						<< endl;
-						UNSATLearnedClauses += solver_addClause(S, cl_us,
-								leafLits, false);
+						cout << endl << "Add unsat clause:" << cl_us << "|"
+						<< endl;
+						UNSATLearnedClauses += solver_addClause(S, cl_us);
 						//cout << "finish adding unsat clauses" << endl;
 					}
 
@@ -762,7 +738,7 @@ int main(int argc, char* argv[]) {
 					fprintf(res, "INDET\n");
 					fclose(res);
 				}
-				//break; // force the loop to be executed once only
+//				break; // force the loop to be executed once only
 			}							 // End while loop
 
 			//cout << "finish while" << endl;
