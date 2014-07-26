@@ -228,15 +228,16 @@ int main(int argc, char* argv[]) {
 	char *sAs = new char[strAs.size() + 1];
 	strcpy(sAs, strAs.c_str());
 
-//	cout << endl << "constraints: " << strAs << endl;
+//	cout << "intervals: " << sInt << endl;
+//	cout << "constraints: " << strAs << endl;
 
 	CAMLlocal1 (smt);
 	caml_register_global_root(&smt);
 
-	//cout << "Run4" << endl;
+//	cout << "Run4" << endl;
 	smt = caml_genSmtForm(sInt, sAs, ub);
 	string smtContent = String_val(Field(smt, 0));
-	//cout << "raSAT input form: " << smtContent << "\n";
+//	cout << "raSAT input form: " << smtContent << "\n";
 	caml_remove_global_root(&smt);
 	delete[] sInt;
 	delete[] sAs;
@@ -262,29 +263,13 @@ int main(int argc, char* argv[]) {
 	strcpy(sIntv, strIntv.c_str());
 	//printf("\n%s\n", sIntv);
 
-	////cout << "Run7" << endl;
+//	cout << "Run7" << endl;
 	string strAss = smt_ass(rsFile);
+//	cout  << "Constraints: " << strAss << endl;
 	delete[] rsFile;
 
 	char *sAss = new char[strAss.size() + 1];
 	strcpy(sAss, strAss.c_str());
-
-	//cout <<endl<<strAss<<endl;
-
-	//nCons store the number of constraints
-	CAMLlocal2(consInfo, eAss);
-	caml_register_generational_global_root (&eAss);
-	caml_register_generational_global_root (&consInfo);
-	//parse the constraints into a list of ocaml data.
-//	cout << "sAss: " << sAss << endl;
-	consInfo = caml_getConsInfo(sAss);
-//	cout << "Finish get info" << endl;
-	eAss = Field(consInfo, 0);
-//	cout << "Finish extracting constraints list" << endl;
-	int nCons = Int_val(Field(consInfo, 1));
-//	cout << "Finish get numbers of constraints" << endl;
-
-//	cout <<endl<<"Number of constraints:  "<< nCons<<endl;
 
 	double totalTime = 0;
 	double iaTime = 0;
@@ -323,16 +308,19 @@ int main(int argc, char* argv[]) {
 	//get information for polynomial constraints: number of variables, constraints
 
 	//ebg -> form of minisat in string 
-	CAMLlocal2 (intv, intvInfo);
-	caml_register_global_root(&intv);
-	caml_register_global_root(&intvInfo);
+	CAMLlocal3(satInfo, intvInfo, miniSATCodesConstraintsMap);
+	caml_register_global_root (&satInfo);
+	caml_register_global_root (&intvInfo);
+	caml_register_generational_global_root (&miniSATCodesConstraintsMap);
 //	cout << sIntv << endl;
-	intv = caml_genSatForm(sAss, sIntv, esl);
-	int nVars = Int_val(Field(intv, 0)); //nVars store the number variables for SAT content
-	string satContent = String_val(Field(intv, 1));
-	intvInfo = Field(intv, 2);
+	satInfo = caml_genSatForm(sAss, sIntv, esl);
+	int nVars = Int_val(Field(satInfo, 0)); //nVars store the number variables for SAT content
+	string satContent = String_val(Field(satInfo, 1));
+	intvInfo = Field(satInfo, 2);
+	miniSATCodesConstraintsMap = Field(satInfo, 3);
+	int nCons = Int_val(Field(satInfo, 4));
 //	cout << satContent << endl;
-	caml_remove_global_root(&intv);
+	caml_remove_global_root(&satInfo);
 
 //	cout << "Run8" << endl;
 	sfile = toFilein(argv[1]);
@@ -617,12 +605,13 @@ int main(int argc, char* argv[]) {
 					 cout << endl << "esl:" << esl << endl;
 					 cout << endl << "c_strTestUS: " << c_strTestUS << endl;
 					 */
-					//cout << endl << "sSAT:" << sSAT << endl;
+//					cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
 //					cout << "Run49" << endl;
-					theoCheck = caml_dynTest(&intvInfo, &eAss, sSAT, ia,
-							esl, c_strTestUS, iaTime, testingTime, usTime,
+					theoCheck = caml_dynTest(&intvInfo,
+							&miniSATCodesConstraintsMap, nCons, sSAT, ia, esl,
+							c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
 							timeout - (cpuTime() - initial_time));
 					delete[] c_dIntv;
@@ -648,7 +637,7 @@ int main(int argc, char* argv[]) {
 
 					tmp = String_val(Field(theoCheck, 7));
 
-//					cout << "sat=" << sat;
+//					cout << "sat = " << sat << endl;
 //					cout << endl << "logResult: " << logResult << endl;
 
 					//dynamic interval decomposition
@@ -705,13 +694,13 @@ int main(int argc, char* argv[]) {
 					} else if (sat == 0) { //adding unknown reason to solver
 						finalRes = sat;
 						string cl_uk = String_val(Field(theoCheck, 2));
-						//cout << endl << "Add unknown clause:" << cl_uk << endl;
+//						cout << endl << "Add unknown clause:" << cl_uk << endl;
 						unknownLearnedClauses += solver_addClause(S, cl_uk);
 					} else if (sat == -2) { //adding decomposition clauses to solver
 //						cout << "start adding clauses" << endl;
 						string cl_uk = String_val(Field(theoCheck, 2));
-						//cout << endl << "Add decomposition clauses:" << cl_uk
-						//		<< "|" << endl;
+//						cout << endl << "Add decomposition clauses:" << cl_uk
+//								<< "|" << endl;
 						nDecompositions += solver_addClause(S, cl_uk);
 						//cout << S.nVars() << endl;	
 						//cout << "finish adding clauses" << endl;	
@@ -724,8 +713,8 @@ int main(int argc, char* argv[]) {
 					} else { // adding unsat reason to solver
 							 //finalRes = finalRes*sat;		  
 						string cl_us = String_val(Field(theoCheck, 1));
-						//cout << endl << "Add unsat clause:" << cl_us << "|"
-						//<< endl;
+//						cout << endl << "Add unsat clause:" << cl_us << "|"
+//								<< endl;
 						UNSATLearnedClauses += solver_addClause(S, cl_us);
 						//cout << "finish adding unsat clauses" << endl;
 					}

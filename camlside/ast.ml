@@ -25,12 +25,6 @@ type bool_expr =
   | Leq of poly_expr
   | Gr of poly_expr
   | Le of poly_expr
-  | And of bool_expr * bool_expr
-  | BOr of bool_expr * bool_expr
-
-type formula =
-  | Ass of bool_expr
-  | Intv of (string * IA.interval) list
 
 (* This function convert the cnf miniSAT expression into string under the format of miniSAT input *)
 let rec string_of_cnf_miniSATExpr cnfMiniSATExpr isFinal = match cnfMiniSATExpr with
@@ -68,19 +62,6 @@ let rec cnf_of_miniSATExpr miniSATExpr = match miniSATExpr with
   | _ -> miniSATExpr
   
 
-(* encode the boolexpression into the form of miniSAT lit *)  
-let rec miniSATExpr_of_boolExpr boolExpr index = match boolExpr with
-  | And (b1, b2) -> 
-    let (mB1, index1) = miniSATExpr_of_boolExpr b1 index in
-    let (mB2, index2) = miniSATExpr_of_boolExpr b2 index1 in
-    (MAnd (mB1, mB2), index2)
-  | BOr (b1, b2) -> 
-    let (mB1, index1) = miniSATExpr_of_boolExpr b1 index in
-    let (mB2, index2) = miniSATExpr_of_boolExpr b2 index1 in
-    (MOr (mB1, mB2), index2)
-  | _ -> (Lit index, index + 1)
-  
-
 (* compute derivative of a polynomial by a variable *)
 let rec getDerivative smtPolynomial var =
 	match  smtPolynomial with
@@ -99,24 +80,23 @@ let get_exp = function
   | Le e  -> e
   | Geq e -> e
   | Gr e  -> e
-  | _ -> Real 0.         (*This case never happen*)
 
 
 (* evalFloat compute the value of a polynomial function from an assignment*)
-let rec evalFloat ass = function
+let rec evalFloat varsTCMap = function
 	| Real c -> c
-	| Var v -> List.assoc v ass
-	| Pow (u,1) -> evalFloat ass u 
-	| Add (u,v) -> evalFloat ass u +. evalFloat ass v
-	| Sub (u,v) -> evalFloat ass u -. evalFloat ass v
-	| Mul (u,v) -> evalFloat ass u *. evalFloat ass v
-	| Pow (u,c) -> evalFloat ass u *. evalFloat ass (Pow (u, c-1))
+	| Var v -> StringMap.find v varsTCMap
+	| Pow (u,1) -> evalFloat varsTCMap u 
+	| Add (u,v) -> evalFloat varsTCMap u +. evalFloat varsTCMap v
+	| Sub (u,v) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
+	| Mul (u,v) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
+	| Pow (u,c) -> evalFloat varsTCMap u *. evalFloat varsTCMap (Pow (u, c-1))
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
-let checkSAT_computeValues boolExp assignments = 
+let checkSAT_computeValues boolExp varsTCsMap = 
 	let expression = get_exp boolExp in
-	let value = evalFloat assignments expression in
+	let value = evalFloat varsTCsMap expression in
 	match boolExp with
 	|Eq e -> 
 		if value = 0. then (true, value)
@@ -133,7 +113,6 @@ let checkSAT_computeValues boolExp assignments =
 	|Gr e -> 
 		if value > 0. then (true, value)
 		else (false, value)
-	| _ -> (true, value)     (*This case never happen*)
 
 
 
@@ -145,97 +124,98 @@ let rec get_vars = function
 	| Mul(e1, e2) -> List.append (get_vars e1) (get_vars e2)
 	| Pow(e1, n)  -> get_vars e1
 	| _ -> []
-
-
-(*bool_vars gets the list of variables from a boolean constraint*)
-let rec bool_vars e = 
-	let exp = get_exp e in
-	get_vars exp
 	
 
-(*==================== START poly_expr_to_infix_string ==============================*)	
+(*==================== START string_infix_of_polyExpr ==============================*)	
 (* This function converts a polynomial expression into infix string form *)
-let rec poly_expr_to_infix_string = function
+let rec string_infix_of_polyExpr = function
   | Var x -> x
-	| Add(e1, e2) -> (poly_expr_to_infix_string e1) ^ "+" ^ (poly_expr_to_infix_string e2)
-	| Sub(e1, e2) -> (poly_expr_to_infix_string e1) ^ "-" ^ (poly_expr_to_infix_string e2)
-	| Mul(e1, e2) -> (poly_expr_to_infix_string e1) ^ "*" ^ (poly_expr_to_infix_string e2)
-	| Pow(e1, n)  -> (poly_expr_to_infix_string e1) ^ "^" ^ (string_of_int n)
+	| Add(e1, e2) -> (string_infix_of_polyExpr e1) ^ "+" ^ (string_infix_of_polyExpr e2)
+	| Sub(e1, e2) -> (string_infix_of_polyExpr e1) ^ "-" ^ (string_infix_of_polyExpr e2)
+	| Mul(e1, e2) -> (string_infix_of_polyExpr e1) ^ "*" ^ (string_infix_of_polyExpr e2)
+	| Pow(e1, n)  -> (string_infix_of_polyExpr e1) ^ "^" ^ (string_of_int n)
 	| Real r -> string_of_float r
-(*==================== END poly_expr_to_infix_string ==============================*)	
+(*==================== END string_infix_of_polyExpr ==============================*)	
 
-(*==================== START poly_expr_list_to_infix_string ==============================*)	
+(*==================== START string_infix_of_polyExprs ==============================*)	
 (* This function converts a polynomial expression into infix string form *)
-let rec poly_expr_list_to_infix_string = function
+let rec string_infix_of_polyExprs = function
   | [] -> ""
-  | [h] -> poly_expr_to_infix_string h
-	| h::t -> (poly_expr_to_infix_string h) ^ ", " ^ (poly_expr_list_to_infix_string t)
-(*==================== END poly_expr_list_to_infix_string ==============================*)	
+  | [h] -> string_infix_of_polyExpr h
+	| h::t -> (string_infix_of_polyExpr h) ^ ", " ^ (string_infix_of_polyExprs t)
+(*==================== END string_infix_of_polyExprs ==============================*)	
 
 	
 (*==================== START bool_expr_to_infix_string ==============================*)	
 (* This function converts a bool expression into the string of infix form *)
-let rec bool_expr_to_infix_string boolExpr =
+let rec string_infix_of_boolExp boolExpr =
   match boolExpr with
   |Eq e -> 
-		(poly_expr_to_infix_string e) ^ " = 0"
+		(string_infix_of_polyExpr e) ^ " = 0"
 	|Leq e -> 
-		(poly_expr_to_infix_string e) ^ " <= 0"
+		(string_infix_of_polyExpr e) ^ " <= 0"
 	|Le e -> 
-    (poly_expr_to_infix_string e) ^ " < 0"
+    (string_infix_of_polyExpr e) ^ " < 0"
 	|Geq e -> 
-		(poly_expr_to_infix_string e) ^ " >= 0"
+		(string_infix_of_polyExpr e) ^ " >= 0"
 	|Gr e -> 
-		(poly_expr_to_infix_string e) ^ " > 0"
-	|And(b1, b2)  -> 
-	  bool_expr_to_infix_string b1 ^ " And\n" ^ bool_expr_to_infix_string b2
-	|BOr(b1, b2) -> 
-	  bool_expr_to_infix_string b1 ^ " Or\n" ^ bool_expr_to_infix_string b2
+		(string_infix_of_polyExpr e) ^ " > 0"
 (*==================== END bool_expr_to_infix_string ==============================*)			
-	
-	
-(*==================== START bool_expr_list_to_infix_string ==============================*)		
-(* This function converts a list of bool expressions into the string of infix form *)
-let rec bool_expr_list_to_infix_string boolExprs = 
-  match boolExprs with
-  | [] -> ""
-  | h::t ->
-    let t_infix_string = bool_expr_list_to_infix_string t in 
-    let h_infix_string = bool_expr_to_infix_string h in 
-    if (t_infix_string = "") then h_infix_string
-    else h_infix_string ^ "\n" ^ t_infix_string
-(*==================== END bool_expr_list_to_infix_string ==============================*)
+
+
+(*==================== START string_prefix_of_polyExp ==============================*)
+(*polynomial functions to prefix representation*)
+let rec string_prefix_of_polyExp = function
+  | Real c -> string_of_float c
+  | Var x -> x
+  | Add (e1, e2) -> "(+ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Sub (e1, e2) -> "(- " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Mul (e1, e2) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Pow (e1, n)  -> "(^ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_of_int n)  ^ ")"
+(*==================== END string_prefix_of_polyExp ==============================*)
+
+
+(*==================== START string_prefix_of_boolExpr ==============================*)
+(* prefix string format of a boolean expression *)
+let rec string_prefix_of_boolExpr  = function
+  | Eq e -> "(= " ^ (string_prefix_of_polyExp e)^" 0)"
+  | Le e -> "(< " ^ (string_prefix_of_polyExp e)^" 0)"
+  | Leq e -> "(<= "^ (string_prefix_of_polyExp e)^" 0)"
+  | Gr e -> "(> " ^ (string_prefix_of_polyExp e)^" 0)"
+  | Geq e -> "(>= "^ (string_prefix_of_polyExp e)^" 0)"
+(*==================== END string_prefix_of_boolExpr ==============================*)  
+
+
+(*==================== START string_postfix_of_polyExpr ==============================*)
+(* postfix string format of a polynomial expression *)
+let rec string_postfix_of_polyExpr = function
+  | Real c -> " real " ^ string_of_float c ^ " "
+  | Var x -> " var " ^ x ^ " "
+  | Add (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "+ " 
+  | Sub (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "- "
+  | Mul (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
+  | Pow (e1, n)  -> (string_postfix_of_polyExpr e1) ^ (string_of_int n) ^ "^ "
+(*==================== END string_postfix_of_polyExpr ==============================*)
+
+
+(*==================== START postfix_string_of_boolExpr ==============================*)
+(* postfix string format of a boolean expression *)      
+let rec string_postfix_of_boolExpr  = function
+  | Eq e -> (string_postfix_of_polyExpr e) ^ "real 0 = "
+  | Le e -> (string_postfix_of_polyExpr e) ^ "real 0 < " 
+  | Leq e -> (string_postfix_of_polyExpr e) ^ "real 0 <= "
+  | Gr e -> (string_postfix_of_polyExpr e) ^ "real 0 > " 
+  | Geq e -> (string_postfix_of_polyExpr e) ^ "real 0 >= " 
+(*==================== END postfix_string_of_boolExpr ==============================*)
 
 
 (*==================== START is_equality ==============================*)		
 (* This function checks if a list of boolean expressions are all equalities *)
-let rec is_equation boolExpr = 
+let rec is_boolExpr_equation boolExpr = 
   match boolExpr with
   | Eq e -> true
   | _ -> false
 (*==================== END is_equality ==============================*)
-    
-
-(*==================== START is_all_equalities ==============================*)		
-(* This function checks if a list of boolean expressions are all equalities *)
-let rec is_all_equations boolExprs = 
-  match boolExprs with
-  | [] -> true
-  | h::t -> (is_equation h) && (is_all_equations t)
-(*==================== END is_all_equalities ==============================*)
-
-
-(*==================== START first_uk_cl ==============================*)		
-(* This function tries to find a first inequality expression *)
-let rec first_inequation boolExprs = 
-  match boolExprs with
-  | [] -> []
-  | h::t -> (
-    match h with 
-    | Eq e -> first_inequation t
-    | _ -> [h]
-  )
-(*==================== END first_uk_cl ==============================*)
 
 
 (* e_toAf1 compute the AF1 assignment from interval constraints  *)
@@ -356,18 +336,18 @@ let rec get_vars_set_polyExp = function
 (* This function returns a set of 
 variables of a boolean expression. The sort critia is
 using alphabet ordering *)	
-let get_vars_set_boolExp boolExp = 
+let get_vars_set_boolExpr boolExp = 
   let polyExp = get_exp boolExp in
   get_vars_set_polyExp polyExp
 
 
-let rec get_vars_set_boolExps boolExps = match boolExps with
+let rec get_vars_set_boolExprs boolExps = match boolExps with
   | [] -> VariablesSet.empty
-  | h::t -> VariablesSet.union (get_vars_set_boolExp h) (get_vars_set_boolExps t) 
+  | h::t -> VariablesSet.union (get_vars_set_boolExpr h) (get_vars_set_boolExprs t) 
 
 
 let rec get_interval var (intvMap, intvList) =
-  let (intv,_) = VarIntvMap.find var intvMap in
+  let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
   (intvMap, (var, intv)::intvList)
 
 
@@ -437,7 +417,6 @@ let check_sat_providedBounds boolExp bound =
     if (bound#l > 0.) then 1
     else if (bound#h <= 0.) then -1
     else 0
-  | _ -> 1     (*This case never happen*)
     
 
 (*check whether an expression e is satisfiable*)
@@ -466,63 +445,30 @@ let rec merge_varsSen leftVarsSen = function
   
     
 (* Check sat with combination of AF2 and CI *)      
-let check_sat_af_two_ci boolExp intv = 
-  let polyExp = get_exp boolExp in
+let check_sat_af_two_ci_boolExpr boolExpr intv = 
+  let polyExpr = get_exp boolExpr in
   (* evaluate the expression using AF2 *)
-  let (afTwoBound, afTwoVarsSen)  = poly_eval polyExp 2 intv in
+  let (afTwoBound, afTwoVarsSen)  = poly_eval polyExpr 2 intv in
   (*print_endline (assignments_toString afTwoVarsSen);
   flush stdout;*)
-  let sat = check_sat_providedBounds boolExp afTwoBound in
+  let sat = check_sat_providedBounds boolExpr afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
-    let (ciBound, _)  = poly_eval polyExp 0 intv in
+    let (ciBound, _)  = poly_eval polyExpr 0 intv in
     
     let newLowerBound = max afTwoBound#l ciBound#l in
     let newHigherBound = min afTwoBound#h ciBound#h in
     let newBound = new IA.interval newLowerBound newHigherBound in
-    let sat = check_sat_providedBounds boolExp newBound in
+    let sat = check_sat_providedBounds boolExpr newBound in
     (sat, afTwoVarsSen)
   else (sat, afTwoVarsSen)
     
 
 (* This function check sat with CI only *)
-let check_sat_inf_ci boolExp intv = 
-  let polyExp = get_exp boolExp in (* get the expression *)
-  let (iciBound, _)  = poly_eval polyExp (-1) intv in (* -1 is ICI *)
+let check_sat_inf_ci_boolExpr boolExpr intv = 
+  let polyExpr = get_exp boolExpr in (* get the expression *)
+  let (iciBound, _)  = poly_eval polyExpr (-1) intv in (* -1 is ICI *)
   (*print_endline ("Bound: " ^ (string_of_float iciLeftBound#l) ^ " " ^ (string_of_float iciLeftBound#h));
   flush stdout;*)
-  let sat = check_sat_providedBounds boolExp iciBound in
-  (sat, [])
-    
-(* This function compare two variables by their sensitivity *)
-let compare_sensitivity (firstVar, firstSen) (secondVar, secondSen) =
-  compare firstSen secondSen    
-    
-    
-(* This function change the value of sensitivities into positive values *)
-let rec change_toPosSen varsSen = match varsSen with
-  | [] -> []
-  | (var, sen) :: t -> 
-    let posSen = abs_float sen in
-    (var, posSen)::(change_toPosSen t)    
-    
-
-(* This function add information of variables set and 
-number of variables into boolean expression *)
-let rec add_info boolExps = match boolExps with
-  | [] -> []
-  | (boolExp, varsSen)::t ->
-    (* Change all the sensitivity values into positive ones *)
-    let posVarsSen = change_toPosSen varsSen in
-    (* sort the sensitivities of variables *)
-    let sortedVarsSen = List.fast_sort compare_sensitivity posVarsSen in
-    (*print_endline (assignments_toString sortedVarsSen);*)
-    let variablesSet = get_vars_set_boolExp boolExp in
-    let variablesNum = VariablesSet.cardinal variablesSet in
-    (boolExp, sortedVarsSen, variablesSet, variablesNum) :: (add_info t)
-
-(* This function sort the list of the apis using variables dependency *)
-let sort_boolExp_dependency boolExps = 
-  let expressiveBoolExps = add_info boolExps in
-  let sortedEBoolExps = List.fast_sort Util.compare_dependency expressiveBoolExps in
-  Util.extract_boolExps sortedEBoolExps
+  let sat = check_sat_providedBounds boolExpr iciBound in
+  (sat, ([]: (Variable.StringMap.key * float) list))

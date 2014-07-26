@@ -1,6 +1,5 @@
 (* /\/\/\/\/\/\/\/\/\/\ MODULE for assignments related definitions and operations /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\*)
 
-
 open Variable
 
 
@@ -10,8 +9,10 @@ open Variable
 (* | . result: is the returned list which contains the map from variables to their lower bounds.| *)
 (* |____________________________________________________________________________________________| *) 
 let getLowerBound assIntv =
-  let add_new_lowerBound var (intv, _) oldBounds = (var, intv#l)::oldBounds in
-  VarIntvMap.fold add_new_lowerBound assIntv []
+  let add_new_lowerBound var (intv, _) oldBounds = 
+    StringMap.add var intv#l oldBounds 
+  in
+  StringMap.fold add_new_lowerBound assIntv StringMap.empty
 (* =============================== END getLeftBound ============================================ *)
 
 
@@ -21,19 +22,23 @@ let getLowerBound assIntv =
 (* | . result: is the returned list which contains maps from variables to their lower bound. 	  |*)
 (* |____________________________________________________________________________________________|*) 
 let rec getUpperBound assIntv =
-	let add_new_upperBound var (intv, _) oldBounds = (var, intv#h)::oldBounds in
-  VarIntvMap.fold add_new_upperBound assIntv []
+	let add_new_upperBound var (intv, _) oldBounds = 
+	  StringMap.add var intv#h oldBounds 
+	in
+  StringMap.fold add_new_upperBound assIntv StringMap.empty
 (* ==================================== END getRightBound ====================================== *)
 
 
-(* |================================ START assignments_toString ================================|*)	
+(* |================================ START string_of_assignment ================================|*)	
 (* | Function for converting the assignments to string, in order to pass to c functions.        |*)
-(* | . ass: is the list of assignments of variables.						                                |*)
+(* | . ass: is the map from the variables into assigned values                                  |*)
 (* |____________________________________________________________________________________________|*)
-let rec assignments_toString ass = match ass with
-  | [] -> ""
-  | (x, a):: t -> (x ^" "^ string_of_float a) ^ " " ^ (assignments_toString t)
-(* |================================= END assignments_toString =================================|*)
+let rec string_of_assignment ass =
+  let add_string_of_newAssignment var testcase oldString = 
+    var ^" "^ string_of_float testcase ^ " " ^ oldString
+  in
+  StringMap.fold add_string_of_newAssignment ass ""
+(* |================================= END string_of_assignment =================================|*)
 
 
 (* =================================== START intervals_toString =========================================== *)
@@ -42,26 +47,14 @@ let rec string_of_intervals intvMap =
   let add_string_of_newInterval var (interval, _) oldString = 
     var ^ " " ^ string_of_float interval#l ^ " " ^ string_of_float interval#h ^ " " ^ oldString
   in 
-  VarIntvMap.fold add_string_of_newInterval intvMap ""
+  StringMap.fold add_string_of_newInterval intvMap ""
 (* =================================== END intervals_toString ============================================== *)
 
-(* This function extracts the intervals of variables in varsList from the first intervals and attach them 
-   to the beginning of the second intervals *)
-let rec extract_append_first varsList firstIntvMap secondIntvMap =
-  match varsList with
-  | [] -> secondIntvMap
-  | var::remainingVars -> 
-  (
-    try 
-      let newMap = VarIntvMap.add var (VarIntvMap.find var firstIntvMap) secondIntvMap in
-      extract_append_first remainingVars firstIntvMap newMap
-    with Not_found -> extract_append_first remainingVars firstIntvMap secondIntvMap
-  )
 
-
+(* =================================== START check_infinity =========================================== *)
 (* This function check if an list of intervals contain any infinity number *)
 let rec check_infinity x (intv, _) =
   intv#l = neg_infinity || intv#h = infinity
-  
+(* =================================== END check_infinity =========================================== *)  
 
 (* \/\/\/\/\/\/\/\/\/\/ MODULE for assignments related definitions and operations \/\/\/\/\/\/\\/\/\/\/\/\/\/\/\/\/*)

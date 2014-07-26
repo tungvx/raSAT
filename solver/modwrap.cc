@@ -91,43 +91,45 @@ value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia) {
 }
 
 //including dynamic interval decomposition and testing
-value caml_dynTest(value *intvInfo, value *sCons, char *sCheck, int ia,
+value caml_dynTest(value *intvInfo, value *miniSATCodesConstraintsMap, int nCons, char *sCheck, int ia,
 		double esl, char *sTestUS, double iaTime, double testingTime,
 		double USTime, double parsingTime, double decompositionTime,
 		double remainingTime) {
 //	cout << "dynTest\n";
 	CAMLparam0();
 	//cout << "dynTest1\n";
-	int const ARGS_NUM = 12;
+	int const ARGS_NUM = 13;
+	int index = 0;
 	//cout << "dynTest2\n";
 	CAMLlocalN(ml_args, ARGS_NUM);
 	//cout << "dynTest3\n";
 	CAMLlocal1 (result);
 	//cout << "dynTest4\n";
-	ml_args[0] = *intvInfo;
+	ml_args[index++] = *intvInfo;
 	//cout << "dynTest5\n";
 	//cout << "dynTest6\n";
-	ml_args[1] = *sCons;
+	ml_args[index++] = *miniSATCodesConstraintsMap;
 	//cout << "dynTest7\n";
-	ml_args[2] = caml_copy_string(sCheck);
+	ml_args[index++] = Val_int(nCons);
+	ml_args[index++] = caml_copy_string(sCheck);
 	//cout << "dynTest8\n";
-	ml_args[3] = Val_int(ia);
+	ml_args[index++] = Val_int(ia);
 	//cout << "dynTest9\n";
-	ml_args[4] = caml_copy_double(esl);
+	ml_args[index++] = caml_copy_double(esl);
 	//cout << "dynTest10\n";
-	ml_args[5] = caml_copy_string(sTestUS);
+	ml_args[index++] = caml_copy_string(sTestUS);
 	//cout << "dynTest11\n";
-	ml_args[6] = caml_copy_double(iaTime);
+	ml_args[index++] = caml_copy_double(iaTime);
 	//cout << "dynTest12\n";
-	ml_args[7] = caml_copy_double(testingTime);
+	ml_args[index++] = caml_copy_double(testingTime);
 	//cout << "dynTest13\n";
-	ml_args[8] = caml_copy_double(USTime);
+	ml_args[index++] = caml_copy_double(USTime);
 	//cout << "dynTest14\n";
-	ml_args[9] = caml_copy_double(parsingTime);
+	ml_args[index++] = caml_copy_double(parsingTime);
 	//cout << "dynTest15\n";
-	ml_args[10] = caml_copy_double(decompositionTime);
+	ml_args[index++] = caml_copy_double(decompositionTime);
 	//cout << "dynTest16\n";
-	ml_args[11] = caml_copy_double(remainingTime);
+	ml_args[index++] = caml_copy_double(remainingTime);
 //	cout << "dynTest17\n";
 
 	static value *caml_is_closure = NULL;
@@ -147,15 +149,6 @@ value caml_dynTest(value *intvInfo, value *sCons, char *sCheck, int ia,
 	}
 	//cout << "dynTest21\n";
 	CAMLreturn(result);
-}
-
-value caml_getConsInfo(char * sAss) {
-	static value * caml_gen_closure = NULL;
-	if (caml_gen_closure == NULL)
-		caml_gen_closure = caml_named_value("caml_getConsInfo");
-	return caml_callback(*caml_gen_closure, caml_copy_string(sAss));
-	/* We copy the C string returned by String_val to the C heap
-	 so that it remains valid after garbage collection. */
 }
 
 int caml_InfCheck(char * sIntv, char* sAss) {
