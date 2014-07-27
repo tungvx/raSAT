@@ -2,7 +2,8 @@ open Ast
 open Variable
 open InfiniteList
 open Assignments
-  
+open PolynomialConstraint  
+open Util
 
 (* This is the helping function for the test function*)
 let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons remainingTime = 
@@ -16,7 +17,8 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons rema
       let firstPolyConsVarsSet = firstPolyCons#get_varsSet in
       let remainingPolyConstraints = List.tl polyConstraints in
       if VariablesSet.subset firstPolyConsVarsSet assignedVarsSet then (
-        (*print_endline (assignments_toString assignments);*)
+        (*print_endline (string_of_assignment varsTCsMap);
+        flush stdout;*)
         let sat = firstPolyCons#check_SAT varsTCsMap in
         if sat then
           if remainingPolyConstraints = [] then ([], 1, [], varsTCsMap)
@@ -50,33 +52,23 @@ let test polyConstraints varsIntvsMiniSATCodesMap strTestUS remainingTime =
   let startTime = Sys.time() in
   
   (* sort the polynomial constraings using dependency, which make the additional test data generation minimal *)
-  let rec insert_sort_polyConstraints dependencySortedPolyConstraints polyCons = match dependencySortedPolyConstraints with
-    | [] -> [polyCons]
-    | h :: t -> 
-      let varsDiffNum = polyCons#get_varsDiffNum h in
-      if varsDiffNum = 0 then (
-        h#set_varsDiffNumWithPreviousInTesting 0;
-        polyCons :: dependencySortedPolyConstraints
-      )
-      else (* polyCons and h have the same number of variables *) (
-        polyCons#set_varsDiffNumWithPreviousInTesting varsDiffNum;
-        match t with
-        | [] -> h :: [polyCons]
-        | h1 :: t1 -> 
-          let varsDiffNum1 = h1#get_varsDiffNumWithPreviousInTesting in
-          if varsDiffNum < varsDiffNum1 then (
-            (
-              let newVarsDiffNum1 = h1#get_varsDiffNum polyCons in
-              h1#set_varsDiffNumWithPreviousInTesting newVarsDiffNum1
-            );
-            h :: (polyCons::t)
-          )
-          else
-            h :: (insert_sort_polyConstraints t polyCons)
-      )
+  let rec find_min_additionalTCGen_polyCons checkedVarsSet checkedPolyConstraints remainingPolyConstraints currentResult currentAdditionalTCs = match remainingPolyConstraints with
+    | [] -> (currentResult, checkedPolyConstraints)
+    | h::t -> 
+      let varsDiffNum = h#get_varsDiffNum checkedVarsSet in
+      if varsDiffNum < currentAdditionalTCs then find_min_additionalTCGen_polyCons checkedVarsSet (currentResult::checkedPolyConstraints) t h varsDiffNum
+      else find_min_additionalTCGen_polyCons checkedVarsSet (h::checkedPolyConstraints) t currentResult currentAdditionalTCs
   in
-  let sortedPolyConstraints = List.fold_left insert_sort_polyConstraints [] polyConstraints in
-  
+  let rec sort_dependency polyConstraints resultPolyConstraints checkedVarsSet = match polyConstraints with
+    | [] -> resultPolyConstraints
+    | h :: t -> 
+       let (nextBestPolyCons, remainingPolyConstraints) = find_min_additionalTCGen_polyCons checkedVarsSet [] t h (h#get_varsDiffNum checkedVarsSet) in
+       sort_dependency remainingPolyConstraints (nextBestPolyCons::resultPolyConstraints) (VariablesSet.union checkedVarsSet nextBestPolyCons#get_varsSet)
+  in
+  let sortedPolyConstraints = List.rev (sort_dependency polyConstraints [] VariablesSet.empty) in
+  (*let print_vars polyCons = print_endline (Util.vars_to_string polyCons#get_varsList); in
+  List.iter print_vars sortedPolyConstraints;
+  flush stdout;*)
   (* Recursively generate test cases for each boolean expression *)
   let firstPolyCons = List.hd sortedPolyConstraints in
   let priorityNum = 20 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)

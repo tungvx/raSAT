@@ -15,7 +15,6 @@ class polynomialConstraint boolExprInit =
     val varsList = varsListInit
     val mutable varsSen = ([]:(string * float) list) (* varsSen is always sorted *)
     val mutable miniSATCode = 0
-    val mutable varsDiffNumWithPreviousInTesting = 0
     method get_constraint = boolExpr
     
     method get_varsSet = varsSet
@@ -46,16 +45,13 @@ class polynomialConstraint boolExprInit =
     (* convert the constraint into infix string *)
     method to_string_infix = string_infix_of_boolExp boolExpr
     
-    method get_varsDiffNumWithPreviousInTesting = varsDiffNumWithPreviousInTesting;
-    method set_varsDiffNumWithPreviousInTesting newVarsDiffNum = varsDiffNumWithPreviousInTesting <- newVarsDiffNum
-    
     method get_varsList = varsList
     
     method check_sat_inf_ci varsIntvsMiniSATCodesMap = check_sat_inf_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
     method check_sat_af_two_ci varsIntvsMiniSATCodesMap = check_sat_af_two_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
     
-    method get_varsDiffNum (otherPolyCons:polynomialConstraint) = 
-      let varsDiff = VariablesSet.diff varsSet otherPolyCons#get_varsSet in
+    method get_varsDiffNum otherVarsSet = 
+      let varsDiff = VariablesSet.diff varsSet otherVarsSet in
       VariablesSet.cardinal varsDiff
       
     method check_SAT varsTCsMap = 
