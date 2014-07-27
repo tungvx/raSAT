@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	////cout << "Run6" << endl;
+//	cout << "Run6" << endl;
 	string strIntv = smt_getintv(rsFile);
 //	cout <<strIntv<<endl;
 	char *sIntv = new char[strIntv.size() + 1];
@@ -284,6 +284,7 @@ int main(int argc, char* argv[]) {
 	double nDecompositions = 0;
 	double UNSATLearnedClauses = 0;
 	double unknownLearnedClauses = 0;
+	int maxVarsNum = 0;
 	//char *sta = new char[2048];
 	//char *typeIA = new char[5];
 
@@ -303,7 +304,7 @@ int main(int argc, char* argv[]) {
 	if (argc >= 5)
 		timeout = getTimeout(argv[4]);
 
-	//cout <<endl <<"time out" <<timeout<<endl;
+//	cout <<endl <<"time out" <<timeout<<endl;
 
 	//get information for polynomial constraints: number of variables, constraints
 
@@ -319,6 +320,8 @@ int main(int argc, char* argv[]) {
 	intvInfo = Field(satInfo, 2);
 	miniSATCodesConstraintsMap = Field(satInfo, 3);
 	int nCons = Int_val(Field(satInfo, 4));
+	maxVarsNum = Int_val(Field(satInfo, 5));
+//	cout << "maxVarsNum: " << maxVarsNum << endl;
 //	cout << satContent << endl;
 	caml_remove_global_root(&satInfo);
 
@@ -756,6 +759,8 @@ int main(int argc, char* argv[]) {
 				final_result << nVars << ","; // output the number of variables to final compact result.
 				sprintf(sta, "%s\nNumber of variables   : %d ", sta, nVars);
 
+				final_result << maxVarsNum << ","; // output the max number of variables in one api to final compact result.
+				
 				final_result << nCons << ","; // output the number of apis to final compact result.
 				sprintf(sta, "%s\nNumber of constraints : %d ", sta, nCons);
 				sprintf(sta, "%s\nUnit searching box    : %g", sta, esl);

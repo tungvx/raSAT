@@ -128,7 +128,7 @@ let rec sum_total_var init mb =
 let genSatForm sAss sIntv esl =
   let constraints = ParserConstraints.main LexerConstraints.lex (Lexing.from_string sAss) in
   (*print_endline (bool_expr_to_infix_string ass);*)
-  let (miniSATExpr, index, miniSATCodesConstraintsMap) = miniSATExpr_of_constraints constraints 1 IntMap.empty in 
+  let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum) = miniSATExpr_of_constraints constraints 1 IntMap.empty in 
   (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
   
   (* convert miniSATExpr into CNF *)
@@ -168,7 +168,7 @@ let genSatForm sAss sIntv esl =
     else index + 2* nVars * (sum_total_var 1 para)
   in
   let sTrivialClause = "-" ^string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in
-  (nVars, "p cnf " ^ string_of_int totalVars ^ " " ^ string_of_int (nVars+1+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString ^ sTrivialClause, intvInfo, miniSATCodesConstraintsMap, index-1)
+  (nVars, "p cnf " ^ string_of_int totalVars ^ " " ^ string_of_int (nVars+1+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString ^ sTrivialClause, intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum)
 
   (*log result for satisfiable solution in an expression e*)
   let logSat polyCons ia varsIntvsMiniSATCodesMap = 
