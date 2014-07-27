@@ -71,6 +71,6 @@ let test polyConstraints varsIntvsMiniSATCodesMap strTestUS remainingTime =
   flush stdout;*)
   (* Recursively generate test cases for each boolean expression *)
   let firstPolyCons = List.hd sortedPolyConstraints in
-  let priorityNum = 20 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)
+  let priorityNum = 10 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)
   let abstractTCInfList = Cons((StringMap.empty, [], VariablesSet.empty, polyConstraints, priorityNum), fun() -> Nil) in 
   test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons (remainingTime -. Sys.time() +. startTime)

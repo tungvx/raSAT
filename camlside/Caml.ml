@@ -778,7 +778,7 @@ let rec decomp_reduce ass esl = match ass with
       get_pos_neg (pos, neg) sign e1
 
   (*Decomposition intervals based on positive and negative parts*)
-  (*let dynamicDecom_pos assIntv dIntv lstVarID iVar uk_cl esl =
+  (*let dynamicDecom_pos assIntv dIntv lstVarID nextMiniSATCode uk_cl esl =
     let cl_TestUS = get_exp (List.hd uk_cl) in
 
     (*Get the positive and negative list of variables*)
@@ -811,9 +811,9 @@ let rec decomp_reduce ass esl = match ass with
       let subPos = sub_list red_pos red_neg in (* remove the common variables with red_neg from red_pos *)
       let subNeg = sub_list red_neg red_pos in(* remove the common variables with red_pos from red_neg *)
       if (subPos = []) && (subNeg =[]) then ( (* red_pos and red_neg are exactly the same *)
-        let (sInterval, sLearn, bump_vars) = ass_decomp_pn red_pos lstVarID (iVar + 1) esl in (* sInterval is the decomposed intervals of variables in prefix form
+        let (sInterval, sLearn, bump_vars) = ass_decomp_pn red_pos lstVarID (nextMiniSATCode + 1) esl in (* sInterval is the decomposed intervals of variables in prefix form
                                sLearn: is the list of new literals to be added into minisat
-                               bump_vars: list of codes (ivar) *)
+                               bump_vars: list of codes (nextMiniSATCode) *)
         if (dIntv <> "") then (
           (*print_endline sInterval;
           print_endline sLearn;
@@ -824,9 +824,9 @@ let rec decomp_reduce ass esl = match ass with
           (sInterval, sLearn, bump_vars, true)
       )
       else (  
-        let (sInterval_pos, sLearn_pos, bump_pos) = ass_decomp_pn subPos lstVarID (iVar + 1) esl in
+        let (sInterval_pos, sLearn_pos, bump_pos) = ass_decomp_pn subPos lstVarID (nextMiniSATCode + 1) esl in
         let iPos = List.length subPos in
-        let (sInterval_neg, sLearn_neg, bump_neg) = ass_decomp_pn subNeg lstVarID (iVar + iPos * 2 + 1) esl in    
+        let (sInterval_neg, sLearn_neg, bump_neg) = ass_decomp_pn subNeg lstVarID (nextMiniSATCode + iPos * 2 + 1) esl in    
         let sInterval = ref "" in
         let sLearn = ref "" in
         if (sInterval_pos <> "") && (sInterval_neg <> "") then
@@ -849,7 +849,7 @@ let rec decomp_reduce ass esl = match ass with
   (* ====================== END dynamicDecom_pos ======================== *)
 
   (*Decomposition based on a test case*)
-  let dynamicDecom_test assIntv dIntv lstVarID iVar uk_cl esl t = 
+  let dynamicDecom_test assIntv dIntv lstVarID nextMiniSATCode uk_cl esl t = 
     let cl_TestUS = get_exp (List.hd uk_cl) in
 
     (*round off test cases tc*)
@@ -880,14 +880,14 @@ let rec decomp_reduce ass esl = match ass with
       let subPos = sub_list red_pos red_neg in
       let subNeg = sub_list red_neg red_pos in
       if (subPos = []) && (subNeg =[]) then (
-        let (sInterval, sLearn, bump_vars, code) = ass_decomp_test_both red_pos lstVarID iVar esl tc in
+        let (sInterval, sLearn, bump_vars, code) = ass_decomp_test_both red_pos lstVarID nextMiniSATCode esl tc in
           if (dIntv <> "") then
             ("(ic "^dIntv ^" "^sInterval^")", sLearn, bump_vars, true)
           else
             (sInterval, sLearn, bump_vars, true)
       )
       else (  
-        let (sInterval_pos, sLearn_pos, bump_pos, code_pos) = ass_decomp_test_pos subPos lstVarID iVar esl tc in
+        let (sInterval_pos, sLearn_pos, bump_pos, code_pos) = ass_decomp_test_pos subPos lstVarID nextMiniSATCode esl tc in
         let (sInterval_neg, sLearn_neg, bump_neg, code_neg) = ass_decomp_test_neg subNeg lstVarID code_pos esl tc in
         let intersec = sub_list red_pos subPos in
         let (sInterval_both, sLearn_both, bump_both, code_both) = 
@@ -921,7 +921,7 @@ let rec decomp_reduce ass esl = match ass with
   (*======= end unbalance decomposition =======*)   
 
   (*Binary balance decomposition on intervals*)
-  let dynamicDecom assIntv intvMap iVar polyCons esl = 
+  let dynamicDecom assIntv intvMap nextMiniSATCode polyCons maxDecomposedVarsNum esl = 
     let varsSet = polyCons#get_varsSet in
     let add_interval var newIntvMap = StringMap.add var (StringMap.find var assIntv) newIntvMap in
     let newIntv = VariablesSet.fold add_interval varsSet StringMap.empty in
@@ -944,9 +944,11 @@ let rec decomp_reduce ass esl = match ass with
         "-" ^ string_of_int varId ^ " " ^ learntVars
       in
       let learntClauses = VariablesSet.fold add_learnt_var varsSet "0" in
-      ((intvMap, iVar), learntClauses, "", false)
+      ((intvMap, nextMiniSATCode), learntClauses, "", false)
     else (*Continue decomposition*)
-      let decompose_var var (intv, varId) ((intvMap, iVar), learntClauses, bumpedVars, _) =
+      let decompose_var var (intv, varId) ((intvMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
+        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix);
+        flush stdout;*)
         let lowerBound = intv#l in
         let upperBound = intv#h in
         let newPoint = 
@@ -958,20 +960,26 @@ let rec decomp_reduce ass esl = match ass with
             else 0.5 *. lowerBound +. 0.5 *. upperBound
         in
         let bumpVar =
-          if newPoint < 0. then iVar + 1
-          else iVar
+          if newPoint < 0. then nextMiniSATCode + 1
+          else nextMiniSATCode
         in
         let newLearntClauses = 
-          "-" ^ string_of_int varId ^ " " ^ string_of_int iVar ^ " " ^ string_of_int (iVar+1) ^ " 0 " ^
-          string_of_int varId ^ " -" ^ string_of_int iVar ^ " 0 " ^
-          "-" ^ string_of_int iVar ^ " -"^string_of_int (iVar+1) ^ " 0 " ^
-          string_of_int varId ^ " -"^string_of_int (iVar+1) ^ " 0 " 
+          "-" ^ string_of_int varId ^ " " ^ string_of_int nextMiniSATCode ^ " " ^ string_of_int (nextMiniSATCode+1) ^ " 0 " ^
+          string_of_int varId ^ " -" ^ string_of_int nextMiniSATCode ^ " 0 " ^
+          "-" ^ string_of_int nextMiniSATCode ^ " -"^string_of_int (nextMiniSATCode+1) ^ " 0 " ^
+          string_of_int varId ^ " -"^string_of_int (nextMiniSATCode+1) ^ " 0 " 
         in
-        let newIntvMap = IntMap.add iVar (var, new IA.interval lowerBound newPoint) intvMap in
-        let newIntvMap = IntMap.add (iVar + 1) (var, new IA.interval newPoint upperBound) newIntvMap in
-        ((newIntvMap, iVar+2),learntClauses ^  newLearntClauses, bumpedVars ^ string_of_int bumpVar ^ " ", true)
+        let newIntvMap = IntMap.add nextMiniSATCode (var, new IA.interval lowerBound newPoint) intvMap in
+        let newIntvMap = IntMap.add (nextMiniSATCode + 1) (var, new IA.interval newPoint upperBound) newIntvMap in
+        ((newIntvMap, nextMiniSATCode+2),learntClauses ^  newLearntClauses, bumpedVars ^ string_of_int bumpVar ^ " ", true)
       in
-      StringMap.fold decompose_var reducedIntv ((intvMap, iVar), "", "", true)
+      let decomposedVarsList = polyCons#get_n_varsSen maxDecomposedVarsNum in
+      let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesMap var = 
+        let intvMiniSATCode = StringMap.find var newIntv in
+        StringMap.add var intvMiniSATCode currentVarsIntvsMiniSATCodesMap
+      in
+      let decomposedVarsIntvsMiniSATCodesMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
+      StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesMap ((intvMap, nextMiniSATCode), "", "", true)
  
  (*============= UNSAT Cores Analysis ===============*)
  (*Get the sign in an multiplication expression*)
@@ -1290,7 +1298,7 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
                else (
                   (*Applied for Dynamic interval decomposition*)
                   (*Balance interval decomposition*)
-                  (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID iVar clTest_US esl in*)
+                  (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
 
                   (* Unbalance interval decomposition *)
                   let decomposedExpr = 
@@ -1304,20 +1312,21 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
                   (*print_endline "decomposing";
                   print_endline(bool_expr_list_to_infix_string decomposedExpr);
                   flush stdout;*)
+                  let maxDecomposedVarsNum = 2 in (* only $maxDecomposedVarsNum are allowed to decomposed, the priority is based on sensitivity *)
                   let ((miniSATCodesVarsIntvsMap, nextMiniSATCode), sLearn, bump_vars, isDecomp) = 
-                    (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID iVar esl in*)
-                    (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID iVar esl in
+                    (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
+                    (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID nextMiniSATCode esl in
                     if isDecomposed then 
                       (newInterval, newLearn, newBumpVars, isDecomposed)
                     else*)
-                      dynamicDecom varsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode (List.hd decomposedExpr) esl in
+                      dynamicDecom varsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode (List.hd decomposedExpr) maxDecomposedVarsNum esl in
 									(*print_endline "after decomposed";
 									flush stdout;*)
                   let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
                              
                   (*decomposed interval based on test values 
                   let (sInterval, sLearn, bump_vars, isDecomp) = 
-                                     dynamicDecom_test assIntv dIntv checkVarID iVar clTest_US esl tc in *)
+                                     dynamicDecom_test assIntv dIntv checkVarID nextMiniSATCode clTest_US esl tc in *)
                  
                   if (isDecomp) then (
                     (*print_endline "decomposed";

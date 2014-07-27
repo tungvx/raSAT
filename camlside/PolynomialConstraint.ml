@@ -50,6 +50,16 @@ class polynomialConstraint boolExprInit =
     method check_sat_inf_ci varsIntvsMiniSATCodesMap = check_sat_inf_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
     method check_sat_af_two_ci varsIntvsMiniSATCodesMap = check_sat_af_two_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
     
+    (* get n-first variables by varsSen *)
+    method get_n_varsSen n = 
+      let rec get_n_first varsSen n = match varsSen with 
+        | [] -> []
+        | (var, sen) :: t ->
+          if n >= 1 then var :: (get_n_first t (n - 1))
+          else []
+      in
+      get_n_first varsSen n
+    
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
       VariablesSet.cardinal varsDiff
