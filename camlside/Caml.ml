@@ -223,6 +223,7 @@ let genSatForm sAss sIntv esl =
 
   (*End logValue*)
   
+
   let rec logValue_all e ass = match e with
     |[] -> ""
     |[a] -> logValue a ass    

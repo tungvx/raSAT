@@ -133,10 +133,11 @@ let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap 
     let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap in
     let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 in
     (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2)
-  | Single polyCons -> 
-    polyCons#set_miniSATCode index;
-    let newMiniSATCodesConstraintsMap = IntMap.add index polyCons miniSATCodesConstraintsMap in
-    (Lit index, index + 1, newMiniSATCodesConstraintsMap, polyCons#get_varsNum)  
+  | Single polyCons -> (
+      polyCons#set_miniSATCode index;
+      let newMiniSATCodesConstraintsMap = IntMap.add index polyCons miniSATCodesConstraintsMap in
+      (Lit index, index + 1, newMiniSATCodesConstraintsMap, polyCons#get_varsNum)  
+    )
     
 
 (* Function for converting constraints into infix string *)    
