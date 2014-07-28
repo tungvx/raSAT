@@ -51,6 +51,11 @@ let test polyConstraints varsIntvsMiniSATCodesMap strTestUS remainingTime =
   (*print_endline "Start Test";*)
   let startTime = Sys.time() in
   
+  (*let add_miniSATCodePolyCons currentMiniSATCodesPolyConstraintsMap polyCons =
+    IntMap.add polyCons#get_miniSATCode polyCons currentMiniSATCodesPolyConstraintsMap
+  in
+  let miniSATCodesPolyConstraintsMap = List.fold_left add_miniSATCodePolyCons IntMap.empty polyConstraints in*)
+  
   (* sort the polynomial constraings using dependency, which make the additional test data generation minimal *)
   let rec find_min_additionalTCGen_polyCons checkedVarsSet checkedPolyConstraints remainingPolyConstraints currentResult currentAdditionalTCs = match remainingPolyConstraints with
     | [] -> (currentResult, checkedPolyConstraints)
