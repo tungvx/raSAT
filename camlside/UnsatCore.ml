@@ -14,8 +14,8 @@ let check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMini
   let newVarsIntvsMiniSATCodesMap = List.fold_left add_currentIntvsMiniSATCodes originalVarsIntvsMiniSATCodesMap varsList in
   (*print_endline (intervals_to_string newIntv); (* intervals_to_string is definied in Assignments.ml *)
   flush stdout;*)
-  let (sat, _) = 
-    if isInfinite then polyCons#check_sat_inf_ci newVarsIntvsMiniSATCodesMap
+  let sat = 
+    if isInfinite then polyCons#check_sat_ci newVarsIntvsMiniSATCodesMap
     else polyCons#check_sat_af_two_ci newVarsIntvsMiniSATCodesMap (* check_sat_af_two_ci is in ast.ml *)
   in
   sat = -1

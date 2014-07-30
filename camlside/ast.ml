@@ -260,13 +260,15 @@ let rec infIntervals_of_intervals intervals = match intervals with
 
   
 (* evalCI compute the bound of a polynomial function from an assignment ass by CI form*)
-let rec evalCI ass = function
+let rec evalCI varsIntvsMiniSATCodesMap = function
   | Real c -> new IA.interval c c
-  | Var v -> List.assoc v ass
-  | Add (u,v) -> IA.CI.(evalCI ass u + evalCI ass v)
-  | Sub (u,v) -> IA.CI.(evalCI ass u - evalCI ass v)
-  | Mul (u,v) -> IA.CI.(evalCI ass u * evalCI ass v)
-  | Pow (u,c) -> IA.CI.(evalCI ass u ^ c)
+  | Var var -> 
+    let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+    intv
+  | Add (u,v) -> IA.CI.(evalCI varsIntvsMiniSATCodesMap u + evalCI varsIntvsMiniSATCodesMap v)
+  | Sub (u,v) -> IA.CI.(evalCI varsIntvsMiniSATCodesMap u - evalCI varsIntvsMiniSATCodesMap v)
+  | Mul (u,v) -> IA.CI.(evalCI varsIntvsMiniSATCodesMap u * evalCI varsIntvsMiniSATCodesMap v)
+  | Pow (u,c) -> IA.CI.(evalCI varsIntvsMiniSATCodesMap u ^ c)
 
 (* evalICI compute the bound of a polynomial function from an assignment ass by ICI form*)
 let rec evalICI ass = function
@@ -287,13 +289,13 @@ let rec evalAf1 ass n = function
   | Pow (u,c) -> IA.AF1.(evalAf1 ass n u ^ c)
  
 (* evalAf2 compute the bound of a polynomial function from an assignment ass by AF2 form*)
-let rec evalAf2 ass n = function
-  | Real c -> Util.toAf2 (new IA.interval c c) 0 n
-  | Var v -> List.assoc v ass
-  | Add (u,v) -> IA.AF2.(evalAf2 ass n u + evalAf2 ass n v)
-  | Sub (u,v) -> IA.AF2.(evalAf2 ass n u - evalAf2 ass n v)
-  | Mul (u,v) -> IA.AF2.(evalAf2 ass n u * evalAf2 ass n v)
-  | Pow (u,c) -> IA.AF2.(evalAf2 ass n u ^ c)
+let rec evalAf2 varsAf2sMap varsNum = function
+  | Real c -> Util.toAf2 (new IA.interval c c) 0 varsNum
+  | Var var -> StringMap.find var varsAf2sMap
+  | Add (u,v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u + evalAf2 varsAf2sMap varsNum v)
+  | Sub (u,v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
+  | Mul (u,v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u * evalAf2 varsAf2sMap varsNum v)
+  | Pow (u,c) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u ^ c)
 
 (* evalCai1 compute the bound of a polynomial function from an assignment ass by CAI1 form*)
 let rec evalCai1 ass n= function
@@ -346,14 +348,45 @@ let rec get_vars_set_boolExprs boolExps = match boolExps with
   | h::t -> VariablesSet.union (get_vars_set_boolExpr h) (get_vars_set_boolExprs t) 
 
 
-let rec get_interval var (intvMap, intvList) =
-  let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
-  (intvMap, (var, intv)::intvList)
+(* Evaluate a polynomial using AF2 *)
+let poly_eval_af2 polyExpr varsSet varsNum varsIntvsMiniSATCodesMap =
+  let add_varAf2 var (varsAf2sMap, nextIndex) =
+    let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+    let af2 = Util.toAf2 intv nextIndex varsNum in
+    (StringMap.add var af2 varsAf2sMap, nextIndex + 1)
+  in 
+  let (varsAf2Map, _) = VariablesSet.fold add_varAf2 varsSet (StringMap.empty, 1) in
+  let res = evalAf2 varsAf2Map varsNum polyExpr in
+  res#evaluate
 
+
+(* Evaluate the polynomial using AF2, varsSensitivity is also returned *)
+let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMiniSATCodesMap =
+  let add_varAf2Index var (varsAf2sMap, varsIndicesList, nextIndex) =
+    let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+    let af2 = Util.toAf2 intv nextIndex varsNum in
+    (StringMap.add var af2 varsAf2sMap, (var, nextIndex-1)::varsIndicesList, nextIndex + 1)
+  in
+  let (varsAf2Map, varsIndicesList, _) = VariablesSet.fold add_varAf2Index varsSet (StringMap.empty, [], 1) in
+  (*let print_var_index (var, index) = 
+    print_endline (var ^ ": " ^ string_of_int index ^ " ");
+    flush stdout;
+  in
+  List.iter print_var_index varsIndicesList;*)
+  let res = evalAf2 varsAf2Map varsNum polyExpr in
+  let varsSensitivity = res#extract_sortedVarsSens varsIndicesList in
+  (res#evaluate, varsSensitivity)
+
+(* Evaluate a polynomial using CI *)
+let poly_eval_ci polyExpr varsIntvsMiniSATCodesMap = 
+  evalCI varsIntvsMiniSATCodesMap polyExpr
 
 (*evaluate the bound of poly expression by type of interval arithmetic*)						     
-let poly_eval e ia intv = 
-  let varsSet = get_vars_set_polyExp e in
+let poly_eval e varsSet ia intv = 
+  let rec get_interval var (intvMap, intvList) =
+    let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
+    (intvMap, (var, intv)::intvList)
+  in
   let (_, assIntv) = VariablesSet.fold get_interval varsSet (intv, []) in
   let iIntvVar = List.length assIntv in
   if (ia=1) then (
@@ -362,11 +395,13 @@ let poly_eval e ia intv =
     (res#evaluate, []);
   )  
   else if (ia=2) then (
-    let assAf2VarPos = e_toAf2 assIntv 1 iIntvVar in
+    let estimatedIntv = poly_eval_af2 e varsSet iIntvVar intv in
+    (estimatedIntv, ([]:float list));
+    (*let assAf2VarPos = e_toAf2 assIntv 1 iIntvVar in
     let (assAf2, varPos) = List.split assAf2VarPos in
     let res = evalAf2 assAf2 iIntvVar e in
     let varsSensitivity = res#extract_varsSen varPos in
-    (res#evaluate, varsSensitivity);
+    (res#evaluate, varsSensitivity);*)
   )  
   else if (ia=3) then (
     let assCai1 = e_toCai1 assIntv 1 iIntvVar in
@@ -389,7 +424,7 @@ let poly_eval e ia intv =
     (res#to_interval, []);
   )
   else (
-    let res = evalCI assIntv e in
+    let res = poly_eval_ci e intv in
     (res, []);
   )  
     
@@ -417,58 +452,100 @@ let check_sat_providedBounds boolExp bound =
     if (bound#l > 0.) then 1
     else if (bound#h <= 0.) then -1
     else 0
-    
 
-(*check whether an expression e is satisfiable*)
-let checkSat e ia assIntv =
-  let polyExp = get_exp e in
-  let (bound, _)  = poly_eval polyExp ia assIntv in
-  (*print_endline ("Approximating: " ^ bool_expr_to_infix_string e ^ " = [" ^ string_of_float leftBound#l ^ ", " ^ string_of_float leftBound#h ^ "] with " ^ intervals_to_string assIntv);
 
-  flush stdout;*)
-  check_sat_providedBounds e bound
-  
-  
-(* Substract variables sensitivity from the right hand side to the left handside of the expression *)  
-let rec substract_varSen leftVarsSen (var, varSen) = match leftVarsSen with
-  | [] -> [(var, ~-. varSen)]
-  | (currentVar, currentVarSen)::remaining -> 
-    if var = currentVar then (currentVar, currentVarSen -. varSen)::remaining
-    else (currentVar, currentVarSen)::(substract_varSen leftVarsSen (var, varSen))
-  
-(* This function merge the sensitivity of vars in left handside with right handside of an expression*)  
-let rec merge_varsSen leftVarsSen = function 
-  | [] -> leftVarsSen
-  | h::t -> 
-    let newLeftVarsSen = substract_varSen leftVarsSen h in
-    merge_varsSen newLeftVarsSen t
-  
-    
-(* Check sat with combination of AF2 and CI *)      
-let check_sat_af_two_ci_boolExpr boolExpr intv = 
+(* Check whether an expression e is satisfiable or not provided the over-approximation of sides, length of SAT area also be returned *)
+let check_sat_get_satLength_providedBounds boolExp bound = 
+  let lowerBound = bound#l in
+  let upperBound = bound#h in
+  match boolExp with
+  |Eq e -> 
+    if (lowerBound = upperBound && upperBound = 0.) then (1, 0.) 
+    else if (upperBound < 0. || lowerBound > 0.) then (-1, 0.)
+    else (0, 0.)
+  |Leq e -> 
+    if (upperBound <= 0.) then (1, upperBound -. lowerBound)
+    else if (lowerBound > 0.) then (-1, 0.)
+    else (0, 0. -. lowerBound)
+  |Le e -> 
+    if (upperBound < 0.) then (1, upperBound -. lowerBound)
+    else if (lowerBound >= 0.) then (-1, 0.)
+    else (0, 0. -. lowerBound)
+  |Geq e -> 
+    if (lowerBound >= 0.) then (1, upperBound -. lowerBound)
+    else if (upperBound < 0.) then (-1, 0.)
+    else (0, upperBound)
+  |Gr e -> 
+    if (lowerBound > 0.) then (1, upperBound -. lowerBound)
+    else if (upperBound <= 0.) then (-1, 0.)
+    else (0, upperBound)
+
+
+(* check sat of boolean expression using CI *)
+let check_sat_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap =
+  let polyExpr = get_exp boolExpr in
+  poly_eval_ci polyExpr varsIntvsMiniSATCodesMap
+
+
+(* Check sat with combination of AF2 and CI *)
+let check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap = 
   let polyExpr = get_exp boolExpr in
   (* evaluate the expression using AF2 *)
-  let (afTwoBound, afTwoVarsSen)  = poly_eval polyExpr 2 intv in
+  let afTwoBound  = poly_eval_af2 polyExpr varsSet varsNum varsIntvsMiniSATCodesMap in
   (*print_endline (assignments_toString afTwoVarsSen);
   flush stdout;*)
   let sat = check_sat_providedBounds boolExpr afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
-    let (ciBound, _)  = poly_eval polyExpr 0 intv in
+    let ciBound  = poly_eval_ci polyExpr varsIntvsMiniSATCodesMap in
     
     let newLowerBound = max afTwoBound#l ciBound#l in
     let newHigherBound = min afTwoBound#h ciBound#h in
     let newBound = new IA.interval newLowerBound newHigherBound in
     let sat = check_sat_providedBounds boolExpr newBound in
-    (sat, afTwoVarsSen)
-  else (sat, afTwoVarsSen)
+    sat
+  else sat
+  
     
-
-(* This function check sat with CI only *)
-let check_sat_inf_ci_boolExpr boolExpr intv = 
-  let polyExpr = get_exp boolExpr in (* get the expression *)
-  let (iciBound, _)  = poly_eval polyExpr (-1) intv in (* -1 is ICI *)
-  (*print_endline ("Bound: " ^ (string_of_float iciLeftBound#l) ^ " " ^ (string_of_float iciLeftBound#h));
+(* Check sat with combination of AF2 and CI, return the sorted variables by their sensitivities *)      
+let check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMiniSATCodesMap = 
+  let polyExpr = get_exp boolExpr in
+  (* evaluate the expression using AF2 *)
+  (*print_endline ("Start checking using af2\n");
   flush stdout;*)
-  let sat = check_sat_providedBounds boolExpr iciBound in
-  (sat, ([]: (Variable.StringMap.key * float) list))
+  let (afTwoBound, varsSens)  = poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMiniSATCodesMap in
+  (*let print_var_sen (var, sen) = 
+    print_endline (var ^ ": " ^ string_of_float sen ^ " ");
+    flush stdout;
+  in
+  List.iter print_var_sen varsSens;*)
+  flush stdout;
+  let sat = check_sat_providedBounds boolExpr afTwoBound in
+  if sat = 0 then (* AF2 fails to conclude the expression *)
+    (* Compute bouds of polynomial using *)
+    let ciBound  = poly_eval_ci polyExpr varsIntvsMiniSATCodesMap in
+    
+    let newLowerBound = max afTwoBound#l ciBound#l in
+    let newHigherBound = min afTwoBound#h ciBound#h in
+    let newBound = new IA.interval newLowerBound newHigherBound in
+    let sat = check_sat_providedBounds boolExpr newBound in
+    (sat, varsSens)
+  else (sat, varsSens)
+  
+let check_sat_get_satLength_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap =
+  let polyExpr = get_exp boolExpr in
+  (* evaluate the expression using AF2 *)
+  let afTwoBound  = poly_eval_af2 polyExpr varsSet varsNum varsIntvsMiniSATCodesMap in
+  (*print_endline (assignments_toString afTwoVarsSen);
+  flush stdout;*)
+  let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr afTwoBound in
+  if sat = 0 then (* AF2 fails to conclude the expression *)
+    (* Compute bouds of polynomial using *)
+    let ciBound  = poly_eval_ci polyExpr varsIntvsMiniSATCodesMap in
+    
+    let newLowerBound = max afTwoBound#l ciBound#l in
+    let newHigherBound = min afTwoBound#h ciBound#h in
+    let newBound = new IA.interval newLowerBound newHigherBound in
+    check_sat_get_satLength_providedBounds boolExpr newBound
+  else (sat, satLength)
+

@@ -552,62 +552,62 @@ class af2 size = object (self)
 
     (*addition operator*)
     method add (other: af2) = 
-let size1 = Array.length self#ar in
-let result = new af2 size1 in
-result#set_a (self#a +. other#a);
-result#set_kp (self#kp +. other#kp);
-result#set_kn (self#kn +. other#kn);
-result#set_k (self#k +. other#k);
-let nar = Array.create size1 0.0 in
-for i = 0 to size1 - 1 do
-  Array.set nar i (self#ar.(i) +. other#ar.(i));
+      let size1 = Array.length self#ar in
+      let result = new af2 size1 in
+      result#set_a (self#a +. other#a);
+      result#set_kp (self#kp +. other#kp);
+      result#set_kn (self#kn +. other#kn);
+      result#set_k (self#k +. other#k);
+      let nar = Array.create size1 0.0 in
+      for i = 0 to size1 - 1 do
+        Array.set nar i (self#ar.(i) +. other#ar.(i));
 
-done;
-result#set_ar nar;
-result;
+      done;
+      result#set_ar nar;
+      result;
     
     (*addition by a coeff*)
     method add2 (c: float) = 
-let result = new af2 size in
-result#set_a (self#a+.c);
-result#set_kp self#kp;
-result#set_kn self#kn;
-result#set_k self#k;
-let nar = Array.create size 0.0 in
-for i = 0 to size - 1 do
-  Array.set nar i self#ar.(i);
-done;
-result#set_ar nar;
-result;
+      let result = new af2 size in
+      result#set_a (self#a+.c);
+      result#set_kp self#kp;
+      result#set_kn self#kn;
+      result#set_k self#k;
+      let nar = Array.create size 0.0 in
+      for i = 0 to size - 1 do
+        Array.set nar i self#ar.(i);
+      done;
+      result#set_ar nar;
+      result;
 
     (*subtraction operator*)
     method sub (other: af2) = 
-let size1 = Array.length self#ar in
-let result = new af2 size1 in
-result#set_a (self#a -. other#a);
-result#set_kp (self#kp +. other#kn);
-result#set_kn (self#kn +. other#kp);
-result#set_k (self#k +. other#k);
-let nar = Array.create size1 0.0 in
-for i = 0 to size1 - 1 do
-  Array.set nar i (self#ar.(i) -. other#ar.(i));
-done;
-result#set_ar nar;
-result;
+      let size1 = Array.length self#ar in
+      let result = new af2 size1 in
+      result#set_a (self#a -. other#a);
+      result#set_kp (self#kp +. other#kn);
+      result#set_kn (self#kn +. other#kp);
+      result#set_k (self#k +. other#k);
+      let nar = Array.create size1 0.0 in
+      for i = 0 to size1 - 1 do
+        Array.set nar i (self#ar.(i) -. other#ar.(i));
+      done;
+      result#set_ar nar;
+      result;
 
     (*subtraction by a coeff*)
     method sub2 (c: float) = 
-let result = new af2 size in
-result#set_a (self#a-.c);
-result#set_kp self#kn;
-result#set_kn self#kp;
-result#set_k self#k;
-let nar = Array.create size 0.0 in
-for i = 0 to size - 1 do
-  Array.set nar i self#ar.(i);
-done;
-result#set_ar nar;
-result;
+      let result = new af2 size in
+      result#set_a (self#a-.c);
+      result#set_kp self#kn;
+      result#set_kn self#kp;
+      result#set_k self#k;
+      let nar = Array.create size 0.0 in
+      for i = 0 to size - 1 do
+        Array.set nar i self#ar.(i);
+      done;
+      result#set_ar nar;
+      result;
 
     (*multiplication operator*)
     method mul (other: af2) = 
@@ -672,7 +672,7 @@ result;
      result#set_k (abs_float(c)*.self#k);
      let ar1 = Array.create size1 0.0 in
      for i = 0 to Array.length ar1 - 1 do
- Array.set ar1 i (c*.ar.(i));
+      Array.set ar1 i (c*.ar.(i));
      done;
      result#set_ar ar1;
      result;        
@@ -690,14 +690,34 @@ result;
      let result = new interval !lo !hi in
      result;
     
-    method extract_varsSen varsPos = 
-      let rec rec_extract_varsSen = function
-      | [] -> []
-      | ((var:string), pos)::remaining ->
-        let varSen = Array.get ar pos in
-        (var, varSen)::(rec_extract_varsSen remaining)
+    method extract_sortedVarsSens varsIndicesList = 
+      let rec insert_sort_varSen sortedVarsSensList (var, sen) =
+        match sortedVarsSensList with 
+          | [] -> [(var, sen)]
+          | (otherVar, otherSen) :: remainings -> 
+            if sen >= otherSen then (var, sen) :: sortedVarsSensList
+            else (otherVar, otherSen) :: (insert_sort_varSen remainings (var, sen))
       in
-      rec_extract_varsSen varsPos
+      let rec rec_extract_varsSen varsIndicesList sortedSensVarsList = 
+        match varsIndicesList with
+          | [] -> sortedSensVarsList
+          | ((var:string), index)::remaining ->
+            (*print_endline ("Start getting sen at: " ^ string_of_int index);
+            flush stdout;*)
+            let varSen = Array.get ar index in
+            (*print_endline ("Got: " ^ string_of_float varSen);
+            flush stdout;*)
+            let positiveVarSen = abs_float varSen in
+            let newSortedVarsSensList = insert_sort_varSen sortedSensVarsList (var, positiveVarSen) in
+            rec_extract_varsSen remaining newSortedVarsSensList
+      in
+      (*let add_string_of_varSen oldString (var, sen) = 
+        oldString ^ " " ^ var ^ ": " ^ string_of_float sen
+      in
+      print_endline ("VarsSens: " ^ List.fold_left add_string_of_varSen "" (rec_extract_varsSen varsIndicesList []));
+      flush stdout;*)
+      rec_extract_varsSen varsIndicesList []
+             
     
     method printForm = 
       Printf.printf "%f " a;

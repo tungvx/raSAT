@@ -22,22 +22,7 @@ class polynomialConstraint boolExprInit =
     method get_varsNum = varsNum
     
     method get_varsSen = varsSen
-    method set_varsSen setVarsSen = 
-      let rec insert_sort_positive_varSen sortedVarsSen (var, sen) =
-        let positiveSen = abs_float sen in
-        match sortedVarsSen with 
-          | [] -> [(var, positiveSen)]
-          | (otherVar, otherPositiveSen) :: remainings -> 
-            if positiveSen >= otherPositiveSen then (var, positiveSen) :: sortedVarsSen
-            else (otherVar, otherPositiveSen) :: (insert_sort_positive_varSen remainings (var, positiveSen))
-      in
-      let sortedVarsSen = List.fold_left insert_sort_positive_varSen [] setVarsSen in
-      (*let add_string_of_varSen oldString (var, sen) = 
-        oldString ^ " " ^ var ^ ": " ^ string_of_float sen
-      in
-      print_endline ("VarsSen of " ^ self#to_string_infix ^ ": " ^ List.fold_left add_string_of_varSen "" sortedVarsSen);
-      flush stdout;*)
-      varsSen <- sortedVarsSen
+    method set_varsSen setVarsSen = varsSen <- setVarsSen
     
     method get_miniSATCode = miniSATCode
     method set_miniSATCode code = miniSATCode <- code
@@ -47,8 +32,17 @@ class polynomialConstraint boolExprInit =
     
     method get_varsList = varsList
     
-    method check_sat_inf_ci varsIntvsMiniSATCodesMap = check_sat_inf_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
-    method check_sat_af_two_ci varsIntvsMiniSATCodesMap = check_sat_af_two_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
+    (* check sat of this polynomial using ci*)
+    method check_sat_ci (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
+    
+    (* check sat of this polynomial using combination of af2 and ci*)
+    method check_sat_af_two_ci (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
+        
+    (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
+    method check_sat_af_two_ci_varsSens (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
+    
+    (* get length of SAT by af2 and ci *)
+    method check_sat_get_satLength (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_get_satLength_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
     
     (* get n-first variables by varsSen *)
     method get_n_varsSen n = 

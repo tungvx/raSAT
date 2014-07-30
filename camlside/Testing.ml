@@ -31,7 +31,7 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
                   (*print_endline ("Got: " ^ string_of_int nextIndex ^ " with " ^ string_of_int sortedPolyConstraintsMapLength ^ " sorted over " ^ string_of_int polyConstraintsNum);
                   flush stdout;*)
                   let nextRemainingMiniSATCodesPolyConstraintsMap = 
-                    if polyConstraintsNum = sortedPolyConstraintsMapLength then IntMap.empty
+                    if polyConstraintsNum <= sortedPolyConstraintsMapLength then IntMap.empty
                     else IntMap.remove alreadySortedBestPolyCons#get_miniSATCode remainingMiniSATCodePolyConstraintsMap 
                   in
                   (alreadySortedBestPolyCons, nextRemainingMiniSATCodesPolyConstraintsMap, indicesSortedPolyConstraintsMap, sortedPolyConstraintsMapLength)

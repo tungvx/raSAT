@@ -174,7 +174,7 @@ let genSatForm sAss sIntv esl =
   let logSat polyCons ia varsIntvsMiniSATCodesMap = 
     let boolExpr = polyCons#get_constraint in
     let polyExp = get_exp boolExpr in
-    let (bound, _)  = poly_eval polyExp ia varsIntvsMiniSATCodesMap in
+    let (bound, _)  = poly_eval polyExp polyCons#get_varsSet ia varsIntvsMiniSATCodesMap in
     match boolExpr with
     |Eq e -> 
       (poly_toString "" e) ^ "=" ^
@@ -960,8 +960,16 @@ let rec decomp_reduce ass esl = match ass with
             if upperBound = infinity then lowerBound +. 10. 
             else 0.5 *. lowerBound +. 0.5 *. upperBound
         in
+        let lowerIntv = new IA.interval lowerBound newPoint in
+        let upperIntv = new IA.interval newPoint upperBound in
         let bumpVar =
-          if newPoint < 0. then nextMiniSATCode + 1
+          (* Compute the SAT length of lower interval by IA *)
+          let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) newIntv in
+          let (_, lowerSatLength) = polyCons#check_sat_get_satLength lowerVarsIntvsMiniSATCodesMap in
+          (* Compute the SAT length of upper interval by IA *)
+          let upperVarsIntvsMiniSATCodesMap = StringMap.add var (upperIntv, nextMiniSATCode) newIntv in
+          let (_, upperSatLength) = polyCons#check_sat_get_satLength upperVarsIntvsMiniSATCodesMap in
+          if lowerSatLength < upperSatLength then nextMiniSATCode + 1
           else nextMiniSATCode
         in
         let newLearntClauses = 
@@ -970,8 +978,8 @@ let rec decomp_reduce ass esl = match ass with
           "-" ^ string_of_int nextMiniSATCode ^ " -"^string_of_int (nextMiniSATCode+1) ^ " 0 " ^
           string_of_int varId ^ " -"^string_of_int (nextMiniSATCode+1) ^ " 0 " 
         in
-        let newIntvMap = IntMap.add nextMiniSATCode (var, new IA.interval lowerBound newPoint) intvMap in
-        let newIntvMap = IntMap.add (nextMiniSATCode + 1) (var, new IA.interval newPoint upperBound) newIntvMap in
+        let newIntvMap = IntMap.add nextMiniSATCode (var, lowerIntv) intvMap in
+        let newIntvMap = IntMap.add (nextMiniSATCode + 1) (var, upperIntv) newIntvMap in
         ((newIntvMap, nextMiniSATCode+2),learntClauses ^  newLearntClauses, bumpedVars ^ string_of_int bumpVar ^ " ", true)
       in
       let decomposedVarsList = polyCons#get_n_varsSen maxDecomposedVarsNum in
@@ -981,7 +989,8 @@ let rec decomp_reduce ass esl = match ass with
       in
       let decomposedVarsIntvsMiniSATCodesMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
       StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesMap ((intvMap, nextMiniSATCode), "", "", true)
- 
+
+(* 
  (*============= UNSAT Cores Analysis ===============*)
  (*Get the sign in an multiplication expression*)
   let rec get_sign sign e = match e with
@@ -1129,7 +1138,7 @@ let rec decomp_reduce ass esl = match ass with
    else
      s ^ "0 " ^ (var_exp_list t checkVarID)
 (*============= End UNSAT Cores Analysis ===========*)
-*)   
+*) *)  
  
 (*Rewrite eval_all for UNSAT cores computations*)
 let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime isInfinite remainingTime =
@@ -1138,13 +1147,12 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
    |h::t -> 
       let startTime = Sys.time() in
       (*print_string "Start check sat: ";
-
-      print_endline (bool_expr_to_infix_string h);*)
+      print_endline (h#to_string_infix);*)
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
-      let (res1, varsSen) = 
-        if isInfinite then h#check_sat_inf_ci varsIntvsMiniSATCodesMap (* We only use CI for infinity bounds *)
-        else h#check_sat_af_two_ci varsIntvsMiniSATCodesMap 
+      let (res1, sortedVarsSens) = 
+        if isInfinite then (h#check_sat_ci varsIntvsMiniSATCodesMap, []) (* We only use CI for infinity bounds *)
+        else h#check_sat_af_two_ci_varsSens varsIntvsMiniSATCodesMap 
       in
       (*print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
       flush stdout;*)
@@ -1182,7 +1190,7 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
         if res = -1 then
           eval_all (-1) us [] t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
         else (
-          h#set_varsSen varsSen;
+          h#set_varsSen sortedVarsSens;
           eval_all 0 us (h::uk_cl) t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
         )
       )
@@ -1241,7 +1249,8 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
     (*print_endline (intervals_toString originalIntv); (* intervals_toString is defined in Assignments.ml *)
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in
-    (*print_endline "Start IA";*)
+    (*print_endline "Start IA";
+    flush stdout;*)
     let isInfinite = StringMap.exists check_infinity varsIntvsMiniSATCodesMap in (* check_infinity is defined in assignments.ml *)
     (*print_endline (string_of_bool isInfinite);
     flush stdout;*)
