@@ -922,11 +922,10 @@ let rec decomp_reduce ass esl = match ass with
   (*======= end unbalance decomposition =======*)   
 
   (*Binary balance decomposition on intervals*)
-  let dynamicDecom assIntv intvMap nextMiniSATCode polyCons maxDecomposedVarsNum esl = 
+  let dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite miniSATCodesVarsIntvsMap nextMiniSATCode polyCons maxDecomposedVarsNum esl remainingTime = 
+    let startTime = Sys.time() in
     let varsSet = polyCons#get_varsSet in
-    let add_interval var newIntvMap = StringMap.add var (StringMap.find var assIntv) newIntvMap in
-    let newIntv = VariablesSet.fold add_interval varsSet StringMap.empty in
-    let not_smallIntv var (intv, _) =
+    let not_smallIntv intv =
       let lowerBound = intv#l in
       let upperBound = intv#h in
       if lowerBound = neg_infinity && upperBound < (round_off (esl -. max_float) 5) then 
@@ -938,17 +937,22 @@ let rec decomp_reduce ass esl = match ass with
       else
         false
     in
-    let reducedIntv = StringMap.filter not_smallIntv newIntv in
-    if StringMap.is_empty reducedIntv then (*Stop decomposition*) 
+    let add_notSmallInterval var reducedVarsSet = 
+      let (intv, miniSATCode) = StringMap.find var varsIntvsMiniSATCodesMap in
+      if not_smallIntv intv then VariablesSet.add var reducedVarsSet
+      else reducedVarsSet
+    in
+    let reducedVarsSet = VariablesSet.fold add_notSmallInterval varsSet VariablesSet.empty in
+    if VariablesSet.is_empty reducedVarsSet then (*Stop decomposition*) 
       let add_learnt_var var learntVars = 
-        let (_, varId) = StringMap.find var newIntv in
+        let (_, varId) = StringMap.find var varsIntvsMiniSATCodesMap in
         "-" ^ string_of_int varId ^ " " ^ learntVars
       in
       let learntClauses = VariablesSet.fold add_learnt_var varsSet "0" in
-      ((intvMap, nextMiniSATCode), learntClauses, "", false)
+      ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false)
     else (*Continue decomposition*)
-      let decompose_var var (intv, varId) ((intvMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
-        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix);
+      let decompose_var var (intv, varId) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
+        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "]");
         flush stdout;*)
         let lowerBound = intv#l in
         let upperBound = intv#h in
@@ -962,33 +966,71 @@ let rec decomp_reduce ass esl = match ass with
         in
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
-        let bumpVar =
+        let (bumpVar, unsatCore) =
           (* Compute the SAT length of lower interval by IA *)
-          let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) newIntv in
-          let (_, lowerSatLength) = polyCons#check_sat_get_satLength lowerVarsIntvsMiniSATCodesMap in
+          let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
+          (*print_endline "Start Computing for lower interval";
+          flush stdout;*)
+          let (lowerSAT, lowerSatLength) = polyCons#check_sat_get_satLength lowerVarsIntvsMiniSATCodesMap in
+          (*print_endline ("Lower: " ^ string_of_int lowerSAT ^ " - " ^ string_of_float lowerSatLength);
+          flush stdout;*)
+          
           (* Compute the SAT length of upper interval by IA *)
-          let upperVarsIntvsMiniSATCodesMap = StringMap.add var (upperIntv, nextMiniSATCode) newIntv in
-          let (_, upperSatLength) = polyCons#check_sat_get_satLength upperVarsIntvsMiniSATCodesMap in
-          if lowerSatLength < upperSatLength then nextMiniSATCode + 1
-          else nextMiniSATCode
+          let upperVarsIntvsMiniSATCodesMap = StringMap.add var (upperIntv, nextMiniSATCode + 1) varsIntvsMiniSATCodesMap in
+          let (upperSAT, upperSatLength) = polyCons#check_sat_get_satLength upperVarsIntvsMiniSATCodesMap in
+          (*print_endline ("Upper: " ^ string_of_int upperSAT ^ " - " ^ string_of_float upperSatLength);
+          flush stdout;*)
+          
+          if lowerSAT = 1 then 
+            if upperSAT = 1 then 
+              if Random.bool () then (nextMiniSATCode, "")
+              else (nextMiniSATCode + 1, "")
+            else if upperSAT = 0 then (nextMiniSATCode, "")
+            else 
+              let unsatCore = get_unsatcore_vars polyCons lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+              (nextMiniSATCode, unsatCore)
+          else if lowerSAT = -1 then 
+            let lowerUnsatCore = get_unsatcore_vars polyCons lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+            if upperSAT = -1 then 
+              let upperUnsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+              if Random.bool () then (nextMiniSATCode, lowerUnsatCore ^ "0 " ^ upperUnsatCore)
+              else (nextMiniSATCode + 1, lowerUnsatCore ^ "0 " ^ upperUnsatCore)
+            else (nextMiniSATCode + 1, lowerUnsatCore)
+          else 
+            if upperSAT = 1 then (nextMiniSATCode + 1, "")
+            else if upperSAT = -1 then (* UNSAT, we learn the intervals *) 
+              let unsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+              (nextMiniSATCode, unsatCore)
+            else if lowerSatLength < upperSatLength then (nextMiniSATCode + 1, "")
+            else if lowerSatLength > upperSatLength then (nextMiniSATCode, "")
+            else 
+              if Random.bool() then (nextMiniSATCode + 1, "")
+              else (nextMiniSATCode, "")
         in
+        (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
+        print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
+        flush stdout;*)
         let newLearntClauses = 
           "-" ^ string_of_int varId ^ " " ^ string_of_int nextMiniSATCode ^ " " ^ string_of_int (nextMiniSATCode+1) ^ " 0 " ^
           string_of_int varId ^ " -" ^ string_of_int nextMiniSATCode ^ " 0 " ^
           "-" ^ string_of_int nextMiniSATCode ^ " -"^string_of_int (nextMiniSATCode+1) ^ " 0 " ^
           string_of_int varId ^ " -"^string_of_int (nextMiniSATCode+1) ^ " 0 " 
         in
-        let newIntvMap = IntMap.add nextMiniSATCode (var, lowerIntv) intvMap in
-        let newIntvMap = IntMap.add (nextMiniSATCode + 1) (var, upperIntv) newIntvMap in
-        ((newIntvMap, nextMiniSATCode+2),learntClauses ^  newLearntClauses, bumpedVars ^ string_of_int bumpVar ^ " ", true)
+        let newLearntClauses = 
+          if unsatCore = "" then newLearntClauses
+          else unsatCore ^ "0 " ^ newLearntClauses
+        in
+        let miniSATCodesVarsIntvsMap = IntMap.add nextMiniSATCode (var, lowerIntv) miniSATCodesVarsIntvsMap in
+        let miniSATCodesVarsIntvsMap = IntMap.add (nextMiniSATCode + 1) (var, upperIntv) miniSATCodesVarsIntvsMap in
+        ((miniSATCodesVarsIntvsMap, nextMiniSATCode+2),learntClauses ^  newLearntClauses, bumpedVars ^ string_of_int bumpVar ^ " ", true)
       in
-      let decomposedVarsList = polyCons#get_n_varsSen maxDecomposedVarsNum in
+      let decomposedVarsList = polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum reducedVarsSet in
       let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesMap var = 
-        let intvMiniSATCode = StringMap.find var newIntv in
+        let intvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in
         StringMap.add var intvMiniSATCode currentVarsIntvsMiniSATCodesMap
       in
       let decomposedVarsIntvsMiniSATCodesMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
-      StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesMap ((intvMap, nextMiniSATCode), "", "", true)
+      StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesMap ((miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", true)
 
 (* 
  (*============= UNSAT Cores Analysis ===============*)
@@ -1322,14 +1364,15 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
                   (*print_endline "decomposing";
                   print_endline(bool_expr_list_to_infix_string decomposedExpr);
                   flush stdout;*)
-                  let maxDecomposedVarsNum = 2 in (* only $maxDecomposedVarsNum are allowed to decomposed, the priority is based on sensitivity *)
+                  let maxDecomposedVarsNum = 1 in (* only $maxDecomposedVarsNum are allowed to decomposed, the priority is based on sensitivity *)
                   let ((miniSATCodesVarsIntvsMap, nextMiniSATCode), sLearn, bump_vars, isDecomp) = 
                     (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
                     (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID nextMiniSATCode esl in
                     if isDecomposed then 
                       (newInterval, newLearn, newBumpVars, isDecomposed)
                     else*)
-                      dynamicDecom varsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode (List.hd decomposedExpr) maxDecomposedVarsNum esl in
+                      dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite miniSATCodesVarsIntvsMap  nextMiniSATCode (List.hd decomposedExpr) 
+                                    maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime) in
 									(*print_endline "after decomposed";
 									flush stdout;*)
                   let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in

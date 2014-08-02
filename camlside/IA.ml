@@ -695,8 +695,11 @@ result;
         match sortedVarsSensList with 
           | [] -> [(var, sen)]
           | (otherVar, otherSen) :: remainings -> 
-            if sen >= otherSen then (var, sen) :: sortedVarsSensList
-            else (otherVar, otherSen) :: (insert_sort_varSen remainings (var, sen))
+            if sen > otherSen then (var, sen) :: sortedVarsSensList
+            else if sen < otherSen then (otherVar, otherSen) :: (insert_sort_varSen remainings (var, sen))
+            else (* randomly sort them *)
+              if Random.bool () then (var, sen) :: sortedVarsSensList
+              else (otherVar, otherSen) :: (insert_sort_varSen remainings (var, sen))
       in
       let rec rec_extract_varsSen varsIndicesList sortedSensVarsList = 
         match varsIndicesList with

@@ -30,7 +30,9 @@ class polynomialConstraint boolExprInit =
     (* convert the constraint into infix string *)
     method to_string_infix = string_infix_of_boolExp boolExpr
     
-    method get_varsList = varsList
+    method get_varsList = 
+      if List.length varsSen = varsNum then self#get_n_varsSen varsNum
+      else varsList
     
     (* check sat of this polynomial using ci*)
     method check_sat_ci (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
@@ -50,6 +52,18 @@ class polynomialConstraint boolExprInit =
         | [] -> []
         | (var, sen) :: t ->
           if n >= 1 then var :: (get_n_first t (n - 1))
+          else []
+      in
+      get_n_first varsSen n
+      
+   (* get n-first variables by varsSen, the selected variables must be in the given set *)
+    method get_n_varsSen_fromSet n varsSet = 
+      let rec get_n_first varsSen n = match varsSen with 
+        | [] -> []
+        | (var, sen) :: t ->
+          if n >= 1 then 
+            if VariablesSet.mem var varsSet then var :: (get_n_first t (n - 1))
+            else get_n_first t n
           else []
       in
       get_n_first varsSen n
