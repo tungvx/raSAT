@@ -32,21 +32,20 @@ namespace Minisat {
 // DIMACS Parser:
 
 template<class B, class Solver>
-static void readClause(B& in, Solver& S, vec<Lit>& lits, std::set<int>& leafLits) {
+static void readClause(B& in, Solver& S, vec<Lit>& lits) {
     int     parsed_lit, var;
     lits.clear();
     for (;;){
         parsed_lit = parseInt(in);
         if (parsed_lit == 0) break;
         var = abs(parsed_lit)-1;
-        leafLits.insert (var + 1);
         while (var >= S.nVars()) S.newVar();
         lits.push( (parsed_lit > 0) ? mkLit(var) : ~mkLit(var) );
     }
 }
 
 template<class B, class Solver>
-static void parse_DIMACS_main(B& in, Solver& S, std::set<int>& leafLits) {
+static void parse_DIMACS_main(B& in, Solver& S) {
     vec<Lit> lits;
     int vars    = 0;
     int clauses = 0;
@@ -68,7 +67,7 @@ static void parse_DIMACS_main(B& in, Solver& S, std::set<int>& leafLits) {
             skipLine(in);
         else{
             cnt++;
-            readClause(in, S, lits, leafLits);
+            readClause(in, S, lits);
             S.addClause_(lits); }
     }
     if (vars != S.nVars())
@@ -80,9 +79,9 @@ static void parse_DIMACS_main(B& in, Solver& S, std::set<int>& leafLits) {
 // Inserts problem into solver.
 //
 template<class Solver>
-static void parse_DIMACS(gzFile input_stream, Solver& S, std::set<int>& leafLits) {
+static void parse_DIMACS(gzFile input_stream, Solver& S) {
     StreamBuffer in(input_stream);
-    parse_DIMACS_main(in, S, leafLits); }
+    parse_DIMACS_main(in, S); }
 
 //=================================================================================================
 }

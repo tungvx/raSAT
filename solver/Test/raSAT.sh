@@ -4,7 +4,7 @@
 # tout: time out
 export IFS=","
 RESULT=$1/SUM_UP.xls
-echo "Problem,nVars,nAPIs,time<$3 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result" > $RESULT
+echo "Problem,nVars,maxVars,nAPIs,time<$3 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result" > $RESULT
 ls $1/*.smt2
 for file in $1/*.smt2; do
    fIaTime=0;
@@ -23,7 +23,7 @@ for file in $1/*.smt2; do
    while [ $(echo "$time < $3" | bc) -ne 0 -a "$result" = "unknown" ]
    do
 	./raSAT $file lb="0 10" $2 `echo $3 - $time | bc`
-    read problem nVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < $file.tmp
+    read problem nVars maxVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < $file.tmp
 	time=`echo $time + $currentTime | bc`
 	fIaTime=`echo $fIaTime + $iaTime | bc`
 	fTestingTime=`echo $fTestingTime + $testingTime | bc`
@@ -40,7 +40,7 @@ for file in $1/*.smt2; do
     if [ "$result" = "unsat" ];
     then
       ./raSAT $file lb="-inf inf" $2 `echo $3 - $time | bc`
-      read problem nVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < $file.tmp
+      read problem nVars maxVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < $file.tmp
       time=`echo $time + $currentTime | bc`
 	    fIaTime=`echo $fIaTime + $iaTime | bc`
 	    fTestingTime=`echo $fTestingTime + $testingTime | bc`
@@ -55,6 +55,6 @@ for file in $1/*.smt2; do
       fUnknownLearnedClauses=`echo $fUnknownLearnedClauses + $unknownLearnedClauses | bc`
     fi
    done	
-   echo "$problem,$nVars,$nAPIs,$time,$fIaTime,$fTestingTime,$fUsTime,$fParsingTime,$fDecompositionTime,$fMiniSATTime,$miniSATVars,$miniSATClauses,$fMiniSATCalls,$fRaSATClauses,$fDecomposedLearnedClauses,$fUNSATLearnedClauses,$fUnknownLearnedClauses,$result" >> $RESULT 
+   echo "$problem,$nVars,$maxVars,$nAPIs,$time,$fIaTime,$fTestingTime,$fUsTime,$fParsingTime,$fDecompositionTime,$fMiniSATTime,$miniSATVars,$miniSATClauses,$fMiniSATCalls,$fRaSATClauses,$fDecomposedLearnedClauses,$fUNSATLearnedClauses,$fUnknownLearnedClauses,$result" >> $RESULT 
    rm -f $file.tmp
 done

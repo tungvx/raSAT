@@ -120,19 +120,20 @@ module Util = struct
 	
 	
 	(* Function for converting a list of variables to be learned into minisat codes*)
-	let rec learn_vars varsList varsId = match varsList with
+	let rec learn_vars varsList intvMap = match varsList with
 	  | [] -> ""
-    | h::t -> ("-" ^ string_of_int (List.assoc h varsId)) ^ " " ^ (learn_vars  t varsId)
+    | h::t -> 
+      let (_, varId) = StringMap.find h intvMap in
+      "-" ^ string_of_int varId ^ " " ^ (learn_vars  t intvMap)
       
       
   (* This function convert the list of unsat cores into minisat learnt clauses.*)
-  let rec learn_vars_cores varsCores varsId = match varsCores with
+  let rec learn_vars_cores varsCores intvMap = match varsCores with
     | [] -> ""
-    | varsList :: [] -> learn_vars varsList varsId
+    | varsList :: [] -> learn_vars varsList intvMap
     | varsList :: remainingVarsCores -> (
-      let learntVars = learn_vars varsList varsId in
-      let remainingLearntVars = learn_vars_cores remainingVarsCores varsId in
-      learntVars ^ "0 " ^ remainingLearntVars
+      let learntVars = learn_vars varsList intvMap in
+      learntVars ^ "0 " ^ learn_vars_cores remainingVarsCores intvMap
     )
     
       
@@ -140,31 +141,4 @@ module Util = struct
   let rec vars_to_string varsList = match varsList with
     | [] -> ""
     | var::remainingVars -> var ^ " " ^ vars_to_string remainingVars
-  
-
-  (* This function compares two boolean expressions using 
-  dependency between variables. Two criteria:
-  . boolExp1 <= boolExp2 if vars(boolExp1) is a subset of vars(boolExp2) 
-  . boolExp1 < boolExp2 if length(vars(boolExp1)) < length(vars(boolExp2)) 
-  . otherwise, boolExp1 > boolExp2
-  . each argument contains a boolean expression, its compact sorted variables
-  and its number of variables *)
-  let rec compare_dependency (boolExp1, _, variablesSet1, variablesNum1) (boolExp2, _, variablesSet2, variablesNum2) = 
-    if VariablesSet.subset variablesSet1 variablesSet2 then -1 
-    else if VariablesSet.subset variablesSet2 variablesSet1 then 1
-    else if variablesNum1 < variablesNum2 then -1
-    else 1
-
-
-  (* This function extracts a list of boolean expresions 
-  from the list of expressive boolean expressions *)
-  let rec extract_boolExps = function 
-    | [] -> []
-    | (boolExp, _, vars, varsNum)::t -> boolExp::(extract_boolExps t)
-  
-  
-  (* This function return a sublist of a list provided list of indices *)
-  let rec sublist aList indices = match indices with
-    | [] -> []
-    | h::t -> (List.nth aList (h-1))::(sublist aList t)
 end

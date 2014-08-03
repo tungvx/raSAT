@@ -2,16 +2,21 @@ open Util
 open Ast
 open Assignments
 open InfiniteList
+open Variable
 
-let check_unsatcore_vars boolExp currentIntv originalIntv varsList isInfinite = 
+let check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap varsList isInfinite = 
   (*print_endline ("Checking: " ^ Util.vars_to_string varsList);
   flush stdout;*)
-  let newIntv = extract_append_first varsList currentIntv originalIntv in (* extract_append_first is defined in Asssignments.ml *)
+  let add_currentIntvsMiniSATCodes currentVarsIntvsMiniSATCodesMap var =
+    let currentIntvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in
+    StringMap.add var currentIntvMiniSATCode currentVarsIntvsMiniSATCodesMap
+  in
+  let newVarsIntvsMiniSATCodesMap = List.fold_left add_currentIntvsMiniSATCodes originalVarsIntvsMiniSATCodesMap varsList in
   (*print_endline (intervals_to_string newIntv); (* intervals_to_string is definied in Assignments.ml *)
   flush stdout;*)
-  let (sat, _) = 
-    if isInfinite then check_sat_inf_ci boolExp newIntv
-    else check_sat_af_two_ci boolExp newIntv (* check_sat_af_two_ci is in ast.ml *)
+  let sat = 
+    if isInfinite then polyCons#check_sat_ci newVarsIntvsMiniSATCodesMap
+    else polyCons#check_sat_af_two_ci newVarsIntvsMiniSATCodesMap (* check_sat_af_two_ci is in ast.ml *)
   in
   sat = -1
 
@@ -59,18 +64,20 @@ let rec addUnsatCores newUnsatCore unsatCores =
     else unsatCore :: (addUnsatCores newUnsatCore nextUnsatCores)
   )
         
-let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite limitedTime remainingCandidates result =
+let rec get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite limitedTime remainingCandidates result =
   if limitedTime <= 0. then result
   else 
     match remainingCandidates with 
     | Nil -> result 
     | Cons((choosenVars, remainingVars, shouldCheck, nChoosenVars, nVars), tail) -> ( 
-      if (nChoosenVars >= nVars / 2) then result 
+      (*print_endline ("PreChecking: choosen " ^ Util.vars_to_string choosenVars ^ " remaining " ^ Util.vars_to_string remainingVars);
+      flush stdout;*)
+      let startTime = Sys.time() in
+      if (nChoosenVars >= nVars / 2) then get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (limitedTime -. (Sys.time() -. startTime)) (tail()) result 
       else 
-        let startTime = Sys.time() in
         let (newResult, newRemainingCandidates) = 
-          if shouldCheck && check_unsatcore_vars boolExp currentIntv originalIntv choosenVars isInfinite then (
-            (*print_endline ("UnSAT core of " ^ bool_expr_to_infix_string boolExp ^ " is " ^ Util.vars_to_string choosenVars ^ "with " ^ string_of_intervals currentIntv);
+          if shouldCheck && check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap choosenVars isInfinite then (
+            (*print_endline ("UnSAT core of " ^ polyCons#to_string_infix ^ " is " ^ Util.vars_to_string choosenVars ^ "with " ^ string_of_intervals varsIntvsMiniSATCodesMap);
             (* bool_expr_to_infix_string is defined in ast.ml *)
             (* intervals_to_string is defined in Assignments.ml *)
             flush stdout;*)
@@ -78,8 +85,11 @@ let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite lim
             (choosenVars::result, tail())
           )
           else (
-            if remainingVars = [] then
+            if remainingVars = [] then (
+              (*print_endline "Remaining empty";
+              flush stdout;*)
               (result, tail())
+            )
             else 
               let nextVar = List.hd remainingVars in
               let nextRemainingVars = List.tl remainingVars in
@@ -88,19 +98,19 @@ let rec get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite lim
               (result, tail() @@ nextVarChoosenCandidates)
           )
         in 
-        get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite (limitedTime -. (Sys.time() -. startTime)) newRemainingCandidates newResult
+        get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (limitedTime -. (Sys.time() -. startTime)) newRemainingCandidates newResult
     )
       
-let get_unsatcore_vars boolExp currentIntv originalIntv varsId isInfinite limitedTime =
+let get_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite limitedTime =
   let startTime = Sys.time() in 
-  let varsList = Util.red_list (bool_vars boolExp) in (* bool_vars is defined in Ast.ml *)
+  let varsList = polyCons#get_varsList in
   (*print_endline ("Variables List: " ^ Util.vars_to_string varsList);
   flush stdout;*)
-  let nVars = List.length varsList in
+  let nVars = polyCons#get_varsNum in
   let initialCandidate = Cons(([], varsList, false, 0, nVars), fun() -> Nil) in
-  let unsatVarsCores = get_unsatcore_vars_extra boolExp currentIntv originalIntv isInfinite (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
-  if unsatVarsCores = [] then Util.learn_vars varsList varsId
-  else Util.learn_vars_cores unsatVarsCores varsId
+  let unsatVarsCores = get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
+  if unsatVarsCores = [] then Util.learn_vars varsList varsIntvsMiniSATCodesMap
+  else Util.learn_vars_cores unsatVarsCores varsIntvsMiniSATCodesMap
   
   (*let varsPowerSet = gen_power_set varsList 1 (nVars - 1) in 
   let unsatCoreVars = get_unsatcore_vars_from_list boolExp currentIntv originalIntv varsPowerSet (limitedTime -. (Sys.time() -. startTime)) in

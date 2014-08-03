@@ -1,9 +1,9 @@
-# 1 "SmtLexer.mll"
+# 1 "LexerSmt.mll"
  
 open Lexing
-open SmtParser
+open ParserSmt
 
-# 7 "SmtLexer.ml"
+# 7 "LexerSmt.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base = 
    "\000\000\232\255\233\255\234\255\003\000\030\000\239\255\240\255\
@@ -525,139 +525,139 @@ let rec lex lexbuf =
 and __ocaml_lex_lex_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 10 "SmtLexer.mll"
+# 10 "LexerSmt.mll"
                     (  lex lexbuf )
-# 531 "SmtLexer.ml"
+# 531 "LexerSmt.ml"
 
   | 1 ->
-# 11 "SmtLexer.mll"
+# 11 "LexerSmt.mll"
            ( new_line lexbuf; lex lexbuf )
-# 536 "SmtLexer.ml"
+# 536 "LexerSmt.ml"
 
   | 2 ->
 let
-# 12 "SmtLexer.mll"
+# 12 "LexerSmt.mll"
                                         s
-# 542 "SmtLexer.ml"
+# 542 "LexerSmt.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 12 "SmtLexer.mll"
+# 12 "LexerSmt.mll"
                                           ( NUM s )
-# 546 "SmtLexer.ml"
+# 546 "LexerSmt.ml"
 
   | 3 ->
-# 13 "SmtLexer.mll"
+# 13 "LexerSmt.mll"
            ( AND )
-# 551 "SmtLexer.ml"
+# 551 "LexerSmt.ml"
 
   | 4 ->
-# 14 "SmtLexer.mll"
+# 14 "LexerSmt.mll"
         ( CONJ)
-# 556 "SmtLexer.ml"
+# 556 "LexerSmt.ml"
 
   | 5 ->
-# 15 "SmtLexer.mll"
+# 15 "LexerSmt.mll"
            ( OR )
-# 561 "SmtLexer.ml"
+# 561 "LexerSmt.ml"
 
   | 6 ->
-# 16 "SmtLexer.mll"
+# 16 "LexerSmt.mll"
            ( NOT )
-# 566 "SmtLexer.ml"
+# 566 "LexerSmt.ml"
 
   | 7 ->
-# 17 "SmtLexer.mll"
+# 17 "LexerSmt.mll"
            ( LET )
-# 571 "SmtLexer.ml"
+# 571 "LexerSmt.ml"
 
   | 8 ->
-# 18 "SmtLexer.mll"
+# 18 "LexerSmt.mll"
              ( ASSERT )
-# 576 "SmtLexer.ml"
+# 576 "LexerSmt.ml"
 
   | 9 ->
 let
-# 19 "SmtLexer.mll"
+# 19 "LexerSmt.mll"
                           s
-# 582 "SmtLexer.ml"
+# 582 "LexerSmt.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 19 "SmtLexer.mll"
+# 19 "LexerSmt.mll"
                             ( ID s )
-# 586 "SmtLexer.ml"
+# 586 "LexerSmt.ml"
 
   | 10 ->
 let
-# 20 "SmtLexer.mll"
+# 20 "LexerSmt.mll"
                        s
-# 592 "SmtLexer.ml"
+# 592 "LexerSmt.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 20 "SmtLexer.mll"
+# 20 "LexerSmt.mll"
                          (SUBVAR s)
-# 596 "SmtLexer.ml"
+# 596 "LexerSmt.ml"
 
   | 11 ->
-# 21 "SmtLexer.mll"
+# 21 "LexerSmt.mll"
            ( PLUS )
-# 601 "SmtLexer.ml"
+# 601 "LexerSmt.ml"
 
   | 12 ->
-# 22 "SmtLexer.mll"
+# 22 "LexerSmt.mll"
            ( MINUS )
-# 606 "SmtLexer.ml"
+# 606 "LexerSmt.ml"
 
   | 13 ->
-# 23 "SmtLexer.mll"
+# 23 "LexerSmt.mll"
            ( TIMES )
-# 611 "SmtLexer.ml"
+# 611 "LexerSmt.ml"
 
   | 14 ->
-# 24 "SmtLexer.mll"
+# 24 "LexerSmt.mll"
            ( DIV )
-# 616 "SmtLexer.ml"
+# 616 "LexerSmt.ml"
 
   | 15 ->
-# 25 "SmtLexer.mll"
+# 25 "LexerSmt.mll"
            ( POWER )
-# 621 "SmtLexer.ml"
+# 621 "LexerSmt.ml"
 
   | 16 ->
-# 26 "SmtLexer.mll"
+# 26 "LexerSmt.mll"
            ( EQ )
-# 626 "SmtLexer.ml"
+# 626 "LexerSmt.ml"
 
   | 17 ->
-# 27 "SmtLexer.mll"
+# 27 "LexerSmt.mll"
            ( GEQ )
-# 631 "SmtLexer.ml"
+# 631 "LexerSmt.ml"
 
   | 18 ->
-# 28 "SmtLexer.mll"
+# 28 "LexerSmt.mll"
            ( LEQ )
-# 636 "SmtLexer.ml"
+# 636 "LexerSmt.ml"
 
   | 19 ->
-# 29 "SmtLexer.mll"
+# 29 "LexerSmt.mll"
            ( GR  )
-# 641 "SmtLexer.ml"
+# 641 "LexerSmt.ml"
 
   | 20 ->
-# 30 "SmtLexer.mll"
+# 30 "LexerSmt.mll"
            ( LE  )
-# 646 "SmtLexer.ml"
+# 646 "LexerSmt.ml"
 
   | 21 ->
-# 31 "SmtLexer.mll"
+# 31 "LexerSmt.mll"
            ( LPAREN )
-# 651 "SmtLexer.ml"
+# 651 "LexerSmt.ml"
 
   | 22 ->
-# 32 "SmtLexer.mll"
+# 32 "LexerSmt.mll"
            ( RPAREN )
-# 656 "SmtLexer.ml"
+# 656 "LexerSmt.ml"
 
   | 23 ->
-# 33 "SmtLexer.mll"
+# 33 "LexerSmt.mll"
            ( EOF )
-# 661 "SmtLexer.ml"
+# 661 "LexerSmt.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_lex_rec lexbuf __ocaml_lex_state
 

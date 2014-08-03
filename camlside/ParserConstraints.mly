@@ -1,6 +1,7 @@
 %{
 open Parsing
 open Ast
+open PolynomialConstraint
 %}
 
 %token EOF
@@ -10,9 +11,6 @@ open Ast
 %token PLUS MINUS TIMES POWER
 %token ASSERT
 %token AND OR
-
-%token IC
-%token IN
 
 %token EQ GEQ LEQ GR LE
 
@@ -26,8 +24,6 @@ open Ast
 %left AND
 %left OR
 
-%left IC
-%left IN
 
 %left EQ
 %left GEQ
@@ -35,7 +31,7 @@ open Ast
 %left GR
 %left LE
 
-%type <Ast.formula> main
+%type <PolynomialConstraint.constraints> main
 %start main
 
 %%
@@ -44,39 +40,38 @@ main:
   | f_expr EOF { $1 }
 
 f_expr:
-  | ASSERT bool_expr             { Ass $2 }    
-  | intv_expr                    { Intv $1 }
+  | ASSERT polynomialConstraints { $2 }   
   | LPAREN f_expr RPAREN         { $2 }
 
-bool_expr:
+polynomialConstraints:
   | EQ poly_expr NUM             { 
                                    let number = float_of_string $3 in
-                                   if number = 0. then Eq  $2 
-                                   else Eq (Sub($2, Real number))
+                                   if number = 0. then Single (new polynomialConstraint (Eq $2))
+                                   else Single (new polynomialConstraint (Eq (Sub($2, Real number))))
                                  }
   | GEQ poly_expr NUM            { 
                                    let number = float_of_string $3 in
-                                   if number = 0. then Geq  $2 
-                                   else Geq (Sub($2, Real number))
+                                   if number = 0. then Single (new polynomialConstraint (Geq  $2))
+                                   else Single (new polynomialConstraint (Geq (Sub($2, Real number))))
                                  }
   | LEQ poly_expr NUM            { 
                                    let number = float_of_string $3 in
-                                   if number = 0. then Leq  $2 
-                                   else Leq (Sub($2, Real number))
+                                   if number = 0. then Single (new polynomialConstraint(Leq  $2))
+                                   else Single (new polynomialConstraint(Leq (Sub($2, Real number))))
                                  }
   | GR poly_expr  NUM            { 
                                    let number = float_of_string $3 in
-                                   if number = 0. then Gr  $2 
-                                   else Gr (Sub($2, Real number))
+                                   if number = 0. then Single (new polynomialConstraint(Gr  $2))
+                                   else Single (new polynomialConstraint(Gr (Sub($2, Real number))))
                                  }
   | LE poly_expr  NUM            { 
                                    let number = float_of_string $3 in
-                                   if number = 0. then Le  $2 
-                                   else Le (Sub($2, Real number))
+                                   if number = 0. then Single (new polynomialConstraint(Le  $2))
+                                   else Single (new polynomialConstraint(Le (Sub($2, Real number))))
                                  }
-  | LPAREN bool_expr RPAREN      { $2 }
-  | AND bool_expr bool_expr      { And ($2, $3) }
-  | OR bool_expr bool_expr       { BOr ($2, $3) }
+  | LPAREN polynomialConstraints RPAREN      { $2 }
+  | AND polynomialConstraints polynomialConstraints      { And ($2, $3) }
+  | OR polynomialConstraints polynomialConstraints       { BOr ($2, $3) }
 
 poly_expr:
   | PLUS poly_expr poly_expr     { Add ($2, $3) }
@@ -86,14 +81,3 @@ poly_expr:
   | NUM                          { Real (float_of_string $1) }
   | ID                           { Var $1 }
   | LPAREN poly_expr RPAREN      { $2 }
-
-intv_expr:
-  | intv_clause                  { Cl $1 }
-  | IC intv_expr intv_expr       { Ic ($2, $3) }
-  | LPAREN intv_expr RPAREN      { $2 }
-  
-
-intv_clause: 
-  | ID IN NUM NUM  { In ($1, float_of_string $3, float_of_string $4)}
-  | OR intv_clause intv_clause   { Or ($2, $3) }
-  | LPAREN intv_clause RPAREN    { $2 }

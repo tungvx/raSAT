@@ -1,6 +1,6 @@
 {
 open Lexing
-open SmtParser
+open ParserSmt
 }
 
 let alpha = ['a'-'z' 'A'-'Z' '_']
@@ -15,7 +15,7 @@ rule lex = parse
   | "or"   { OR }
   | "not"  { NOT }
   | "let"  { LET }
-  | "assert" { ASSERT }
+  | "assert" { ASSERT }  
   | alpha (alpha|num)* as s { ID s }
   | '?'(alpha|num)* as s {SUBVAR s}
   | "+"    { PLUS }

@@ -14,7 +14,7 @@ type nil_expr =
   | AND of nil_expr * nil_expr 
 
 (* Read: get an SMT expression from a string *)
-let read s = SmtParser.main SmtLexer.lex (Lexing.from_string s)
+let read s = ParserSmt.main LexerSmt.lex (Lexing.from_string s)
 
 
 (* ---------------------------
@@ -863,21 +863,6 @@ let rec get_varsSet_boolExpr smtBoolExpr = match smtBoolExpr with
   | Not (e1) -> get_varsSet_boolExpr e1
 
 
-(* This function add information into each expression *)
-let rec add_info exprs = match exprs with
-  | [] -> []
-  | h::t -> 
-    let varsSet = get_varsSet_boolExpr h in
-    let varsNum = VariablesSet.cardinal varsSet in
-    (h, [], varsSet, varsNum) :: (add_info t)
-
-
-let sort_expr exprs =
-  let expressiveExprs = add_info exprs in
-  let sortedExpressiveExprs = List.fast_sort Util.compare_dependency expressiveExprs in
-  Util.extract_boolExps sortedExpressiveExprs
-
-
 let string_of_bounds bounds = match bounds with
   | [] -> ""
   | (var, lb, ub)::t -> var ^ " " ^ (string_of_float lb) ^ " " ^ (string_of_float ub) ^ " "
@@ -914,9 +899,7 @@ let genSmtForm sIntv sAssert ub =
   let eList = bool_toList expr in
   let simp_list = red_cons (red_list eList) in
   
-  (* sort the apis using variables dependency *)  
-  let sortedList = sort_expr simp_list in
-  let new_expr = list_toBool sortedList in
+  let new_expr = list_toBool simp_list in
 
   (*Get bound constraints of variables from assert expression eAss*)
   let bound_cons = remov_nil (getBound new_expr) in

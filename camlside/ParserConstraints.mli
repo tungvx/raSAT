@@ -11,8 +11,6 @@ type token =
   | ASSERT
   | AND
   | OR
-  | IC
-  | IN
   | EQ
   | GEQ
   | LEQ
@@ -20,4 +18,4 @@ type token =
   | LE
 
 val main :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.formula
+  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> PolynomialConstraint.constraints

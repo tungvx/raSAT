@@ -29,11 +29,9 @@ value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia);
  * testingTime	: The current total time for testing.																		|
  * USTime		: the current total time for finding UnSAT core 															|
  * =========================================================================================================================|*/
-value caml_dynTest(char *sIntv, char* dIntv, char *sCons, char *sCheck, int ia,
+value caml_dynTest(value *intvInfo, value *miniSATCodesConstraintsMap, int nCons, char *sCheck, int ia,
 		double esl, char *sTestUS, double iaTime, double testingTime,
 		double USTime, double parsingTime, double decompositionTime, double remainingTime);
-
-int caml_getNumCons(char * sAss);
 int caml_InfCheck(char * sIntv, char* sAss);
 //double caml_divide(int a, int b);
 

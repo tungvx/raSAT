@@ -1,6 +1,6 @@
 {
 open Lexing
-open Parser
+open ParserConstraints
 }
 
 let alpha = ['a'-'z' 'A'-'Z' '_']
@@ -12,8 +12,6 @@ rule lex = parse
   | ('-'? num+ (['e''E'] ['+''-']? ['0'-'9']+)?) | ("inf") | ("-inf") as s { NUM s }
   | "and"  { AND }
   | "or"   { OR }
-  | "in"   { IN }
-  | "ic"   { IC }
   | "assert" { ASSERT }
   | alpha (alpha|num)* as s { ID s }
   | "+"    { PLUS }
