@@ -923,6 +923,8 @@ let rec decomp_reduce ass esl = match ass with
 
   (*Binary balance decomposition on intervals*)
   let dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite miniSATCodesVarsIntvsMap nextMiniSATCode polyCons maxDecomposedVarsNum esl remainingTime = 
+    (*print_endline ("Decomposing: " ^ polyCons#to_string_infix);
+    flush stdout;*)
     let startTime = Sys.time() in
     let varsSet = polyCons#get_varsSet in
     let not_smallIntv intv =
@@ -940,7 +942,11 @@ let rec decomp_reduce ass esl = match ass with
     let add_notSmallInterval var reducedVarsSet = 
       let (intv, miniSATCode) = StringMap.find var varsIntvsMiniSATCodesMap in
       if not_smallIntv intv then VariablesSet.add var reducedVarsSet
-      else reducedVarsSet
+      else (
+        (*print_endline ("small interval: " ^ var ^ ": [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "]");
+        flush stdout;*)
+        reducedVarsSet
+      )
     in
     let reducedVarsSet = VariablesSet.fold add_notSmallInterval varsSet VariablesSet.empty in
     if VariablesSet.is_empty reducedVarsSet then (*Stop decomposition*) 

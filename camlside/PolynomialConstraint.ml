@@ -58,6 +58,13 @@ class polynomialConstraint boolExprInit =
       
    (* get n-first variables by varsSen, the selected variables must be in the given set *)
     method get_n_varsSen_fromSet n varsSet = 
+      (*let rec string_of_varsSen varsSen = 
+        match varsSen with 
+          | [] -> ""
+          | (var, sen) :: t -> var ^ ": " ^ string_of_float sen ^ "\n" ^ string_of_varsSen t
+      in
+      print_endline (string_of_varsSen varsSen);
+      flush stdout;*)
       let rec get_n_first varsSen n = match varsSen with 
         | [] -> []
         | (var, sen) :: t ->
@@ -77,6 +84,8 @@ class polynomialConstraint boolExprInit =
       sat
       
     method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum = 
+      (*print_endline self#to_string_infix;
+      flush stdout;*)
       let neededVarsSet = VariablesSet.diff varsSet assignedVarsSet in
       let check_mem (var, sen) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
@@ -111,7 +120,7 @@ class polynomialConstraint boolExprInit =
 		  in
       let rec generateTCs_extra varsSen generatedTCs priorityNum = match varsSen with
         | [] -> (generatedTCs, priorityNum);
-        | (var, sen) :: t -> 
+        | (var, sen) :: t ->
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           let (testcases, newPriorityNum) =
             if priorityNum > 0 then
