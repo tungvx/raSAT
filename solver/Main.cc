@@ -293,11 +293,12 @@ int main(int argc, char* argv[]) {
 	int ia = 2;
 
 	//bound for dynamic interval decomposition
+//	cout << "start getting esl" << endl;
 	double esl = 0.1;	//default searching box is 0.1
 	if (argc >= 4)
 		//esl = atof(argv[3]);
 		esl = getSearchingBox(argv[3]);
-	//cout <<endl<<"esl = "<<esl<<endl;
+//	cout <<"esl = "<<esl<<endl;
 
 	//get the timeout, Jan 14, 2014
 	double timeout = 60.0; //default timeout = 60 seconds
@@ -545,11 +546,11 @@ int main(int argc, char* argv[]) {
 				if (maxClauses < S.nClauses())
 					maxClauses = S.nClauses();
 				double miniSATStart = cpuTime();
-				//cout << "Run41" << endl;
+//				cout << "Run41" << endl;
 				S.model.clear(true);
-				//cout << "Run42" << endl;
+//				cout << "Run42" << endl;
 				ret = S.solveLimited(dummy);
-				//cout << "Run43" << endl;	
+//				cout << "Run43" << endl;	
 				if (ret != l_True) {
 					check = false;
 				}
@@ -557,22 +558,27 @@ int main(int argc, char* argv[]) {
 				miniSATTime += cpuTime() - miniSATStart;
 
 				if (ret == l_True) {
-					//cout << "Run44" << endl;
+//					cout << "Run44" << endl;
 					int varsNum = S.nVars();
-					char sSAT[2 * varsNum + 1];
-					strcpy(sSAT, "");
-					//cout << "Run45" << endl;
+//					cout << "varsNum: " << varsNum << endl;
+//					cout << "Model size: " << S.model.size() << endl;
+//					cout << "start init sSAT of size: " << 2 * varsNum + 1 << endl;
+					string sSAT;
+//					cout << "Run45" << endl;
+					bool firstSolution = true;
 					for (int i = 0; i < S.nVars(); i++) {
-						if (S.model[i] != l_Undef) {
-							int c = (S.model[i] == l_True) ? i + 1 : -(i + 1);
-							if (c > 0) {
-								char numstr[21];
-								sprintf(numstr, "%s%d", (i == 0) ? "" : " ", c);
-								strcat(sSAT, numstr);
-							}
+						if (S.model[i] == l_True) {
+							char numstr[21];
+							sprintf(numstr, "%s%d", firstSolution ? "" : " ", i+1);
+							sSAT.append(numstr);
+//							ostringstream ss;
+//							ss << i+1;
+//							if (!firstSolution) sSAT.append(" ");
+//							sSAT.append(ss.str());
+							firstSolution = false;
 						}
 					}
-					//cout << "Run46" << endl;
+//					cout << "Run46" << endl;
 //					cout << "clauses: " << S.nClauses() << endl;
 					//theoCheck = caml_doTest (sIntv, sAss, sSAT, ia);
 					//cout << "dyndecom size: " << str_dIntv.size() << endl;
@@ -613,8 +619,8 @@ int main(int argc, char* argv[]) {
 //					cout << "START SEARCH:\n";
 //					cout << "Run49" << endl;
 					theoCheck = caml_dynTest(&intvInfo,
-							&miniSATCodesConstraintsMap, nCons, sSAT, ia, esl,
-							c_strTestUS, iaTime, testingTime, usTime,
+							&miniSATCodesConstraintsMap, nCons, sSAT.c_str(),
+							ia, esl, c_strTestUS, iaTime, testingTime, usTime,
 							parsingTime, decompositionTime,
 							timeout - (cpuTime() - initial_time));
 					delete[] c_dIntv;
@@ -760,7 +766,7 @@ int main(int argc, char* argv[]) {
 				sprintf(sta, "%s\nNumber of variables   : %d ", sta, nVars);
 
 				final_result << maxVarsNum << ","; // output the max number of variables in one api to final compact result.
-				
+
 				final_result << nCons << ","; // output the number of apis to final compact result.
 				sprintf(sta, "%s\nNumber of constraints : %d ", sta, nCons);
 				sprintf(sta, "%s\nUnit searching box    : %g", sta, esl);
