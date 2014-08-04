@@ -1370,7 +1370,7 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
                   (*print_endline "decomposing";
                   print_endline(bool_expr_list_to_infix_string decomposedExpr);
                   flush stdout;*)
-                  let maxDecomposedVarsNum = 1 in (* only $maxDecomposedVarsNum are allowed to decomposed, the priority is based on sensitivity *)
+                  let maxDecomposedVarsNum = 2 in (* only $maxDecomposedVarsNum are allowed to decomposed, the priority is based on sensitivity *)
                   let ((miniSATCodesVarsIntvsMap, nextMiniSATCode), sLearn, bump_vars, isDecomp) = 
                     (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
                     (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID nextMiniSATCode esl in
