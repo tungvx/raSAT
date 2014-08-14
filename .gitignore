@@ -44,3 +44,7 @@ solver/raSAT
 *.zip
 *.gz
 *.smt2
+
+# latex files.
+*.synctex.gz
+*.aux
