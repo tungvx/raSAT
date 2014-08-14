@@ -1,0 +1,324 @@
+
+
+
+\documentclass[12pt]{article}
+\usepackage{bussproofs}
+\usepackage{amssymb}
+\usepackage{latexsym}
+
+% This is the "centered" symbol
+\def\fCenter{{\mbox{\Large$\rightarrow$}}}
+
+% Optional to turn on the short abbreviations
+\EnableBpAbbreviations
+
+% \alwaysRootAtTop  % makes proofs upside down
+% \alwaysRootAtBottom % -- this is the default setting
+
+\begin{document}
+\thispagestyle{empty}
+
+When the {\tt bussproofs.sty} code was first written, the
+only documention for the {\tt bussproofs} style was in the
+comments at the beginning of the style file {\tt bussproofs.sty}.
+But recently (July 2004), Peter Smith has written an excellent
+exposition of {\tt bussproofs.sty}, presently available
+at
+\begin{center}
+\tt
+http://www.phil.cam.ac.uk/teaching\_staff/Smith/LaTeX/nd.html
+\end{center}
+
+The present document is
+a sample \LaTeX{} file that was created for testing
+purposes while writing the {\tt bussproofs} code and you might
+find that it useful as an example of how to
+use special features of the style.
+
+Author: Sam Buss \hspace*{1in} Email: {\tt sbuss@ucsd.edu}.
+\vspace*{0.25in}
+
+Here is some text.
+\begin{center}
+\Axiom$\Gamma^\prime\fCenter\Delta,A,A$
+\LeftLabel{Weakening}\RightLabel{}
+\UnaryInf$\lnot A,\Gamma^\prime \fCenter \Delta, A$
+\LeftLabel{.}\RightLabel{\small $\lor$:right}
+\UnaryInf$\lnot A,\lnot A,\Gamma^\prime \fCenter \Delta$
+\LeftLabel{eigenvariable $x$}\RightLabel{$\forall$:right}
+\UnaryInf$\Gamma \fCenter \Delta$
+\DisplayProof
+\end{center}
+Here is more text.
+\begin{prooftree}
+\alwaysDashedLine
+\alwaysDoubleLine
+\Axiom$\Delta\fCenter\Pi$
+\Axiom$\Gamma^\prime\fCenter\Delta,A$
+\dottedLine
+\singleLine
+\UnaryInf$\lnot A,\Gamma^\prime \fCenter \Delta$
+\UnaryInf$\lnot A,\lnot A,\Gamma^\prime \fCenter \Delta$
+\singleLine
+\UnaryInf$\Gamma \fCenter \Delta$
+\BinaryInf$\Gamma,\Pi,A \fCenter \Delta, \Delta,B$
+\Axiom$\fCenter\mbox{\rm Hi there}$
+\singleLine
+\BinaryInf$\Gamma\fCenter\Delta$
+\end{prooftree}
+\begin{center}
+\alwaysDoubleLine
+\AX$\Delta\fCenter\Pi$
+\AX$\Gamma^\prime\fCenter\Delta,A$
+\singleLine
+\UI$\lnot A,\Gamma^\prime \fCenter \Delta$
+\UI$\lnot A,\lnot A,\Gamma^\prime \fCenter \Delta$
+\singleLine
+\UI$\Gamma \fCenter \Delta$
+\LL{.}\RightLabel{$\lor$:left}
+\BI$\Gamma,\Pi,A \fCenter \Delta, \Delta,B$
+\AXC{Hi there}
+\singleLine
+\BI$\Gamma\fCenter\Delta$
+\DisplayProof
+\end{center}
+The above examples show `displayed' proofs.
+On the other hand,
+for putting proofs inline instead of displayed,
+it is also permissable to put proofs into text rather than into
+centered environments.  For example, one can write a proof right
+here:
+\centerAlignProof  %Which ever one of these is LAST sets the vertical alignment
+\bottomAlignProof  %Try commenting out all but one of these three lines.
+\normalAlignProof
+\Axiom$\Gamma^\prime\fCenter\Delta,A$
+\doubleLine
+\UnaryInf$\lnot A,\Gamma^\prime \fCenter \Delta$
+\UnaryInf$\lnot A,\lnot A,\Gamma^\prime \fCenter \Delta$
+\doubleLine
+\UnaryInf$\Gamma \fCenter \Delta$
+\Axiom$\Delta\fCenter\Pi$
+\kernHyps{-.5in}\insertBetweenHyps{\hskip-.25in}
+\BinaryInf$\Gamma,\Pi,A \fCenter \Delta, \Delta,B$
+\Axiom$\fCenter\mbox{\rm Hi there}$
+\doubleLine
+\BinaryInf$\Gamma\fCenter\Delta$
+\DisplayProof{}         %% NOTE THE USE OF "{}"
+although of course the proof is quite big compared to the text.
+There is no reason you could not add \verb+\subscriptstyle+ or \verb+\small+
+commands to the lines of the proofs to shrink things down.
+The previous proof looks strange because it is illustrated the usage
+of \verb+\kernHyps+ and \verb+\insertBetweenHyps+.  Finally
+a 3-ary inference with a usage of \verb+\noLine+ is:
+\begin{prooftree}
+\AxiomC{$A\lor B$}
+\AxiomC{$[A]$}
+\noLine
+\UnaryInfC{$C$}
+\AxiomC{$[B]$}
+\noLine
+\UnaryInfC{$C$}
+\TrinaryInfC{$C$}
+\end{prooftree}
+
+
+Two more examples:
+\begin{center}
+\AXC{$x_1+2x_2-3>0$} \AXC{$2(x_1-x_2)>0$} \BIC{$x_1-1 > 0$}
+\AXC{$4x_1+x_3<0$} \AXC{$x_1-x_3<0$} \BIC{$-x_1>0$}
+\BIC{$-1>0$}
+\DP
+Proof of conflict
+\end{center}
+
+\begin{center}
+\AXC{$x_1+2x_2-3>0$} \AXC{$2(x_1-x_2)>0$} \BIC{$x_1-1 > 0$}
+\AXC{$0 \le 0$} \AXC{$0 \le 0$} \BIC{$0 \ge 0$}
+\BIC{$x_1-1 > 0$}
+\DP \\
+Example of interpolant inference
+\end{center}
+
+
+\begin{center}
+\AXC{$\neg(x_1+2x_2-3>0) \lor \neg(x_1-x_2>0) \lor \neg(4x_1+x_3<0)\lor \neg(x_1-x_3<0) \lor a$} \AXC{$x_1+2x_2-3>0 \lor a$} \BIC{$\neg(x_1-x_2>0) \lor \neg(4x_1+x_3<0)\lor \neg(x_1-x_3<0) \lor a$}
+\AXC{$x_1-x_2>0 \lor b$}  \BIC{$ \lor \neg(4x_1+x_3<0)\lor \neg(x_1-x_3<0) \lor a \lor b$}
+\DP
+Resolution Proof $a \land \neg a \lor b \land \neg b \lor \top$
+\end{center}
+
+
+Small labels can be created as in the third proof below:
+\[
+\AxiomC{A}
+\RightLabel{1}
+\UnaryInfC{$\bot$}
+\DisplayProof
+\quad
+\AxiomC{A}
+\RightLabel{(2)}
+\UnaryInfC{$\bot$}
+\DisplayProof
+\quad
+\AxiomC{A}
+\RightLabel{\scriptsize(3)}
+\UnaryInfC{$\bot$}
+\DisplayProof
+\quad
+\AxiomC{A}
+\LeftLabel{(4)}
+\UnaryInfC{$\bot$}
+\DisplayProof
+\]
+Arnold's example of inline proof: The figure
+\AxiomC{$\dots\Gamma_\iota\dots(\iota\in I)$}
+\RightLabel{$I$}
+\UnaryInfC{$\Gamma$}
+\DisplayProof{}
+is called ...
+%% NOTE THE USE OF "{}" after \DisplayProof to keep LaTeX from eating subsequent spaces!
+
+\bigskip
+
+\noindent{\bf Upside down proofs}
+Proofs can be rendered upside down.  For instance the proof above with 
+a 3-ary inference can be made upside down by giving the command
+\verb+\rootAtTop+.   This is useful if you want your proof trees to have
+their root at the top.
+
+\alwaysRootAtTop    % Henceforth puts the root at the top
+
+\begin{prooftree}
+\AxiomC{$A\lor B$}
+\AxiomC{$[A]$}
+\noLine
+\UnaryInfC{$C$}
+\AxiomC{$[B]$}
+\noLine
+\UnaryInfC{$C$}
+\TrinaryInfC{$C$}
+\end{prooftree}
+
+To make the change permanent for the rest of your document, use the
+command  \verb+\alwaysRootAtTop+
+
+\bigskip
+
+\noindent
+Another upside-down example, from Alex Hertel:
+\bigskip
+
+\hbox{\kern-2cm%
+\tiny
+\rootAtTop
+\AxiomC{$= 1$}
+\noLine
+\UnaryInfC{$( ( (1 \wedge 1) \vee 0 ) \vee ( (0 \wedge 0) \vee 0 ) )$}
+\AxiomC{$= 1$}
+\noLine
+\UnaryInfC{$( ( (1 \wedge 1) \vee 1 ) \vee ( (0 \wedge 0) \vee 1 ) )$}
+\LeftLabel{$[0/z]$}
+\RightLabel{$[1/z]$}
+\BinaryInfC{$\forall z ( ( (1 \wedge 1) \vee z ) \vee ( (0 \wedge 0) \vee z ) )$}
+\RightLabel{$[0/y]$}
+\UnaryInfC{$\exists y \forall z ( ( (1 \wedge \neg y) \vee z ) \vee ( (0 \wedge y) \vee z ) )$}
+\RightLabel{$[0/y]$}
+\UnaryInfC{$\exists y \forall z ( ( (1 \wedge \neg y) \vee z ) \vee ( (0 \wedge y) \vee z ) )$}
+
+\AxiomC{$= 1$}
+\noLine
+\UnaryInfC{$( ( (0 \wedge 0) \vee 0 ) \vee ( (1 \wedge 1) \vee 0 ) )$}
+\AxiomC{$= 1$}
+\noLine
+\UnaryInfC{$( ( (0 \wedge 0) \vee 1 ) \vee ( (1 \wedge 1) \vee 1 ) )$}
+\LeftLabel{$[0/z]$}
+\RightLabel{$[1/z]$}
+\BinaryInfC{$\forall z ( ( (0 \wedge 0) \vee z ) \vee ( (1 \wedge 1) \vee z ) )$}
+\RightLabel{$[1/y]$}
+\UnaryInfC{$\exists y \forall z ( ( (0 \wedge \neg y) \vee z ) \vee ( (1 \wedge y) \vee z ) )$}
+
+\LeftLabel{$[0/x]$}
+\RightLabel{$[1/x]$}
+\BinaryInfC{$\forall x \exists y \forall z ( ( (\neg x \wedge \neg y) \vee z ) \vee ( (x \wedge y) \vee z ) )$}
+\DisplayProof
+}  % End of \hbox
+
+\bigskip
+
+
+\alwaysRootAtBottom
+Testing of quaternary and quinary inferences (a bit scrunched due a use of
+\verb+\insertBetweenHyps+):
+\begin{prooftree}
+\insertBetweenHyps{\hskip-1em}
+\AxiomC{$A^B$}
+\Axiom$A_B\fCenter A_{B_C}$
+\Axiom$A^B\fCenter A^{B^C}$
+\Axiom$A^{B^C}\fCenter A^{B^{C^D}}$
+\Axiom$A^{B^{C^D}}\fCenter A^{B^{C^{D^E}}}A^{B^{C^{D^E}}}$
+\QuinaryInf$X\fCenter XXXXX$
+\UnaryInf$YYYY\fCenter Y$
+\insertBetweenHyps{\hskip-1em}
+\Axiom$A^B\fCenter A^{B^C}$
+\Axiom$A^{B^C}\fCenter A^{B^{C^D}}$
+\Axiom$A^{B^{C^D}}\fCenter A^{B^{C^{D^E}}}A^{B^{C^{D^E}}}$
+\QuaternaryInf$X\fCenter XXXXX$
+\UnaryInf$YYYY\fCenter Y$
+\end{prooftree}
+
+\alwaysRootAtTop
+Testing of quaternary and quinary inferences (a bit scrunched due a use of
+\verb+\insertBetweenHyps+):
+\begin{prooftree}
+\insertBetweenHyps{\hskip-1em}
+\AxiomC{$A^B$}
+\Axiom$A_B\fCenter A_{B_C}$
+\Axiom$A^B\fCenter A^{B^C}$
+\Axiom$A^{B^C}\fCenter A^{B^{C^D}}$
+\Axiom$A^{B^{C^D}}\fCenter A^{B^{C^{D^E}}}A^{B^{C^{D^E}}}$
+\QuinaryInf$X\fCenter XXXXX$
+\UnaryInf$YYYY\fCenter Y$
+\insertBetweenHyps{\hskip-1em}
+\Axiom$A^B\fCenter A^{B^C}$
+\Axiom$A^{B^C}\fCenter A^{B^{C^D}}$
+\Axiom$A^{B^{C^D}}\fCenter A^{B^{C^{D^E}}}A^{B^{C^{D^E}}}$
+\QuaternaryInf$X\fCenter XXXXX$
+\UnaryInf$YYYY\fCenter Y$
+\end{prooftree}
+
+\begin{prooftree}
+\insertBetweenHyps{\hskip-1em}
+\Axiom$A^B\fCenter A^{B^C}$
+\Axiom$A^{B^C}\fCenter A^{B^{C^D}}$
+\Axiom$A^{B^{C^D}}\fCenter A^{B^{C^{D^E}}}A^{B^{C^{D^E}}}$
+\TrinaryInf$X\fCenter XXXXX$
+\end{prooftree}
+
+\begin{prooftree}
+\Axiom$A^{B^C}\fCenter A^{B^{C^D}}$
+\Axiom$A^{B^{C^D}}\fCenter A^{B^{C^{D^E}}}A^{B^{C^{D^E}}}$
+\BinaryInf$X\fCenter XXXXX$
+\end{prooftree}
+
+\newbox\gnBoxA
+\newdimen\gnCornerHgt
+\setbox\gnBoxA=\hbox{$\ulcorner$}
+\global\gnCornerHgt=\ht\gnBoxA
+\newdimen\gnArgHgt
+
+\def\Godelnum #1{%
+    \setbox\gnBoxA=\hbox{$#1$}%
+    \gnArgHgt=\ht\gnBoxA%
+    \ifnum \gnArgHgt<\gnCornerHgt
+        \gnArgHgt=0pt%
+    \else
+        \advance \gnArgHgt by -\gnCornerHgt%
+    \fi
+    \raise\gnArgHgt\hbox{$\ulcorner$} \box\gnBoxA %
+        \raise\gnArgHgt\hbox{$\urcorner$}}
+
+This last sentence has nothing to do with proof trees, but shows my
+macros for G\"odel number delimeters:
+$\Godelnum A, \Godelnum B$
+$\Godelnum s$
+\end{document}
