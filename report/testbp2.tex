@@ -139,6 +139,24 @@ Proof of conflict
 Example of interpolant inference
 \end{center}
 
+$x \in [0,1] \land y \in [0,10] \land z \in [0,1]$
+
+\begin{center}
+\AXC{$xz>1$} \AXC{$x \in [0, 1]$} \AXC{$z \in [0, 1]$} \BIC{$xz \in [0, 1]$} \BIC{$1<1$}
+\DP 
+\end{center}
+
+Interpolant: $\top$
+
+$x \in [1,10] \land y \in [0,10] \land z \in [0,1]$
+
+\begin{center}
+\AXC{$x^2+y^2<1$} \AXC{$y \in [0, 10]$} \UnaryInfC{$y^2 \in [0, 100]$} \BIC{$x^2 < 1$}
+\AXC{$x \in [1, 10]$} \UnaryInfC{$x^2 \in [1, 100]$} \BIC{$1<1$}
+\DP
+\end{center}
+
+Interpolant: $x^2 < 1$
 
 \begin{center}
 \AXC{$\neg(x_1+2x_2-3>0) \lor \neg(x_1-x_2>0) \lor \neg(4x_1+x_3<0)\lor \neg(x_1-x_3<0) \lor a$} \AXC{$x_1+2x_2-3>0 \lor a$} \BIC{$\neg(x_1-x_2>0) \lor \neg(4x_1+x_3<0)\lor \neg(x_1-x_3<0) \lor a$}
