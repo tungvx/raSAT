@@ -691,15 +691,15 @@ result;
      result;
     
     method extract_sortedVarsSens varsIndicesList = 
-      let rec insert_sort_varSen sortedVarsSensList (var, sen) =
+      let rec insert_sort_varSen sortedVarsSensList (var, sen, isPositiveSen) =
         match sortedVarsSensList with 
-          | [] -> [(var, sen)]
-          | (otherVar, otherSen) :: remainings -> 
-            if sen > otherSen then (var, sen) :: sortedVarsSensList
-            else if sen < otherSen then (otherVar, otherSen) :: (insert_sort_varSen remainings (var, sen))
+          | [] -> [(var, sen, isPositiveSen)]
+          | (otherVar, otherSen, otherIsPositiveSen) :: remainings -> 
+            if sen > otherSen then (var, sen, isPositiveSen) :: sortedVarsSensList
+            else if sen < otherSen then (otherVar, otherSen, otherIsPositiveSen) :: (insert_sort_varSen remainings (var, sen, isPositiveSen))
             else (* randomly sort them *)
-              if Random.bool () then (var, sen) :: sortedVarsSensList
-              else (otherVar, otherSen) :: (insert_sort_varSen remainings (var, sen))
+              if Random.bool () then (var, sen, isPositiveSen) :: sortedVarsSensList
+              else (otherVar, otherSen, otherIsPositiveSen) :: (insert_sort_varSen remainings (var, sen, isPositiveSen))
       in
       let rec rec_extract_varsSen varsIndicesList sortedSensVarsList = 
         match varsIndicesList with
@@ -708,10 +708,13 @@ result;
             (*print_endline ("Start getting sen at: " ^ string_of_int index);
             flush stdout;*)
             let varSen = Array.get ar index in
-            (*print_endline ("Got: " ^ string_of_float varSen);
+            (*print_string (var ^ ": " ^ string_of_float varSen ^ " ");
             flush stdout;*)
             let positiveVarSen = abs_float varSen in
-            let newSortedVarsSensList = insert_sort_varSen sortedSensVarsList (var, positiveVarSen) in
+            let isPositiveSen = varSen > 0. in
+            (*print_string (string_of_bool isPositiveSen);
+            flush stdout;*)
+            let newSortedVarsSensList = insert_sort_varSen sortedSensVarsList (var, positiveVarSen, isPositiveSen) in
             rec_extract_varsSen remaining newSortedVarsSensList
       in
       (*let add_string_of_varSen oldString (var, sen) = 

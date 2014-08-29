@@ -6,6 +6,14 @@ open Variable
 (* Class for storing informations of a constraint *)
 class polynomialConstraint boolExprInit =
   let varsSetInit = get_vars_set_boolExpr boolExprInit in
+  let isPositiveDirected = 
+    match boolExprInit with
+    | Eq _ -> false
+    | Geq _ -> true
+    | Leq _ -> false
+    | Gr _ -> true
+    | Le _ -> false
+  in
   let varsNumInit = VariablesSet.cardinal varsSetInit in
   let varsListInit = VariablesSet.elements varsSetInit in
   object (self)
@@ -13,7 +21,7 @@ class polynomialConstraint boolExprInit =
     val varsSet = varsSetInit
     val varsNum = varsNumInit
     val varsList = varsListInit
-    val mutable varsSen = ([]:(string * float) list) (* varsSen is always sorted *)
+    val mutable varsSen = ([]:(string * float * bool) list) (* varsSen is always sorted *)
     val mutable miniSATCode = 0
     method get_constraint = boolExpr
     
@@ -26,6 +34,8 @@ class polynomialConstraint boolExprInit =
     
     method get_miniSATCode = miniSATCode
     method set_miniSATCode code = miniSATCode <- code
+    
+    method isPositiveDirected = isPositiveDirected
     
     (* convert the constraint into infix string *)
     method to_string_infix = string_infix_of_boolExp boolExpr
@@ -41,7 +51,10 @@ class polynomialConstraint boolExprInit =
     method check_sat_af_two_ci (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
         
     (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
-    method check_sat_af_two_ci_varsSens (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
+    method check_sat_af_two_ci_varsSens (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = 
+      let (sat, sortedVarsSen) = check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMiniSATCodesMap in
+      varsSen <- sortedVarsSen;
+      sat
     
     (* get length of SAT by af2 and ci *)
     method check_sat_get_satLength (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_get_satLength_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
@@ -50,7 +63,7 @@ class polynomialConstraint boolExprInit =
     method get_n_varsSen n = 
       let rec get_n_first varsSen n = match varsSen with 
         | [] -> []
-        | (var, sen) :: t ->
+        | (var, sen, _) :: t ->
           if n >= 1 then var :: (get_n_first t (n - 1))
           else []
       in
@@ -67,9 +80,9 @@ class polynomialConstraint boolExprInit =
       flush stdout;*)
       let rec get_n_first varsSen n = match varsSen with 
         | [] -> []
-        | (var, sen) :: t ->
+        | (var, _, isPositiveSen) :: t ->
           if n >= 1 then 
-            if VariablesSet.mem var varsSet then var :: (get_n_first t (n - 1))
+            if VariablesSet.mem var varsSet then (var, isPositiveSen) :: (get_n_first t (n - 1))
             else get_n_first t n
           else []
       in
@@ -87,7 +100,7 @@ class polynomialConstraint boolExprInit =
       (*print_endline self#to_string_infix;
       flush stdout;*)
       let neededVarsSet = VariablesSet.diff varsSet assignedVarsSet in
-      let check_mem (var, sen) = VariablesSet.mem var neededVarsSet in
+      let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
       (* This function generates test cases for one variable *)
       let rec generate_tc_var interval tcNum isFirst =
@@ -120,7 +133,7 @@ class polynomialConstraint boolExprInit =
 		  in
       let rec generateTCs_extra varsSen generatedTCs priorityNum = match varsSen with
         | [] -> (generatedTCs, priorityNum);
-        | (var, sen) :: t ->
+        | (var, _, _) :: t ->
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           let (testcases, newPriorityNum) =
             if priorityNum > 0 then

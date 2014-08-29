@@ -716,7 +716,7 @@ int main(int argc, char* argv[]) {
 						//cout << endl << "Bumping activity of variables: "
 						//		<< bump_vars << endl;
 						//solver_bumping(S, bump_vars);
-						//cout << "finish bump" << endl;
+//						cout << "finish bump" << endl;
 						//cout << S.nVars() << endl;
 						addLitListToVector(dummy, bump_vars);
 					} else { // adding unsat reason to solver

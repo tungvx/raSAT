@@ -384,6 +384,8 @@ let poly_eval_ci polyExpr varsIntvsMiniSATCodesMap =
 (*evaluate the bound of poly expression by type of interval arithmetic*)						     
 let poly_eval e varsSet ia intv = 
   let rec get_interval var (intvMap, intvList) =
+
+
     let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
     (intvMap, (var, intv)::intvList)
   in
@@ -431,6 +433,8 @@ let poly_eval e varsSet ia intv =
 
 (* Check whether an expression e is satisfiable or not provided the over-approximation of sides *)
 let check_sat_providedBounds boolExp bound = 
+  (*print_endline ("Bounds: " ^ string_of_float bound#l ^ " " ^ string_of_float bound#h);
+  flush stdout;*)
   match boolExp with
   |Eq e -> 
     if (bound#l = bound#h && bound#h = 0.) then 1
@@ -516,12 +520,12 @@ let check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMini
   (*print_endline ("Start checking using af2\n");
   flush stdout;*)
   let (afTwoBound, varsSens)  = poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMiniSATCodesMap in
-  (*let print_var_sen (var, sen) = 
+  (*let print_var_sen (var, sen, isPositiveSen) = 
     print_endline (var ^ ": " ^ string_of_float sen ^ " ");
     flush stdout;
   in
-  List.iter print_var_sen varsSens;*)
-  flush stdout;
+  List.iter print_var_sen varsSens;
+  flush stdout;*)
   let sat = check_sat_providedBounds boolExpr afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)

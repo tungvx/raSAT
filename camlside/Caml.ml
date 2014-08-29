@@ -934,10 +934,10 @@ let rec decomp_reduce ass esl = match ass with
         false
       else if upperBound = infinity && lowerBound > (round_off (max_float -. esl) 5) then
         false
-      else if (upperBound > (round_off (esl +. lowerBound) 5)) then 
-        true
-      else
+      else if upperBound <= esl +. lowerBound then 
         false
+      else
+        true
     in
     let add_notSmallInterval var reducedVarsSet = 
       let (intv, miniSATCode) = StringMap.find var varsIntvsMiniSATCodesMap in
@@ -957,9 +957,7 @@ let rec decomp_reduce ass esl = match ass with
       let learntClauses = VariablesSet.fold add_learnt_var varsSet "0" in
       ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false)
     else (*Continue decomposition*)
-      let decompose_var var (intv, varId) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
-        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "]");
-        flush stdout;*)
+      let decompose_var var ((intv, varId), isPositiveSen) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
         let lowerBound = intv#l in
         let upperBound = intv#h in
         let newPoint = 
@@ -968,12 +966,16 @@ let rec decomp_reduce ass esl = match ass with
             else upperBound -. 10.
           else 
             if upperBound = infinity then lowerBound +. 10. 
-            else 0.5 *. lowerBound +. 0.5 *. upperBound
+            else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
+              if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl
+              else lowerBound +. esl
         in
+        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
+        flush stdout;*)
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
         let (bumpVar, unsatCore) =
-          (* Compute the SAT length of lower interval by IA *)
+          (*(* Compute the SAT length of lower interval by IA *)
           let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
           (*print_endline "Start Computing for lower interval";
           flush stdout;*)
@@ -1011,7 +1013,9 @@ let rec decomp_reduce ass esl = match ass with
             else if lowerSatLength > upperSatLength then (nextMiniSATCode, "")
             else 
               if Random.bool() then (nextMiniSATCode + 1, "")
-              else (nextMiniSATCode, "")
+              else (nextMiniSATCode, "")*)
+          if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
+          else (nextMiniSATCode, "")
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
@@ -1031,12 +1035,12 @@ let rec decomp_reduce ass esl = match ass with
         ((miniSATCodesVarsIntvsMap, nextMiniSATCode+2),learntClauses ^  newLearntClauses, bumpedVars ^ string_of_int bumpVar ^ " ", true)
       in
       let decomposedVarsList = polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum reducedVarsSet in
-      let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesMap var = 
+      let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, isPositiveSen) = 
         let intvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in
-        StringMap.add var intvMiniSATCode currentVarsIntvsMiniSATCodesMap
+        StringMap.add var (intvMiniSATCode, isPositiveSen) currentVarsIntvsMiniSATCodesIsPositiveSenMap
       in
-      let decomposedVarsIntvsMiniSATCodesMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
-      StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesMap ((miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", true)
+      let decomposedVarsIntvsMiniSATCodesIsPositiveMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
+      StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesIsPositiveMap ((miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", true)
 
 (* 
  (*============= UNSAT Cores Analysis ===============*)
@@ -1198,8 +1202,8 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
       print_endline (h#to_string_infix);*)
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
-      let (res1, sortedVarsSens) = 
-        if isInfinite then (h#check_sat_ci varsIntvsMiniSATCodesMap, []) (* We only use CI for infinity bounds *)
+      let res1 = 
+        if isInfinite then h#check_sat_ci varsIntvsMiniSATCodesMap (* We only use CI for infinity bounds *)
         else h#check_sat_af_two_ci_varsSens varsIntvsMiniSATCodesMap 
       in
       (*print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
@@ -1238,7 +1242,6 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
         if res = -1 then
           eval_all (-1) us [] t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
         else (
-          h#set_varsSen sortedVarsSens;
           eval_all 0 us (h::uk_cl) t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime isInfinite (remainingTime -. Sys.time() +. startTime)
         )
       )
