@@ -131,8 +131,14 @@ class polynomialConstraint boolExprInit =
 		          else baseNum +. randomNum 
 		        in*)
 		        let tc =
-		          if isPositiveSen = isPositiveDirected then upperBound
-		          else lowerBound
+		          if isFirst then 
+		            if isPositiveSen = isPositiveDirected then upperBound
+		            else lowerBound
+		          else 
+		            let bound = upperBound -. lowerBound in
+		            Random.self_init();
+		            let randomNum = Random.float bound in (* random number from 0 to bound *)
+			          lowerBound +. randomNum
 		        in
 		        tc :: (generate_tc_var interval (tcNum - 1) false isPositiveSen)
 		  in
@@ -144,9 +150,9 @@ class polynomialConstraint boolExprInit =
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           let (testcases, newPriorityNum) =
             if priorityNum > 0 then
-               (generate_tc_var interval 1 false isPositiveSen, priorityNum - 1)
+               (generate_tc_var interval 2 true isPositiveSen, priorityNum - 1)
             else 
-              (generate_tc_var interval 1 false isPositiveSen, 0)
+              (generate_tc_var interval 1 true isPositiveSen, 0)
           in
           generateTCs_extra t ((var, testcases)::generatedTCs) newPriorityNum
       in
