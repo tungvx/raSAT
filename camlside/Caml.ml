@@ -957,7 +957,7 @@ let rec decomp_reduce ass esl = match ass with
       let learntClauses = VariablesSet.fold add_learnt_var varsSet "0" in
       ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false)
     else (*Continue decomposition*)
-      let decompose_var var ((intv, varId), isPositiveSen) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
+      let decompose_var var ((intv, varId), varSen, isPositiveSen) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
         let lowerBound = intv#l in
         let upperBound = intv#h in
         let newPoint = 
@@ -967,8 +967,15 @@ let rec decomp_reduce ass esl = match ass with
           else 
             if upperBound = infinity then lowerBound +. 10. 
             else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
-              if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl
-              else lowerBound +. esl
+              let middlePoint = 0.5 *. lowerBound +. 0.5 *. upperBound in
+              let satLength = polyCons#get_satLength in
+              let varChange = middlePoint *. satLength /. varSen in
+              if lowerBound +. varChange < upperBound then (
+                (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with change: " ^ string_of_float varChange);
+                flush stdout;*)
+                if isPositiveSen = polyCons#isPositiveDirected then upperBound -. varChange
+                else lowerBound +. varChange )
+              else middlePoint
         in
         (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
         flush stdout;*)
@@ -1035,9 +1042,9 @@ let rec decomp_reduce ass esl = match ass with
         ((miniSATCodesVarsIntvsMap, nextMiniSATCode+2),learntClauses ^  newLearntClauses, bumpedVars ^ string_of_int bumpVar ^ " ", true)
       in
       let decomposedVarsList = polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum reducedVarsSet in
-      let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, isPositiveSen) = 
+      let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
         let intvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in
-        StringMap.add var (intvMiniSATCode, isPositiveSen) currentVarsIntvsMiniSATCodesIsPositiveSenMap
+        StringMap.add var (intvMiniSATCode, varSen, isPositiveSen) currentVarsIntvsMiniSATCodesIsPositiveSenMap
       in
       let decomposedVarsIntvsMiniSATCodesIsPositiveMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
       StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesIsPositiveMap ((miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", true)
@@ -1198,8 +1205,8 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
    |[] -> (res, us, uk_cl, iaTime, usTime)
    |h::t -> 
       let startTime = Sys.time() in
-      (*print_string "Start check sat: ";
-      print_endline (h#to_string_infix);*)
+      (*print_endline ("Start check sat: " ^ h#to_string_infix);
+      flush stdout;*)
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
       let res1 = 

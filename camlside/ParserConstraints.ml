@@ -18,12 +18,13 @@ type token =
   | LE
 
 open Parsing;;
+let _ = parse_error;;
 # 1 "ParserConstraints.mly"
 
 open Parsing
 open Ast
 open PolynomialConstraint
-# 27 "ParserConstraints.ml"
+# 28 "ParserConstraints.ml"
 let yytransl_const = [|
     0 (* EOF *);
   259 (* LPAREN *);
@@ -137,21 +138,21 @@ let yyact = [|
     Obj.repr(
 # 40 "ParserConstraints.mly"
                ( _1 )
-# 141 "ParserConstraints.ml"
+# 142 "ParserConstraints.ml"
                : PolynomialConstraint.constraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'polynomialConstraints) in
     Obj.repr(
 # 43 "ParserConstraints.mly"
                                  ( _2 )
-# 148 "ParserConstraints.ml"
+# 149 "ParserConstraints.ml"
                : 'f_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'f_expr) in
     Obj.repr(
 # 44 "ParserConstraints.mly"
                                  ( _2 )
-# 155 "ParserConstraints.ml"
+# 156 "ParserConstraints.ml"
                : 'f_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -163,7 +164,7 @@ let yyact = [|
                                    if number = 0. then Single (new polynomialConstraint (Eq _2))
                                    else Single (new polynomialConstraint (Eq (Sub(_2, Real number))))
                                  )
-# 167 "ParserConstraints.ml"
+# 168 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -175,7 +176,7 @@ let yyact = [|
                                    if number = 0. then Single (new polynomialConstraint (Geq  _2))
                                    else Single (new polynomialConstraint (Geq (Sub(_2, Real number))))
                                  )
-# 179 "ParserConstraints.ml"
+# 180 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -187,7 +188,7 @@ let yyact = [|
                                    if number = 0. then Single (new polynomialConstraint(Leq  _2))
                                    else Single (new polynomialConstraint(Leq (Sub(_2, Real number))))
                                  )
-# 191 "ParserConstraints.ml"
+# 192 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -199,7 +200,7 @@ let yyact = [|
                                    if number = 0. then Single (new polynomialConstraint(Gr  _2))
                                    else Single (new polynomialConstraint(Gr (Sub(_2, Real number))))
                                  )
-# 203 "ParserConstraints.ml"
+# 204 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -211,14 +212,14 @@ let yyact = [|
                                    if number = 0. then Single (new polynomialConstraint(Le  _2))
                                    else Single (new polynomialConstraint(Le (Sub(_2, Real number))))
                                  )
-# 215 "ParserConstraints.ml"
+# 216 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'polynomialConstraints) in
     Obj.repr(
 # 72 "ParserConstraints.mly"
                                              ( _2 )
-# 222 "ParserConstraints.ml"
+# 223 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'polynomialConstraints) in
@@ -226,7 +227,7 @@ let yyact = [|
     Obj.repr(
 # 73 "ParserConstraints.mly"
                                                          ( And (_2, _3) )
-# 230 "ParserConstraints.ml"
+# 231 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'polynomialConstraints) in
@@ -234,7 +235,7 @@ let yyact = [|
     Obj.repr(
 # 74 "ParserConstraints.mly"
                                                          ( BOr (_2, _3) )
-# 238 "ParserConstraints.ml"
+# 239 "ParserConstraints.ml"
                : 'polynomialConstraints))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -242,7 +243,7 @@ let yyact = [|
     Obj.repr(
 # 77 "ParserConstraints.mly"
                                  ( Add (_2, _3) )
-# 246 "ParserConstraints.ml"
+# 247 "ParserConstraints.ml"
                : 'poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -250,7 +251,7 @@ let yyact = [|
     Obj.repr(
 # 78 "ParserConstraints.mly"
                                  ( Sub (_2, _3) )
-# 254 "ParserConstraints.ml"
+# 255 "ParserConstraints.ml"
                : 'poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -258,7 +259,7 @@ let yyact = [|
     Obj.repr(
 # 79 "ParserConstraints.mly"
                                  ( Mul (_2, _3) )
-# 262 "ParserConstraints.ml"
+# 263 "ParserConstraints.ml"
                : 'poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
@@ -266,28 +267,28 @@ let yyact = [|
     Obj.repr(
 # 80 "ParserConstraints.mly"
                                  ( Pow (_2, int_of_string _3) )
-# 270 "ParserConstraints.ml"
+# 271 "ParserConstraints.ml"
                : 'poly_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
 # 81 "ParserConstraints.mly"
                                  ( Real (float_of_string _1) )
-# 277 "ParserConstraints.ml"
+# 278 "ParserConstraints.ml"
                : 'poly_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
 # 82 "ParserConstraints.mly"
                                  ( Var _1 )
-# 284 "ParserConstraints.ml"
+# 285 "ParserConstraints.ml"
                : 'poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'poly_expr) in
     Obj.repr(
 # 83 "ParserConstraints.mly"
                                  ( _2 )
-# 291 "ParserConstraints.ml"
+# 292 "ParserConstraints.ml"
                : 'poly_expr))
 (* Entry main *)
 ; (fun __caml_parser_env -> raise (Parsing.YYexit (Parsing.peek_val __caml_parser_env 0)))

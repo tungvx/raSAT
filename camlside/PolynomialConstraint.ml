@@ -23,6 +23,7 @@ class polynomialConstraint boolExprInit =
     val varsList = varsListInit
     val mutable varsSen = ([]:(string * float * bool) list) (* varsSen is always sorted *)
     val mutable miniSATCode = 0
+    val mutable satLength = 0. 
     method get_constraint = boolExpr
     
     method get_varsSet = varsSet
@@ -34,6 +35,8 @@ class polynomialConstraint boolExprInit =
     
     method get_miniSATCode = miniSATCode
     method set_miniSATCode code = miniSATCode <- code
+    
+    method get_satLength = satLength
     
     method isPositiveDirected = isPositiveDirected
     
@@ -52,8 +55,9 @@ class polynomialConstraint boolExprInit =
         
     (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
     method check_sat_af_two_ci_varsSens (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = 
-      let (sat, sortedVarsSen) = check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMiniSATCodesMap in
+      let (sat, computedSatLength, sortedVarsSen) = check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMiniSATCodesMap in
       varsSen <- sortedVarsSen;
+      satLength <- computedSatLength;
       sat
     
     (* get length of SAT by af2 and ci *)
@@ -74,15 +78,15 @@ class polynomialConstraint boolExprInit =
       (*let rec string_of_varsSen varsSen = 
         match varsSen with 
           | [] -> ""
-          | (var, sen) :: t -> var ^ ": " ^ string_of_float sen ^ "\n" ^ string_of_varsSen t
+          | (var, sen, _) :: t -> var ^ ": " ^ string_of_float sen ^ "\n" ^ string_of_varsSen t
       in
       print_endline (string_of_varsSen varsSen);
       flush stdout;*)
       let rec get_n_first varsSen n = match varsSen with 
         | [] -> []
-        | (var, _, isPositiveSen) :: t ->
+        | (var, varSen, isPositiveSen) :: t ->
           if n >= 1 then 
-            if VariablesSet.mem var varsSet then (var, isPositiveSen) :: (get_n_first t (n - 1))
+            if VariablesSet.mem var varsSet then (var, varSen, isPositiveSen) :: (get_n_first t (n - 1))
             else get_n_first t n
           else []
       in
@@ -131,7 +135,7 @@ class polynomialConstraint boolExprInit =
 		          else baseNum +. randomNum 
 		        in*)
 		        let tc =
-		          if isFirst then 
+		          if tcNum = 1 then 
 		            if isPositiveSen = isPositiveDirected then upperBound
 		            else lowerBound
 		          else 
@@ -150,7 +154,7 @@ class polynomialConstraint boolExprInit =
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           let (testcases, newPriorityNum) =
             if priorityNum > 0 then
-               (generate_tc_var interval 2 true isPositiveSen, priorityNum - 1)
+               (generate_tc_var interval 1 true isPositiveSen, priorityNum - 1)
             else 
               (generate_tc_var interval 1 true isPositiveSen, 0)
           in
