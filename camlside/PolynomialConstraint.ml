@@ -154,7 +154,7 @@ class polynomialConstraint boolExprInit =
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           let (testcases, newPriorityNum) =
             if priorityNum > 0 then
-               (generate_tc_var interval 1 true isPositiveSen, priorityNum - 1)
+               (generate_tc_var interval 2 true isPositiveSen, priorityNum - 1)
             else 
               (generate_tc_var interval 1 true isPositiveSen, 0)
           in
