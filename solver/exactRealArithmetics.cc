@@ -243,8 +243,8 @@ bool check(string expression, std::map<string, REAL> ass) {
  * check SAT of list of clauses (expressions) provided the assignments of variables.
  */
 bool checkSAT(char* clausesList, char* assignments) {
-	//cout << "ClausesList: " << clausesList << "\n";
-	//cout << "Assignments: " << assignments << "\n";
+//	cout << "ClausesList: " << clausesList << "\n";
+//	cout << "Assignments: " << assignments << "\n";
 // first, try to parse the assignments from the string and store them into a map for later uses.
 	std::map < string, REAL > ass;
 	std::vector < std::string > tokens = string_split(assignments, ' '); // extract list of tokens.
