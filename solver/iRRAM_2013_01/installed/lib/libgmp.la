@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/home/tungvx/raSAT/development_ver/raSAT/solver/iRRAM_2013_01/installed/lib'
+libdir='/home/tungvx/raSAT/solver/iRRAM_2013_01/installed/lib'

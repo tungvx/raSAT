@@ -1,17 +1,17 @@
 # Makefile for user_programs
 
-prefix=/home/tungvx/raSAT/development_ver/raSAT/solver/iRRAM_2013_01/installed
-exec_prefix=/home/tungvx/raSAT/development_ver/raSAT/solver/iRRAM_2013_01/installed
+prefix=/home/tungvx/raSAT/solver/iRRAM_2013_01/installed
+exec_prefix=/home/tungvx/raSAT/solver/iRRAM_2013_01/installed
 
 CC = gcc
 CFLAGS = -g -O2 -Wall -Wno-implicit -Wmissing-prototypes
 CPP = gcc -E
-CPPFLAGS =  -I/home/tungvx/raSAT/development_ver/raSAT/solver/iRRAM_2013_01/installed/include
+CPPFLAGS =  -I/home/tungvx/raSAT/solver/iRRAM_2013_01/installed/include
 CXX = g++
 CXXCPP = g++ -E
 CXXFLAGS = -g -O2 -Wall
-LDFLAGS = -Xlinker -rpath -Xlinker /home/tungvx/raSAT/development_ver/raSAT/solver/iRRAM_2013_01/installed/lib
-LDLIBS =  -L/home/tungvx/raSAT/development_ver/raSAT/solver/iRRAM_2013_01/installed/lib -liRRAM -lmpfr -lm -lgmp -lpthread
+LDFLAGS = -Xlinker -rpath -Xlinker /home/tungvx/raSAT/solver/iRRAM_2013_01/installed/lib
+LDLIBS =  -L/home/tungvx/raSAT/solver/iRRAM_2013_01/installed/lib -liRRAM -lmpfr -lm -lgmp -lpthread
 
 all:	euler e_example swanseatest-2 itsyst itsyst2 itsyst3 factorial \
         mp_extension pi_example rational_sep sinus probe \
