@@ -41,6 +41,7 @@ camlside/a
 solver/Test/bin/raSAT
 solver/Test/raSAT
 solver/raSAT
+solver/iRRAM_2013_01/
 *.zip
 *.gz
 *.smt2

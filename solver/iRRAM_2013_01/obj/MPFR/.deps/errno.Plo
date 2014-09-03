@@ -1,3 +1,0 @@
-errno.lo: errno.cc ../../include/iRRAM/errno.h
-
-../../include/iRRAM/errno.h:
