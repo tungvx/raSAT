@@ -1,6 +1,6 @@
 # Makefile for user_programs
 
-prefix=/home/tungvx/raSAT/development_ver/raSAT/solver/iRRAM_2013_01/installed
+prefix=/home/tungvx/raSAT/solver/iRRAM_2013_01/installed
 exec_prefix=${prefix}
 
 CC = gcc

@@ -967,15 +967,15 @@ let rec decomp_reduce ass esl = match ass with
           else 
             if upperBound = infinity then lowerBound +. 10. 
             else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
-              let middlePoint = 0.5 *. lowerBound +. 0.5 *. upperBound in
+              let noiseErrCoeff = 0.5 *. upperBound -. 0.5 *. lowerBound in
               let satLength = polyCons#get_satLength in
-              let varChange = middlePoint *. satLength /. varSen in
+              let varChange = noiseErrCoeff *. satLength /. varSen in
               if lowerBound +. varChange < upperBound then (
-                (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with change: " ^ string_of_float varChange);
-                flush stdout;*)
+                print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with change: " ^ string_of_float varChange);
+                flush stdout;
                 if isPositiveSen = polyCons#isPositiveDirected then upperBound -. varChange
                 else lowerBound +. varChange )
-              else middlePoint
+              else 0.5 *. upperBound +. 0.5 *. lowerBound
         in
         (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
         flush stdout;*)
