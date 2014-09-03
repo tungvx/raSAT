@@ -971,8 +971,8 @@ let rec decomp_reduce ass esl = match ass with
               let satLength = polyCons#get_satLength in
               let varChange = noiseErrCoeff *. satLength /. varSen in
               if lowerBound +. varChange < upperBound then (
-                (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with change: " ^ string_of_float varChange);
-                flush stdout;*)
+                print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with change: " ^ string_of_float varChange);
+                flush stdout;
                 if isPositiveSen = polyCons#isPositiveDirected then upperBound -. varChange
                 else lowerBound +. varChange )
               else 0.5 *. upperBound +. 0.5 *. lowerBound
