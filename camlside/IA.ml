@@ -708,8 +708,8 @@ result;
             (*print_endline ("Start getting sen at: " ^ string_of_int index);
             flush stdout;*)
             let varSen = Array.get ar index in
-            (*print_string (var ^ ": " ^ string_of_float varSen ^ " ");
-            flush stdout;*)
+            print_string (var ^ ": " ^ string_of_float varSen ^ " ");
+            flush stdout;
             let positiveVarSen = abs_float varSen in
             let isPositiveSen = varSen > 0. in
             (*print_string (string_of_bool isPositiveSen);

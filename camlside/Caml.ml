@@ -1304,8 +1304,8 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
 
     (*print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
     flush stdout;*)
-    (*print_endline (string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
-    flush stdout;*)
+    print_endline (string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
+    flush stdout;
     (*print_endline (intervals_toString originalIntv); (* intervals_toString is defined in Assignments.ml *)
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in
