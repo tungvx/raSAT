@@ -389,6 +389,7 @@ let poly_eval e varsSet ia intv =
 
 
 
+
     let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
     (intvMap, (var, intv)::intvList)
   in
