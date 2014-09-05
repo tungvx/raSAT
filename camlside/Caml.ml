@@ -985,46 +985,47 @@ let rec decomp_reduce ass esl = match ass with
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
         let (bumpVar, unsatCore) =
-          (*(* Compute the SAT length of lower interval by IA *)
-          let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
-          (*print_endline "Start Computing for lower interval";
-          flush stdout;*)
-          let (lowerSAT, lowerSatLength) = polyCons#check_sat_get_satLength lowerVarsIntvsMiniSATCodesMap in
-          (*print_endline ("Lower: " ^ string_of_int lowerSAT ^ " - " ^ string_of_float lowerSatLength);
-          flush stdout;*)
-          
-          (* Compute the SAT length of upper interval by IA *)
-          let upperVarsIntvsMiniSATCodesMap = StringMap.add var (upperIntv, nextMiniSATCode + 1) varsIntvsMiniSATCodesMap in
-          let (upperSAT, upperSatLength) = polyCons#check_sat_get_satLength upperVarsIntvsMiniSATCodesMap in
-          (*print_endline ("Upper: " ^ string_of_int upperSAT ^ " - " ^ string_of_float upperSatLength);
-          flush stdout;*)
-          
-          if lowerSAT = 1 then 
-            if upperSAT = 1 then 
-              if Random.bool () then (nextMiniSATCode, "")
-              else (nextMiniSATCode + 1, "")
-            else if upperSAT = 0 then (nextMiniSATCode, "")
+          if varSen = 0. then
+            (* Compute the SAT length of lower interval by IA *)
+            let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
+            (*print_endline "Start Computing for lower interval";
+            flush stdout;*)
+            let (lowerSAT, lowerSatLength) = polyCons#check_sat_get_satLength lowerVarsIntvsMiniSATCodesMap in
+            (*print_endline ("Lower: " ^ string_of_int lowerSAT ^ " - " ^ string_of_float lowerSatLength);
+            flush stdout;*)
+            
+            (* Compute the SAT length of upper interval by IA *)
+            let upperVarsIntvsMiniSATCodesMap = StringMap.add var (upperIntv, nextMiniSATCode + 1) varsIntvsMiniSATCodesMap in
+            let (upperSAT, upperSatLength) = polyCons#check_sat_get_satLength upperVarsIntvsMiniSATCodesMap in
+            (*print_endline ("Upper: " ^ string_of_int upperSAT ^ " - " ^ string_of_float upperSatLength);
+            flush stdout;*)
+            
+            if lowerSAT = 1 then 
+              if upperSAT = 1 then 
+                if Random.bool () then (nextMiniSATCode, "")
+                else (nextMiniSATCode + 1, "")
+              else if upperSAT = 0 then (nextMiniSATCode, "")
+              else 
+                let unsatCore = get_unsatcore_vars polyCons lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+                (nextMiniSATCode, unsatCore)
+            else if lowerSAT = -1 then 
+              let lowerUnsatCore = get_unsatcore_vars polyCons lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+              if upperSAT = -1 then 
+                let upperUnsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+                if Random.bool () then (nextMiniSATCode, lowerUnsatCore ^ "0 " ^ upperUnsatCore)
+                else (nextMiniSATCode + 1, lowerUnsatCore ^ "0 " ^ upperUnsatCore)
+              else (nextMiniSATCode + 1, lowerUnsatCore)
             else 
-              let unsatCore = get_unsatcore_vars polyCons lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
-              (nextMiniSATCode, unsatCore)
-          else if lowerSAT = -1 then 
-            let lowerUnsatCore = get_unsatcore_vars polyCons lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
-            if upperSAT = -1 then 
-              let upperUnsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
-              if Random.bool () then (nextMiniSATCode, lowerUnsatCore ^ "0 " ^ upperUnsatCore)
-              else (nextMiniSATCode + 1, lowerUnsatCore ^ "0 " ^ upperUnsatCore)
-            else (nextMiniSATCode + 1, lowerUnsatCore)
-          else 
-            if upperSAT = 1 then (nextMiniSATCode + 1, "")
-            else if upperSAT = -1 then (* UNSAT, we learn the intervals *) 
-              let unsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
-              (nextMiniSATCode, unsatCore)
-            else if lowerSatLength < upperSatLength then (nextMiniSATCode + 1, "")
-            else if lowerSatLength > upperSatLength then (nextMiniSATCode, "")
-            else 
-              if Random.bool() then (nextMiniSATCode + 1, "")
-              else (nextMiniSATCode, "")*)
-          if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
+              if upperSAT = 1 then (nextMiniSATCode + 1, "")
+              else if upperSAT = -1 then (* UNSAT, we learn the intervals *) 
+                let unsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (remainingTime -. Sys.time() +. startTime) in
+                (nextMiniSATCode, unsatCore)
+              else if lowerSatLength < upperSatLength then (nextMiniSATCode + 1, "")
+              else if lowerSatLength > upperSatLength then (nextMiniSATCode, "")
+              else 
+                if Random.bool() then (nextMiniSATCode + 1, "")
+                else (nextMiniSATCode, "")
+          else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
           else (nextMiniSATCode, "")
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
