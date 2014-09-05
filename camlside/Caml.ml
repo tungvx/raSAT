@@ -967,7 +967,8 @@ let rec decomp_reduce ass esl = match ass with
           else 
             if upperBound = infinity then lowerBound +. 10. 
             else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
-              if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl
+              if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
+              else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl
               else lowerBound +. esl
               (*let noiseErrCoeff = 0.5 *. upperBound -. 0.5 *. lowerBound in
               let satLength = polyCons#get_satLength in
@@ -979,8 +980,8 @@ let rec decomp_reduce ass esl = match ass with
                 else lowerBound +. varChange )
               else 0.5 *. upperBound +. 0.5 *. lowerBound*)
         in
-        print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;
+        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
+        flush stdout;*)
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
         let (bumpVar, unsatCore) =
@@ -1207,8 +1208,8 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
    |[] -> (res, us, uk_cl, iaTime, usTime)
    |h::t -> 
       let startTime = Sys.time() in
-      print_endline ("Start check sat: " ^ h#to_string_infix);
-      flush stdout;
+      (*print_endline ("Start check sat: " ^ h#to_string_infix);
+      flush stdout;*)
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
       let res1 = 
@@ -1304,8 +1305,8 @@ let rec eval_all res us uk_cl polyConstraints ia varsIntvsMiniSATCodesMap origin
 
     (*print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
     flush stdout;*)
-    print_endline (string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
-    flush stdout;
+    (*print_endline (string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
+    flush stdout;*)
     (*print_endline (intervals_toString originalIntv); (* intervals_toString is defined in Assignments.ml *)
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in

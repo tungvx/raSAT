@@ -388,6 +388,7 @@ let poly_eval e varsSet ia intv =
 
 
 
+
     let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
     (intvMap, (var, intv)::intvList)
   in
@@ -464,8 +465,8 @@ let check_sat_providedBounds boolExp bound =
 let check_sat_get_satLength_providedBounds boolExp bound = 
   let lowerBound = bound#l in
   let upperBound = bound#h in
-  print_endline ("Bounds: " ^ string_of_float lowerBound ^ " " ^ string_of_float upperBound);
-  flush stdout;
+  (*print_endline ("Bounds: " ^ string_of_float lowerBound ^ " " ^ string_of_float upperBound);
+  flush stdout;*)
   match boolExp with
   |Eq e -> 
     if (lowerBound = upperBound && upperBound = 0.) then (1, 0.) 

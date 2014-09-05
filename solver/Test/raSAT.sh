@@ -4,6 +4,7 @@
 # tout: time out
 export IFS=","
 RESULT=$1/SUM_UP.xls
+sbox=$2
 echo "Problem,nVars,maxVars,nAPIs,time<$3 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result" > $RESULT
 ls $1/*.smt2
 for file in $1/*.smt2; do
@@ -22,7 +23,7 @@ for file in $1/*.smt2; do
    result="unknown"
    while [ $(echo "$time < $3" | bc) -ne 0 -a "$result" = "unknown" ]
    do
-	./raSAT $file lb="0 10" $2 `echo $3 - $time | bc`
+	./raSAT $file lb="0 10" $sbox `echo $3 - $time | bc`
     read problem nVars maxVars nAPIs currentTime iaTime testingTime usTime parsingTime decompositionTime miniSATTime miniSATVars miniSATClauses miniSATCalls raSATClauses decomposedLearnedClauses UNSATLearnedClauses unknownLearnedClauses result < $file.tmp
 	time=`echo $time + $currentTime | bc`
 	fIaTime=`echo $fIaTime + $iaTime | bc`

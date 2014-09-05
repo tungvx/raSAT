@@ -107,7 +107,7 @@ class polynomialConstraint boolExprInit =
       let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
       (* This function generates test cases for one variable *)
-      let rec generate_tc_var interval tcNum isFirst isPositiveSen =
+      let rec generate_tc_var interval tcNum isFirst varSen isPositiveSen =
         if tcNum <= 0 then []
         else
           let lowerBound = interval#l in
@@ -136,7 +136,12 @@ class polynomialConstraint boolExprInit =
 		        in*)
 		        let tc =
 		          if tcNum = 1 then 
-		            if isPositiveSen = isPositiveDirected then upperBound
+		            if varSen = 0. then 
+		              let bound = upperBound -. lowerBound in
+		              Random.self_init();
+		              let randomNum = Random.float bound in (* random number from 0 to bound *)
+			            lowerBound +. randomNum
+		            else if isPositiveSen = isPositiveDirected then upperBound
 		            else lowerBound
 		          else 
 		            let bound = upperBound -. lowerBound in
@@ -144,7 +149,7 @@ class polynomialConstraint boolExprInit =
 		            let randomNum = Random.float bound in (* random number from 0 to bound *)
 			          lowerBound +. randomNum
 		        in
-		        tc :: (generate_tc_var interval (tcNum - 1) false isPositiveSen)
+		        tc :: (generate_tc_var interval (tcNum - 1) false varSen isPositiveSen)
 		  in
       let rec generateTCs_extra varsSen generatedTCs priorityNum = match varsSen with
         | [] -> (generatedTCs, priorityNum);
@@ -154,9 +159,9 @@ class polynomialConstraint boolExprInit =
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           let (testcases, newPriorityNum) =
             if priorityNum > 0 then
-               (generate_tc_var interval 0 true isPositiveSen, priorityNum - 1)
+               (generate_tc_var interval 2 true varSen isPositiveSen, priorityNum - 1)
             else 
-              (generate_tc_var interval 0 true isPositiveSen, 0)
+              (generate_tc_var interval 1 true varSen isPositiveSen, 0)
           in
           generateTCs_extra t ((var, testcases)::generatedTCs) newPriorityNum
       in
