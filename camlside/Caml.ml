@@ -926,7 +926,7 @@ let rec decomp_reduce ass esl = match ass with
   (*======= end unbalance decomposition =======*)   
 
   (*Binary balance decomposition on intervals*)
-  let dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode polyCons maxDecomposedVarsNum esl remainingTime = 
+  let dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
     (*print_endline ("Decomposing: " ^ polyCons#to_string_infix);
     flush stdout;*)
     let startTime = Sys.time() in
@@ -997,7 +997,26 @@ let rec decomp_reduce ass esl = match ass with
           if lowerBound = neg_infinity || upperBound = infinity then
             if newPoint > 0. then (nextMiniSATCode, "")
             else (nextMiniSATCode + 1, "")
-          else if varSen = 0. then
+          else 
+            (* Compute the SAT length of lower interval by IA *)
+            let add_satLength (satLength, varsIntvsMiniSATCodesMap) polyCons =
+              let (_, newSatLength) = polyCons#check_sat_get_satLength varsIntvsMiniSATCodesMap in
+              (satLength +. newSatLength, varsIntvsMiniSATCodesMap)
+            in
+            
+            let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
+            let (totalLowerSatLength, _) = List.fold_left add_satLength (0., lowerVarsIntvsMiniSATCodesMap) unkownPolyConstraints in
+            (*print_endline ("Total Lower: " ^ string_of_float totalLowerSatLength);
+            flush stdout;*)
+            (* Compute the SAT length of upper interval by IA *)
+            let upperVarsIntvsMiniSATCodesMap = StringMap.add var (upperIntv, nextMiniSATCode + 1) varsIntvsMiniSATCodesMap in
+            let (totalUpperSatLength, _) = List.fold_left add_satLength (0., upperVarsIntvsMiniSATCodesMap) unkownPolyConstraints in
+            (*print_endline ("Total Upper: " ^ string_of_float totalUpperSatLength);
+            flush stdout;*)
+            
+            if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
+            else (nextMiniSATCode+1, "")
+          (*else if varSen = 0. then
             (* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
             (*print_endline "Start Computing for lower interval";
@@ -1038,7 +1057,7 @@ let rec decomp_reduce ass esl = match ass with
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
           else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
-          else (nextMiniSATCode, "")
+          else (nextMiniSATCode, "")*)
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
@@ -1071,7 +1090,7 @@ let rec decomp_reduce ass esl = match ass with
       StringMap.fold decompose_var decomposedVarsIntvsMiniSATCodesIsPositiveMap ((miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", true)
       
       
-  let rec dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode polyConstraints 
+  let rec dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode polyConstraints unkownPolyConstraints
                 maxDecomposedVarsNum esl firstMiniSATCode isFirst learntNotDecomposedIntv remainingTime =
     match polyConstraints with
     | [] -> ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntNotDecomposedIntv ^ "0", "", false)
@@ -1079,16 +1098,16 @@ let rec decomp_reduce ass esl = match ass with
       let startTime = Sys.time() in
       if not isFirst && polyCons#get_miniSATCode = firstMiniSATCode then 
         dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode 
-              remainingPolyConstraints maxDecomposedVarsNum esl firstMiniSATCode false learntNotDecomposedIntv (remainingTime -. Sys.time() +. startTime)
+              remainingPolyConstraints unkownPolyConstraints maxDecomposedVarsNum esl firstMiniSATCode false learntNotDecomposedIntv (remainingTime -. Sys.time() +. startTime)
       else 
         let ((miniSATCodesVarsIntvsMap, nextMiniSATCode), sLearn, bump_vars, isDecomp) = dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap 
-                              miniSATCodesVarsIntvsMap nextMiniSATCode polyCons maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime)
+                              miniSATCodesVarsIntvsMap nextMiniSATCode polyCons unkownPolyConstraints maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime)
         in
         if isDecomp then 
           ((miniSATCodesVarsIntvsMap, nextMiniSATCode), sLearn, bump_vars, isDecomp)
         else 
           dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode 
-              remainingPolyConstraints maxDecomposedVarsNum esl firstMiniSATCode false (sLearn ^ learntNotDecomposedIntv) (remainingTime -. Sys.time() +. startTime)
+              remainingPolyConstraints unkownPolyConstraints maxDecomposedVarsNum esl firstMiniSATCode false (sLearn ^ learntNotDecomposedIntv) (remainingTime -. Sys.time() +. startTime)
 (* 
  (*============= UNSAT Cores Analysis ===============*)
  (*Get the sign in an multiplication expression*)
@@ -1416,7 +1435,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                     if isDecomposed then 
                       (newInterval, newLearn, newBumpVars, isDecomposed)
                     else*)
-                      dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap  nextMiniSATCode decomposedPolyConstraints 
+                      dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode decomposedPolyConstraints uk_cl
                                     maxDecomposedVarsNum esl (testUNSATPolyCons#get_miniSATCode) true "" (remainingTime -. Sys.time() +. startTime) in
 									(*print_endline "after decomposed";
 									flush stdout;*)

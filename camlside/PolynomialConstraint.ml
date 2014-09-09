@@ -100,6 +100,8 @@ class polynomialConstraint boolExprInit =
     
     (* get length of SAT by af2 and ci *)
     method check_sat_get_satLength (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = 
+      (*print_endline ("Start get length: " ^ self#to_string_infix);
+      flush stdout;*)
       let add_intv (isInfinite, varsIntvsMap) var =
         let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
         (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
@@ -109,6 +111,7 @@ class polynomialConstraint boolExprInit =
         check_sat_ici_get_satLength_boolExpr boolExpr varsIntvsMap
       else 
         check_sat_af_two_ci_get_satLength_boolExpr boolExpr varsSet varsNum varsIntvsMap
+        
     
     (* get n-first variables by varsSen *)
     method get_n_varsSen n = 
