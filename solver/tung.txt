@@ -1,1431 +1,392 @@
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x2 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -51. 99.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -625. 990.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -50. 110.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -50. 100.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -190. 100.
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -60. 110.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -60. 110.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -60. 110.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -190. 100.
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -200. 150.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -200. 150.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -810. 1110.
-Decomposing: x1 of 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0 in [0., 10.] with 1.
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x2 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -51. 99.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -625. 990.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -50. 110.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -50. 100.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -100. 55.
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -15. 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -15. 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -60. 110.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -190. 100.
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -110. 60.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -200. 150.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -810. 1110.
-Decomposing: x11 of 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0 in [0., 10.] with 1.
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x2 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -625. 990.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 20.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 15.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -15. 15.
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -15. 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -15. 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -60. 110.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -105. 60.
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -110. 60.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -200. 150.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -810. 1110.
-Decomposing: x10 of -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0 in [0., 10.] with 1.
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x2 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -625. 990.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 6.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -15. 15.
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -15. 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -15. 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -60. 110.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -105. 60.
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -20. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -110. 105.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -810. 1110.
-Decomposing: x2 of -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0 in [0., 10.] with 9.
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -625. 990.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 6.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -15. 15.
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -60. 110.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -105. 60.
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -15.5 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -65. 105.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -810. 1101.
-Decomposing: x8 of -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0 in [0., 10.] with 1.
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -625. 990.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 6.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -15. 15.
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -60. 101.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -105. 60.
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -20. 105.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -810. 1092.
-Decomposing: x15 of -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0 in [0., 10.] with 9.
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -625. 990.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 6.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -15. 15.
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -60. 101.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -105. 15.
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 105.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -810. 1092.
-Decomposing: x9 of 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0 in [0., 10.] with 1.
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -62.5 99.
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 6.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -80. 110.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -6. 10.5
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -15. 11.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -15. 10.5
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 105.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -90. 102.
-Decomposing: x9 of 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0 in [0., 1.] with 0.1
-Start check sat: 1.*x16 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -6.25 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 6.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -8. 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -5.1 10.05
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -10.5 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -6. 10.05
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 105.
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -18. 3.
-Decomposing: x16 of 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0 in [0., 10.] with 9.
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -6. 9.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -6.25 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -5. 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 6.
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -8. 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -5.1 10.05
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -10.5 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: -1.5 10.05
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 100.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -18. 3.
-Decomposing: x11 of 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0 in [0., 1.] with 0.1
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.5 0.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -6.25 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -0.5 2.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 1.5
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -8. 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.6 10.05
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -10.5 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 10.05
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 100.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -18. 3.
-Decomposing: x9 of 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0 in [0., 0.1] with 0.09
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -625. 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.5 0.
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: -2.965 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -800. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -0.5 2.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 1.5
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -5.3 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.6 10.005
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -10.05 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 100.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -15.3 3.
-Decomposing: x13 of 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0 in [0., 10.] with 9.
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -96.25 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.05 1.45716771982e-16
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: 7.08125 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -575. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -0.5 2.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. 1.5
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -1.025 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.6 10.005
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -10.05 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 100.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -11.025 3.
-Decomposing: x17 of 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0 in [0., 10.] with 9.
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -96.25 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.05 1.45716771982e-16
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: 7.08125 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -575. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: -0.5 2.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -10. -7.05
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -1.025 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.6 10.005
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -9.195 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 15.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: 61. 100.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -2.9025 3.
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 1. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x13 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -96.25 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 10.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.05 1.45716771982e-16
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: 7.08125 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -575. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: 0.5 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -9. 1.95
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -1.025 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.6 10.005
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -9.195 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -101. 55.
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -29. 95.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -2.9025 3.
-Decomposing: x3 of -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0 in [0., 10.] with 1.
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x17 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 1. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x13 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -96.25 990.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -10. 1.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 1.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.05 1.45716771982e-16
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: 7.08125 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -575. 1100.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: 0.5 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -9. 1.95
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -1.025 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.15 1.005
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -9.195 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 14.5
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -29. 95.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -2.9025 3.
-Decomposing: x7 of -1.*x7+1.*x3 >= 0 in [0., 10.] with 1.
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x17 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 1. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x13 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -9.625 99.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -1. 1.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 1.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.05 1.45716771982e-16
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: 7.08125 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -57.5 110.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: 0.5 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -9. 1.95
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -1.025 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.15 1.005
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -10.5 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -9.195 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -11. 14.5
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -29. 95.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -2.9025 3.
-Decomposing: x1 of -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0 in [0., 1.] with 0.9
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0.9 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x17 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 1. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x13 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -9.625 99.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -1. 1.
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 1.
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.05 1.45716771982e-16
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: 7.08125 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -57.5 110.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: 0.5 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -9. 1.95
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -1.025 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.15 0.9195
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -1.95 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -1.95 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -9.195 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: -2.9 14.5
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -29. 95.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -2.9025 3.
-Decomposing: x3 of -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0 in [0., 1.] with 0.1
-Start check sat: 1.*x16 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x9 >= 0
-Bounds: 0.09 0.1
-Start check sat: 1.*x2 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x12 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x5 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x15 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x8 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x18 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x1 >= 0
-Bounds: 0.9 1.
-Start check sat: 1.*x11 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x4 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x14 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x7 >= 0
-Bounds: 0. 1.
-Start check sat: 1.*x17 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x0 >= 0
-Bounds: 0. 10.
-Start check sat: 1.*x10 >= 0
-Bounds: 1. 10.
-Start check sat: 1.*x3 >= 0
-Bounds: 0. 0.1
-Start check sat: 1.*x13 >= 0
-Bounds: 9. 10.
-Start check sat: 1.*x6 >= 0
-Bounds: 0. 10.
-Start check sat: -1.*x7+1.*x13*x13*x7 >= 0
-Bounds: -9.625 99.
-Start check sat: -1.*x7+1.*x3 >= 0
-Bounds: -1. 0.1
-Start check sat: -1.*x5+1.*x3 >= 0
-Bounds: -10. 0.1
-Start check sat: 1.*x11*x13+-1. >= 0
-Bounds: -1.05 1.45716771982e-16
-Start check sat: -1.*x9+1.*x13*x13*x9 >= 0
-Bounds: 7.08125 9.9
-Start check sat: 1.*x12*x7+1.*x12*x13*x7 > 0
-Bounds: -57.5 110.
-Start check sat: 1.*x11*x12+1.*x10 > 0
-Bounds: 0.5 11.
-Start check sat: -1.*x17+1.*x11*x17+1.*x10 > 0
-Bounds: -9. 1.95
-Start check sat: 1.*x12*x9+1.*x12*x13*x9 > 0
-Bounds: -1.025 11.
-Start check sat: 1.*x3+-1.*x11*x3+-1.*x1*x9 >= 0
-Bounds: -0.105 0.0195
-Start check sat: -1.*x6+1.*x1*x2+1.*x0 > 0
-Bounds: -1.95 20.
-Start check sat: -1.*x4+1.*x1*x2+1.*x0 > 0
-Bounds: -1.95 20.
-Start check sat: 1.*x8+-1.*x18+1.*x17*x9 > 0
-Bounds: -9.195 2.
-Start check sat: 1.*x16+-1.*x15*x9+-1.*x11*x16 >= 0
-Bounds: 7.05 9.195
-Start check sat: -1.*x10*x3+-1.*x1*x8+1.*x1*x2 > 0
-Bounds: 6.1 10.45
-Start check sat: -1.*x15*x8+1.*x15*x2+-1.*x10*x16 > 0
-Bounds: -29. 95.5
-Start check sat: 1.*x8+-1.*x2+1.*x13*x17*x9+1.*x12*x9 > 0
-Bounds: -2.9025 3.
+
+b -inf inf a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -inf inf
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 0. inf a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -2. inf
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 10. inf a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: 98. inf
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 0. 10. a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -2. 98.
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 5. 10. a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: 23. 98.
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 0. 5. a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -2. 23.
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 2.5 5. a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: 4.25 23.
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 0. 2.5 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -2. 4.25
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.25 2.5 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.4375 4.25
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.875 2.5 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: 1.515625 4.25
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 0. 1.25 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -2. -0.4375
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.25 1.875 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.4375 1.515625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.5625 1.875 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: 0.44140625 1.515625
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.25 1.5625 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.4375 0.44140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.5625 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.44140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.484375 1.5625 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: 0.203369140625 0.44140625
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.25 1.40625 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.4375 -0.0224609375
+End check sat IA of 1.*b*b+-2. = 0, result: -1
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a -inf inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf inf
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a 0. inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -1. inf
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf 1.484375
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a 10. inf 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: 19. inf
+End check sat IA of 2.*a+-1. = 0, result: -1
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf -8.515625
+End check sat IA of 1.*b+-1.*a < 0, result: 1
+
+b 1.40625 1.484375 a -inf 0. 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -inf -1.
+End check sat IA of 2.*a+-1. = 0, result: -1
+Start check sat: 1.*b+-1.*a < 0
+Bounds: 1.40625 inf
+End check sat IA of 1.*b+-1.*a < 0, result: -1
+
+b 1.40625 1.484375 a 0. 10. 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -1. 19.
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -8.59375 1.484375
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a 0. 0.1 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+End check sat IA of 2.*a+-1. = 0, result: -1
+Start check sat: 1.*b+-1.*a < 0
+End check sat IA of 1.*b+-1.*a < 0, result: -1
+
+b 1.40625 1.484375 a 0.1 10. 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -0.8 19.
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -8.59375 1.384375
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a 0.1 0.2 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+End check sat IA of 2.*a+-1. = 0, result: -1
+Start check sat: 1.*b+-1.*a < 0
+End check sat IA of 1.*b+-1.*a < 0, result: -1
+
+b 1.40625 1.484375 a 0.2 10. 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -0.6 19.
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -8.59375 1.284375
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a 0.2 0.3 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+End check sat IA of 2.*a+-1. = 0, result: -1
+Start check sat: 1.*b+-1.*a < 0
+End check sat IA of 1.*b+-1.*a < 0, result: -1
+
+b 1.40625 1.484375 a 0.3 10. 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -0.4 19.
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -8.59375 1.184375
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a 0.3 0.4 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+End check sat IA of 2.*a+-1. = 0, result: -1
+Start check sat: 1.*b+-1.*a < 0
+End check sat IA of 1.*b+-1.*a < 0, result: -1
+
+b 1.40625 1.484375 a 0.4 10. 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -0.2 19.
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -8.59375 1.084375
+End check sat IA of 1.*b+-1.*a < 0, result: 0
+
+b 1.40625 1.484375 a 0.4 0.5 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -0.0224609375 0.203369140625
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -0.2 0.
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+End check sat IA of 1.*b+-1.*a < 0, result: -1
+
+b -inf 0. a 0.4 0.5 
+Start check sat: 1.*b*b+-2. = 0
+Bounds: -2. inf
+End check sat IA of 1.*b*b+-2. = 0, result: 0
+Start check sat: 2.*a+-1. = 0
+Bounds: -0.2 0.
+End check sat IA of 2.*a+-1. = 0, result: 0
+Start check sat: 1.*b+-1.*a < 0
+Bounds: -inf -0.4
+End check sat IA of 1.*b+-1.*a < 0, result: 1
 WARNING: for repeatability, setting FPU to use double precision
 
 Start searching, please wait....
 
 ===========================[ Problem Statistic ]===================================
 
-Input problem         : Test/smtlib-20140121/QF_NRA/zankl/matrix-1-all-11.smt2 
-Number of variables   : 19 
-Number of constraints : 36 
+Input problem         : Test/smtlib-20140121/QF_NRA/zankl/gen-19.smt2 
+Number of variables   : 2 
+Number of constraints : 3 
 Unit searching box    : 0.1
 Timeout setting       : 60 seconds
 
-Total running time    : 0.43 seconds
+Total running time    : 0.04 seconds
 
-IA time               : 0.01 seconds
+IA time               : 0.012 seconds
 
-Testing time          : 0.49 seconds
+Testing time          : 0 seconds
 
 UNSAT Core time       : 0 seconds
 
-Parsing time          : 0 seconds
+Parsing time          : 0.004 seconds
 
-Decomposition time    : 0.01 seconds
+Decomposition time    : 0 seconds
 
-Ocaml time            : 0.41 seconds
+Ocaml time            : 0.016 seconds
 
 MiniSAT time          : 0.02 seconds
 
-MiniSAT vars          : 89
+MiniSAT vars          : 37
 
-MiniSAT max clauses   : 45
+MiniSAT max clauses   : 24
 
-MiniSAT calls         : 19
+MiniSAT calls         : 32
 
-raSAT clauses         : 69
+raSAT clauses         : 84
 
-Decomposed clauses    : 68
+Decomposed clauses    : 64
 
-UNSAT learned clauses : 1
+UNSAT learned clauses : 20
 
 UNKOWN learned clauses: 0
 Result                : SAT
 
 =================================[ SAT instances ]=================================
 
+b*b-2.=[nan,nan] = 0
+2.*a-1.=[-0.2,0.] = 0
+b-a=[nan,nan] < 0
 

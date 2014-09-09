@@ -280,13 +280,17 @@ let rec evalCI varsIntvsMiniSATCodesMap = function
   | Pow (u,c) -> IA.CI.(evalCI varsIntvsMiniSATCodesMap u ^ c)
 
 (* evalICI compute the bound of a polynomial function from an assignment ass by ICI form*)
-let rec evalICI ass = function
+let rec evalICI varsIntvsMiniSATCodesMap = function
   | Real c -> let newC = IA.bound_of_float c in new IA.inf_interval newC newC
-  | Var v -> List.assoc v ass
-  | Add (u,v) -> IA.ICI.(evalICI ass u + evalICI ass v)
-  | Sub (u,v) -> IA.ICI.(evalICI ass u - evalICI ass v)
-  | Mul (u,v) -> IA.ICI.(evalICI ass u * evalICI ass v)
-  | Pow (u,c) -> IA.ICI.(evalICI ass u ^ c)
+  | Var var -> 
+    let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+    let lowerBound = IA.bound_of_float intv#l in
+    let upperBound = IA.bound_of_float intv#h in
+    new IA.inf_interval lowerBound upperBound
+  | Add (u,v) -> IA.ICI.(evalICI varsIntvsMiniSATCodesMap u + evalICI varsIntvsMiniSATCodesMap v)
+  | Sub (u,v) -> IA.ICI.(evalICI varsIntvsMiniSATCodesMap u - evalICI varsIntvsMiniSATCodesMap v)
+  | Mul (u,v) -> IA.ICI.(evalICI varsIntvsMiniSATCodesMap u * evalICI varsIntvsMiniSATCodesMap v)
+  | Pow (u,c) -> IA.ICI.(evalICI varsIntvsMiniSATCodesMap u ^ c)
 
 (* evalAf1 compute the bound of a polynomial function from an assignment ass by AF1 form*)
 let rec evalAf1 ass n = function
@@ -389,17 +393,15 @@ let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMiniSATCodesMap =
 (* Evaluate a polynomial using CI *)
 let poly_eval_ci polyExpr varsIntvsMiniSATCodesMap = 
   evalCI varsIntvsMiniSATCodesMap polyExpr
+  
+(* Evaluate a polynomial using ICI *)
+let poly_eval_ici polyExpr varsIntvsMiniSATCodesMap = 
+  let res = evalICI varsIntvsMiniSATCodesMap polyExpr in
+  res#to_interval
 
 (*evaluate the bound of poly expression by type of interval arithmetic*)						     
 let poly_eval e varsSet ia intv = 
   let rec get_interval var (intvMap, intvList) =
-
-
-
-
-
-
-
     let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
     (intvMap, (var, intv)::intvList)
   in
@@ -435,9 +437,8 @@ let poly_eval e varsSet ia intv =
     (res#evaluate, []);
   )
   else if (ia = -1) then (
-    let infiniteIntervals = infIntervals_of_intervals assIntv in
-    let res = evalICI infiniteIntervals e in
-    (res#to_interval, []);
+    let res = poly_eval_ici e intv in
+    (res, []);
   )
   else (
     let res = poly_eval_ci e intv in
@@ -509,10 +510,11 @@ let check_sat_get_satLength_providedBounds boolExp bound =
     else (0, upperBound)
 
 
-(* check sat of boolean expression using CI *)
-let check_sat_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap =
+(* check sat of boolean expression using ICI *)
+let check_sat_ici_boolExpr boolExpr varsIntvsMiniSATCodesMap =
   let polyExpr = get_exp boolExpr in
-  poly_eval_ci polyExpr varsIntvsMiniSATCodesMap
+  let iciBound  =  poly_eval_ici polyExpr varsIntvsMiniSATCodesMap in
+  check_sat_providedBounds boolExpr iciBound
 
 
 (* Check sat with combination of AF2 and CI *)

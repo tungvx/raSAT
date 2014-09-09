@@ -22,7 +22,9 @@ class polynomialConstraint boolExprInit =
     val varsSet = varsSetInit
     val varsNum = varsNumInit
     val varsList = varsListInit
-    val mutable varsSen = ([]:(string * float * bool) list) (* varsSen is always sorted *)
+    val mutable varsSen =
+      let addVarSen varSenList var = (var, 0., false)::varSenList in
+      List.fold_left addVarSen [] varsListInit
     val mutable miniSATCode = 0
     val mutable satLength = 0. 
     method get_constraint = boolExpr
@@ -49,7 +51,7 @@ class polynomialConstraint boolExprInit =
       else varsList
     
     (* check sat of this polynomial using ci*)
-    method check_sat_ci (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_ci_boolExpr boolExpr varsIntvsMiniSATCodesMap
+    method check_sat_ici (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_ici_boolExpr boolExpr varsIntvsMiniSATCodesMap
     
     (* check sat of this polynomial using combination of af2 and ci*)
     method check_sat_af_two_ci (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap

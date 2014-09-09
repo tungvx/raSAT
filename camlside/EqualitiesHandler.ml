@@ -13,7 +13,7 @@ let check_equality polyCons varsIntvsMiniSATCodesMap =
   let upperBound = getUpperBound varsIntvsMiniSATCodesMap in (* getUpperBound is defined in Assignments.ml *)
   let upperBoundValue = evalFloat upperBound polyExp in
   (* Intermediate theorem f(a) . f(b) < 0 ==> f(x) has a root between a and b *)
-  lowerBoundValue *. upperBoundValue < 0. 
+  lowerBoundValue *. upperBoundValue <= 0. 
 
 
 (* polyConstraints is a list of polynomial constraints, each constraints must be an equation *)
