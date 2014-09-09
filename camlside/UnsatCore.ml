@@ -4,7 +4,7 @@ open Assignments
 open InfiniteList
 open Variable
 
-let check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap varsList isInfinite = 
+let check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap varsList = 
   (*print_endline ("Checking: " ^ Util.vars_to_string varsList);
   flush stdout;*)
   let add_currentIntvsMiniSATCodes currentVarsIntvsMiniSATCodesMap var =
@@ -14,10 +14,7 @@ let check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMini
   let newVarsIntvsMiniSATCodesMap = List.fold_left add_currentIntvsMiniSATCodes originalVarsIntvsMiniSATCodesMap varsList in
   (*print_endline (intervals_to_string newIntv); (* intervals_to_string is definied in Assignments.ml *)
   flush stdout;*)
-  let sat = 
-    if isInfinite then polyCons#check_sat_ici newVarsIntvsMiniSATCodesMap
-    else polyCons#check_sat_af_two_ci newVarsIntvsMiniSATCodesMap (* check_sat_af_two_ci is in ast.ml *)
-  in
+  let sat = polyCons#check_sat newVarsIntvsMiniSATCodesMap (* check_sat_af_two_ci is in ast.ml *) in
   sat = -1
 
 
@@ -64,7 +61,7 @@ let rec addUnsatCores newUnsatCore unsatCores =
     else unsatCore :: (addUnsatCores newUnsatCore nextUnsatCores)
   )
         
-let rec get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite limitedTime remainingCandidates result =
+let rec get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap limitedTime remainingCandidates result =
   if limitedTime <= 0. then result
   else 
     match remainingCandidates with 
@@ -73,10 +70,10 @@ let rec get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsI
       (*print_endline ("PreChecking: choosen " ^ Util.vars_to_string choosenVars ^ " remaining " ^ Util.vars_to_string remainingVars);
       flush stdout;*)
       let startTime = Sys.time() in
-      if (nChoosenVars >= nVars / 2) then get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (limitedTime -. (Sys.time() -. startTime)) (tail()) result 
+      if (nChoosenVars >= nVars / 2) then get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap (limitedTime -. (Sys.time() -. startTime)) (tail()) result 
       else 
         let (newResult, newRemainingCandidates) = 
-          if shouldCheck && check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap choosenVars isInfinite then (
+          if shouldCheck && check_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap choosenVars then (
             (*print_endline ("UnSAT core of " ^ polyCons#to_string_infix ^ " is " ^ Util.vars_to_string choosenVars ^ "with " ^ string_of_intervals varsIntvsMiniSATCodesMap);
             (* bool_expr_to_infix_string is defined in ast.ml *)
             (* intervals_to_string is defined in Assignments.ml *)
@@ -98,17 +95,17 @@ let rec get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsI
               (result, tail() @@ nextVarChoosenCandidates)
           )
         in 
-        get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (limitedTime -. (Sys.time() -. startTime)) newRemainingCandidates newResult
+        get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap (limitedTime -. (Sys.time() -. startTime)) newRemainingCandidates newResult
     )
       
-let get_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite limitedTime =
+let get_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap limitedTime =
   let startTime = Sys.time() in 
   let varsList = polyCons#get_varsList in
   (*print_endline ("Variables List: " ^ Util.vars_to_string varsList);
   flush stdout;*)
   let nVars = polyCons#get_varsNum in
   let initialCandidate = Cons(([], varsList, false, 0, nVars), fun() -> Nil) in
-  let unsatVarsCores = get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap isInfinite (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
+  let unsatVarsCores = get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
   if unsatVarsCores = [] then Util.learn_vars varsList varsIntvsMiniSATCodesMap
   else Util.learn_vars_cores unsatVarsCores varsIntvsMiniSATCodesMap
   

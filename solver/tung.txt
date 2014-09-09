@@ -1,392 +1,176 @@
 
-b -inf inf a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -inf inf
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 0. 10. x24 0. 10. x23 0. 10. x22 0. 10. x21 0. 10. x20 0. 10. x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 0. 10. x10 0. 10. x1 0. 10. x0 0. 10. 
+Decomposing: x25 of 1.*x11*x25*x26+1.*x11*x25 > 0 in [0., 10.] with 9.9
 
-b 0. inf a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -2. inf
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 10. x22 0. 10. x21 0. 10. x20 0. 10. x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 0. 10. x10 0. 10. x1 0. 10. x0 0. 10. 
+Decomposing: x11 of 1.*x11*x25*x26+1.*x11*x25 > 0 in [0., 10.] with 9.9
 
-b 10. inf a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: 98. inf
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 10. x22 0. 10. x21 0. 10. x20 0. 10. x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 10. x0 0. 10. 
+Decomposing: x1 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 0.1
 
-b 0. 10. a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -2. 98.
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 10. x22 0. 10. x21 0. 10. x20 0. 10. x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x23 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 0.1
 
-b 5. 10. a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: 23. 98.
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 10. x21 0. 10. x20 0. 10. x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x22 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 0.1
 
-b 0. 5. a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -2. 23.
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 10. x20 0. 10. x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x21 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 0.1
 
-b 2.5 5. a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: 4.25 23.
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 10. x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x20 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 0.1
 
-b 0. 2.5 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -2. 4.25
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 0.1 x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x3 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 0.1
 
-b 1.25 2.5 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.4375 4.25
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 0.1 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 0.1 x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.875 2.5 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: 1.515625 4.25
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 10. x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 0.1 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 0.1 x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 0. 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x7 of -1.*x7+1.*x3 >= 0 in [0., 10.] with 0.1
 
-b 0. 1.25 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -2. -0.4375
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 0.1 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 0.1 x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 0. 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x11 of 1.*x11*x25*x26+1.*x11*x25 > 0 in [0., 9.9] with 9.8
 
-b 1.25 1.875 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.4375 1.515625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0. 0.1 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 0.1 x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.5625 1.875 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: 0.44140625 1.515625
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 0.1 x2 0. 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x2 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 9.9
 
-b 1.25 1.5625 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.4375 0.44140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0. 0.1 x21 0. 0.1 x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.40625 1.5625 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.44140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 10. x21 0. 0.1 x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x22 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0.1, 10.] with 0.2
 
-b 1.484375 1.5625 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: 0.203369140625 0.44140625
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0. 0.1 x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.25 1.40625 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.4375 -0.0224609375
-End check sat IA of 1.*b*b+-2. = 0, result: -1
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 10. x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x14 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0., 10.] with 0.1
 
-b 1.40625 1.484375 a -inf inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf inf
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 10. x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 0.1 x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x3 of -1.*x23*x3+-1.*x1*x20+1.*x1*x2+-1.*x1*x19*x22*x9+-1.*x1*x17*x22+-1.*x1*x14*x21 > 0 in [0.1, 10.] with 0.2
 
-b 1.40625 1.484375 a 0. inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -1. inf
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf 1.484375
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 0.1 x13 0. 10. x12 0. 10. x11 9.8 9.9 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.40625 1.484375 a 10. inf 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: 19. inf
-End check sat IA of 2.*a+-1. = 0, result: -1
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf -8.515625
-End check sat IA of 1.*b+-1.*a < 0, result: 1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 0.1 x13 0. 10. x12 0. 10. x11 9.9 10. x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.40625 1.484375 a -inf 0. 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -inf -1.
-End check sat IA of 2.*a+-1. = 0, result: -1
-Start check sat: 1.*b+-1.*a < 0
-Bounds: 1.40625 inf
-End check sat IA of 1.*b+-1.*a < 0, result: -1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 0.1 x13 0. 10. x12 0. 10. x11 0. 9.8 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x11 of 1.*x3+-1.*x11 >= 0 in [0., 9.8] with 0.1
 
-b 1.40625 1.484375 a 0. 10. 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -1. 19.
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -8.59375 1.484375
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 0. 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 0.1 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x29 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0., 10.] with 9.9
 
-b 1.40625 1.484375 a 0. 0.1 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-End check sat IA of 2.*a+-1. = 0, result: -1
-Start check sat: 1.*b+-1.*a < 0
-End check sat IA of 1.*b+-1.*a < 0, result: -1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 10. x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 0.1 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x19 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0., 10.] with 0.1
 
-b 1.40625 1.484375 a 0.1 10. 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -0.8 19.
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -8.59375 1.384375
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 10. x14 0. 0.1 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x15 of 1.*x30+-1.*x24*x30+-1.*x18*x22*x29+-1.*x15*x21*x29 >= 0 in [0., 10.] with 0.1
 
-b 1.40625 1.484375 a 0.1 0.2 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-End check sat IA of 2.*a+-1. = 0, result: -1
-Start check sat: 1.*b+-1.*a < 0
-End check sat IA of 1.*b+-1.*a < 0, result: -1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.9 10. x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0. 0.1 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.40625 1.484375 a 0.2 10. 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -0.6 19.
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -8.59375 1.284375
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 0. 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0. 0.1 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x2 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0., 9.9] with 9.8
 
-b 1.40625 1.484375 a 0.2 0.3 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-End check sat IA of 2.*a+-1. = 0, result: -1
-Start check sat: 1.*b+-1.*a < 0
-End check sat IA of 1.*b+-1.*a < 0, result: -1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0. 0.1 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.40625 1.484375 a 0.3 10. 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -0.4 19.
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -8.59375 1.184375
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 10. x20 0. 0.1 x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x21 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0.1, 10.] with 0.2
 
-b 1.40625 1.484375 a 0.3 0.4 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-End check sat IA of 2.*a+-1. = 0, result: -1
-Start check sat: 1.*b+-1.*a < 0
-End check sat IA of 1.*b+-1.*a < 0, result: -1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 0.2 x20 0. 0.1 x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b 1.40625 1.484375 a 0.4 10. 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -0.2 19.
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -8.59375 1.084375
-End check sat IA of 1.*b+-1.*a < 0, result: 0
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 0.2 x20 0.1 10. x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x20 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0.1, 10.] with 0.2
 
-b 1.40625 1.484375 a 0.4 0.5 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -0.0224609375 0.203369140625
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -0.2 0.
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-End check sat IA of 1.*b+-1.*a < 0, result: -1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.1 0.2 x21 0.1 0.2 x20 0.1 0.2 x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 
-b -inf 0. a 0.4 0.5 
-Start check sat: 1.*b*b+-2. = 0
-Bounds: -2. inf
-End check sat IA of 1.*b*b+-2. = 0, result: 0
-Start check sat: 2.*a+-1. = 0
-Bounds: -0.2 0.
-End check sat IA of 2.*a+-1. = 0, result: 0
-Start check sat: 1.*b+-1.*a < 0
-Bounds: -inf -0.4
-End check sat IA of 1.*b+-1.*a < 0, result: 1
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 10. x21 0.1 0.2 x20 0.1 0.2 x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x22 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0.2, 10.] with 0.3
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.1 0.2 x20 0.1 0.2 x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.1 0.2 x20 0.1 0.2 x2 9.9 10. x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.1 0.2 x20 0.1 0.2 x2 0. 9.8 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x2 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0., 9.8] with 9.7
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.1 0.2 x20 0.1 0.2 x2 9.7 9.8 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.7 9.8 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x14 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0.1, 10.] with 0.2
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.7 9.8 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0. 0.1 x14 0.1 0.2 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.7 9.8 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 10. x14 0.1 0.2 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x15 of 1.*x30+-1.*x24*x30+-1.*x18*x22*x29+-1.*x15*x21*x29 >= 0 in [0.1, 10.] with 0.2
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.7 9.8 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.1 0.2 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.8 9.9 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.1 0.2 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.9 10. x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.1 0.2 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 0. 9.7 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.1 0.2 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x2 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0., 9.7] with 9.6
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.1 0.2 x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 10. x20 0.1 0.2 x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.2 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x21 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0.2, 10.] with 0.3
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 0.3 x20 0.1 0.2 x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.2 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 0.3 x20 0.2 10. x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.2 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x20 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0.2, 10.] with 0.3
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.2 0.3 x21 0.2 0.3 x20 0.2 0.3 x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.2 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.3 10. x21 0.2 0.3 x20 0.2 0.3 x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 10. x16 0. 10. x15 0.1 0.2 x14 0.2 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x17 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0., 10.] with 0.1
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.3 10. x21 0.2 0.3 x20 0.2 0.3 x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 0.1 x16 0. 10. x15 0.1 0.2 x14 0.2 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
+Decomposing: x22 of -1.*x23*x30+-1.*x20*x29+1.*x2*x29+-1.*x19*x22*x29*x9+-1.*x17*x22*x29+-1.*x14*x21*x29 > 0 in [0.3, 10.] with 0.4
+
+Intervals: x9 0. 10. x8 0. 10. x7 0. 0.1 x6 0. 10. x5 0. 10. x4 0. 10. x31 0. 10. x30 0. 10. x3 0.1 0.2 x29 9.9 10. x28 0. 10. x27 0. 10. x26 0. 10. x25 9.9 10. x24 0. 10. x23 0. 0.1 x22 0.3 0.4 x21 0.2 0.3 x20 0.2 0.3 x2 9.6 9.7 x19 0. 0.1 x18 0. 10. x17 0. 0.1 x16 0. 10. x15 0.1 0.2 x14 0.2 10. x13 0. 10. x12 0. 10. x11 0. 0.1 x10 0. 10. x1 0. 0.1 x0 0. 10. 
 WARNING: for repeatability, setting FPU to use double precision
 
 Start searching, please wait....
 
 ===========================[ Problem Statistic ]===================================
 
-Input problem         : Test/smtlib-20140121/QF_NRA/zankl/gen-19.smt2 
-Number of variables   : 2 
-Number of constraints : 3 
+Input problem         : Test/smtlib-20140121/QF_NRA/zankl/matrix-1-all-10.smt2 
+Number of variables   : 32 
+Number of constraints : 62 
 Unit searching box    : 0.1
 Timeout setting       : 60 seconds
 
-Total running time    : 0.04 seconds
+Total running time    : 2.34 seconds
 
-IA time               : 0.012 seconds
+IA time               : 0.056 seconds
 
-Testing time          : 0 seconds
+Testing time          : 2.584 seconds
 
-UNSAT Core time       : 0 seconds
+UNSAT Core time       : 0.004 seconds
 
-Parsing time          : 0.004 seconds
+Parsing time          : 0.012 seconds
 
-Decomposition time    : 0 seconds
+Decomposition time    : 0.004 seconds
 
-Ocaml time            : 0.016 seconds
+Ocaml time            : 2.296 seconds
 
-MiniSAT time          : 0.02 seconds
+MiniSAT time          : 0.032 seconds
 
-MiniSAT vars          : 37
+MiniSAT vars          : 154
 
-MiniSAT max clauses   : 24
+MiniSAT max clauses   : 111
 
-MiniSAT calls         : 32
+MiniSAT calls         : 52
 
-raSAT clauses         : 84
+raSAT clauses         : 141
 
-Decomposed clauses    : 64
+Decomposed clauses    : 120
 
-UNSAT learned clauses : 20
+UNSAT learned clauses : 21
 
 UNKOWN learned clauses: 0
-Result                : SAT
+Result                : UNSAT			
 
-=================================[ SAT instances ]=================================
-
-b*b-2.=[nan,nan] = 0
-2.*a-1.=[-0.2,0.] = 0
-b-a=[nan,nan] < 0
 

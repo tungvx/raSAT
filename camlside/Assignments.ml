@@ -41,20 +41,36 @@ let rec string_of_assignment ass =
 (* |================================= END string_of_assignment =================================|*)
 
 
-(* =================================== START intervals_toString =========================================== *)
+(* |================================ START log_assignment ================================|*)	
+(* | Function for logging the assignments as string        |*)
+(* | . ass: is the map from the variables into assigned values                                  |*)
+(* |____________________________________________________________________________________________|*)
+let rec log_assignment ass =
+  let add_string_of_newAssignment var testcase oldString = 
+    var ^" = "^ string_of_float testcase ^ "\n" ^ oldString
+  in
+  StringMap.fold add_string_of_newAssignment ass ""
+(* |================================= END string_of_assignment =================================|*)
+
+
+(* =================================== START string_of_intervals =========================================== *)
 (* This functions converts the list of intervals of variables into the string format*)
 let rec string_of_intervals intvMap =
   let add_string_of_newInterval var (interval, _) oldString = 
     var ^ " " ^ string_of_float interval#l ^ " " ^ string_of_float interval#h ^ " " ^ oldString
   in 
   StringMap.fold add_string_of_newInterval intvMap ""
-(* =================================== END intervals_toString ============================================== *)
+(* =================================== END string_of_intervals ============================================== *)
 
 
-(* =================================== START check_infinity =========================================== *)
-(* This function check if an list of intervals contain any infinity number *)
-let rec check_infinity x (intv, _) =
-  intv#l = neg_infinity || intv#h = infinity
-(* =================================== END check_infinity =========================================== *)  
+(* =================================== START log_intervals =========================================== *)
+(* This functions converts the list of intervals of variables into the string format*)
+let rec log_intervals intvMap =
+  let add_string_of_newInterval var (interval, _) oldString = 
+    var ^ " in [" ^ string_of_float interval#l ^ ", " ^ string_of_float interval#h ^ "]\n" ^ oldString
+  in 
+  StringMap.fold add_string_of_newInterval intvMap ""
+(* =================================== END log_intervals ============================================== *)
+ 
 
 (* \/\/\/\/\/\/\/\/\/\/ MODULE for assignments related definitions and operations \/\/\/\/\/\/\\/\/\/\/\/\/\/\/\/\/*)

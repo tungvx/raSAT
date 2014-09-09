@@ -27,6 +27,9 @@ class polynomialConstraint boolExprInit =
       List.fold_left addVarSen [] varsListInit
     val mutable miniSATCode = 0
     val mutable satLength = 0. 
+    val mutable isInfinite = false
+    val mutable testValue = 0.
+    val mutable iaValue = new IA.interval 0. 0.
     method get_constraint = boolExpr
     
     method get_varsSet = varsSet
@@ -43,6 +46,8 @@ class polynomialConstraint boolExprInit =
     
     method isPositiveDirected = isPositiveDirected
     
+    method isInfinite = isInfinite
+    
     (* convert the constraint into infix string *)
     method to_string_infix = string_infix_of_boolExp boolExpr
     
@@ -51,20 +56,59 @@ class polynomialConstraint boolExprInit =
       else varsList
     
     (* check sat of this polynomial using ci*)
-    method check_sat_ici (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_ici_boolExpr boolExpr varsIntvsMiniSATCodesMap
+    method private check_sat_getBound_ici (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_getBound_ici_boolExpr boolExpr varsIntvsMap
     
     (* check sat of this polynomial using combination of af2 and ci*)
-    method check_sat_af_two_ci (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
+    method private check_sat_af_two_ci (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap
         
     (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
-    method check_sat_af_two_ci_varsSens (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = 
-      let (sat, computedSatLength, sortedVarsSen) = check_sat_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMiniSATCodesMap in
+    method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(IA.interval Variable.StringMap.t)) = 
+      let (sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
       varsSen <- sortedVarsSen;
       satLength <- computedSatLength;
+      (sat, bound)
+    
+    (* This method does not update isInfinite field, and varsSen is not computed *)
+    method check_sat (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) =
+      let add_intv (isInfinite, varsIntvsMap) var =
+        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
+      in
+      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+      
+      if isInfiniteTmp then 
+        let (sat, _) = self#check_sat_getBound_ici varsIntvsMap in
+        sat
+      else 
+        self#check_sat_af_two_ci varsIntvsMap
+    
+    method check_sat_varsSen_setIsInfinite_setBounds (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) =
+      let add_intv (isInfinite, varsIntvsMap) var =
+        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
+      in
+      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+      isInfinite <- isInfiniteTmp;
+      let (sat, bound) =
+        if isInfinite then 
+          self#check_sat_getBound_ici varsIntvsMap
+        else 
+          self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
+      in
+      iaValue <- bound;
       sat
     
     (* get length of SAT by af2 and ci *)
-    method check_sat_get_satLength (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = check_sat_get_satLength_boolExpr boolExpr varsSet varsNum varsIntvsMiniSATCodesMap
+    method check_sat_get_satLength (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = 
+      let add_intv (isInfinite, varsIntvsMap) var =
+        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
+      in
+      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+      if isInfiniteTmp then
+        check_sat_ici_get_satLength_boolExpr boolExpr varsIntvsMap
+      else 
+        check_sat_af_two_ci_get_satLength_boolExpr boolExpr varsSet varsNum varsIntvsMap
     
     (* get n-first variables by varsSen *)
     method get_n_varsSen n = 
@@ -100,9 +144,44 @@ class polynomialConstraint boolExprInit =
       VariablesSet.cardinal varsDiff
       
     method check_SAT varsTCsMap = 
-      let (sat, _) = checkSAT_computeValues boolExpr varsTCsMap in
+      let (sat, value) = checkSAT_computeValues boolExpr varsTCsMap in
+      testValue <- value; 
       sat
       
+    method log_test = 
+      let testValueString = string_of_float testValue in
+      match boolExpr with
+      |Eq e -> 
+		    (string_infix_of_polyExpr e) ^ " = 0"
+	    |Neq e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ testValueString ^ " != 0"
+	    |Leq e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ testValueString ^ " <= 0"
+	    |Le e -> 
+        (string_infix_of_polyExpr e) ^ " = " ^ testValueString ^ " < 0"
+	    |Geq e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ testValueString ^ " >= 0"
+	    |Gr e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ testValueString ^ " > 0"  
+		    
+		method log_ia = 
+		  let lowerString = string_of_float iaValue#l in
+      let upperString = string_of_float iaValue#h in
+      let iaString = "[" ^ lowerString ^ ", " ^ upperString ^ "]" in
+      match boolExpr with
+      |Eq e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " = 0"
+	    |Neq e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " != 0"
+	    |Leq e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " <= 0"
+	    |Le e -> 
+        (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " < 0"
+	    |Geq e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " >= 0"
+	    |Gr e -> 
+		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " > 0"  
+    
     method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum = 
       (*print_endline self#to_string_infix;
       flush stdout;*)
@@ -138,19 +217,21 @@ class polynomialConstraint boolExprInit =
 		          else baseNum +. randomNum 
 		        in*)
 		        let tc =
-		          if tcNum = 1 then 
-		            if varSen = 0. then 
-		              let bound = upperBound -. lowerBound in
-		              Random.self_init();
-		              let randomNum = Random.float bound in (* random number from 0 to bound *)
-			            lowerBound +. randomNum
-		            else if isPositiveSen = isPositiveDirected then upperBound
-		            else lowerBound
-		          else 
-		            let bound = upperBound -. lowerBound in
-		            Random.self_init();
-		            let randomNum = Random.float bound in (* random number from 0 to bound *)
-			          lowerBound +. randomNum
+		          if isInfinite || tcNum > 1 || varSen = 0. then
+		            let lowerBase = 
+		              if lowerBound = neg_infinity then min_float
+		              else lowerBound
+		            in
+	              let bound = upperBound -. lowerBound in
+	              let bound = 
+	                if bound = infinity then max_float
+	                else bound
+	              in
+	              Random.self_init();
+	              let randomNum = Random.float bound in (* random number from 0 to bound *)
+		            lowerBase +. randomNum
+	            else if isPositiveSen = isPositiveDirected then upperBound
+	            else lowerBound
 		        in
 		        tc :: (generate_tc_var interval (tcNum - 1) false varSen isPositiveSen)
 		  in
@@ -275,3 +356,20 @@ let rec first_inequation polyConstraints =
     | _ -> [h]
   )
 (*==================== END first_uk_cl ==============================*)
+
+
+(*==================== START log_test ==============================*)		
+(* log the sat values of constraints *)
+let rec log_test polyConstraints = 
+  match polyConstraints with
+  | [] -> ""
+  | polyCons::remaining -> polyCons#log_test ^ "\n" ^ log_test remaining
+(*==================== END log_test ==============================*)
+
+
+(*==================== START log_ia ==============================*)		
+(* log the bounds of IA-VALID constraints *)
+let rec log_ia polyConstraints = match polyConstraints with
+  | [] -> ""
+  | polyCons::remaining -> polyCons#log_ia ^ "\n" ^ log_ia remaining
+(*==================== START log_ia ==============================*)		
