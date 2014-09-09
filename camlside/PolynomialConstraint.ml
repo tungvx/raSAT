@@ -9,6 +9,7 @@ class polynomialConstraint boolExprInit =
   let isPositiveDirected = 
     match boolExprInit with
     | Eq _ -> false
+    | Neq _ -> false
     | Geq _ -> true
     | Leq _ -> false
     | Gr _ -> true

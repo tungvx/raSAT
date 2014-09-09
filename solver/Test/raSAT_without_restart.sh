@@ -14,11 +14,11 @@ for file in $1/*.smt2; do
    fUsTime=0;  
    time=0;
 	./raSAT $file lb="$2 $3" $4 `echo $5 - $time | bc`
-        read problem nVars nAPIs currentTime iaTime testingTime usTime result < ${file%.smt2}
+        read problem nVars nAPIs currentTime iaTime testingTime usTime result < $file.tmp
 	time=`echo $time + $currentTime | bc`
 	fIaTime=`echo $fIaTime + $iaTime | bc`
 	fTestingTime=`echo $fTestingTime + $testingTime | bc`
 	fUsTime=`echo $fUsTime + $usTime | bc`
    echo "$problem,$nVars,$nAPIs,$time,$fIaTime,$fTestingTime,$fUsTime,$result" >> $RESULT 
-   rm -f ${file%.smt2}
+   rm -f $file.tmp $file.in $file.out $file.rs
 done

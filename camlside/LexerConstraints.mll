@@ -18,6 +18,7 @@ rule lex = parse
   | "-"    { MINUS }
   | "*"    { TIMES }
   | "^"    { POWER }
+  | "!="    { NEQ }
   | "="    { EQ }
   | ">="   { GEQ }
   | "<="   { LEQ }

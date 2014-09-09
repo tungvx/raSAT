@@ -21,6 +21,7 @@ type poly_expr =
 
 type bool_expr = 
   | Eq of poly_expr
+  | Neq of poly_expr
   | Geq of poly_expr
   | Leq of poly_expr
   | Gr of poly_expr
@@ -76,6 +77,7 @@ let rec getDerivative smtPolynomial var =
 (* get the left expression of comparision operators*)
 let get_exp = function
   | Eq e  -> e
+  | Neq e  -> e
   | Leq e -> e
   | Le e  -> e
   | Geq e -> e
@@ -101,6 +103,9 @@ let checkSAT_computeValues boolExp varsTCsMap =
 	|Eq e -> 
 		if value = 0. then (true, value)
 		else (false, value)
+	|Neq e -> 
+		if value <> 0. then (true, value)
+		else (false, value)	
 	|Leq e -> 
 		if value <= 0. then (true, value)
 		else (false, value)
@@ -152,6 +157,8 @@ let rec string_infix_of_boolExp boolExpr =
   match boolExpr with
   |Eq e -> 
 		(string_infix_of_polyExpr e) ^ " = 0"
+	|Neq e -> 
+		(string_infix_of_polyExpr e) ^ " != 0"
 	|Leq e -> 
 		(string_infix_of_polyExpr e) ^ " <= 0"
 	|Le e -> 
@@ -179,6 +186,7 @@ let rec string_prefix_of_polyExp = function
 (* prefix string format of a boolean expression *)
 let rec string_prefix_of_boolExpr  = function
   | Eq e -> "(= " ^ (string_prefix_of_polyExp e)^" 0)"
+  | Neq e -> "(!= " ^ (string_prefix_of_polyExp e)^" 0)"
   | Le e -> "(< " ^ (string_prefix_of_polyExp e)^" 0)"
   | Leq e -> "(<= "^ (string_prefix_of_polyExp e)^" 0)"
   | Gr e -> "(> " ^ (string_prefix_of_polyExp e)^" 0)"
@@ -202,6 +210,7 @@ let rec string_postfix_of_polyExpr = function
 (* postfix string format of a boolean expression *)      
 let rec string_postfix_of_boolExpr  = function
   | Eq e -> (string_postfix_of_polyExpr e) ^ "real 0 = "
+  | Neq e -> (string_postfix_of_polyExpr e) ^ "real 0 != "
   | Le e -> (string_postfix_of_polyExpr e) ^ "real 0 < " 
   | Leq e -> (string_postfix_of_polyExpr e) ^ "real 0 <= "
   | Gr e -> (string_postfix_of_polyExpr e) ^ "real 0 > " 
@@ -390,6 +399,7 @@ let poly_eval e varsSet ia intv =
 
 
 
+
     let (intv,(miniSATCode:int)) = StringMap.find var intvMap in
     (intvMap, (var, intv)::intvList)
   in
@@ -444,6 +454,10 @@ let check_sat_providedBounds boolExp bound =
     if (bound#l = bound#h && bound#h = 0.) then 1
     else if (bound#h < 0. || bound#l > 0.) then -1
     else 0
+  |Neq e -> 
+    if (bound#h = bound#h && bound#h = 0.) then -1
+    else if (bound#h < 0. || bound#l > 0.) then 1
+    else 0
   |Leq e -> 
     if (bound#h <= 0.) then 1
     else if (bound#l > 0.) then -1
@@ -473,6 +487,10 @@ let check_sat_get_satLength_providedBounds boolExp bound =
     if (lowerBound = upperBound && upperBound = 0.) then (1, 0.) 
     else if (upperBound < 0. || lowerBound > 0.) then (-1, 0.)
     else (0, 0.)
+  |Neq e -> 
+    if (lowerBound = upperBound && upperBound = 0.) then (-1, 0.) 
+    else if (upperBound < 0. || lowerBound > 0.) then (1, infinity)
+    else (0, upperBound -. lowerBound)
   |Leq e -> 
     if (upperBound <= 0.) then (1, upperBound -. lowerBound)
     else if (lowerBound > 0.) then (-1, 0.)

@@ -12,7 +12,7 @@ open PolynomialConstraint
 %token ASSERT
 %token AND OR
 
-%token EQ GEQ LEQ GR LE
+%token EQ GEQ LEQ GR LE NEQ
 
 %left PLUS
 %left MINUS
@@ -26,6 +26,7 @@ open PolynomialConstraint
 
 
 %left EQ
+%left NEQ
 %left GEQ
 %left LEQ
 %left GR
@@ -49,6 +50,11 @@ polynomialConstraints:
                                    if number = 0. then Single (new polynomialConstraint (Eq $2))
                                    else Single (new polynomialConstraint (Eq (Sub($2, Real number))))
                                  }
+  | NEQ poly_expr NUM             { 
+                                   let number = float_of_string $3 in
+                                   if number = 0. then Single (new polynomialConstraint (Neq $2))
+                                   else Single (new polynomialConstraint (Neq (Sub($2, Real number))))
+                                 }                                 
   | GEQ poly_expr NUM            { 
                                    let number = float_of_string $3 in
                                    if number = 0. then Single (new polynomialConstraint (Geq  $2))

@@ -179,7 +179,9 @@ let genSatForm sAss sIntv esl =
     |Eq e -> 
       (poly_toString "" e) ^ "=" ^
         "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" = 0"  
-
+    |Neq e -> 
+      (poly_toString "" e) ^ "=" ^
+        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" != 0"  
     |Leq e -> 
       (poly_toString "" e) ^ "=" ^
         "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" <= 0"
@@ -211,6 +213,8 @@ let genSatForm sAss sIntv esl =
     match boolExp with
     |Eq e -> 
       (poly_toString "" e) ^"="^ (string_of_float value) ^" = 0"
+    |Neq e -> 
+      (poly_toString "" e) ^"="^ (string_of_float value) ^" != 0"  
     |Leq e -> 
       (poly_toString "" e) ^"="^ (string_of_float value) ^" <= 0" 
       (*^"="^ (string_of_float rightVal)*)
@@ -948,7 +952,7 @@ let rec decomp_reduce ass esl = match ass with
         reducedVarsSet
       )
     in
-    let reducedVarsSet = varsSet (*VariablesSet.fold add_notSmallInterval varsSet VariablesSet.empty*) in
+    let reducedVarsSet = (*varsSet*) VariablesSet.fold add_notSmallInterval varsSet VariablesSet.empty in
     if VariablesSet.is_empty reducedVarsSet then (*Stop decomposition*) 
       let add_learnt_var var learntVars = 
         let (_, varId) = StringMap.find var varsIntvsMiniSATCodesMap in
@@ -968,8 +972,8 @@ let rec decomp_reduce ass esl = match ass with
             if upperBound = infinity then lowerBound +. 10. 
             else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
               if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
-              else if isPositiveSen = polyCons#isPositiveDirected then (*upperBound -. esl*) 9. *. (upperBound /. 10.) +. lowerBound /. 10.
-              else (*lowerBound +. esl*) upperBound /. 10. +. 9. *. (lowerBound /. 10.)
+              else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl (*9. *. (upperBound /. 10.) +. lowerBound /. 10.*)
+              else lowerBound +. esl (*upperBound /. 10. +. 9. *. (lowerBound /. 10.)*)
               (*let noiseErrCoeff = 0.5 *. upperBound -. 0.5 *. lowerBound in
               let satLength = polyCons#get_satLength in
               let varChange = noiseErrCoeff *. satLength /. varSen in

@@ -1,4 +1,9 @@
-Problem,nVars,nAPIs,time<60 ,iaTime,testingTime,usTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalss,raSATClauses,decomposedClauses,UNSATLearnedClauses,UNKNOWNLearnedClauses,result
-smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0005.smt2,4,3,.008,0,0,0,0,0,.004,8,4,2,8,8,0,0,sat
-smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0005.smt2,4,3,60.000,0,0,0,0,0,30.000,8,4,15000,60000,60000,0,0,unknown
-smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0005.smt2,4,3,60.000,0,0,0,0,0,30.000,8,4,15000,60000,60000,0,0,unknown
+Problem,nVars,nAPIs,time<60 for bound: -10 -> 10,iaTime,testingTime,usTime,result
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0005.smt2,4,2,3,.008,0,.004,0,0,0,0,13,8,4,12,12,0,0,sat
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0007.smt2,4,2,3,0,0,.004,0,0,0,0,0,0,1,0,0,0,0,sat
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0009.smt2,4,2,5,0,0,0,0,0,0,0,15,8,4,12,12,0,0,sat
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0010.smt2,4,2,6,0,0,0,0,0,0,0,10,0,2,1,0,1,0,unsat
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0012.smt2,4,2,5,0,0,0,0,0,0,0,9,0,2,1,0,1,0,unsat
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0013.smt2,4,2,4,0,0,0,0,0,0,0,6,0,2,1,0,1,0,unsat
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0015.smt2,4,4,5,60,6.256,.04,27.412,5.768,0,17.512,625,21281,48855,50412,1232,49180,0,Timeout
+smtlib-20140121/QF_NRA/meti-tarski/Arthan/M2/ArthanM2-chunk-0016.smt2,4,2,4,.008,0,0,0,0,0,0.004,8,0,2,1,0,1,0,unsat

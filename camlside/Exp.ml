@@ -11,6 +11,7 @@ type smt_poly_expr =
 
 type smt_bool_expr = 
   | Eq of smt_poly_expr * smt_poly_expr
+  | Neq of smt_poly_expr * smt_poly_expr
   | Geq of smt_poly_expr * smt_poly_expr
   | Leq of smt_poly_expr * smt_poly_expr
   | Gr of smt_poly_expr * smt_poly_expr

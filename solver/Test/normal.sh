@@ -5,7 +5,7 @@
 ls $1/*.smt2
 for file in $1/*.smt2; do
   echo $file
-	./raSAT $file lb="0 10" 0.1 500
+	./raSAT $file lb="-10 10"
 	echo "\n\n"
    rm -f $file.tmp
 done

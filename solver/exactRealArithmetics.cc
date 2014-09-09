@@ -149,6 +149,29 @@ bool check(string expression, std::map<string, REAL> ass) {
 									  // Though we do not know how many iterations is large.
 			}
 
+		} else if (tmp.compare("!=") == 0) {
+			// we need two values on the stack for comparison
+			if (stack.size() < 2)
+				return false;
+			// get two values on the top of stack.
+			REAL r1 = stack.top();
+			stack.pop();
+			REAL r2 = stack.top();
+			stack.pop();
+			try {
+				// using iRRAM to check whether they are not equal.
+				// Unfortunately, if r1 and r2 are actually equal, iRRAM will enter an infinite loop.
+				// In such case, iRRAM throw an iteration object.
+				if (r1 != r2)
+					boolStack.push(true);// iRRAM can detect if two real numbers are different.
+				else
+					boolStack.push(false);// this line is never executed because the Iteration object will be thrown.
+			} catch (iRRAM::Iteration it) {
+				boolStack.push(false); // not exactly two numbers are the same!
+									  // iRRAM throws this exception when the number of iterations is large enough.
+									  // Though we do not know how many iterations is large.
+			}
+
 		} else if (tmp.compare("<") == 0) {
 			// we need two values on the stack for comparison
 			if (stack.size() < 2)

@@ -16,6 +16,7 @@ type token =
   | LEQ
   | GR
   | LE
+  | NEQ
 
 val main :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> PolynomialConstraint.constraints

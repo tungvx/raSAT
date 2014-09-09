@@ -64,6 +64,7 @@ let rec subst_poly ass = function
 let rec subst_bool bass pass = function
   | BVar b -> subst_bool bass pass (List.assoc b bass)
   | Eq  (e1, e2) -> Eq  (subst_poly pass e1, subst_poly pass e2)
+  | Neq  (e1, e2) -> Neq  (subst_poly pass e1, subst_poly pass e2)
   | Le  (e1, e2) -> Le  (subst_poly pass e1, subst_poly pass e2)
   | Leq (e1, e2) -> Leq (subst_poly pass e1, subst_poly pass e2)
   | Gr  (e1, e2) -> Gr  (subst_poly pass e1, subst_poly pass e2)
@@ -128,6 +129,7 @@ let rec poly_toString sign  = function
 let rec bool_toString = function
   | BVar bVar -> bVar
   | Eq (e1, e2) -> (poly_toString "" e1)^" = " ^ (poly_toString "" e2)
+  | Neq (e1, e2) -> (poly_toString "" e1)^" != " ^ (poly_toString "" e2)
   | Le (e1, e2) -> (poly_toString "" e1)^" < " ^ (poly_toString "" e2)
   | Leq(e1, e2) -> (poly_toString "" e1)^" <= " ^(poly_toString "" e2)
   | Gr (e1, e2) -> (poly_toString "" e1)^" > " ^ (poly_toString "" e2)
@@ -172,6 +174,7 @@ let rec remove_zero e = match e with
 let rec bool_reduce = function
   | BVar bVar -> BVar bVar
   | Eq (e1, e2) -> Eq (remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
+  | Neq (e1, e2) -> Neq (remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
   | Le (e1, e2) -> Le (remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
   | Leq(e1, e2) -> Leq(remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
   | Gr (e1, e2) -> Gr (remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
@@ -196,6 +199,7 @@ let rec poly_toPrefix = function
 let rec bool_toPrefix = function
   | BVar bVar -> bVar
   | Eq (e1, e2) -> "(= " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
+  | Neq (e1, e2) -> "(!= " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | Le (e1, e2) -> "(< " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | Leq(e1, e2) -> "(<= "^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | Gr (e1, e2) -> "(> " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
@@ -224,6 +228,9 @@ let rec bool_simp = function
   | Eq (e1, e2) -> 
       if poly_isCons e2 then Eq (e1, e2)
       else Eq (Sub(e1, e2), Real 0.)
+  | Neq (e1, e2) -> 
+      if poly_isCons e2 then Neq (e1, e2)
+      else Neq (Sub(e1, e2), Real 0.)
   | Le (e1, e2) -> 
       if poly_isCons e2 then Le (e1, e2)
       else Le (Sub(e1, e2), Real 0.)
@@ -738,13 +745,17 @@ let rec get_bExpr e = match e with
   --------------------------------------------------------------------------*)
 
 (*re-formula expression for not*)
-  let neg e = match e with
+  let rec neg e = match e with
+    |Eq (e1, e2) -> Neq (e1, e2)    
+    |Neq (e1, e2) -> Eq (e1, e2)
     |Le (e1, e2) -> Geq (e1, e2)
     |Leq(e1, e2) -> Gr (e1, e2)
     |Gr (e1, e2) -> Leq (e1, e2)
     |Geq(e1, e2) -> Le (e1, e2)
     |Not(e1) -> e1
-    |_ -> e (*This implementation is neither applied for equality "=" nor not (and (...))*)
+    |And (boolExp1, boolExp2) -> Or (neg boolExp1, neg boolExp2)
+    |Or (boolExp1, boolExp2) -> And (neg boolExp1, neg boolExp2)
+    |BVar var -> BVar var
 
 (*reduce expression for "not" and "/" *)
   let rec remove_div e = match e with
@@ -832,6 +843,7 @@ let rec simplify_expr e = match e with
 let rec simplify_bool e = match e with
   | BVar b -> BVar b
   | Eq  (e1, e2) -> Eq  (simplify_expr e1, simplify_expr e2)
+  | Neq  (e1, e2) -> Neq  (simplify_expr e1, simplify_expr e2)
   | Le  (e1, e2) -> Le  (simplify_expr e1, simplify_expr e2)
   | Leq (e1, e2) -> Leq (simplify_expr e1, simplify_expr e2)
   | Gr  (e1, e2) -> Gr  (simplify_expr e1, simplify_expr e2)
@@ -854,6 +866,7 @@ let rec get_varsSet_polyExpr polyExpr = match polyExpr with
 let rec get_varsSet_boolExpr smtBoolExpr = match smtBoolExpr with
   | BVar b -> VariablesSet.singleton b
   | Eq  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
+  | Neq  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
   | Le  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
   | Leq (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
   | Gr  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
