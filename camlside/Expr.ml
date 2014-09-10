@@ -42,11 +42,11 @@ module Expr = struct
       Poly.fold add_monome p2 acc in 
     Poly.fold p2_times_monome p1 Poly.empty 
   
-(*
-  let rec exp (p: Exp.smt_poly_expr) (n: int) = match n with
+
+  let rec power p (n: int) = match n with
      |1 -> p
-     |_ -> times p (exp p (n-1))
-*)
+     |_ -> times p (power p (n-1))
+
   (* evaluate expressions into values *) 
   let rec eval (exp: Exp.smt_poly_expr) = match exp with 
     | Real c -> constant c 
@@ -55,9 +55,9 @@ module Expr = struct
     | Add(e1, e2) -> plus  (eval e1) (eval e2) 
     | Sub(e1, e2) -> minus (eval e1) (eval e2)   
     | Mul(e1, e2) -> times (eval e1) (eval e2) 
+    | Pow(e, n)  -> power (eval e) n
     | _ -> constant 1. (*This will never happen*)
-(*    | Div(e1, e2) -> Div (eval e1) (eval e2) *)
-(*    | Pow(e , n)  -> exp (eval e ) n *)
+(*    | Div(e1, e2) -> Div (eval e1) (eval e2) *) 
 	
 
   let show p = Poly.fold (fun vars coeff acc -> (vars, coeff)::acc) p [] 

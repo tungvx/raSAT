@@ -891,22 +891,34 @@ let genSmtForm sIntv sAssert ub =
   let bass = lstBVar eAss in   
 
   let ori_expr = getAss_expr eAss in
+  (*print_endline (bool_toPrefix ori_expr);
+  flush stdout;*)
 
   (*Remove temporary variables and substitute them by based variables*)
   let sub_expr = subst_bool bass pass ori_expr in
+  (*print_endline (bool_toPrefix sub_expr);
+  flush stdout;*)
 
   (*simplify expression: operations on constants, i.e., constant +-*/ constant..., Div (a, b) = a/b*)
   let simp_expr = simplify_bool sub_expr in
+  (*print_endline (bool_toPrefix simp_expr);
+  flush stdout;*)
 
   (*remove not in expressions, "not" is allowed in quite restricted format, i.e., not (a > b)*)
   (*let red_expr = reduce_expr simp_expr in*)
   let red_expr = remove_not simp_expr in
+  (*print_endline (bool_toPrefix red_expr);
+  flush stdout;*)
 
   (*Placed constants to a left/right of equations, i.e., e1 > e2 <=> e1 - e2 > 0 *)
   let final_expr = bool_simp red_expr in
+  (*print_endline (bool_toPrefix final_expr);
+  flush stdout;*)
 
  (*simplify expression after substitute all temporary variables*)
   let expr = bool_reduce final_expr in
+  (*print_endline (bool_toPrefix expr);
+  flush stdout;*)
 
   (*remove redundant expression, i.e., remove a >= 0 when a >0 occurs*)
   let eList = bool_toList expr in
@@ -931,6 +943,8 @@ let genSmtForm sIntv sAssert ub =
   let strIntv = toString_lstIntv new_lstIntv in  
 
   let strAss = "(assert "^(bool_toPrefix new_expr)^")" in
+  (*print_endline strAss;
+  flush stdout;*)
   (strIntv ^ strAss, 1)
 
   

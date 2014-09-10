@@ -446,8 +446,8 @@ let poly_eval e varsSet ia varsIntvsMap =
 
 (* Check whether an expression e is satisfiable or not provided the over-approximation of sides *)
 let check_sat_providedBounds boolExp bound = 
-  print_endline ("Bounds: " ^ string_of_float bound#l ^ " " ^ string_of_float bound#h);
-  flush stdout;
+  (*print_endline ("Bounds: " ^ string_of_float bound#l ^ " " ^ string_of_float bound#h);
+  flush stdout;*)
   match boolExp with
   |Eq e -> 
     if (bound#l = bound#h && bound#h = 0.) then 1
