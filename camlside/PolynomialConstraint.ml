@@ -146,7 +146,9 @@ class polynomialConstraint boolExprInit =
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
       VariablesSet.cardinal varsDiff
       
-    method check_SAT varsTCsMap = 
+    method check_SAT varsTCsMap =
+      (*print_endline (self#to_string_infix); 
+      flush stdout;*)
       let (sat, value) = checkSAT_computeValues boolExpr varsTCsMap in
       testValue <- value; 
       sat
@@ -220,7 +222,7 @@ class polynomialConstraint boolExprInit =
 		          else baseNum +. randomNum 
 		        in*)
 		        let tc =
-		          if isInfinite || tcNum > 1 || varSen = 0. then
+		          (*if isInfinite || tcNum > 1 || varSen = 0. then
 		            let lowerBase = 
 		              if lowerBound = neg_infinity then min_float
 		              else lowerBound
@@ -234,7 +236,19 @@ class polynomialConstraint boolExprInit =
 	              let randomNum = Random.float bound in (* random number from 0 to bound *)
 		            lowerBase +. randomNum
 	            else if isPositiveSen = isPositiveDirected then upperBound
-	            else lowerBound
+	            else lowerBound*)
+	            let lowerBase = 
+		              if lowerBound = neg_infinity then min_float
+		              else lowerBound
+		            in
+	              let bound = upperBound -. lowerBound in
+	              let bound = 
+	                if bound = infinity then max_float
+	                else bound
+	              in
+	              Random.self_init();
+	              let randomNum = Random.float bound in (* random number from 0 to bound *)
+		            lowerBase +. randomNum
 		        in
 		        tc :: (generate_tc_var interval (tcNum - 1) false varSen isPositiveSen)
 		  in
@@ -248,7 +262,7 @@ class polynomialConstraint boolExprInit =
             if priorityNum > 0 then
                (generate_tc_var interval 2 true varSen isPositiveSen, priorityNum - 1)
             else 
-              (generate_tc_var interval 1 true varSen isPositiveSen, 0)
+              (generate_tc_var interval 2 true varSen isPositiveSen, 0)
           in
           generateTCs_extra t ((var, testcases)::generatedTCs) newPriorityNum
       in

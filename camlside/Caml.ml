@@ -975,10 +975,10 @@ let rec decomp_reduce ass esl = match ass with
             else upperBound -. 10.
           else 
             if upperBound = infinity then lowerBound +. 10. 
-            else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
-              if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
+            else 0.5 *. lowerBound +. 0.5 *. upperBound
+              (*if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
               else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl (*9. *. (upperBound /. 10.) +. lowerBound /. 10.*)
-              else lowerBound +. esl (*upperBound /. 10. +. 9. *. (lowerBound /. 10.)*)
+              else lowerBound +. esl (*upperBound /. 10. +. 9. *. (lowerBound /. 10.)*)*)
               (*let noiseErrCoeff = 0.5 *. upperBound -. 0.5 *. lowerBound in
               let satLength = polyCons#get_satLength in
               let varChange = noiseErrCoeff *. satLength /. varSen in
@@ -1016,8 +1016,8 @@ let rec decomp_reduce ass esl = match ass with
             
             if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
             else (nextMiniSATCode+1, "")*)
-          else if varSen = 0. then
-            (* Compute the SAT length of lower interval by IA *)
+          else (*if varSen = 0. then*)
+            (*(* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
             (*print_endline "Start Computing for lower interval";
             flush stdout;*)
@@ -1056,7 +1056,9 @@ let rec decomp_reduce ass esl = match ass with
               else 
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
-          else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
+          (*else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
+          else (nextMiniSATCode, "")*)*)
+          if Random.bool() then (nextMiniSATCode + 1, "")
           else (nextMiniSATCode, "")
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
@@ -1320,7 +1322,9 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let nextChosenPolyConstraint = IntMap.find h miniSATCodesConstraintsMap in
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
-        let newChosenPolyConstraints = insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)
+        let newChosenPolyConstraints = (*insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)*)
+          nextChosenPolyConstraint::chosenPolyConstraints
+        in
         (*print_endline "Finish adding constraint";
         flush stdout;*)
         getConsAndIntv t nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap newChosenPolyConstraints chosenVarsIntvsMiniSATCodesMap
@@ -1423,11 +1427,19 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                   (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
 
                   (* Unbalance interval decomposition *)
+                  let decomposedExpr = 
+                    if (is_boolExpr_equation (List.hd clTest_US)#get_constraint) then
+                      let firstInequation = first_inequation uk_cl in
+                      match firstInequation with
+                      |[] -> clTest_US
+                      | _ -> firstInequation
+                    else clTest_US
+                  in
                   (*print_endline "decomposing";
                   print_endline(bool_expr_list_to_infix_string decomposedExpr);
                   flush stdout;*)
-                  let testUNSATPolyCons = List.hd clTest_US in
-                  let decomposedPolyConstraints = testUNSATPolyCons :: uk_cl in
+                  (*let testUNSATPolyCons = List.hd clTest_US in
+                  let decomposedPolyConstraints = testUNSATPolyCons :: uk_cl in*)
                   let maxDecomposedVarsNum = 1 in (* only $maxDecomposedVarsNum are allowed to decomposed, the priority is based on sensitivity *)
                   let ((miniSATCodesVarsIntvsMap, nextMiniSATCode), sLearn, bump_vars, isDecomp) = 
                     (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
@@ -1435,8 +1447,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                     if isDecomposed then 
                       (newInterval, newLearn, newBumpVars, isDecomposed)
                     else*)
-                      dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode decomposedPolyConstraints uk_cl
-                                    maxDecomposedVarsNum esl (testUNSATPolyCons#get_miniSATCode) true "" (remainingTime -. Sys.time() +. startTime) in
+                      dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap  nextMiniSATCode (List.hd decomposedExpr) 
+                                    uk_cl maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime) in
 									(*print_endline "after decomposed";
 									flush stdout;*)
                   let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
