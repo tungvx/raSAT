@@ -1058,8 +1058,8 @@ let rec decomp_reduce ass esl = match ass with
                 else (nextMiniSATCode, "")
           (*else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
           else (nextMiniSATCode, "")*)*)
-          if Random.bool() then (nextMiniSATCode + 1, "")
-          else (nextMiniSATCode, "")
+            if Random.bool() then (nextMiniSATCode + 1, "")
+            else (nextMiniSATCode, "")
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
@@ -1082,7 +1082,7 @@ let rec decomp_reduce ass esl = match ass with
       flush stdout;*)
       let decomposedVarsList = 
         if polyCons#isInfinite then [(infVar, 0., false)]
-        else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum reducedVarsSet 
+        else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
       in
       let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
         let intvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in
@@ -1322,9 +1322,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let nextChosenPolyConstraint = IntMap.find h miniSATCodesConstraintsMap in
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
-        let newChosenPolyConstraints = (*insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)*)
-          nextChosenPolyConstraint::chosenPolyConstraints
-        in
+        let newChosenPolyConstraints = insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)
+                                       (*nextChosenPolyConstraint::chosenPolyConstraints in*)
         (*print_endline "Finish adding constraint";
         flush stdout;*)
         getConsAndIntv t nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap newChosenPolyConstraints chosenVarsIntvsMiniSATCodesMap
