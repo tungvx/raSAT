@@ -125,10 +125,12 @@ let rec sum_total_var init mb =
   (*==================================================*)
 
 (*get miniSat form of interval constraints*)
-let genSatForm sAss sIntv esl =
+let genSatForm sAss sIntv esl logic =
+  (*print_endline ("Logic: " ^ logic);
+  flush stdout;*)
   let constraints = ParserConstraints.main LexerConstraints.lex (Lexing.from_string sAss) in
   (*print_endline (bool_expr_to_infix_string ass);*)
-  let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum) = miniSATExpr_of_constraints constraints 1 IntMap.empty in 
+  let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum) = miniSATExpr_of_constraints constraints 1 IntMap.empty logic in 
   (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
   
   (* convert miniSATExpr into CNF *)
@@ -989,8 +991,12 @@ let rec decomp_reduce ass esl = match ass with
                 else lowerBound +. varChange )
               else 0.5 *. upperBound +. 0.5 *. lowerBound*)
         in
-        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;*)
+        let newPoint =
+          if polyCons#get_logic = "QF_NIA" then ceil(newPoint)
+          else newPoint
+        in
+        print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
+        flush stdout;
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
         let (bumpVar, unsatCore) =

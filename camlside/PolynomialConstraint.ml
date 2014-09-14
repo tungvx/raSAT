@@ -30,6 +30,8 @@ class polynomialConstraint boolExprInit =
     val mutable isInfinite = false
     val mutable testValue = 0.
     val mutable iaValue = new IA.interval 0. 0.
+    val mutable logic = ""
+    
     method get_constraint = boolExpr
     
     method get_varsSet = varsSet
@@ -47,6 +49,9 @@ class polynomialConstraint boolExprInit =
     method isPositiveDirected = isPositiveDirected
     
     method isInfinite = isInfinite
+    
+    method set_logic setLogic = logic <- setLogic
+    method get_logic = logic
     
     (* convert the constraint into infix string *)
     method to_string_infix = string_infix_of_boolExp boolExpr
@@ -248,7 +253,10 @@ class polynomialConstraint boolExprInit =
 	              in
 	              Random.self_init();
 	              let randomNum = Random.float bound in (* random number from 0 to bound *)
-		            lowerBase +. randomNum
+	              if logic = "QF_NIA" then 
+	                ceil(lowerBase +. randomNum)
+	              else 
+		              lowerBase +. randomNum
 		        in
 		        tc :: (generate_tc_var interval (tcNum - 1) false varSen isPositiveSen)
 		  in
@@ -277,17 +285,18 @@ type constraints =
   
 
 (* encode the constraints into the form of miniSAT lit *)  
-let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap = match constraints with
+let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap logic = match constraints with
   | And (b1, b2) -> 
-    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap in
-    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 in
+    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
+    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
     (MAnd (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2)
   | BOr (b1, b2) -> 
-    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap in
-    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 in
+    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
+    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
     (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2)
   | Single polyCons -> (
       polyCons#set_miniSATCode index;
+      polyCons#set_logic logic;
       let newMiniSATCodesConstraintsMap = IntMap.add index polyCons miniSATCodesConstraintsMap in
       (Lit index, index + 1, newMiniSATCodesConstraintsMap, polyCons#get_varsNum)  
     )

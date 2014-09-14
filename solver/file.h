@@ -444,6 +444,27 @@ int num_var(char *filename) {
 	return nvar;
 }
 
+//get logic in a smt2 file
+string get_logic(char *filename) {
+	string line;
+	size_t pos;
+	ifstream myfile(filename);
+
+	if (myfile.is_open()) {
+		while (myfile.good()) {
+			getline(myfile, line);
+			pos = line.find("set-logic");
+			if (pos != string::npos){
+				return line.substr(pos + 10, line.length() - 12);
+			}
+		}
+		myfile.close();
+	} else {
+		cout << "Unable to open " << filename << " file!";
+	}
+	return "";
+}
+
 //get >= constraints for variables
 string intv_var(string s) {
 	string s1 = "assert";

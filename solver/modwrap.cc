@@ -24,17 +24,18 @@ value caml_genSmtForm(char * sIntv, char *sAssert, string ub) {
 	CAMLreturn(caml_callbackN(*caml_gen_closure, 3, ml_args));
 }
 
-value caml_genSatForm(char* sAss, char * sIntv, double esl) {
+value caml_genSatForm(char* sAss, char * sIntv, double esl, const char *logic) {
 	CAMLparam0();
-	CAMLlocalN(ml_args, 3);
+	CAMLlocalN(ml_args, 4);
 	ml_args[0] = caml_copy_string(sAss);
 	ml_args[1] = caml_copy_string(sIntv);
 	ml_args[2] = caml_copy_double(esl);
+	ml_args[3] = caml_copy_string(logic);
 
 	static value * caml_gen_closure = NULL;
 	if (caml_gen_closure == NULL)
 		caml_gen_closure = caml_named_value("caml_genSatForm");
-	CAMLreturn(caml_callbackN(*caml_gen_closure, 3, ml_args));
+	CAMLreturn(caml_callbackN(*caml_gen_closure, 4, ml_args));
 	/* We copy the C string returned by String_val to the C heap
 	 so that it remains valid after garbage collection. */
 }

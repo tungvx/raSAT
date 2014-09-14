@@ -219,6 +219,8 @@ int main(int argc, char* argv[]) {
 	//cout << "SMT file: " << smtfile << endl;
 	int nvar = num_var(smtfile);
 	//cout << "number of variables: "<<nvar<<endl;
+  string logic = get_logic(smtfile);
+  //cout << "Logic:" << logic << "t" << endl;
 
 	string str = get_listvars(smtfile, nvar, lb);
 	char *sInt = new char[str.size() + 1];
@@ -237,10 +239,10 @@ int main(int argc, char* argv[]) {
 	CAMLlocal1 (smt);
 	caml_register_global_root(&smt);
 
-	cout << "Run4" << endl;
+	//cout << "Run4" << endl;
 	smt = caml_genSmtForm(sInt, sAs, ub);
 	string smtContent = String_val(Field(smt, 0));
-	cout << "raSAT input form: " << smtContent << "\n";
+	//cout << "raSAT input form: " << smtContent << "\n";
 	caml_remove_global_root(&smt);
 	delete[] sInt;
 	delete[] sAs;
@@ -303,7 +305,8 @@ int main(int argc, char* argv[]) {
 		//esl = atof(argv[3]);
 		esl = getSearchingBox(argv[3]);
 //	cout <<"esl = "<<esl<<endl;
-
+  if (logic == "QF_NIA")
+    esl = ceil(esl);
 	//get the timeout, Jan 14, 2014
 	double timeout = 60.0; //default timeout = 60 seconds
 	if (argc >= 5)
@@ -319,7 +322,7 @@ int main(int argc, char* argv[]) {
 	caml_register_global_root (&intvInfo);
 	caml_register_generational_global_root (&miniSATCodesConstraintsMap);
 //	cout << sIntv << endl;
-	satInfo = caml_genSatForm(sAss, sIntv, esl);
+	satInfo = caml_genSatForm(sAss, sIntv, esl, logic.c_str());
 	int nVars = Int_val(Field(satInfo, 0)); //nVars store the number variables for SAT content
 	string satContent = String_val(Field(satInfo, 1));
 	intvInfo = Field(satInfo, 2);
