@@ -211,9 +211,12 @@ int main(int argc, char* argv[]) {
 	////cout << "Run1" << endl;	
 	string lb = getLoBound(argv[2]);
 	string ub = getUpBound(argv[2]);
+	//cout << "Lower Bound: " << lb << endl;
+	//cout << "Upper Bound: " << ub << endl;
 
-	////cout << "Run2" << endl;	
+	//cout << "Run2" << endl;	
 	char *smtfile = argv[1];
+	//cout << "SMT file: " << smtfile << endl;
 	int nvar = num_var(smtfile);
 	//cout << "number of variables: "<<nvar<<endl;
 
@@ -221,23 +224,23 @@ int main(int argc, char* argv[]) {
 	char *sInt = new char[str.size() + 1];
 	strcpy(sInt, str.c_str());
 
-//	cout << endl << "string of interval: " << str << endl;
+	//cout << endl << "string of interval: " << str << endl;
 
 	////cout << "Run3" << endl;
 	string strAs = get_cons(smtfile, nvar); // get constraints
 	char *sAs = new char[strAs.size() + 1];
 	strcpy(sAs, strAs.c_str());
 
-//	cout << "intervals: " << sInt << endl;
-//	cout << "constraints: " << strAs << endl;
+	//cout << "intervals: " << sInt << endl;
+	//cout << "constraints: " << strAs << endl;
 
 	CAMLlocal1 (smt);
 	caml_register_global_root(&smt);
 
-//	cout << "Run4" << endl;
+	cout << "Run4" << endl;
 	smt = caml_genSmtForm(sInt, sAs, ub);
 	string smtContent = String_val(Field(smt, 0));
-//	cout << "raSAT input form: " << smtContent << "\n";
+	cout << "raSAT input form: " << smtContent << "\n";
 	caml_remove_global_root(&smt);
 	delete[] sInt;
 	delete[] sAs;
@@ -250,6 +253,7 @@ int main(int argc, char* argv[]) {
 
 	////cout << "Run5" << endl;
 	int r = writeFile(rsFile, smtContent);
+
 	if (r != 1) {
 		if (debug)
 			cout << "Can not create " << rsFile << " file!";

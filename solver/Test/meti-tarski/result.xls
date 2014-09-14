@@ -1,0 +1,2 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result
+Test/meti-tarski/CONVOI2-chunk-0025.smt2,4,4,6,0.008,0.004,0.004,0.0,0.0,0.0,0.0,26,25,9,32,32,0,0,sat

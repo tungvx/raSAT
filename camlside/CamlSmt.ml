@@ -31,9 +31,10 @@ let rec getAss_expr = function
 let rec lstSubVar = function
   | As (e1, e2) -> 
       let rec getSubVar = function
-	| PEq (svar, e) -> [(svar, e)]
-	| Let (e1, e2) -> List.append (getSubVar e1) (getSubVar e2)
-	| _ -> [] in
+	      | PEq (svar, e) -> [(svar, e)]
+	      | Let (e1, e2) -> List.append (getSubVar e1) (getSubVar e2)
+	      | _ -> [] 
+	    in
       List.append (getSubVar e1) (lstSubVar e2)
   | Conj (e1, e2) -> List.append (lstSubVar e1) (lstSubVar e2)
   | _ -> []
@@ -773,18 +774,20 @@ let rec get_bExpr e = match e with
     | Le (e1, e2) -> Le (remove_div e1, remove_div e2)
     | Not (a) -> reduce_expr (neg (a))
     | And (e1, e2) -> And (reduce_expr e1, reduce_expr e2)
+    | Or (e1, e2) -> Or (reduce_expr e1, reduce_expr e2)
     | _ -> e
 
  (*remove "not" from expression*)
  let rec remove_not e = match e with 
     | Not (a) -> remove_not (neg (a))
     | And (e1, e2) -> And (remove_not e1, remove_not e2)
+    | Or (e1, e2) -> Or (remove_not e1, remove_not e2)
     | _ -> e
 
   let rec make_lstIntv eIntv upperBound = match eIntv with
     | Geq (Var x, Real a) -> [(x, a, upperBound)]
     | And (e1, e2) -> List.append (make_lstIntv e1 upperBound) (make_lstIntv e2 upperBound)
-    | _ -> [] (*This case is never happen*) 
+    | _ -> [] (*This case is never happen*)
 
   let rec update_var (x, lb, ub) l = match l with
     | [] -> (x, lb, ub)

@@ -1,6 +1,7 @@
-Problem,nVars,nAPIs,time<500 for bound: 0 -> 10,iaTime,testingTime,usTime,result
-Test/zankl/matrix-1-all-01.smt2,19,41,.084,0.012,0.012,0,SAT
-Test/zankl/matrix-1-all-2.smt2,14,23,.356,0.1,0.016,0.008,SAT
-Test/zankl/matrix-1-all-3.smt2,19,40,.596,0.288,0.068,0.012,SAT
-Test/zankl/matrix-1-all-4.smt2,16,36,.072,0.04,0.004,0,SAT
-Test/zankl/matrix-1-all-5.smt2,35,77,27.26,1.464,24.224,0.036,SAT
+Problem,nVars,nAPIs,time<60,result
+,,,0,UNKNOWN
+,,,0,UNKNOWN
+,,,0,UNKNOWN
+,,,0,UNKNOWN
+,,,0,UNKNOWN
+,,,0,UNKNOWN
