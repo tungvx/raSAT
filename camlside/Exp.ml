@@ -16,10 +16,11 @@ type smt_bool_expr =
   | Leq of smt_poly_expr * smt_poly_expr
   | Gr of smt_poly_expr * smt_poly_expr
   | Le of smt_poly_expr * smt_poly_expr
-  | And of smt_bool_expr * smt_bool_expr
-  | Or of smt_bool_expr * smt_bool_expr
   | BVar of string
   | Not of smt_bool_expr
+  | Multiple of smt_bool_expr * smt_bool_expr
+  | And of smt_bool_expr * smt_bool_expr
+  | Or of smt_bool_expr * smt_bool_expr
 
 type let_expr = 
   | PEq of string * smt_poly_expr

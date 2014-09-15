@@ -1,4 +1,4 @@
-open IA;;
+open IA
 open Variable
 module Util = struct
 

@@ -72,6 +72,7 @@ let rec subst_bool bass pass = function
   | Geq (e1, e2) -> Geq (subst_poly pass e1, subst_poly pass e2)
   | And (b1, b2) -> And (subst_bool bass pass b1, subst_bool bass pass b2)
   | Or (b1, b2) -> Or (subst_bool bass pass b1, subst_bool bass pass b2)
+  | Multiple (b1, b2) -> Multiple (subst_bool bass pass b1, subst_bool bass pass b2)
   | Not e -> Not (subst_bool bass pass e)
 
 let isVar = function
@@ -127,7 +128,7 @@ let rec poly_toString sign  = function
   | Pow (e1, n)  -> sign ^ "("^(poly_toString "" e1)^")" ^ "^" ^ (string_of_int n)
 
 (*Represent a bool expression by a string*)
-let rec bool_toString = function
+let rec bool_toString isAndOr = function
   | BVar bVar -> bVar
   | Eq (e1, e2) -> (poly_toString "" e1)^" = " ^ (poly_toString "" e2)
   | Neq (e1, e2) -> (poly_toString "" e1)^" != " ^ (poly_toString "" e2)
@@ -135,15 +136,20 @@ let rec bool_toString = function
   | Leq(e1, e2) -> (poly_toString "" e1)^" <= " ^(poly_toString "" e2)
   | Gr (e1, e2) -> (poly_toString "" e1)^" > " ^ (poly_toString "" e2)
   | Geq(e1, e2) -> (poly_toString "" e1)^" >= " ^(poly_toString "" e2)
-  | And(e1, e2) -> (bool_toString  e1)^"\nand "^(bool_toString  e2)
-  | Or(e1, e2) -> (bool_toString  e1)^"\nor "^(bool_toString  e2)
-  | Not (e1) ->  "Not " ^ (bool_toString e1)  
+  | And(e1, e2) -> (bool_toString 1 e1)^"\nand "^(bool_toString 1 e2)
+  | Or(e1, e2) -> (bool_toString (-1) e1)^"\nor "^(bool_toString (-1) e2)
+  | Multiple (b1, b2) -> 
+    if isAndOr = -1 then
+      (bool_toString (-1) b1)^"\nor "^(bool_toString (-1) b2)
+    else (* default will be And *)
+      (bool_toString 1 b1)^"\nor "^(bool_toString 1 b2)
+  | Not (e1) ->  "Not " ^ (bool_toString 0 e1)  
 
 (* ============================== START let_expr_to_infix_string =======================================*)
 (* This function converts the let expression into the string in infix form *)
 let rec let_expr_to_infix_string = function 
   | PEq (var, smtPolyExpr) -> var ^ " = " ^ (poly_toString "" smtPolyExpr)
-  | BEq (var, smtBoolExpr) -> var ^ " = " ^ (bool_toString smtBoolExpr)
+  | BEq (var, smtBoolExpr) -> var ^ " = " ^ (bool_toString 0 smtBoolExpr)
   | Let (letExpr1, letExpr2) -> (let_expr_to_infix_string letExpr1) ^ "\n" ^ (let_expr_to_infix_string letExpr2)
 (* ============================== END let_expr_to_infix_string =======================================*)
 
@@ -151,7 +157,7 @@ let rec let_expr_to_infix_string = function
 (* ============================== START ass_expr_to_infix_string =======================================*)
 (* This function converts the assertion expression into the string in infix form *)
 let rec ass_expr_to_infix_string = function 
-  | Ch smtBoolExpr -> bool_toString smtBoolExpr
+  | Ch smtBoolExpr -> bool_toString 0 smtBoolExpr
   | As(letExpr, assExpr) ->  (let_expr_to_infix_string letExpr) ^ "\n" ^ (ass_expr_to_infix_string assExpr)
   | Conj(assExpr1, assExpr2) -> (ass_expr_to_infix_string assExpr1) ^ "\n" ^ (ass_expr_to_infix_string assExpr2)  
 (* ============================== END ass_expr_to_infix_string =======================================*)
@@ -181,6 +187,7 @@ let rec bool_reduce = function
   | Gr (e1, e2) -> Gr (remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
   | Geq(e1, e2) -> Geq(remove_zero (Expr.reduce e1), remove_zero (Expr.reduce e2))
   | And(e1, e2) -> And(bool_reduce e1, bool_reduce e2)
+  | Multiple(b1, b2) -> Multiple(bool_reduce b1, bool_reduce b2)
   | Or(e1, e2) -> Or(bool_reduce e1, bool_reduce e2)
   | Not (e1) -> Not (bool_reduce e1)
 
@@ -197,7 +204,7 @@ let rec poly_toPrefix = function
   | Pow (e1, n)  -> "(^ "^ poly_toPrefix e1 ^ " " ^ (string_of_int n)^ ")"
 
 (*Represent a bool expression to a string by prefix order*)
-let rec bool_toPrefix = function
+let rec bool_toPrefix isAndOr = function
   | BVar bVar -> bVar
   | Eq (e1, e2) -> "(= " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | Neq (e1, e2) -> "(!= " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
@@ -205,19 +212,24 @@ let rec bool_toPrefix = function
   | Leq(e1, e2) -> "(<= "^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | Gr (e1, e2) -> "(> " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
   | Geq(e1, e2) -> "(>= " ^ poly_toPrefix e1 ^ " " ^ poly_toPrefix e2 ^ ")"
-  | And(e1, e2) ->"(and "^ bool_toPrefix e1 ^ " " ^ bool_toPrefix e2^ ")"
-  | Or(e1, e2) ->"(or "^ bool_toPrefix e1 ^ " " ^ bool_toPrefix e2^ ")"
-  | Not (e1)    ->"(not "^bool_toPrefix e1^ ")"
+  | And(e1, e2) ->"(and "^ bool_toPrefix 1 e1 ^ " " ^ bool_toPrefix 1 e2^ ")"
+  | Or(e1, e2) ->"(or "^ bool_toPrefix (-1) e1 ^ " " ^ bool_toPrefix (-1) e2^ ")"
+  | Multiple(e1, e2) ->
+    if isAndOr = -1 then 
+      "(or "^ bool_toPrefix (-1) e1 ^ " " ^ bool_toPrefix (-1) e2^ ")"
+    else 
+      "(and "^ bool_toPrefix 1 e1 ^ " " ^ bool_toPrefix 1 e2^ ")"
+  | Not (e1)    ->"(not "^bool_toPrefix 0 e1^ ")"
 
 (*Represent a nil expression to a string by prefix order*)
 let rec bound_toPrefix = function
   | Nil -> ""
-  | BC (b) -> bool_toPrefix b
+  | BC (b) -> bool_toPrefix 0 b
   | AND (b1, b2) -> "(and "^ bound_toPrefix b1 ^ " " ^ bound_toPrefix b2^ ")"
 
 let rec div_constr e = match e with
   | And(e1, e2) -> div_constr e1 ^ "\n" ^ div_constr e2
-  | _ -> bool_toPrefix e
+  | _ -> bool_toPrefix 0 e
 
 let poly_isCons = function
   | Real 0. -> true
@@ -246,6 +258,7 @@ let rec bool_simp = function
       else Geq (Sub(e1, e2), Real 0.)
   | And(e1, e2) -> And (bool_simp e1, bool_simp e2)
   | Or(e1, e2) -> Or (bool_simp e1, bool_simp e2)
+  | Multiple(e1, e2) -> Multiple (bool_simp e1, bool_simp e2)
   | Not (e1) -> Not (bool_simp e1)
 
 
@@ -756,6 +769,7 @@ let rec get_bExpr e = match e with
     |Not(e1) -> e1
     |And (boolExp1, boolExp2) -> Or (neg boolExp1, neg boolExp2)
     |Or (boolExp1, boolExp2) -> And (neg boolExp1, neg boolExp2)
+    |Multiple (boolExp1, boolExp2) -> Multiple (neg boolExp1, neg boolExp2)
     |BVar var -> BVar var
 
 (*reduce expression for "not" and "/" *)
@@ -853,6 +867,7 @@ let rec simplify_bool e = match e with
   | Geq (e1, e2) -> Geq (simplify_expr e1, simplify_expr e2)
   | And (b1, b2) -> And (simplify_bool b1, simplify_bool b2)
   | Or (b1, b2) -> Or (simplify_bool b1, simplify_bool b2)
+  | Multiple (b1, b2) -> Multiple (simplify_bool b1, simplify_bool b2)
   | Not (e1) -> Not (simplify_bool e1)
 
 
@@ -876,6 +891,7 @@ let rec get_varsSet_boolExpr smtBoolExpr = match smtBoolExpr with
   | Geq (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
   | And (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
   | Or (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
+  | Multiple (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
   | Not (e1) -> get_varsSet_boolExpr e1
 
 
@@ -945,7 +961,7 @@ let genSmtForm sIntv sAssert ub =
 
   let strIntv = toString_lstIntv new_lstIntv in  
 
-  let strAss = "(assert "^(bool_toPrefix new_expr)^")" in
+  let strAss = "(assert "^(bool_toPrefix 0 new_expr)^")" in
   (*print_endline strAss;
   flush stdout;*)
   (strIntv ^ strAss, 1)
