@@ -139,13 +139,37 @@ class polynomialConstraint boolExprInit =
       flush stdout;*)
       let rec get_n_first varsSen n = match varsSen with 
         | [] -> []
-        | (var, varSen, isPositiveSen) :: t ->
+        | (var, varSen, isPositiveSen)::t ->
           if n >= 1 then 
             if VariablesSet.mem var varsSet then (var, varSen, isPositiveSen) :: (get_n_first t (n - 1))
             else get_n_first t n
           else []
       in
-      get_n_first varsSen n
+      let rec get_n_random varsSen n = match varsSen with
+        | [] -> []
+        | _ ->
+          if n >= 1 then (
+            let rec remove aList index checkedList = 
+              if index = 0 then
+                match aList with
+                | [] -> raise (Failure "Not found")
+                | h::t -> (h, checkedList@t)
+              else if index > 0 then
+                match aList with
+                | [] -> raise (Failure "Not found")
+                | h::t -> remove t (index - 1) (h::checkedList)
+              else raise (Failure "Not found")
+            in
+            Random.self_init();
+            let randomIndex = Random.int (List.length varsSen) in
+            let ((var, varSen, isPositiveSen), remainingVarsSen) = remove varsSen randomIndex [] in
+            if VariablesSet.mem var varsSet then (var, varSen, isPositiveSen) :: (get_n_random remainingVarsSen (n - 1))
+            else get_n_random remainingVarsSen n
+          )
+          else []
+      in
+      (*get_n_first varsSen n*)
+      get_n_random varsSen n
     
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
@@ -193,7 +217,7 @@ class polynomialConstraint boolExprInit =
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " > 0"  
     
     method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum = 
-      (*print_endline self#to_string_infix;
+      (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)
       let neededVarsSet = VariablesSet.diff varsSet assignedVarsSet in
       let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
@@ -243,21 +267,23 @@ class polynomialConstraint boolExprInit =
 	            else if isPositiveSen = isPositiveDirected then upperBound
 	            else lowerBound*)
 	            let lowerBase = 
-		              if lowerBound = neg_infinity then min_float
-		              else lowerBound
-		            in
-	              let bound = upperBound -. lowerBound in
-	              let bound = 
-	                if bound = infinity then max_float
-	                else bound
-	              in
-	              Random.self_init();
-	              let randomNum = Random.float bound in (* random number from 0 to bound *)
-	              if logic = "QF_NIA" then 
-	                ceil(lowerBase +. randomNum)
-	              else 
-		              lowerBase +. randomNum
+	              if lowerBound = neg_infinity then min_float
+	              else lowerBound
+	            in
+              let bound = upperBound -. lowerBound in
+              let bound = 
+                if bound = infinity then max_float
+                else bound
+              in
+              Random.self_init();
+              let randomNum = Random.float bound in (* random number from 0 to bound *)
+              if logic = "QF_NIA" then 
+                ceil(lowerBase +. randomNum)
+              else 
+	              lowerBase +. randomNum
 		        in
+		        (*print_endline (string_of_float tc);
+		        flush stdout;*)
 		        tc :: (generate_tc_var interval (tcNum - 1) false varSen isPositiveSen)
 		  in
       let rec generateTCs_extra varsSen generatedTCs priorityNum = match varsSen with
@@ -267,14 +293,47 @@ class polynomialConstraint boolExprInit =
           flush stdout;*)
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           let (testcases, newPriorityNum) =
-            if priorityNum > 0 then
-               (generate_tc_var interval 2 true varSen isPositiveSen, priorityNum - 1)
+            if priorityNum > 0 then (
+              (*print_endline var;
+              flush stdout;*)
+              (generate_tc_var interval 2 true varSen isPositiveSen, priorityNum - 1)
+            )
             else 
               (generate_tc_var interval 1 true varSen isPositiveSen, 0)
           in
           generateTCs_extra t ((var, testcases)::generatedTCs) newPriorityNum
       in
-      generateTCs_extra neededVarsSen [] priorityNum
+      let rec generateTCs_extra_random varsSen generatedTCs priorityNum = match varsSen with
+        | [] -> (generatedTCs, priorityNum);
+        | (var, varSen, isPositiveSen)::t ->
+          if priorityNum > 0 then (
+            Random.self_init();
+            let randomIndex = Random.int (List.length varsSen) in
+            let rec remove aList index checkedList = 
+              if index = 0 then
+                match aList with
+                | [] -> raise (Failure "Not found")
+                | h::t1 -> (h, checkedList@t1)
+              else if index > 0 then
+                match aList with
+                | [] -> raise (Failure "Not found")
+                | h::t1 -> remove t1 (index - 1) (h::checkedList)
+              else raise (Failure "Not found")
+            in
+            let ((selectedVar, _, _), remainingVarsSen) = remove varsSen randomIndex [] in
+            (*print_endline selectedVar;
+            flush stdout;*)
+            let (interval, _) = StringMap.find selectedVar varsIntvsMiniSATCodesMap in
+            let testcases = generate_tc_var interval 2 true 0 false in
+            generateTCs_extra_random remainingVarsSen ((selectedVar, testcases)::generatedTCs) (priorityNum - 1)
+          )
+          else
+            let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in 
+            let testcases = generate_tc_var interval 1 true 0 false in
+            generateTCs_extra_random t ((var, testcases)::generatedTCs) 0
+      in
+      (*generateTCs_extra neededVarsSen [] priorityNum*)
+      generateTCs_extra_random neededVarsSen [] priorityNum
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
 

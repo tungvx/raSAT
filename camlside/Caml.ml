@@ -995,8 +995,8 @@ let rec decomp_reduce ass esl = match ass with
           if polyCons#get_logic = "QF_NIA" then ceil(newPoint)
           else newPoint
         in
-        print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;
+        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
+        flush stdout;*)
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
         let (bumpVar, unsatCore) =
@@ -1272,7 +1272,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
    |[] -> (res, us, uk_cl, validPolyConstraints, iaTime, usTime)
    |h::t -> 
       let startTime = Sys.time() in
-      (*print_endline ("Start check sat: " ^ h#to_string_infix);
+      (*print_endline ("\nStart check sat: " ^ h#to_string_infix);
       flush stdout;*)
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
@@ -1328,8 +1328,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let nextChosenPolyConstraint = IntMap.find h miniSATCodesConstraintsMap in
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
-        let newChosenPolyConstraints = insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)
-                                       (*nextChosenPolyConstraint::chosenPolyConstraints in*)
+        let newChosenPolyConstraints = (*insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)*)
+                                       nextChosenPolyConstraint::chosenPolyConstraints in
         (*print_endline "Finish adding constraint";
         flush stdout;*)
         getConsAndIntv t nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap newChosenPolyConstraints chosenVarsIntvsMiniSATCodesMap
@@ -1366,6 +1366,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     flush stdout;*)
     let (polyConstraints, varsIntvsMiniSATCodesMap) = getConsAndIntv solution nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap [] StringMap.empty in
 
+    let polyConstraints = List.rev polyConstraints in
     (*print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
     flush stdout;*)
     (*print_endline ("\nIntervals: " ^ string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)

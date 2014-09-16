@@ -902,6 +902,8 @@ let string_of_bounds bounds = match bounds with
 
 let genSmtForm sIntv sAssert ub =       
   (*get Assert expression from sAssert *)  
+  (*print_endline ("Start parsing SMT constraints: " ^ sAssert);
+  flush stdout;*)
   let eAss = read sAssert in
   (*print_endline (ass_expr_to_infix_string eAss);
   flush stdout;*)

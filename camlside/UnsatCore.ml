@@ -103,12 +103,12 @@ let get_unsatcore_vars polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSA
   let varsList = polyCons#get_varsList in
   (*print_endline ("Variables List: " ^ Util.vars_to_string varsList);
   flush stdout;*)
-  (*let nVars = polyCons#get_varsNum in
+  let nVars = polyCons#get_varsNum in
   let initialCandidate = Cons(([], varsList, false, 0, nVars), fun() -> Nil) in
   let unsatVarsCores = get_unsatcore_vars_extra polyCons varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap (limitedTime -. (Sys.time() -. startTime)) initialCandidate [] in
   if unsatVarsCores = [] then Util.learn_vars varsList varsIntvsMiniSATCodesMap
-  else Util.learn_vars_cores unsatVarsCores varsIntvsMiniSATCodesMap*)
-  Util.learn_vars varsList varsIntvsMiniSATCodesMap
+  else Util.learn_vars_cores unsatVarsCores varsIntvsMiniSATCodesMap
+  (*Util.learn_vars varsList varsIntvsMiniSATCodesMap*)
   
   (*let varsPowerSet = gen_power_set varsList 1 (nVars - 1) in 
   let unsatCoreVars = get_unsatcore_vars_from_list boolExp currentIntv originalIntv varsPowerSet (limitedTime -. (Sys.time() -. startTime)) in
