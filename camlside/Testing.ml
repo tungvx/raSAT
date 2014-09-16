@@ -60,15 +60,15 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
                   in
                   (*print_endline ("Remaining Num of consraints: " ^ string_of_int (IntMap.cardinal remainingMiniSATCodePolyConstraintsMap));
                   flush stdout;*)
-                  (*let (_, randomPolyCons) = IntMap.choose remainingMiniSATCodePolyConstraintsMap in
+                  let (_, randomPolyCons) = IntMap.choose remainingMiniSATCodePolyConstraintsMap in
                   (*print_endline "Finish random taking";
                   flush stdout;*)
                   let (tmpBestPolyCons, _, tmpRemainingMiniSATCodesPolyConstraintsMap) = IntMap.fold process_miniSATCode_polyCons (IntMap.remove randomPolyCons#get_miniSATCode remainingMiniSATCodePolyConstraintsMap)
-                              (randomPolyCons, randomPolyCons#get_varsDiffNum assignedVarsSet ,IntMap.empty) in*)
+                              (randomPolyCons, randomPolyCons#get_varsDiffNum assignedVarsSet ,IntMap.empty) in
                   (*print_endline "Finish finding optimal solution";
                   flush stdout;*)
-                  let (_, tmpBestPolyCons) = IntMap.min_binding remainingMiniSATCodePolyConstraintsMap in
-                  let tmpRemainingMiniSATCodesPolyConstraintsMap = IntMap.remove tmpBestPolyCons#get_miniSATCode remainingMiniSATCodePolyConstraintsMap in
+                  (*let (_, tmpBestPolyCons) = IntMap.min_binding remainingMiniSATCodePolyConstraintsMap in
+                  let tmpRemainingMiniSATCodesPolyConstraintsMap = IntMap.remove tmpBestPolyCons#get_miniSATCode remainingMiniSATCodePolyConstraintsMap in*)
                   let newIndicesSortedPolyConstraintsMap = IntMap.add nextIndex tmpBestPolyCons indicesSortedPolyConstraintsMap in
                   (tmpBestPolyCons, tmpRemainingMiniSATCodesPolyConstraintsMap, newIndicesSortedPolyConstraintsMap, sortedPolyConstraintsMapLength + 1)
               in
