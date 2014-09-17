@@ -65,10 +65,14 @@ smt_bool_expr:
   | GR smt_poly_expr smt_poly_expr       { Gr  ($2, $3) }
   | LE smt_poly_expr smt_poly_expr       { Le  ($2, $3) }
   | LPAREN smt_bool_expr RPAREN      { $2 }
-  | AND smt_bool_expr smt_bool_expr      { And ($2, $3) }
-  | OR smt_bool_expr smt_bool_expr      { Or ($2, $3) }
+  | AND smt_bool_expr smt_bool_exprs      { And ($2, $3) }
+  | OR smt_bool_expr smt_bool_exprs      { Or ($2, $3) }
   | NOT smt_bool_expr                { Not $2 }
   | SUBVAR                       { BVar $1 }
+
+smt_bool_exprs:
+  | smt_bool_expr                 {$1}
+  | smt_bool_expr smt_bool_exprs   {Multiple($1, $2)}
 
 smt_poly_expr:
   | PLUS smt_poly_expr smt_poly_expr     { Add ($2, $3) }
