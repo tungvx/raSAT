@@ -929,7 +929,7 @@ let rec decomp_reduce ass esl = match ass with
 
   (*Binary balance decomposition on intervals*)
   let dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
-    (*print_endline ("Decomposing: " ^ polyCons#to_string_infix);
+    (*print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
     flush stdout;*)
     let startTime = Sys.time() in
     let varsSet = polyCons#get_varsSet in
@@ -965,7 +965,7 @@ let rec decomp_reduce ass esl = match ass with
         let (_, varId) = StringMap.find var varsIntvsMiniSATCodesMap in
         "-" ^ string_of_int varId ^ " " ^ learntVars
       in
-      let learntClauses = VariablesSet.fold add_learnt_var varsSet "" in
+      let learntClauses = VariablesSet.fold add_learnt_var varsSet ("-" ^ string_of_int polyCons#get_miniSATCode ^ " 0") in
       ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false)
     else (*Continue decomposition*)
       let decompose_var var ((intv, varId), varSen, isPositiveSen) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
@@ -1001,8 +1001,8 @@ let rec decomp_reduce ass esl = match ass with
           )
           else newPoint
         in
-        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;*)
+        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);*)
+        flush stdout;
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
         let (bumpVar, unsatCore) =
@@ -1296,6 +1296,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         print_endline (bool_expr_to_infix_string h);
         flush stdout;*)
         (*let lstUC = get_unsatcore h ia assIntv in*)
+        (*print_endline ("UNSAT API: " ^ h#to_string_infix ^ ": " ^ string_of_int h#get_miniSATCode);
+        flush stdout;*)
         let unsatCoreVars = get_unsatcore_vars h varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap ((remainingTime -. Sys.time() +. startTime) (*/. 4.*)) in (* get_unsatcore_vars is defined in Unsat_core.ml *)
         let usTime = usTime +. Sys.time() -. startUSCoreTime in
         (*let str = 

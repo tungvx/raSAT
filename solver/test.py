@@ -118,5 +118,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')
 #run ('Test/zankl', -10, 10, 0.1, 30, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/AProVE', -10, 10, 0.1, 60, 'result.xls')
-run ('Test/smtlib-20140121/QF_NIA/calypto', -10, 10, 0.1, 60, 'result.xls')
+#run ('Test/smtlib-20140121/QF_NIA/calypto', -10, 10, 0.1, 60, 'result.xls')
+#run ('Test/smtlib-20140121/QF_NIA/leipzig', -10, 10, 0.1, 60, 'result.xls')
+#run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, 'result.xls')
 

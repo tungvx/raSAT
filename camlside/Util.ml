@@ -120,20 +120,20 @@ module Util = struct
 	
 	
 	(* Function for converting a list of variables to be learned into minisat codes*)
-	let rec learn_vars varsList intvMap = match varsList with
-	  | [] -> ""
+	let rec learn_vars varsList intvMap polyConsMiniSATCode = match varsList with
+	  | [] -> "-" ^ string_of_int polyConsMiniSATCode ^ " "
     | h::t -> 
       let (_, varId) = StringMap.find h intvMap in
-      "-" ^ string_of_int varId ^ " " ^ (learn_vars  t intvMap)
+      "-" ^ string_of_int varId ^ " " ^ (learn_vars  t intvMap polyConsMiniSATCode)
       
       
   (* This function convert the list of unsat cores into minisat learnt clauses.*)
-  let rec learn_vars_cores varsCores intvMap = match varsCores with
+  let rec learn_vars_cores varsCores intvMap polyConsMiniSATCode = match varsCores with
     | [] -> ""
-    | varsList :: [] -> learn_vars varsList intvMap
+    | varsList :: [] -> learn_vars varsList intvMap polyConsMiniSATCode
     | varsList :: remainingVarsCores -> (
-      let learntVars = learn_vars varsList intvMap in
-      learntVars ^ "0 " ^ learn_vars_cores remainingVarsCores intvMap
+      let learntVars = learn_vars varsList intvMap polyConsMiniSATCode in
+      learntVars ^ "0 " ^ learn_vars_cores remainingVarsCores intvMap polyConsMiniSATCode
     )
     
       
