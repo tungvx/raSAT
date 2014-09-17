@@ -16,6 +16,7 @@ type token =
   | CONJ
   | OR
   | NOT
+  | ITE
   | EQ
   | GEQ
   | LEQ

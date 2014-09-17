@@ -30,4 +30,5 @@ rule lex = parse
   | "<"    { LE  }
   | "("    { LPAREN }
   | ")"    { RPAREN }  
+  | "ite"  { ITE } 
   | eof    { EOF }

@@ -277,8 +277,13 @@ class polynomialConstraint boolExprInit =
               in
               Random.self_init();
               let randomNum = Random.float bound in (* random number from 0 to bound *)
-              if logic = "QF_NIA" then 
-                ceil(lowerBase +. randomNum)
+              if logic = "QF_NIA" then (
+                Random.self_init();
+                if Random.bool() then 
+                  ceil(lowerBase +. randomNum)
+                else 
+                  floor(lowerBase +. randomNum)
+              )
               else 
 	              lowerBase +. randomNum
 		        in

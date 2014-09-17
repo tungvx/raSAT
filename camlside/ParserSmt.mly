@@ -11,7 +11,7 @@ open Exp
 %token PLUS MINUS TIMES DIV POWER
 %token LET
 %token ASSERT
-%token AND CONJ OR NOT
+%token AND CONJ OR NOT ITE
 %token EQ GEQ LEQ GR LE
 
 %left PLUS
@@ -27,6 +27,7 @@ open Exp
 %left CONJ
 %left OR
 %left NOT
+%left ITE
 
 %left EQ
 %left GEQ
@@ -60,7 +61,7 @@ let_expr:
 
 smt_bool_expr:
   | EQ smt_poly_expr smt_poly_expr       { Eq  ($2, $3) }
-  | GEQ smt_poly_expr smt_poly_expr      { Geq ($2, $3) }
+  | GEQ smt_poly_expr smt_poly_expr      { (*print_endline (bool_toString 0 (Geq ($2, $3))); flush stdout;*)Geq ($2, $3) }
   | LEQ smt_poly_expr smt_poly_expr      { Leq ($2, $3) }
   | GR smt_poly_expr smt_poly_expr       { Gr  ($2, $3) }
   | LE smt_poly_expr smt_poly_expr       { Le  ($2, $3) }
@@ -72,16 +73,20 @@ smt_bool_expr:
 
 smt_bool_exprs:
   | smt_bool_expr                 {$1}
-  | smt_bool_expr smt_bool_exprs   {Multiple($1, $2)}
+  | smt_bool_expr smt_bool_exprs  {Multiple($1, $2)}
 
 smt_poly_expr:
-  | PLUS smt_poly_expr smt_poly_expr     { Add ($2, $3) }
+  | PLUS smt_poly_expr smt_poly_exprs     { Add ($2, $3) }
   | MINUS smt_poly_expr smt_poly_expr    { Sub ($2, $3) }
   | MINUS smt_poly_expr              { Sub (Real (0.0), $2) }
-  | TIMES smt_poly_expr smt_poly_expr    { Mul ($2, $3) }
+  | TIMES smt_poly_expr smt_poly_exprs    { Mul ($2, $3) }
   | DIV smt_poly_expr smt_poly_expr      { Div ($2, $3) }
   | POWER smt_poly_expr NUM          { Pow ($2, int_of_string $3) }
   | NUM                          { Real (float_of_string $1) }
   | ID                           { Var $1 }
   | SUBVAR                       { SubVar $1 }
   | LPAREN smt_poly_expr RPAREN      { $2 }
+  
+smt_poly_exprs:
+  | smt_poly_expr {$1}
+  | smt_poly_expr smt_poly_exprs {MultiplePoly ($1, $2)}  

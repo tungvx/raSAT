@@ -992,7 +992,13 @@ let rec decomp_reduce ass esl = match ass with
               else 0.5 *. upperBound +. 0.5 *. lowerBound*)
         in
         let newPoint =
-          if polyCons#get_logic = "QF_NIA" then ceil(newPoint)
+          if polyCons#get_logic = "QF_NIA" then (
+            Random.self_init();
+            if Random.bool() then
+              ceil newPoint
+            else
+              floor newPoint
+          )
           else newPoint
         in
         (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
