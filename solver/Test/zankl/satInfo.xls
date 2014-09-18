@@ -1,0 +1,6 @@
+Problem,result
+Test/zankl/matrix-1-all-3.smt2,sat
+Test/zankl/matrix-1-all-5.smt2,sat
+Test/zankl/matrix-1-all-4.smt2,sat)
+Test/zankl/matrix-1-all-01.smt2,sat
+Test/zankl/matrix-1-all-2.smt2,sat

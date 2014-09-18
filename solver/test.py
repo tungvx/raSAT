@@ -10,7 +10,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
   upperBound = initUpperBound
   with open(os.path.join(directory, resultFile), 'wb') as csvfile:
     spamwriter = csv.writer(csvfile)
-    spamwriter.writerow(['Problem', 'nVars', 'maxVars', 'nAPIs', 'time', 'iaTime', 'testingTime', 'usCoreTime', 'parsingTime', 'decompositionTime', 'miniSATTime', 'miniSATVars', 'miniSATClauses', 'miniSATCalls', 'raSATClauses', 'decomposedLearnedClauses', 'UNSATLearnedClauses', 'unknownLearnedClauses', 'result'])
+    spamwriter.writerow(['Problem', 'nVars', 'maxVars', 'nAPIs', 'time', 'iaTime', 'testingTime', 'usCoreTime', 'parsingTime', 'decompositionTime', 'miniSATTime', 'miniSATVars', 'miniSATClauses', 'miniSATCalls', 'raSATClauses', 'decomposedLearnedClauses', 'UNSATLearnedClauses', 'unknownLearnedClauses', 'result', 'raSATResult'])
     csvfile.close()
   for root, dirnames, filenames in os.walk(directory):
     for filename in fnmatch.filter(filenames, '*.smt2'):
@@ -32,7 +32,16 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
       UNSATLearnedClauses=0
       unknownLearnedClauses=0
       result='unknown'
-      while (time < timeout and result == 'unknown'):
+      raSATResult = 'unknown'
+      try:
+        f = open(os.path.join(root, filename))
+        for line in f:
+          if line.startswith('(set-info :status'):
+            result = line[18:len(line)-2]
+        f.close()
+      except IOError:
+        result = 'unknown'
+      while (time < timeout and raSATResult == 'unknown'):
         subprocess.call(["./raSAT", os.path.join(root, filename), 'lb=' + str(lowerBound) + ' ' + str(upperBound), 'sbox=' + str(sbox), 'tout=' + str(timeout)])
         try:
           with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
@@ -55,7 +64,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
             decomposedLearnedClauses += int(output[15])
             UNSATLearnedClauses += int(output[16])
             unknownLearnedClauses += int(output[17])
-            result = output[18]
+            raSATResult = output[18]
             csvfile.close()
         except IOError:
           result = 'timeout'
@@ -83,14 +92,14 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
               decomposedLearnedClauses += int(output[15])
               UNSATLearnedClauses += int(output[16])
               unknownLearnedClauses += int(output[17])
-              result = output[18]
+              raSATResult = output[18]
               csvfile.close()
           except IOError:
-            result = 'timeout'
+            raSATResult = 'timeout'
             
       with open(os.path.join(directory, resultFile), 'a') as csvfile:
         spamwriter = csv.writer(csvfile)
-        spamwriter.writerow([os.path.join(root, filename), nVars, maxVars, nAPIs, time, iaTime, testingTime, usTime, parsingTime, decompositionTime, miniSATTime, miniSATVars, miniSATClauses, miniSATCalls, raSATClauses, decomposedLearnedClauses, UNSATLearnedClauses, unknownLearnedClauses, result])
+        spamwriter.writerow([os.path.join(root, filename), nVars, maxVars, nAPIs, time, iaTime, testingTime, usTime, parsingTime, decompositionTime, miniSATTime, miniSATVars, miniSATClauses, miniSATCalls, raSATClauses, decomposedLearnedClauses, UNSATLearnedClauses, unknownLearnedClauses, result, raSATResult])
         csvfile.close()
      
       try:
@@ -117,7 +126,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
 #run ('Test/smtlib-20140121/QF_NRA/meti-tarski', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')
 #run ('Test/zankl', -10, 10, 0.1, 30, 'result.xls')
-#run ('Test/smtlib-20140121/QF_NIA/AProVE', -10, 10, 0.1, 60, 'result.xls')
+run ('Test/smtlib-20140121/QF_NIA/AProVE', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/calypto', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/leipzig', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, 'result.xls')
