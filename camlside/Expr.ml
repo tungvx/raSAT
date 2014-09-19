@@ -48,15 +48,21 @@ module Expr = struct
      |_ -> times p (power p (n-1))
 
   (* evaluate expressions into values *) 
-  let rec eval (exp: Exp.smt_poly_expr) = match exp with 
+  let rec eval isAddOrMul (exp: Exp.smt_poly_expr) = match exp with 
     | Real c -> constant c 
     | Var v  -> variable v
     | SubVar u -> variable u
-    | Add(e1, e2) -> plus  (eval e1) (eval e2) 
-    | Sub(e1, e2) -> minus (eval e1) (eval e2)   
-    | Mul(e1, e2) -> times (eval e1) (eval e2) 
-    | Pow(e, n)  -> power (eval e) n
-    | _ -> constant 1. (*This will never happen*)
+    | Add(e1, e2) -> plus  (eval 1 e1) (eval 1 e2) 
+    | Sub(e1, e2) -> minus (eval 0 e1) (eval 0 e2)   
+    | Mul(e1, e2) -> times (eval 2 e1) (eval 2 e2) 
+    | Pow(e, n)  -> power (eval 0 e) n
+    | MultiplePoly (e1, e2) ->
+      if isAddOrMul = 1 then
+        plus  (eval 1 e1) (eval 1 e2) 
+      else if isAddOrMul = 2 then
+        times (eval 2 e1) (eval 2 e2)
+      else constant 0.
+    | _ -> constant 0.
 (*    | Div(e1, e2) -> Div (eval e1) (eval e2) *) 
 	
 
@@ -85,7 +91,7 @@ module Expr = struct
       end
 
   (*Simplify an expression*)  
-  let reduce (e: Exp.smt_poly_expr) = reify (eval e)
+  let reduce (e: Exp.smt_poly_expr) = reify (eval 0 e)
 
 end 
 (*End of module Expr*)

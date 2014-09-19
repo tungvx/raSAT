@@ -798,30 +798,6 @@ let rec simplify_bool e = match e with
   | Not (e1) -> Not (simplify_bool e1)
 
 
-(* This function returns the set of all variables of a polynomial expression *)
-let rec get_varsSet_polyExpr polyExpr = match polyExpr with
-  | Var v  -> VariablesSet.singleton v
-  | Add(e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | Sub(e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2) 
-  | Mul(e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | _ -> VariablesSet.empty
-
-
-(* This function returns the set of all variables of a single boolean expression *)
-let rec get_varsSet_boolExpr smtBoolExpr = match smtBoolExpr with
-  | BVar b -> VariablesSet.singleton b
-  | Eq  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | Neq  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | Le  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | Leq (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | Gr  (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | Geq (e1, e2) -> VariablesSet.union (get_varsSet_polyExpr e1) (get_varsSet_polyExpr e2)
-  | And (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
-  | Or (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
-  | Multiple (b1, b2) -> VariablesSet.union (get_varsSet_boolExpr b1) (get_varsSet_boolExpr b2)
-  | Not (e1) -> get_varsSet_boolExpr e1
-
-
 let string_of_bounds bounds = match bounds with
   | [] -> ""
   | (var, lb, ub)::t -> var ^ " " ^ (string_of_float lb) ^ " " ^ (string_of_float ub) ^ " "
@@ -844,28 +820,28 @@ let genSmtForm sIntv sAssert ub =
 
   (*Remove temporary variables and substitute them by based variables*)
   let sub_expr = subst_bool bass pass ori_expr in
-  (*print_endline (bool_toPrefix sub_expr);
+  (*print_endline (bool_toPrefix 0 sub_expr);
   flush stdout;*)
 
   (*simplify expression: operations on constants, i.e., constant +-*/ constant..., Div (a, b) = a/b*)
   let simp_expr = simplify_bool sub_expr in
-  (*print_endline (bool_toPrefix simp_expr);
+  (*print_endline (bool_toPrefix 0 simp_expr);
   flush stdout;*)
 
   (*remove not in expressions, "not" is allowed in quite restricted format, i.e., not (a > b)*)
   (*let red_expr = reduce_expr simp_expr in*)
   let red_expr = remove_not simp_expr in
-  (*print_endline (bool_toPrefix red_expr);
+  (*print_endline (bool_toPrefix 0 red_expr);
   flush stdout;*)
 
   (*Placed constants to a left/right of equations, i.e., e1 > e2 <=> e1 - e2 > 0 *)
   let final_expr = bool_simp red_expr in
-  (*print_endline (bool_toPrefix final_expr);
+  (*print_endline (bool_toPrefix 0 final_expr);
   flush stdout;*)
 
  (*simplify expression after substitute all temporary variables*)
   let expr = bool_reduce final_expr in
-  (*print_endline (bool_toPrefix expr);
+  (*print_endline (bool_toPrefix 0 expr);
   flush stdout;*)
 
   (*remove redundant expression, i.e., remove a >= 0 when a >0 occurs*)
