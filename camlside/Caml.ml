@@ -1478,7 +1478,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                           bump_vars, "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)    
                   )
                   else  (
-                    (*print_endline ("UNKNOWN Learnt:" ^ sLearn);
+                    (*print_endline ("UNKNOWN constraints: " ^ (List.hd decomposedExpr)#to_string_infix);
+                    print_endline ("UNKNOWN Learnt:" ^ sLearn);
                     flush stdout;*)
                     (res, "", sLearn, "", (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", 
                           bump_vars, "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)    

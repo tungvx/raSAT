@@ -182,6 +182,23 @@ class polynomialConstraint boolExprInit =
       testValue <- value; 
       sat
       
+      
+    method add_sat_direction currentVarSATDirectionMap = 
+      let add_sat_direction_extra currentMap (var, varSen, isPositiveSen) =
+        if varSen = 0. then StringMap.add var 0 currentMap
+        else 
+          let newValue = 
+            if isPositiveSen == isPositiveDirected then 1
+            else -1
+          in
+          try
+            let oldValue = StringMap.find var currentMap in
+            if oldValue = newValue then currentMap
+            else StringMap.add var 0 currentMap
+          with Not_found -> StringMap.add var newValue currentMap
+      in
+      List.fold_left add_sat_direction_extra currentVarSATDirectionMap varsSen
+      
     method log_test = 
       let testValueString = string_of_float testValue in
       match boolExpr with
@@ -216,14 +233,17 @@ class polynomialConstraint boolExprInit =
 	    |Gr e -> 
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " > 0"  
     
-    method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum = 
+    method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum varsSATDirectionMap = 
       (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)
       let neededVarsSet = VariablesSet.diff varsSet assignedVarsSet in
       let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
       (* This function generates test cases for one variable *)
-      let rec generate_tc_var interval tcNum isFirst varSen isPositiveSen =
+      let rec generate_tc_var interval tcNum isFirst varSen isVarPositiveDirected =
+        (*print_endline ("TcNum: " ^ string_of_int tcNum);
+        print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
+        flush stdout;*)
         if tcNum <= 0 then []
         else
           let lowerBound = interval#l in
@@ -250,61 +270,71 @@ class polynomialConstraint boolExprInit =
 		          if isFirst && (baseNum >= 0.1 -. max_float) then baseNum (*+. randomNum*)
 		          else baseNum +. randomNum 
 		        in*)
-		        let tc =
-		          (*if isInfinite || tcNum > 1 || varSen = 0. then
-		            let lowerBase = 
-		              if lowerBound = neg_infinity then min_float
-		              else lowerBound
-		            in
-	              let bound = upperBound -. lowerBound in
-	              let bound = 
-	                if bound = infinity then max_float
-	                else bound
+		        if isVarPositiveDirected = -1 then [lowerBound]
+		        else if isVarPositiveDirected = 1 then [upperBound]
+		        else 
+		          let tc =
+		            (*if isInfinite || tcNum > 1 || varSen = 0. then
+		              let lowerBase = 
+		                if lowerBound = neg_infinity then min_float
+		                else lowerBound
+		              in
+	                let bound = upperBound -. lowerBound in
+	                let bound = 
+	                  if bound = infinity then max_float
+	                  else bound
+	                in
+	                Random.self_init();
+	                let randomNum = Random.float bound in (* random number from 0 to bound *)
+		              lowerBase +. randomNum
+	              else if isPositiveSen = isPositiveDirected then upperBound
+	              else lowerBound*)
+	              let lowerBase = 
+	                if lowerBound = neg_infinity then min_float
+	                else lowerBound
 	              in
-	              Random.self_init();
-	              let randomNum = Random.float bound in (* random number from 0 to bound *)
-		            lowerBase +. randomNum
-	            else if isPositiveSen = isPositiveDirected then upperBound
-	            else lowerBound*)
-	            let lowerBase = 
-	              if lowerBound = neg_infinity then min_float
-	              else lowerBound
-	            in
-              let bound = upperBound -. lowerBound in
-              let bound = 
-                if bound = infinity then max_float
-                else bound
-              in
-              Random.self_init();
-              let randomNum = Random.float bound in (* random number from 0 to bound *)
-              if logic = "QF_NIA" then (
+                let bound = upperBound -. lowerBound in
+                let bound = 
+                  if bound = infinity then max_float
+                  else bound
+                in
                 Random.self_init();
-                if Random.bool() then 
-                  ceil(lowerBase +. randomNum)
+                let randomNum = Random.float bound in (* random number from 0 to bound *)
+                if logic = "QF_NIA" then (
+                  Random.self_init();
+                  if Random.bool() then 
+                    ceil(lowerBase +. randomNum)
+                  else 
+                    floor(lowerBase +. randomNum)
+                )
                 else 
-                  floor(lowerBase +. randomNum)
-              )
-              else 
-	              lowerBase +. randomNum
-		        in
-		        (*print_endline (string_of_float tc);
-		        flush stdout;*)
-		        tc :: (generate_tc_var interval (tcNum - 1) false varSen isPositiveSen)
+	                lowerBase +. randomNum
+		          in
+		          (*print_endline (string_of_float tc);
+		          flush stdout;*)
+		          tc :: (generate_tc_var interval (tcNum - 1) false varSen 0)
 		  in
       let rec generateTCs_extra varsSen generatedTCs priorityNum = match varsSen with
         | [] -> (generatedTCs, priorityNum);
         | (var, varSen, isPositiveSen) :: t ->
-          (*print_endline (var ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen);
+          (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
+          let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+          (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
+          print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
+          print_endline ("priorityNum: " ^ string_of_int priorityNum);
+          print_endline ("priorityNum > 0: " ^ string_of_bool (priorityNum > 0));
+          print_endline ("isVarPositiveDirected = 0 && priorityNum > 0: " ^ string_of_bool (isVarPositiveDirected = 0 && priorityNum > 0));
+          flush stdout;*)
           let (testcases, newPriorityNum) =
-            if priorityNum > 0 then (
+            if isVarPositiveDirected = 0 && priorityNum > 0 then (
               (*print_endline var;
               flush stdout;*)
-              (generate_tc_var interval 2 true varSen isPositiveSen, priorityNum - 1)
+              (generate_tc_var interval 2 true varSen 0, priorityNum - 1)
             )
             else 
-              (generate_tc_var interval 1 true varSen isPositiveSen, 0)
+              (generate_tc_var interval 1 true varSen isVarPositiveDirected, priorityNum)
           in
           generateTCs_extra t ((var, testcases)::generatedTCs) newPriorityNum
       in
@@ -329,12 +359,12 @@ class polynomialConstraint boolExprInit =
             (*print_endline selectedVar;
             flush stdout;*)
             let (interval, _) = StringMap.find selectedVar varsIntvsMiniSATCodesMap in
-            let testcases = generate_tc_var interval 2 true 0 false in
+            let testcases = generate_tc_var interval 2 true 0 0 in
             generateTCs_extra_random remainingVarsSen ((selectedVar, testcases)::generatedTCs) (priorityNum - 1)
           )
           else
             let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in 
-            let testcases = generate_tc_var interval 1 true 0 false in
+            let testcases = generate_tc_var interval 1 true 0 0 in
             generateTCs_extra_random t ((var, testcases)::generatedTCs) 0
       in
       generateTCs_extra neededVarsSen [] priorityNum
