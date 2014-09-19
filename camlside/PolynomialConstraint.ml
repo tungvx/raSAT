@@ -56,6 +56,14 @@ class polynomialConstraint boolExprInit =
     (* convert the constraint into infix string *)
     method to_string_infix = string_infix_of_boolExp boolExpr
     
+    (* convert the varsSen into string *)
+    method string_of_varsSen = 
+      let add_string_var_sen oldString (var, sen, _) = 
+        oldString ^ var ^ ": " ^ string_of_float sen ^ "; "
+      in
+      List.fold_left add_string_var_sen "" varsSen
+      
+    
     method get_varsList = 
       if List.length varsSen = varsNum then self#get_n_varsSen varsNum
       else varsList
@@ -236,6 +244,10 @@ class polynomialConstraint boolExprInit =
     method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum varsSATDirectionMap = 
       (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)
+      (*print_endline ("\n\nSelecting api: " ^ self#to_string_infix);
+      print_endline ("Variables sensitivity: " ^ self#string_of_varsSen);
+      print_string ("Selecting variables: ");
+      flush stdout;*)
       let neededVarsSet = VariablesSet.diff varsSet assignedVarsSet in
       let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
@@ -329,7 +341,7 @@ class polynomialConstraint boolExprInit =
           flush stdout;*)
           let (testcases, newPriorityNum) =
             if isVarPositiveDirected = 0 && priorityNum > 0 then (
-              (*print_endline var;
+              (*print_string (var ^ " ");
               flush stdout;*)
               (generate_tc_var interval 2 true varSen 0, priorityNum - 1)
             )
@@ -356,7 +368,7 @@ class polynomialConstraint boolExprInit =
               else raise (Failure "Not found")
             in
             let ((selectedVar, _, _), remainingVarsSen) = remove varsSen randomIndex [] in
-            (*print_endline selectedVar;
+            (*print_string (selectedVar ^ " ");
             flush stdout;*)
             let (interval, _) = StringMap.find selectedVar varsIntvsMiniSATCodesMap in
             let testcases = generate_tc_var interval 2 true 0 0 in

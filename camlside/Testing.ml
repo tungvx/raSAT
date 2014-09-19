@@ -20,6 +20,8 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
         if VariablesSet.subset testedPolyConsVarsSet assignedVarsSet then (
           (*print_endline (string_of_assignment varsTCsMap);
           flush stdout;*)
+          (*print_varsSet testedPolyConsVarsSet;*)
+          (*print_varsSet assignedVarsSet;*)
           (*print_endline ("Needed: " ^ varsSet_to_string testedPolyConsVarsSet);
           print_endline ("Generated: " ^ varsSet_to_string assignedVarsSet);
           flush stdout;*)
@@ -72,6 +74,10 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
                   let newIndicesSortedPolyConstraintsMap = IntMap.add nextIndex tmpBestPolyCons indicesSortedPolyConstraintsMap in
                   (tmpBestPolyCons, tmpRemainingMiniSATCodesPolyConstraintsMap, newIndicesSortedPolyConstraintsMap, sortedPolyConstraintsMapLength + 1)
               in
+              (*print_endline ("\n\nSelecting api: " ^ nextBestPolyCons#to_string_infix);
+              print_endline ("Variables sensitivity: " ^ nextBestPolyCons#string_of_varsSen);
+              print_string ("Selecting variables for multiple test cases: ");
+              flush stdout;*)
               let newAbstractTCInfList = Cons((varsTCsMap, testCases, assignedVarsSet, nextBestPolyCons, nextIndex, remainingMiniSATCodePolyConstraintsMap, priorityNum), tail) in
               test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum newSortedPolyConstraintsMapLength varsSATDirectionMap (remainingTime -. Sys.time() +. startTime)
           else
@@ -100,14 +106,16 @@ let test polyConstraints varsIntvsMiniSATCodesMap strTestUS remainingTime =
   
   (* Get information about SAT direction of variables *)
   let add_sat_direction currentMap polyCons =
+    (*print_endline ("Testing: " ^ polyCons#to_string_infix);
+    flush stdout;*)
     polyCons#add_sat_direction currentMap
   in
   let varsSATDirectionMap = List.fold_left add_sat_direction StringMap.empty polyConstraints in
-  let print_varSATDirection var isPositiveDirected =
+  (*let print_varSATDirection var isPositiveDirected =
     print_endline (var ^ ": " ^ string_of_int isPositiveDirected);
     flush stdout;
   in
-  StringMap.iter print_varSATDirection varsSATDirectionMap;
+  StringMap.iter print_varSATDirection varsSATDirectionMap;*)
   (* sort the polynomial constraings using dependency, which make the additional test data generation minimal *)
   (*let rec find_min_additionalTCGen_polyCons checkedVarsSet checkedPolyConstraints remainingPolyConstraints currentResult currentAdditionalTCs = match remainingPolyConstraints with
     | [] -> (currentResult, checkedPolyConstraints)
@@ -131,6 +139,10 @@ let test polyConstraints varsIntvsMiniSATCodesMap strTestUS remainingTime =
   (*print_endline ("Number of Tested Constraints: " ^ string_of_int polyConstraintsNum);
   flush stdout;*)
   let firstPolyCons = List.hd polyConstraints in
+  (*print_endline ("\n\nSelecting api: " ^ firstPolyCons#to_string_infix);
+  print_endline ("Variables sensitivity: " ^ firstPolyCons#string_of_varsSen);
+  print_string ("Selecting variables for multiple test cases: ");
+  flush stdout;*)
   let remainingPolyConstraints = List.tl polyConstraints in
   let add_miniSATCodePolyCons miniSATCodesPolyConstraintsMap polyCons =
     (*print_endline ("MiniSATCode: " ^ string_of_int polyCons#get_miniSATCode);
