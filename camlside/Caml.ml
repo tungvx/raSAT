@@ -1001,8 +1001,8 @@ let rec decomp_reduce ass esl = match ass with
           )
           else newPoint
         in
-        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);*)
-        flush stdout;
+        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
+        flush stdout;*)
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
         let (bumpVar, unsatCore) =
@@ -1029,7 +1029,7 @@ let rec decomp_reduce ass esl = match ass with
             if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
             else (nextMiniSATCode+1, "")*)
           else (*if varSen = 0. then*)
-            (*(* Compute the SAT length of lower interval by IA *)
+            (* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
             (*print_endline "Start Computing for lower interval";
             flush stdout;*)
@@ -1069,9 +1069,9 @@ let rec decomp_reduce ass esl = match ass with
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
           (*else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
-          else (nextMiniSATCode, "")*)*)
-            if Random.bool() then (nextMiniSATCode + 1, "")
-            else (nextMiniSATCode, "")
+          else (nextMiniSATCode, "")*)
+            (*if Random.bool() then (nextMiniSATCode + 1, "")
+            else (nextMiniSATCode, "")*)
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
