@@ -977,19 +977,10 @@ let rec decomp_reduce ass esl = match ass with
             else upperBound -. 10.
           else 
             if upperBound = infinity then lowerBound +. 10. 
-            else 0.5 *. lowerBound +. 0.5 *. upperBound
-              (*if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
-              else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl (*9. *. (upperBound /. 10.) +. lowerBound /. 10.*)
-              else lowerBound +. esl (*upperBound /. 10. +. 9. *. (lowerBound /. 10.)*)*)
-              (*let noiseErrCoeff = 0.5 *. upperBound -. 0.5 *. lowerBound in
-              let satLength = polyCons#get_satLength in
-              let varChange = noiseErrCoeff *. satLength /. varSen in
-              if lowerBound +. varChange < upperBound then (
-                print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with change: " ^ string_of_float varChange);
-                flush stdout;
-                if isPositiveSen = polyCons#isPositiveDirected then upperBound -. varChange
-                else lowerBound +. varChange )
-              else 0.5 *. upperBound +. 0.5 *. lowerBound*)
+            else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
+              if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
+              else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl 
+              else lowerBound +. esl
         in
         let newPoint =
           if polyCons#get_logic = "QF_NIA" then (
@@ -1001,7 +992,8 @@ let rec decomp_reduce ass esl = match ass with
           )
           else newPoint
         in
-        (*print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
+        (*print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
+        print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
         flush stdout;*)
         let lowerIntv = new IA.interval lowerBound newPoint in
         let upperIntv = new IA.interval newPoint upperBound in
@@ -1028,7 +1020,7 @@ let rec decomp_reduce ass esl = match ass with
             
             if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
             else (nextMiniSATCode+1, "")*)
-          else (*if varSen = 0. then*)
+          else if varSen = 0. then
             (* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
             (*print_endline "Start Computing for lower interval";
@@ -1068,8 +1060,8 @@ let rec decomp_reduce ass esl = match ass with
               else 
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
-          (*else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
-          else (nextMiniSATCode, "")*)
+          else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
+          else (nextMiniSATCode, "")
             (*if Random.bool() then (nextMiniSATCode + 1, "")
             else (nextMiniSATCode, "")*)
         in
