@@ -977,10 +977,10 @@ let rec decomp_reduce ass esl = match ass with
             else upperBound -. 10.
           else 
             if upperBound = infinity then lowerBound +. 10. 
-            else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
-              if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
+            else 0.5 *. lowerBound +. 0.5 *. upperBound
+              (*if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
               else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl 
-              else lowerBound +. esl
+              else lowerBound +. esl*)
         in
         let newPoint =
           if polyCons#get_logic = "QF_NIA" then (
@@ -1020,7 +1020,7 @@ let rec decomp_reduce ass esl = match ass with
             
             if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
             else (nextMiniSATCode+1, "")*)
-          else if varSen = 0. then
+          else (*if varSen = 0. then
             (* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
             (*print_endline "Start Computing for lower interval";
@@ -1061,9 +1061,9 @@ let rec decomp_reduce ass esl = match ass with
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
           else if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
-          else (nextMiniSATCode, "")
-            (*if Random.bool() then (nextMiniSATCode + 1, "")
-            else (nextMiniSATCode, "")*)
+          else (nextMiniSATCode, "")*)
+            if Random.bool() then (nextMiniSATCode + 1, "")
+            else (nextMiniSATCode, "")
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
@@ -1328,8 +1328,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let nextChosenPolyConstraint = IntMap.find h miniSATCodesConstraintsMap in
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
-        let newChosenPolyConstraints = insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)
-                                       (*nextChosenPolyConstraint::chosenPolyConstraints in*)
+        let newChosenPolyConstraints = (*insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)*)
+                                       nextChosenPolyConstraint::chosenPolyConstraints in
         (*print_endline "Finish adding constraint";
         flush stdout;*)
         getConsAndIntv t nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap newChosenPolyConstraints chosenVarsIntvsMiniSATCodesMap
