@@ -176,8 +176,8 @@ class polynomialConstraint boolExprInit =
           )
           else []
       in
-      (*get_n_first varsSen n*)
-      get_n_random varsSen n
+      get_n_first varsSen n
+      (*get_n_random varsSen n*)
     
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
@@ -241,7 +241,7 @@ class polynomialConstraint boolExprInit =
 	    |Gr e -> 
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " > 0"  
     
-    method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum varsSATDirectionMap = 
+    method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) = 
       (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)
       (*print_endline ("\n\nSelecting api: " ^ self#to_string_infix);
@@ -332,6 +332,7 @@ class polynomialConstraint boolExprInit =
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
+          let isVarPositiveDirected = 0 in
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
@@ -384,8 +385,8 @@ class polynomialConstraint boolExprInit =
             generateTCs_extra_random t ((var, testcases)::generatedTCs) 0
           )
       in
-      (*generateTCs_extra neededVarsSen [] priorityNum*)
-      generateTCs_extra_random neededVarsSen [] priorityNum
+      generateTCs_extra neededVarsSen [] priorityNum
+      (*generateTCs_extra_random neededVarsSen [] priorityNum*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
 
