@@ -1086,7 +1086,7 @@ let rec decomp_reduce ass esl = match ass with
       flush stdout;*)
       let decomposedVarsList = 
         if polyCons#isInfinite then [(infVar, 0., false)]
-        else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
+        else polyCons#get_n_varsSen_fromSet (*maxDecomposedVarsNum*) (VariablesSet.cardinal reducedVarsSet) reducedVarsSet 
       in
       let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
         let intvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in

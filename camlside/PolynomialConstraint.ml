@@ -381,7 +381,7 @@ class polynomialConstraint boolExprInit =
             (*print_endline var;
             flush stdout;*)
             let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in 
-            let testcases = generate_tc_var interval 1 true 0 0 in
+            let testcases = generate_tc_var interval 2 true 0 0 in
             generateTCs_extra_random t ((var, testcases)::generatedTCs) 0
           )
       in
