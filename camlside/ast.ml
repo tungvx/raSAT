@@ -454,7 +454,7 @@ let check_sat_providedBounds boolExp bound =
     else if (bound#h < 0. || bound#l > 0.) then -1
     else 0
   |Neq e -> 
-    if (bound#h = bound#h && bound#h = 0.) then -1
+    if (bound#l = bound#h && bound#h = 0.) then -1
     else if (bound#h < 0. || bound#l > 0.) then 1
     else 0
   |Leq e -> 
