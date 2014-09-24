@@ -347,7 +347,7 @@ class polynomialConstraint boolExprInit =
               (generate_tc_var interval 2 true varSen 0, priorityNum - 1)
             )
             else 
-              (generate_tc_var interval 1 true varSen isVarPositiveDirected, priorityNum)
+              (generate_tc_var interval 2 true varSen isVarPositiveDirected, priorityNum)
           in
           generateTCs_extra t ((var, testcases)::generatedTCs) newPriorityNum
       in
