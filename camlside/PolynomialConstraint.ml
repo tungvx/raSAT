@@ -332,7 +332,7 @@ class polynomialConstraint boolExprInit =
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
-          (*let isVarPositiveDirected = 0 in*)
+          let isVarPositiveDirected = 0 in
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
