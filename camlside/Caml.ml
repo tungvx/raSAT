@@ -1060,10 +1060,10 @@ let rec decomp_reduce ass esl = match ass with
               else 
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
-          else*) (*if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
-          else (nextMiniSATCode, "")*)
-            if Random.bool() then (nextMiniSATCode + 1, "")
-            else (nextMiniSATCode, "")
+          else*) if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
+          else (nextMiniSATCode, "")
+            (*if Random.bool() then (nextMiniSATCode + 1, "")
+            else (nextMiniSATCode, "")*)
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
@@ -1086,7 +1086,7 @@ let rec decomp_reduce ass esl = match ass with
       flush stdout;*)
       let decomposedVarsList = 
         if polyCons#isInfinite then [(infVar, 0., false)]
-        else polyCons#get_n_varsSen_fromSet (*maxDecomposedVarsNum*) (VariablesSet.cardinal reducedVarsSet) reducedVarsSet 
+        else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
       in
       let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
         let intvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in
@@ -1328,8 +1328,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let nextChosenPolyConstraint = IntMap.find h miniSATCodesConstraintsMap in
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
-        let newChosenPolyConstraints = (*insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)*)
-                                       nextChosenPolyConstraint::chosenPolyConstraints in
+        let newChosenPolyConstraints = insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)
+                                       (*nextChosenPolyConstraint::chosenPolyConstraints in*)
         (*print_endline "Finish adding constraint";
         flush stdout;*)
         getConsAndIntv t nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap newChosenPolyConstraints chosenVarsIntvsMiniSATCodesMap
@@ -1419,10 +1419,10 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
            (
              let startDecompositionTime = Sys.time() in
              (* If the uk_cl are equalities, then we implement some tricks for solving them. *)
-             let isEqualitiesSAT = 
+             let (isEqualitiesSAT, unsatPolyConstraints) = 
                if is_all_equations uk_cl then (* is_all_equalities is defined in ast.ml *)
                  check_equalities uk_cl varsIntvsMiniSATCodesMap VariablesSet.empty (* check_equalities is defined in Equalities_handler.ml *)
-               else false
+               else (false, uk_cl)
              in
                if isEqualitiesSAT then 
                   (1, "", "", (*(allLog polyConstraints ia varsIntvsMiniSATCodesMap)*) "", (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), 
@@ -1432,12 +1432,11 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                   (*Balance interval decomposition*)
                   (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
 
-                  (* Unbalance interval decomposition *)
                   let decomposedExpr = 
                     if (is_boolExpr_equation (List.hd clTest_US)#get_constraint) then
                       let firstInequation = first_inequation uk_cl in
                       match firstInequation with
-                      |[] -> clTest_US
+                      |[] -> [List.hd unsatPolyConstraints]
                       | _ -> firstInequation
                     else clTest_US
                   in

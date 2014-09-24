@@ -19,13 +19,14 @@ let check_equality polyCons varsIntvsMiniSATCodesMap =
 (* polyConstraints is a list of polynomial constraints, each constraints must be an equation *)
 let rec check_equalities polyConstraints varsIntvsMiniSATCodesMap consideredVarsSet = 
   match polyConstraints with 
-  | [] -> true 
+  | [] -> (true, [])
   | h::t -> (
     let commonVarsSet = VariablesSet.inter consideredVarsSet h#get_varsSet in
     if VariablesSet.is_empty commonVarsSet then
-      (check_equality h varsIntvsMiniSATCodesMap) && (check_equalities t varsIntvsMiniSATCodesMap (VariablesSet.union consideredVarsSet h#get_varsSet))
+      if check_equality h varsIntvsMiniSATCodesMap then check_equalities t varsIntvsMiniSATCodesMap (VariablesSet.union consideredVarsSet h#get_varsSet)
+      else (false, polyConstraints)
     else
-      false
+      (false, polyConstraints)
   )
 
 (* /\/\/\/\/\/\/\/\/\/\ MODULE for equalities handling /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\*)
