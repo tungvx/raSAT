@@ -1108,8 +1108,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                 in
                 (*print_endline("upperUNSATPolyConstraintsNum: " ^ string_of_int upperUNSATPolyConstraintsNum);
                 flush stdout;*)
-                if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (*(nextMiniSATCode, "")*) (nextMiniSATCode + 1, "")
-                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (*(nextMiniSATCode + 1, "")*) (nextMiniSATCode, "")
+                if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode, "") (*(nextMiniSATCode + 1, "")*)
+                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "") (*(nextMiniSATCode, "")*)
                 else if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
               )
