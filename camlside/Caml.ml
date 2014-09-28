@@ -1077,6 +1077,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             (*print_endline("UNKNOWN Constraints: \n" ^ string_infix_of_polynomialConstraints unkownPolyConstraints);
             flush stdout;*)
             let (lowerRes, lowerUS, lowerUnknownPolyConstraints, _, _, _) = eval_all 1 "" [] [] unkownPolyConstraints 0 lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap 0. 0. (remainingTime -. Sys.time() +. startTime) in
+            let lowerUnknownPolyConstraints = List.rev lowerUnknownPolyConstraints in
             (*print_endline ("Length of unkownPolyConstraints: " ^ string_of_int (List.length unkownPolyConstraints));
             print_endline ("Length of lowerUnknownPolyConstraints: " ^ string_of_int (List.length lowerUnknownPolyConstraints));
             print_endline ("lowerRes: " ^ string_of_int lowerRes);
@@ -1088,6 +1089,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
               (*print_endline ("Upper Intervals: " ^ string_of_intervals upperVarsIntvsMiniSATCodesMap);
               flush stdout;*)
               let (upperRes, upperUS, upperUnknownPolyConstraints, _, _, _) = eval_all 1 "" [] [] unkownPolyConstraints 0 upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap 0. 0. (remainingTime -. Sys.time() +. startTime) in
+              let upperUnknownPolyConstraints = List.rev upperUnknownPolyConstraints in
               (*print_endline ("Length of upperUnknownPolyConstraints: " ^ string_of_int (List.length upperUnknownPolyConstraints));
               print_endline ("upperRes: " ^ string_of_int upperRes);
               flush stdout;*)
