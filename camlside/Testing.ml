@@ -7,11 +7,11 @@ open Util
 
 
 (* This is the helping function for the test function*)
-let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap remainingTime = 
+let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap miniSATCodesSATPolyConstraintsMap remainingTime = 
   match abstractTCInfList with
-  | Nil -> ([],-1, [unsatPolyCons],StringMap.empty)
+  | Nil -> ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
   | Cons((varsTCsMap, testCases, assignedVarsSet, testedPolyCons, currentIndex, remainingMiniSATCodePolyConstraintsMap, priorityNum), tail) ->
-    if remainingTime <= 0. then ([],-1, [unsatPolyCons],StringMap.empty)
+    if remainingTime <= 0. then ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
     else 
       let startTime = Sys.time() in
       match testCases with
@@ -26,9 +26,12 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
           print_endline ("Generated: " ^ varsSet_to_string assignedVarsSet);
           flush stdout;*)
           let sat = testedPolyCons#check_SAT varsTCsMap in
-          if sat then
-            if currentIndex >= polyConstraintsNum then ([], 1, [], varsTCsMap)
+          if sat then (
+            (*print_endline ("SAT constraint: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode);
+            flush stdout;*)
+            if currentIndex >= polyConstraintsNum then ([], 1, [], varsTCsMap, 0)
             else
+              let miniSATCodesSATPolyConstraintsMap = IntMap.add (testedPolyCons#get_miniSATCode) testedPolyCons miniSATCodesSATPolyConstraintsMap in
               let nextIndex = currentIndex + 1 in
               let (nextBestPolyCons, remainingMiniSATCodePolyConstraintsMap, indicesSortedPolyConstraintsMap, newSortedPolyConstraintsMapLength) = 
                 try 
@@ -62,15 +65,15 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
                   in
                   (*print_endline ("Remaining Num of consraints: " ^ string_of_int (IntMap.cardinal remainingMiniSATCodePolyConstraintsMap));
                   flush stdout;*)
-                  (*let (_, randomPolyCons) = IntMap.choose remainingMiniSATCodePolyConstraintsMap in
+                  let (_, randomPolyCons) = IntMap.choose remainingMiniSATCodePolyConstraintsMap in
                   (*print_endline "Finish random taking";
                   flush stdout;*)
                   let (tmpBestPolyCons, _, tmpRemainingMiniSATCodesPolyConstraintsMap) = IntMap.fold process_miniSATCode_polyCons (IntMap.remove randomPolyCons#get_miniSATCode remainingMiniSATCodePolyConstraintsMap)
-                              (randomPolyCons, randomPolyCons#get_varsDiffNum assignedVarsSet ,IntMap.empty) in*)
+                              (randomPolyCons, randomPolyCons#get_varsDiffNum assignedVarsSet ,IntMap.empty) in
                   (*print_endline "Finish finding optimal solution";
                   flush stdout;*)
-                  let (_, tmpBestPolyCons) = IntMap.min_binding remainingMiniSATCodePolyConstraintsMap in
-                  let tmpRemainingMiniSATCodesPolyConstraintsMap = IntMap.remove tmpBestPolyCons#get_miniSATCode remainingMiniSATCodePolyConstraintsMap in
+                  (*let (_, tmpBestPolyCons) = IntMap.min_binding remainingMiniSATCodePolyConstraintsMap in
+                  let tmpRemainingMiniSATCodesPolyConstraintsMap = IntMap.remove tmpBestPolyCons#get_miniSATCode remainingMiniSATCodePolyConstraintsMap in*)
                   let newIndicesSortedPolyConstraintsMap = IntMap.add nextIndex tmpBestPolyCons indicesSortedPolyConstraintsMap in
                   (tmpBestPolyCons, tmpRemainingMiniSATCodesPolyConstraintsMap, newIndicesSortedPolyConstraintsMap, sortedPolyConstraintsMapLength + 1)
               in
@@ -79,16 +82,17 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
               print_string ("Selecting variables for multiple test cases: ");
               flush stdout;*)
               let newAbstractTCInfList = Cons((varsTCsMap, testCases, assignedVarsSet, nextBestPolyCons, nextIndex, remainingMiniSATCodePolyConstraintsMap, priorityNum), tail) in
-              test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum newSortedPolyConstraintsMapLength varsSATDirectionMap (remainingTime -. Sys.time() +. startTime)
+              test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum newSortedPolyConstraintsMapLength varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
+          )
           else
-            test_extra (tail()) varsIntvsMiniSATCodesMap testedPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap (remainingTime -. Sys.time() +. startTime)
+            test_extra (tail()) varsIntvsMiniSATCodesMap testedPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
         )
         else 
           let (generatedTCs, newPriorityNum) = testedPolyCons#generateTCs assignedVarsSet varsIntvsMiniSATCodesMap priorityNum varsSATDirectionMap in
           let newAbstractTCInfList = Cons((varsTCsMap, generatedTCs, assignedVarsSet, testedPolyCons, currentIndex, remainingMiniSATCodePolyConstraintsMap, newPriorityNum), tail) in
-          test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap (remainingTime -. Sys.time() +. startTime)  
+          test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)  
       | (var, [])::remainingTCs -> 
-          test_extra (tail()) varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap (remainingTime -. Sys.time() +. startTime)
+          test_extra (tail()) varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
       | (var, nextTC::remainingTC)::remainingTCs -> 
           let newFirstAss = StringMap.add var nextTC varsTCsMap in
           let newAssignedVarsSet = VariablesSet.add var assignedVarsSet in
@@ -96,11 +100,11 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indi
             Cons((newFirstAss, remainingTCs, newAssignedVarsSet, testedPolyCons, currentIndex, remainingMiniSATCodePolyConstraintsMap, priorityNum), 
                   fun() -> Cons((varsTCsMap, (var, remainingTC)::remainingTCs, assignedVarsSet, testedPolyCons, currentIndex, remainingMiniSATCodePolyConstraintsMap, priorityNum), tail))
           in
-          test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap (remainingTime -. Sys.time() +. startTime)
+          test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
       
 
 (* This function test the list of unknow clauses, trying to find an SAT instance *)
-let test polyConstraints varsIntvsMiniSATCodesMap strTestUS remainingTime =
+let test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
   (*print_endline "Start Test";*)
   let startTime = Sys.time() in
   
@@ -153,6 +157,6 @@ let test polyConstraints varsIntvsMiniSATCodesMap strTestUS remainingTime =
   (*print_endline ("Number of remaining Constraints: " ^ string_of_int (IntMap.cardinal remainingMiniSATCodesPolyConstraintsMap));
   flush stdout;*)
   let indicesSortedPolyConstraintsMap = IntMap.add 1 firstPolyCons IntMap.empty in
-  let priorityNum = 5 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)
+  let priorityNum = 10 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)
   let abstractTCInfList = Cons((StringMap.empty, [], VariablesSet.empty, firstPolyCons, 1, remainingMiniSATCodesPolyConstraintsMap, priorityNum), fun() -> Nil) in 
-  test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum 1 varsSATDirectionMap (remainingTime -. Sys.time() +. startTime)
+  test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum 1 varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime)

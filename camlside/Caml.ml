@@ -925,7 +925,68 @@ let rec decomp_reduce ass esl = match ass with
       )
     )
   *)
-  (*======= end unbalance decomposition =======*)   
+  (*======= end unbalance decomposition =======*)
+  
+ 
+(*Rewrite eval_all for UNSAT cores computations*)
+let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime remainingTime =
+  match polyConstraints with
+   |[] -> (res, us, uk_cl, validPolyConstraints, iaTime, usTime)
+   |h::t -> 
+      let startTime = Sys.time() in
+      (*print_endline ("\nStart check sat: " ^ h#to_string_infix);
+      flush stdout;*)
+      (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
+      flush stdout;*)
+      let res1 = h#check_sat_varsSen_setIsInfinite_setBounds varsIntvsMiniSATCodesMap in
+      (*print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
+
+      flush stdout;*)
+      let iaTime = iaTime +. Sys.time() -. startTime in
+      if (res1 = 1) then 
+        eval_all res us uk_cl (h::validPolyConstraints) t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
+      else if (res1 = -1) then (
+        (*let str = (var_exp h checkVarID)^"0 " in *)
+        (*let lstUC = get_unsatcore h 0 assIntv in *)
+        let startUSCoreTime = Sys.time() in
+        (*print_string "Start UNSAT core: ";
+        print_endline (bool_expr_to_infix_string h);
+        flush stdout;*)
+        (*let lstUC = get_unsatcore h ia assIntv in*)
+        (*print_endline ("UNSAT API: " ^ h#to_string_infix ^ ": " ^ string_of_int h#get_miniSATCode);
+        flush stdout;*)
+        let unsatCoreVars = get_unsatcore_vars h varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap ((remainingTime -. Sys.time() +. startTime) (*/. 4.*)) in (* get_unsatcore_vars is defined in Unsat_core.ml *)
+        let usTime = usTime +. Sys.time() -. startUSCoreTime in
+        (*let str = 
+          let s = var_exp_list lstUC checkVarID in 
+
+          if (s = "") then
+
+            (var_exp h checkVarID)^"0 "
+
+          else
+            s
+
+        in*)
+
+        (*let s2 = 
+         if (str = "") then
+
+           (bool_toString h) ^ str
+         else
+           str
+        in*)
+        (*eval_all (-1) (str^us) [] t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)*)
+        eval_all (-1) (unsatCoreVars^"0 "^us) [] [] t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
+      )
+      else ( (*res1 = 0*)     
+        if res = -1 then
+          eval_all (-1) us [] [] t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
+        else (
+          eval_all 0 us (h::uk_cl) validPolyConstraints t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
+        )
+      )
+
 
   (*Binary balance decomposition on intervals*)
   let dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
@@ -996,11 +1057,61 @@ let rec decomp_reduce ass esl = match ass with
         print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
         flush stdout;*)
         let lowerIntv = new IA.interval lowerBound newPoint in
+        (*print_endline("lowerIntv" ^ lowerIntv#to_string);
+        flush stdout;*)
         let upperIntv = new IA.interval newPoint upperBound in
+        (*print_endline("upperIntv" ^ upperIntv#to_string);
+        flush stdout;*)
         let (bumpVar, unsatCore) =
           if lowerBound = neg_infinity || upperBound = infinity then
             if newPoint > 0. then (nextMiniSATCode, "")
             else (nextMiniSATCode + 1, "")
+          else (
+            (*print_endline ("Current Intervals: " ^ string_of_intervals varsIntvsMiniSATCodesMap);
+            flush stdout;*)
+            (*print_endline ("Original Intervals: " ^ string_of_intervals originalVarsIntvsMiniSATCodesMap);
+            flush stdout;*)
+            let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
+            (*print_endline ("Lower Intervals: " ^ string_of_intervals lowerVarsIntvsMiniSATCodesMap);
+            flush stdout;*)
+            (*print_endline("UNKNOWN Constraints: \n" ^ string_infix_of_polynomialConstraints unkownPolyConstraints);
+            flush stdout;*)
+            let (lowerRes, lowerUS, lowerUnknownPolyConstraints, _, _, _) = eval_all 1 "" [] [] unkownPolyConstraints 0 lowerVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap 0. 0. (remainingTime -. Sys.time() +. startTime) in
+            (*print_endline ("Length of unkownPolyConstraints: " ^ string_of_int (List.length unkownPolyConstraints));
+            print_endline ("Length of lowerUnknownPolyConstraints: " ^ string_of_int (List.length lowerUnknownPolyConstraints));
+            print_endline ("lowerRes: " ^ string_of_int lowerRes);
+            flush stdout;*)
+            if lowerRes = -1 then (nextMiniSATCode+1, lowerUS)
+            else if lowerRes = 1 then (nextMiniSATCode, "")
+            else
+              let upperVarsIntvsMiniSATCodesMap = StringMap.add var (upperIntv, nextMiniSATCode + 1) varsIntvsMiniSATCodesMap in
+              (*print_endline ("Upper Intervals: " ^ string_of_intervals upperVarsIntvsMiniSATCodesMap);
+              flush stdout;*)
+              let (upperRes, upperUS, upperUnknownPolyConstraints, _, _, _) = eval_all 1 "" [] [] unkownPolyConstraints 0 upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap 0. 0. (remainingTime -. Sys.time() +. startTime) in
+              (*print_endline ("Length of upperUnknownPolyConstraints: " ^ string_of_int (List.length upperUnknownPolyConstraints));
+              print_endline ("upperRes: " ^ string_of_int upperRes);
+              flush stdout;*)
+              if upperRes = -1 then (nextMiniSATCode, upperUS)
+              else if upperRes = 1 then (nextMiniSATCode + 1, "")
+              else (
+                (*print_endline ("Remaining time: " ^ string_of_float (remainingTime -. Sys.time() +. startTime));
+                flush stdout;*)
+                let (_, _, _, _, lowerUNSATPolyConstraintsNum) = 
+                  test lowerUnknownPolyConstraints lowerVarsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+                in
+                (*print_endline("lowerUNSATPolyConstraintsNum: " ^ string_of_int lowerUNSATPolyConstraintsNum);
+                flush stdout;*)
+                let (_, _, _, _, upperUNSATPolyConstraintsNum) = 
+                  test upperUnknownPolyConstraints upperVarsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+                in
+                (*print_endline("upperUNSATPolyConstraintsNum: " ^ string_of_int upperUNSATPolyConstraintsNum);
+                flush stdout;*)
+                if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode, "")
+                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "")
+                else if Random.bool() then (nextMiniSATCode + 1, "")
+                else (nextMiniSATCode, "")
+              )
+          )
           (*else 
             (* Compute the SAT length of lower interval by IA *)
             let add_satLength (satLength, varsIntvsMiniSATCodesMap) polyCons =
@@ -1020,7 +1131,7 @@ let rec decomp_reduce ass esl = match ass with
             
             if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
             else (nextMiniSATCode+1, "")*)
-          else (*if varSen = 0. then
+          (*else (*if varSen = 0. then
             (* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
             (*print_endline "Start Computing for lower interval";
@@ -1063,7 +1174,7 @@ let rec decomp_reduce ass esl = match ass with
           else*) (*if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
           else (nextMiniSATCode, "")*)
             if Random.bool() then (nextMiniSATCode + 1, "")
-            else (nextMiniSATCode, "")
+            else (nextMiniSATCode, "")*)
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
@@ -1076,7 +1187,7 @@ let rec decomp_reduce ass esl = match ass with
         in
         let newLearntClauses = 
           if unsatCore = "" then newLearntClauses
-          else unsatCore ^ "0 " ^ newLearntClauses
+          else unsatCore ^ newLearntClauses
         in
         let miniSATCodesVarsIntvsMap = IntMap.add nextMiniSATCode (var, lowerIntv) miniSATCodesVarsIntvsMap in
         let miniSATCodesVarsIntvsMap = IntMap.add (nextMiniSATCode + 1) (var, upperIntv) miniSATCodesVarsIntvsMap in
@@ -1086,7 +1197,7 @@ let rec decomp_reduce ass esl = match ass with
       flush stdout;*)
       let decomposedVarsList = 
         if polyCons#isInfinite then [(infVar, 0., false)]
-        else polyCons#get_n_varsSen_fromSet (*maxDecomposedVarsNum*) (VariablesSet.cardinal reducedVarsSet) reducedVarsSet 
+        else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
       in
       let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
         let intvMiniSATCode = StringMap.find var varsIntvsMiniSATCodesMap in
@@ -1114,209 +1225,6 @@ let rec decomp_reduce ass esl = match ass with
         else 
           dynamicDecomPolyConstraints varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode 
               remainingPolyConstraints unkownPolyConstraints maxDecomposedVarsNum esl firstMiniSATCode false (sLearn ^ learntNotDecomposedIntv) (remainingTime -. Sys.time() +. startTime)
-(* 
- (*============= UNSAT Cores Analysis ===============*)
- (*Get the sign in an multiplication expression*)
-  let rec get_sign sign e = match e with
-  | Real c -> 
-      if (c *.sign >= 0.) then 1.0
-      else -1.0
-  | Mul (e1, e2) ->
-      let s1 = get_sign sign e1 in
-      let s2 = get_sign 1.0 e2 in
-      if (s1 *.s2 >= 0.) then 1.0
-      else -1.0
-  | _ -> sign
-
-  (*Get positive and negative monomials*)
-  let rec get_pn sign e = match e with
-  |Real c ->
-      if (sign *. c >= 0.) then ([Real c], [])
-      else ([], [Real c])
-  |Var x ->
-      if (sign *.1.0 >= 0.) then ([Var x], [])
-      else ([], [Var x])
-  |Mul (e1, e2) -> 
-      let s = get_sign sign e in
-      if (s >= 0.) then ([e],[])
-      else ([], [e])
-  |Add(e1, e2) ->
-      let (p1, n1) = get_pn sign e1 in
-      let (p2, n2) = get_pn sign e2 in
-      (List.append p1 p2, List.append n1 n2)
-  |Sub(e1, e2) ->
-      let (p1, n1) = get_pn sign e1 in
-      let (p2, n2) = get_pn sign (Mul (Real (-1.0), e2)) in
-      (List.append p1 p2, List.append n1 n2)
-  |Pow(e1, n) ->
-      if (sign >= 0.) then ([e],[])
-      else ([], [e])
-
-  (*Add all elements in a list*)
-  let rec collect exp e = match e with
-    |[] -> exp
-    |h:: t-> 
-  if (exp = Real 0.) then collect h t
-  else collect (Add (exp, h)) t
-
-  (*Extract a list of expressions to list of list expressions with length reduced -1*)
-  let rec uc_extract result initial l = match l with
-  |[] -> result
-  |h::t -> 
-      let l1 = List.append initial t in
-      let l2 = h:: initial in
-      uc_extract (l1::result) l2 t
-
-  (*Check whether polynomials are unsat or not*)
-  let isUnsat fpos neg ia assIntv =
-    let poly = collect (Real 0.) (List.append fpos neg) in
-    let (bound,_) = poly_eval poly ia assIntv in
-    if (bound#h < 0.) then
-      true
-    else 
-      false
-
-  (*compute all unsat cores*)
-  let rec uc_analysis fpos flist ia assIntv = match flist with
-  |[] -> []
-  |h::t ->
-    (*Get unsat cores for h*)  
-    let len = List.length h in
-    let bUnsat = isUnsat fpos h ia assIntv in
-    (*print_endline "End isUnsat";
-    flush stdout;*)
-    let lstUC = 
-    if (bUnsat) then (
-      if (len > 1) then ( 
-        let l = uc_extract [] [] h in
-        let subUC = uc_analysis fpos l ia assIntv in
-        if (subUC = []) then 
-          [h]
-        else 
-          subUC
-      )
-      else 
-        [h]
-    )
-    else 
-      []
-    in
-    List.append lstUC (uc_analysis fpos t ia assIntv)  
-
-  (*Assume that all constraints are formed as f > 0.*)
-  let rec merge_list fpos lstUc = match lstUc with
-    |[] -> []
-    |h::t -> 
-       let l = collect (Real 0.) (List.append fpos h) in
-       (Gr l):: (merge_list fpos t)
-
-(*
-  (*Decide whether l is a minimal element in list lst*)
-  let rec is_minimal l lst = match lst with
-  |[] -> true
-  |h::t ->
-      let lstVars = Util.red_list (bool_vars h) in
-      if (subset_list lstVars l) then
-  false
-      else
-  is_minimal l t
-      
-  (*optimizing UNSAT Cores by removing redundants*)
-  let rec get_minimal res lst = match lst with
-    |[] -> res
-    |h::t ->
-  let l1 = Util.red_list (bool_vars h) in
-  if ((is_minimal l1 res) && (is_minimal l1 t)) then
-    get_minimal (h::res) t
-  else
-    get_minimal res t*)
-
-  (*Assume that all constraints are formed as f > 0.*)
-(*  let get_unsatcore f ia assIntv =
-    let f_new = Sub (leftExp f, rightExp f) in
-    let (p, n) = get_pn 1.0 f_new in
-    (*print_int ia;
-    print_endline " End get_pn";
-    print_endline("Positive: " ^ (poly_expr_list_to_infix_string p));
-    print_endline("Negative: " ^ (poly_expr_list_to_infix_string n));
-    flush stdout;*)
-    let lstUnsatCores = uc_analysis p [n] ia assIntv in
-    (*print_endline "End uc_analysis";
-    flush stdout;*)
-    let lstRed_UC =  
-       if (lstUnsatCores = []) then  
-         merge_list p [n] 
-       else
-         merge_list p lstUnsatCores 
-    in
-    (*lstRed_UC*)
-    get_minimal [] lstRed_UC
-    (*merge_list p lstUnsatCores*)
-*)
-(*let rec var_exp_list lst checkVarID = match lst with
-  |[] -> ""
-  |h::t -> 
-   let s = var_exp h checkVarID in
-   if (s = "") then  
-     var_exp_list t checkVarID
-   else
-     s ^ "0 " ^ (var_exp_list t checkVarID)
-(*============= End UNSAT Cores Analysis ===========*)
-*) *)  
- 
-(*Rewrite eval_all for UNSAT cores computations*)
-let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime remainingTime =
-  match polyConstraints with
-   |[] -> (res, us, uk_cl, validPolyConstraints, iaTime, usTime)
-   |h::t -> 
-      let startTime = Sys.time() in
-      (*print_endline ("\nStart check sat: " ^ h#to_string_infix);
-      flush stdout;*)
-      (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
-      flush stdout;*)
-      let res1 = h#check_sat_varsSen_setIsInfinite_setBounds varsIntvsMiniSATCodesMap in
-      (*print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
-      flush stdout;*)
-      let iaTime = iaTime +. Sys.time() -. startTime in
-      if (res1 = 1) then 
-        eval_all res us uk_cl (h::validPolyConstraints) t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-      else if (res1 = -1) then (
-        (*let str = (var_exp h checkVarID)^"0 " in *)
-        (*let lstUC = get_unsatcore h 0 assIntv in *)
-        let startUSCoreTime = Sys.time() in
-        (*print_string "Start UNSAT core: ";
-        print_endline (bool_expr_to_infix_string h);
-        flush stdout;*)
-        (*let lstUC = get_unsatcore h ia assIntv in*)
-        (*print_endline ("UNSAT API: " ^ h#to_string_infix ^ ": " ^ string_of_int h#get_miniSATCode);
-        flush stdout;*)
-        let unsatCoreVars = get_unsatcore_vars h varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap ((remainingTime -. Sys.time() +. startTime) (*/. 4.*)) in (* get_unsatcore_vars is defined in Unsat_core.ml *)
-        let usTime = usTime +. Sys.time() -. startUSCoreTime in
-        (*let str = 
-          let s = var_exp_list lstUC checkVarID in 
-          if (s = "") then
-            (var_exp h checkVarID)^"0 "
-
-          else
-            s
-        in*)
-
-        (*let s2 = 
-         if (str = "") then
-           (bool_toString h) ^ str
-         else
-           str
-        in*)
-        (*eval_all (-1) (str^us) [] t ia assIntv originalIntv checkVarID iaTime usTime (remainingTime -. Sys.time() +. startTime)*)
-        eval_all (-1) (unsatCoreVars^"0 "^us) [] [] t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-      )
-      else ( (*res1 = 0*)     
-        if res = -1 then
-          eval_all (-1) us [] [] t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-        else (
-          eval_all 0 us (h::uk_cl) validPolyConstraints t ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-        )
-      )
 
   (* compute the list of chosen constraints and *)
   let rec getConsAndIntv solution nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap chosenPolyConstraints chosenVarsIntvsMiniSATCodesMap = match solution with
@@ -1328,8 +1236,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let nextChosenPolyConstraint = IntMap.find h miniSATCodesConstraintsMap in
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
-        let newChosenPolyConstraints = (*insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)*)
-                                       nextChosenPolyConstraint::chosenPolyConstraints in
+        let newChosenPolyConstraints = insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)
+                                       (*nextChosenPolyConstraint::chosenPolyConstraints in*)
         (*print_endline "Finish adding constraint";
         flush stdout;*)
         getConsAndIntv t nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap newChosenPolyConstraints chosenVarsIntvsMiniSATCodesMap
@@ -1394,9 +1302,11 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         (*print_endline "Start Testing";
         flush stdout;*)
         let startTestingTime = Sys.time() in
-        let (tc, sTest, clTest_US, a) = 
-          test uk_cl varsIntvsMiniSATCodesMap strTestUS (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+        let (tc, sTest, clTest_US, a, b) = 
+          test uk_cl varsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
         in
+        (*print_endline ("UNSAT constraints num: " ^ string_of_int b);
+        flush stdout;*)
         (*print_endline ("SAT: " ^ assignments_toString tc);*)
         (*let (sTest, clTest_US, a) = evalTest assIntv uk_cl checkVarID strTestUS in*)
         (*let (tc, sTest, clTest_US, a) =  search_tc2 uk_cl assIntv strTestUS esl in *)
