@@ -336,8 +336,8 @@ int main(int argc, char* argv[]) {
 	isNotEquation = Bool_val(Field(satInfo, 7));
 //	cout << "maxVarsNum: " << maxVarsNum << endl;
 //	cout << satContent << endl;
-	cout << "IsEquation: " << isEquation << endl;
-	cout << "isNotEquation: " << isNotEquation << endl;
+//	cout << "IsEquation: " << isEquation << endl;
+//	cout << "isNotEquation: " << isNotEquation << endl;
 	caml_remove_global_root(&satInfo);
 
 //	cout << "Run8" << endl;
