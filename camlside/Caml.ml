@@ -130,7 +130,7 @@ let genSatForm sAss sIntv esl logic =
   flush stdout;*)
   let constraints = ParserConstraints.main LexerConstraints.lex (Lexing.from_string sAss) in
   (*print_endline (bool_expr_to_infix_string ass);*)
-  let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum) = miniSATExpr_of_constraints constraints 1 IntMap.empty logic in 
+  let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation) = miniSATExpr_of_constraints constraints 1 IntMap.empty logic in 
   (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
   
   (* convert miniSATExpr into CNF *)
@@ -162,15 +162,16 @@ let genSatForm sAss sIntv esl logic =
   in
   let intvInfo = generateIntvInfo StringMap.empty IntMap.empty eIntv index in
   (*Compute the total of variables for SAT encoding*)
-  let max_bound = getMB 0.0 eIntv in
+  (*let max_bound = getMB 0.0 eIntv in
   let para = int_of_float (max_bound /. esl) in
   (*let totalVars = iLit * 4 * para in*)
   let totalVars = 
     if max_bound = infinity then 10000
     else index + 2* nVars * (sum_total_var 1 para)
-  in
-  let sTrivialClause = "-" ^string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in
-  (nVars, "p cnf " ^ string_of_int totalVars ^ " " ^ string_of_int (nVars+1+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString ^ sTrivialClause, intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum)
+  in*)
+  (*let sTrivialClause = "-" ^ string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in*)
+  let totalVars = nVars + miniSATClauses in
+  (nVars, "p cnf " ^ string_of_int totalVars ^ " " ^ string_of_int (nVars(*+1*)+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString (*^ sTrivialClause*), intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)
 
   (*log result for satisfiable solution in an expression e*)
   let logSat polyCons ia varsIntvsMiniSATCodesMap = 
@@ -1277,8 +1278,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     let (polyConstraints, varsIntvsMiniSATCodesMap) = getConsAndIntv solution nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap [] StringMap.empty in
 
     (*let polyConstraints = List.rev polyConstraints in*)
-    (*print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
-    flush stdout;*)
+    print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
+    flush stdout;
     (*print_endline ("\nIntervals: " ^ string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in

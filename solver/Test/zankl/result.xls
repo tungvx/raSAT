@@ -1,6 +1,6 @@
-Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result
-Test/zankl/matrix-1-all-3.smt2,19,10,40,30.0,0.848,27.344,0.0,0.152,0.02,2.532,161,234,2357,250,204,46,0,Timeout
-Test/zankl/matrix-1-all-5.smt2,35,10,77,30.0,0.064,30.844,0.0,0.008,0.0,0.168,238,234,88,276,252,24,0,Timeout
-Test/zankl/matrix-1-all-4.smt2,16,9,36,0.032,0.0,0.016,0.0,0.0,0.0,0.008,54,2,2,4,4,0,0,sat
-Test/zankl/matrix-1-all-01.smt2,19,6,41,30.0,5.956,5.276,0.0,0.892,0.084,16.784,88,59,18565,63,56,7,0,Timeout
-Test/zankl/matrix-1-all-2.smt2,14,8,23,0.052,0.0,0.016,0.0,0.004,0.0,0.028,77,87,36,95,80,15,0,sat
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+Test/zankl/matrix-1-all-3.smt2,19,10,40,2.66,0.036,1.292,0.0,0.012,1.448,0.0,159,210,53,230,228,1,1,sat,sat,0,0
+Test/zankl/matrix-1-all-2.smt2,14,8,23,0.016,0.0,0.008,0.0,0.0,0.008,0.0,43,10,4,12,12,0,0,sat,sat,0,0
+Test/zankl/matrix-1-all-4.smt2,16,9,36,0.06,0.012,0.02,0.0,0.0,0.028,0.0,62,15,6,21,21,0,0,sat),sat,0,0
+Test/zankl/matrix-1-all-01.smt2,19,6,41,30.247999999999998,15.148,1.788,0.17600000000000005,9.62,3.8679999999999994,2.3800000000000003,6816,33374,34252,43509,12317,28132,3060,sat,unknown,0,0
+Test/zankl/matrix-1-all-5.smt2,35,10,77,30.0,0.08,11.648,0.0,0.024,19.152,0.0,258,263,75,301,300,0,1,sat,Timeout,0,0

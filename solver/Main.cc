@@ -292,6 +292,8 @@ int main(int argc, char* argv[]) {
 	double UNSATLearnedClauses = 0;
 	double unknownLearnedClauses = 0;
 	int maxVarsNum = 0;
+	bool isEquation = false;
+	bool isNotEquation = false;
 	//char *sta = new char[2048];
 	//char *typeIA = new char[5];
 
@@ -330,8 +332,12 @@ int main(int argc, char* argv[]) {
 	miniSATCodesConstraintsMap = Field(satInfo, 3);
 	int nCons = Int_val(Field(satInfo, 4));
 	maxVarsNum = Int_val(Field(satInfo, 5));
+	isEquation = Bool_val(Field(satInfo, 6));
+	isNotEquation = Bool_val(Field(satInfo, 7));
 //	cout << "maxVarsNum: " << maxVarsNum << endl;
 //	cout << satContent << endl;
+	cout << "IsEquation: " << isEquation << endl;
+	cout << "isNotEquation: " << isNotEquation << endl;
 	caml_remove_global_root(&satInfo);
 
 //	cout << "Run8" << endl;
@@ -743,7 +749,7 @@ int main(int argc, char* argv[]) {
 					fprintf(res, "INDET\n");
 					fclose(res);
 				}
-				//break; // force the loop to be executed once only
+//				break; // force the loop to be executed once only
 			}							 // End while loop
 
 			//cout << "finish while" << endl;
@@ -838,6 +844,9 @@ int main(int argc, char* argv[]) {
 				sprintf(sta, "%s\nUNKOWN learned clauses: %g\n", sta,
 						unknownLearnedClauses);
 
+				final_result << isEquation << ",";
+				final_result << isNotEquation << ",";
+				
 //				cout<<sta;
 				if (finalRes == -2) {
 					//cout <<"\nTIMEOUT";

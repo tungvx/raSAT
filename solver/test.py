@@ -10,7 +10,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
   upperBound = initUpperBound
   with open(os.path.join(directory, resultFile), 'wb') as csvfile:
     spamwriter = csv.writer(csvfile)
-    spamwriter.writerow(['Problem', 'nVars', 'maxVars', 'nAPIs', 'time', 'iaTime', 'testingTime', 'usCoreTime', 'parsingTime', 'decompositionTime', 'miniSATTime', 'miniSATVars', 'miniSATClauses', 'miniSATCalls', 'raSATClauses', 'decomposedLearnedClauses', 'UNSATLearnedClauses', 'unknownLearnedClauses', 'result', 'raSATResult'])
+    spamwriter.writerow(['Problem', 'nVars', 'maxVars', 'nAPIs', 'time', 'iaTime', 'testingTime', 'usCoreTime', 'parsingTime', 'decompositionTime', 'miniSATTime', 'miniSATVars', 'miniSATClauses', 'miniSATCalls', 'raSATClauses', 'decomposedLearnedClauses', 'UNSATLearnedClauses', 'unknownLearnedClauses', 'result', 'raSATResult', 'EQ', 'NEQ'])
     csvfile.close()
   for root, dirnames, filenames in os.walk(directory):
     for filename in fnmatch.filter(filenames, '*.smt2'):
@@ -33,6 +33,8 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
       unknownLearnedClauses=0
       result='unknown'
       raSATResult = 'unknown'
+      isEquation = '0'
+      isNotEquation = '0'
       try:
         f = open(os.path.join(root, filename))
         for line in f:
@@ -64,7 +66,9 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
             decomposedLearnedClauses += int(output[15])
             UNSATLearnedClauses += int(output[16])
             unknownLearnedClauses += int(output[17])
-            raSATResult = output[18]
+            isEquation = output[18]
+            isNotEquation = output[19]
+            raSATResult = output[20]
             csvfile.close()
         except IOError:
           result = 'timeout'
@@ -92,14 +96,16 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
               decomposedLearnedClauses += int(output[15])
               UNSATLearnedClauses += int(output[16])
               unknownLearnedClauses += int(output[17])
-              raSATResult = output[18]
+              isEquation = output[18]
+              isNotEquation = output[19]
+              raSATResult = output[20]
               csvfile.close()
           except IOError:
             raSATResult = 'timeout'
             
       with open(os.path.join(directory, resultFile), 'a') as csvfile:
         spamwriter = csv.writer(csvfile)
-        spamwriter.writerow([os.path.join(root, filename), nVars, maxVars, nAPIs, time, iaTime, testingTime, usTime, parsingTime, decompositionTime, miniSATTime, miniSATVars, miniSATClauses, miniSATCalls, raSATClauses, decomposedLearnedClauses, UNSATLearnedClauses, unknownLearnedClauses, result, raSATResult])
+        spamwriter.writerow([os.path.join(root, filename), nVars, maxVars, nAPIs, time, iaTime, testingTime, usTime, parsingTime, decompositionTime, miniSATTime, miniSATVars, miniSATClauses, miniSATCalls, raSATClauses, decomposedLearnedClauses, UNSATLearnedClauses, unknownLearnedClauses, result, raSATResult, isEquation, isNotEquation])
         csvfile.close()
      
       try:
@@ -125,8 +131,8 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
 #run ('Test/smtlib-20140121/QF_NRA/zankl', -10, 10, 0.1, 500, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NRA/meti-tarski', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')
-#run ('Test/zankl', -10, 10, 0.1, 30, 'result.xls')
-run ('Test/smtlib-20140121/QF_NIA/AProVE', -10, 10, 0.1, 60, 'result.xls')
+run ('Test/zankl', -10, 10, 0.1, 30, 'result.xls')
+#run ('Test/smtlib-20140121/QF_NIA/AProVE', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/calypto', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/leipzig', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, 'result.xls')
