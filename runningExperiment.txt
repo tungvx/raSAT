@@ -1,8 +1,7 @@
 running experiments:
-1. raSAT_2_1TCs_5_1DecomposedVar_1
-2. raSAT_AllVarsTest_AllVarsDecomposed
-3. raSAT_2_1TCs_10_1DecomposedVar_3
-4. raSAT_2_1TCs_10_1DecomposedVar_4
-5. raSAT_2_1TCs_10_1DecomposedVar_5
-6. raSAT_2_1TCs_10_1DecomposedVar_6
-7. raSAT_2_1TCs_10_1DecomposedVar_7
+1. raSAT_2_1TCs_10_1DecomposedVar_2: zankl, unsat directed
+2. raSAT_2_1TCs_10_1DecomposedVar_3: zankl, sat directed
+3. raSAT_2_1TCs_10_1DecomposedVar_4: zankl, random
+4. raSAT_2_1TCs_10_1DecomposedVar_5: meti-tarski, unsat directed
+5. raSAT_2_1TCs_10_1DecomposedVar_6: meti-tarski, sat directed
+6. raSAT_2_1TCs_10_1DecomposedVar_7: meti-tarski, random
