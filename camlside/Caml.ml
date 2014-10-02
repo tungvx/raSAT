@@ -1002,7 +1002,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         false
       else if upperBound = infinity && lowerBound > max_float -. esl then
         false
-      else if upperBound <= esl +. lowerBound then 
+      else if upperBound < esl +. lowerBound then 
         false
       else
         true
@@ -1044,7 +1044,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
               else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl 
               else lowerBound +. esl*)
         in
-        let newPoint =
+        (*let newPoint =
           if polyCons#get_logic = "QF_NIA" then (
             Random.self_init();
             if Random.bool() then
@@ -1053,14 +1053,24 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
               floor newPoint
           )
           else newPoint
-        in
-        (*print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
+        in*)
+        print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
         print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;*)
-        let lowerIntv = new IA.interval lowerBound newPoint in
+        flush stdout;
+        let lowerIntv = 
+          if polyCons#get_logic = "QF_NIA" && ceil lowerBound = floor newPoint then
+            let tmpNewPoint = floor newPoint in
+            new IA.interval tmpNewPoint tmpNewPoint
+          else new IA.interval lowerBound newPoint 
+        in
         (*print_endline("lowerIntv" ^ lowerIntv#to_string);
         flush stdout;*)
-        let upperIntv = new IA.interval newPoint upperBound in
+        let upperIntv = 
+          if polyCons#get_logic = "QF_NIA" && ceil newPoint = floor upperBound then
+            let tmpNewPoint = floor upperBound in
+            new IA.interval tmpNewPoint tmpNewPoint
+          else new IA.interval newPoint upperBound 
+        in
         (*print_endline("upperIntv" ^ upperIntv#to_string);
         flush stdout;*)
         let (bumpVar, unsatCore) =

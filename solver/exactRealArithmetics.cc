@@ -9,6 +9,10 @@
 
 using namespace iRRAM;
 
+void testIRRAM() {
+  cout << REAL(-176) + REAL(0.1e+0309) - REAL(0.1e+0309) << std::endl;
+}
+
 // function for extracting tokens (words) from a string. Tokens are seperated by delimiter in the string.
 // returns a vector of tokens.
 std::vector<std::string> string_split(std::string s, const char delimiter) {
@@ -88,6 +92,7 @@ bool check(string expression, std::map<string, REAL> ass) {
 			REAL r2 = stack.top();
 			stack.pop();
 			// add above two values and push into the stack.
+//			cout << r1 << " + " << r2 << " = " << r1 + r2 << std::endl;
 			stack.push(r1 + r2);
 		} else if (tmp.compare("-") == 0) {
 			// we need at least two values on the stack for minus operator.
@@ -109,6 +114,7 @@ bool check(string expression, std::map<string, REAL> ass) {
 			stack.pop();
 			REAL r2 = stack.top();
 			stack.pop();
+//			cout << r1 << " * " << r2 << " = " << r1 * r2 << std::endl;
 			stack.push(r1 * r2);
 		} else if (tmp.compare("^") == 0) {
 			// we need at least two values on the stack for power operator: a^b or power(a, b)
@@ -266,8 +272,8 @@ bool check(string expression, std::map<string, REAL> ass) {
  * check SAT of list of clauses (expressions) provided the assignments of variables.
  */
 bool checkSAT(char* clausesList, char* assignments) {
-//	cout << "ClausesList: " << clausesList << "\n";
-//	cout << "Assignments: " << assignments << "\n";
+	cout << "ClausesList: " << clausesList << "\n";
+	cout << "Assignments: " << assignments << "\n";
 // first, try to parse the assignments from the string and store them into a map for later uses.
 	std::map < string, REAL > ass;
 	std::vector < std::string > tokens = string_split(assignments, ' '); // extract list of tokens.

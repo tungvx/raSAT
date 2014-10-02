@@ -319,16 +319,22 @@ class polynomialConstraint boolExprInit =
                 if logic = "QF_NIA" then (
                   Random.self_init();
                   if Random.bool() then 
-                    ceil(lowerBase +. randomNum)
+                    let testcase = ceil(lowerBase +. randomNum) in
+                    if testcase > upperBound then floor(lowerBase +. randomNum)
+                    else testcase
                   else 
-                    floor(lowerBase +. randomNum)
+                    let testcase = floor(lowerBase +. randomNum) in
+                    if testcase < lowerBound then ceil(lowerBase +. randomNum)
+                    else testcase
                 )
                 else 
 	                lowerBase +. randomNum
 		          in
 		          (*print_endline (string_of_float tc);
 		          flush stdout;*)
-		          tc :: (generate_tc_var interval (tcNum - 1) false varSen 0)
+		          if tc >= lowerBound && tc <= upperBound then (* for QF_NIA, sometimes the test cases are not in the interval due to rounding *)
+		            tc :: (generate_tc_var interval (tcNum - 1) false varSen 0)
+		          else generate_tc_var interval (tcNum - 1) false varSen 0
 		  in
       let rec generateTCs_extra varsSen generatedTCs priorityNum = match varsSen with
         | [] -> (generatedTCs, priorityNum);
