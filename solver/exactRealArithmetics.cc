@@ -10,7 +10,12 @@
 using namespace iRRAM;
 
 void testIRRAM() {
-  cout << REAL(-176) + REAL(0.1e+0309) - REAL(0.1e+0309) << std::endl;
+  cout << REAL(2) + REAL(0.1e+0309) - REAL(0.1e+0309) << std::endl;
+  if (REAL(2) + REAL(0.1e+0309) - REAL(0.1e+0309) > REAL(1)) {
+    cout << "true" << std::endl;
+  } else {    
+    cout << "false" << std::endl;
+  }
 }
 
 // function for extracting tokens (words) from a string. Tokens are seperated by delimiter in the string.
