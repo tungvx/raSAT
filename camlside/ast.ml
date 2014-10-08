@@ -509,10 +509,11 @@ let check_sat_get_satLength_providedBounds boolExp bound =
 
 
 (* check sat of boolean expression using ICI *)
-let check_sat_getBound_ici_boolExpr boolExpr varsIntvsMap =
+let check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap =
   let polyExpr = get_exp boolExpr in
   let iciBound  =  poly_eval_ici polyExpr varsIntvsMap in
-  (check_sat_providedBounds boolExpr iciBound, iciBound)
+  let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr iciBound in
+  (sat, iciBound, satLength)
 
 let check_sat_ici_get_satLength_boolExpr boolExpr varsIntvsMap =
   let polyExpr = get_exp boolExpr in
@@ -560,7 +561,7 @@ let check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum vars
     let newLowerBound = max afTwoBound#l ciBound#l in
     let newHigherBound = min afTwoBound#h ciBound#h in
     let newBound = new IA.interval newLowerBound newHigherBound in
-    let sat = check_sat_providedBounds boolExpr newBound in
+    let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr newBound in
     (sat, satLength, varsSens, newBound)
   else (sat, satLength, varsSens, afTwoBound)
   
