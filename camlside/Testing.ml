@@ -114,11 +114,11 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
       let startTime = Sys.time() in
       match testCases with
       | [] -> (* Testing for some apis are implemented here, or testcases will be generated *)
-        (*print_endline ("Testing: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
+        (*print_endline ("\nTesting: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
         flush stdout;*)
         let sat = testedPolyCons#check_SAT varsTCsMap in
         if sat then (
-          (*print_endline ("\nSAT constraint: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
+          (*print_endline ("SAT constraint: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
           flush stdout;*)
           match remainingPolyConstraints with
           | [] -> ([], 1, [], varsTCsMap, 0)
@@ -128,19 +128,15 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
             let newAbstractTCInfList = Cons((varsTCsMap, generatedTCs, assignedVarsSet, h, t, newPriorityNum), tail) in
             test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons polyConstraintsNum varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
         )
-        else
-          let currentUnsatEasiness = unsatPolyCons#get_easiness in
-          let newUnsatEasiness = testedPolyCons#get_easiness in
+        else (
+          (*print_endline ("UNSAT constraint: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
+          flush stdout;*)
           let newUnsatPolyCons =
-            if (*currentUnsatEasiness > newUnsatEasiness*) currentUnsatEasiness < newUnsatEasiness then unsatPolyCons
-            else if (*currentUnsatEasiness < newUnsatEasiness*) currentUnsatEasiness > newUnsatEasiness then testedPolyCons
-            else (
-              Random.self_init();
-              if Random.bool() then unsatPolyCons
-              else testedPolyCons
-            )
+            if IntMap.mem testedPolyCons#get_miniSATCode miniSATCodesSATPolyConstraintsMap then unsatPolyCons
+            else testedPolyCons
           in
           test_extra (tail()) varsIntvsMiniSATCodesMap newUnsatPolyCons polyConstraintsNum varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
+        )
       | (var, [])::remainingTCs -> 
           test_extra (tail()) varsIntvsMiniSATCodesMap unsatPolyCons polyConstraintsNum varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
       | (var, nextTC::remainingTC)::remainingTCs -> 

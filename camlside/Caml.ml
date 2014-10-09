@@ -932,9 +932,13 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
   | [] -> [polyCons]
   | h :: t -> 
     let currentEasiness = h#get_easiness in
-    let newDifficulty = polyCons#get_easiness in
-    if currentEasiness < newDifficulty then (*h :: (insertionSort_byEasiness polyCons t)*) polyCons :: polyConstraints
-    else if currentEasiness > newDifficulty then (*polyCons :: polyConstraints *) h :: (insertionSort_byEasiness polyCons t)
+    let newEasiness = polyCons#get_easiness in
+    (* easy first *)
+    (*if currentEasiness < newEasiness then polyCons :: polyConstraints
+    else if currentEasiness > newEasiness then h :: (insertionSort_byEasiness polyCons t)*)
+    (* hard first *)
+    if currentEasiness < newEasiness then h :: (insertionSort_byEasiness polyCons t)
+    else if currentEasiness > newEasiness then polyCons :: polyConstraints
     else (
       Random.self_init();
       if Random.bool() then h :: (insertionSort_byEasiness polyCons t)
@@ -1127,15 +1131,19 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                 let (_, _, _, _, lowerUNSATPolyConstraintsNum) = 
                   test lowerUnknownPolyConstraints lowerVarsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
                 in
-                print_endline("lowerUNSATPolyConstraintsNum: " ^ string_of_int lowerUNSATPolyConstraintsNum);
-                flush stdout;
+                (*print_endline("lowerUNSATPolyConstraintsNum: " ^ string_of_int lowerUNSATPolyConstraintsNum);
+                flush stdout;*)
                 let (_, _, _, _, upperUNSATPolyConstraintsNum) = 
                   test upperUnknownPolyConstraints upperVarsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
                 in
-                print_endline("upperUNSATPolyConstraintsNum: " ^ string_of_int upperUNSATPolyConstraintsNum);
-                flush stdout;
-                if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode, "") (*(nextMiniSATCode + 1, "")*)
-                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "") (*(nextMiniSATCode, "")*)
+                (*print_endline("upperUNSATPolyConstraintsNum: " ^ string_of_int upperUNSATPolyConstraintsNum);
+                flush stdout;*)
+                (* SAT directed *)
+                if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode, "")
+                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "")
+                (* UNSAT directed *)
+                (*if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "")
+                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode, "")*)
                 else (
                   Random.self_init();
                   if Random.bool() then (nextMiniSATCode + 1, "")
@@ -1197,8 +1205,12 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
               else if upperSAT = -1 then (* UNSAT, we learn the intervals *) 
                 let unsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) in
                 (nextMiniSATCode, unsatCore)
-              else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode + 1, "")
-              else if (*lowerSatLength > upperSatLength*) lowerEasiness > upperEasiness then (nextMiniSATCode, "")
+              (* SAT directed *)
+              (*else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode + 1, "")
+              else if (*lowerSatLength > upperSatLength*) lowerEasiness > upperEasiness then (nextMiniSATCode, "")*)
+              (* UNSAT directed: *)
+              else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode, "")
+              else if (*lowerSatLength > upperSatLength*) lowerEasiness > upperEasiness then (nextMiniSATCode + 1, "")
               else 
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
@@ -1218,7 +1230,11 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         in
         let newLearntClauses = 
           if unsatCore = "" then newLearntClauses
-          else unsatCore ^ newLearntClauses
+          else 
+            (* box selection using easiness*)
+            unsatCore ^ "0 " ^ newLearntClauses
+            (* box selection using number of unsat apis *)
+            (*unsatCore ^ newLearntClauses*)
         in
         let miniSATCodesVarsIntvsMap = IntMap.add nextMiniSATCode (var, lowerIntv) miniSATCodesVarsIntvsMap in
         let miniSATCodesVarsIntvsMap = IntMap.add (nextMiniSATCode + 1) (var, upperIntv) miniSATCodesVarsIntvsMap in
