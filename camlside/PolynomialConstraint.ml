@@ -202,7 +202,7 @@ class polynomialConstraint boolExprInit =
       flush stdout;*)
       let (sat, value) = checkSAT_computeValues boolExpr varsTCsMap in
       testValue <- value; 
-      true
+      sat
       
       
     method add_sat_direction currentVarSATDirectionMap = 
