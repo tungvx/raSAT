@@ -66,3 +66,6 @@ running experiments:
 36. raSAT_2_1TCs_10_1DecomposedVar_36: zankl, 10-6-8: YES
 37. raSAT_2_1TCs_10_1DecomposedVar_37: zankl, 10-3-8: YES
 38. raSAT_2_1TCs_10_1DecomposedVar_38: zankl, 10-4-8: YES
+39. raSAT_2_1TCs_10_1DecomposedVar_39: meti-tarski, 10-7-9: YES
+40. raSAT_2_1TCs_10_1DecomposedVar_40: meti-tarski, 1-5-9: YES
+41. raSAT_2_1TCs_10_1DecomposedVar_41: QF_NIA/AProVE, 10-7-9: YES
