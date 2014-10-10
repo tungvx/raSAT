@@ -202,7 +202,7 @@ class polynomialConstraint boolExprInit =
       flush stdout;*)
       let (sat, value) = checkSAT_computeValues boolExpr varsTCsMap in
       testValue <- value; 
-      sat
+      true
       
       
     method add_sat_direction currentVarSATDirectionMap = 
@@ -405,6 +405,48 @@ class polynomialConstraint boolExprInit =
             generateTCs_extra_random t ((var, testcases)::generatedTCs) 0
           )
       in
+      let rec generateTCs_extra_1VarChosen_random varsSen generatedTCs priorityNum isFirst = match varsSen with
+        | [] -> (generatedTCs, priorityNum);
+        | (var, varSen, isPositiveSen) :: t ->
+          (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
+          flush stdout;*)
+          let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
+          let isVarPositiveDirected = 0 in
+          (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
+          print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
+          print_endline ("priorityNum: " ^ string_of_int priorityNum);
+          print_endline ("priorityNum > 0: " ^ string_of_bool (priorityNum > 0));
+          print_endline ("isVarPositiveDirected = 0 && priorityNum > 0: " ^ string_of_bool (isVarPositiveDirected = 0 && priorityNum > 0));
+          flush stdout;*)
+          if isFirst && isVarPositiveDirected = 0 && priorityNum > 0 then (
+            Random.self_init();
+            let randomIndex = Random.int (List.length varsSen) in
+            let rec remove aList index checkedList = 
+              if index = 0 then
+                match aList with
+                | [] -> raise (Failure "Not found")
+                | h::t1 -> (h, checkedList@t1)
+              else if index > 0 then
+                match aList with
+                | [] -> raise (Failure "Not found")
+                | h::t1 -> remove t1 (index - 1) (h::checkedList)
+              else raise (Failure "Not found")
+            in
+            let ((selectedVar, _, _), remainingVarsSen) = remove varsSen randomIndex [] in
+            (*print_endline (selectedVar);
+            flush stdout;*)
+            let (interval, _) = StringMap.find selectedVar varsIntvsMiniSATCodesMap in
+            let testcases = generate_tc_var interval 2 true 0 0 in
+            generateTCs_extra_1VarChosen_random remainingVarsSen ((selectedVar, testcases)::generatedTCs) (priorityNum - 1) false
+          )
+          else (
+            (*print_endline (var);
+            flush stdout;*)
+            let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+            let testcases = generate_tc_var interval 1 true varSen isVarPositiveDirected in
+            generateTCs_extra_1VarChosen_random t ((var, testcases)::generatedTCs) priorityNum false
+         )
+      in
       let rec generateTCs_extra_1VarChosen varsSen generatedTCs priorityNum isFirst = match varsSen with
         | [] -> (generatedTCs, priorityNum);
         | (var, varSen, isPositiveSen) :: t ->
@@ -430,9 +472,11 @@ class polynomialConstraint boolExprInit =
           in
           generateTCs_extra_1VarChosen t ((var, testcases)::generatedTCs) newPriorityNum false
       in
+      
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true
+      (*generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true*)
+      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
 

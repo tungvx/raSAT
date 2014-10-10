@@ -1,17 +1,30 @@
 Settings:
 1. Selecting API for testing:
-  (1) Difficulty first
-  (2) Easy first
-  (10) Random
+  (1) Difficulty first: 
+    . Caml.ml, line 937, 942
+    . Testing.ml, line 12    
+  (2) Easy first: 
+    . Caml.ml, line 937, 938
+    . Testing.ml, line 12
+  (10) Random: 
+    . Caml.ml line 952
+    . Testing.ml, line 15
 2. Selecting Variable:
   (8) With sensitivity
-  (9) Without sensitivity - Random
+    . PolynomialConstraint.ml, line 478, 193
+  (9) Without sensitivity - Random: 
+    . PolynomialConstraint.ml, line 479, 194
 3. Selecting box:
   (3) SAT-directed using IA-Testing.
+    . Caml.ml, line 1249, 1017
   (4) UNSAT-directed using IA-Testing.
+    . Caml.ml, line 1249, 1017
   (5) SAT-directed using IA-Testing
+    . Caml.ml, line 1246, 1218, 1182
   (6) UNSAT-directed using IA-Testing
+    . Caml.ml, line 1249, 1221, 1182
   (7) Random
+    . Caml.ml, line 1228
   
 
 running experiments:
@@ -42,3 +55,5 @@ running experiments:
 25. raSAT_2_1TCs_10_1DecomposedVar_25: meti-tarski, easy first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-6-8: YES
 26. raSAT_2_1TCs_10_1DecomposedVar_26: meti-tarski, easy first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-3-8: YES
 27. raSAT_2_1TCs_10_1DecomposedVar_27: meti-tarski, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60s: 2-4-8: YES
+28. raSAT_2_1TCs_10_1DecomposedVar_28: zankl, 1-7-8: YES
+29. raSAT_2_1TCs_10_1DecomposedVar_29: zankl, 2-7-8: YES
