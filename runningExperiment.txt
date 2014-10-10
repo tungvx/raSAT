@@ -22,23 +22,23 @@ running experiments:
 5. raSAT_2_1TCs_10_1DecomposedVar_6: meti-tarski, sat directed
 6. raSAT_2_1TCs_10_1DecomposedVar_7: meti-tarski, random
 7. raSAT_2_1TCs_10_1DecomposedVar_1: QF_NIA/AProVE, unsat directed
-8. raSAT_2_1TCs_10_1DecomposedVar_8: zankl, easy first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases: 52: 2-5
-9. raSAT_2_1TCs_10_1DecomposedVar_9: zankl, easy first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 46: 2-6
-10. raSAT_2_1TCs_10_1DecomposedVar_10: zankl, easy first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases: 44: 2-3
-11. raSAT_2_1TCs_10_1DecomposedVar_11: zankl, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases: 47: 2-4
-12. raSAT_2_1TCs_10_1DecomposedVar_12: zankl, hard first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases: 48: 1-4
-13. raSAT_2_1TCs_10_1DecomposedVar_13: zankl, hard first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases: 45: 1-3
-14. raSAT_2_1TCs_10_1DecomposedVar_14: zankl, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases: 56: 1-5
-15. raSAT_2_1TCs_10_1DecomposedVar_15: zankl, hard first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 45: 1-6
-16. raSAT_2_1TCs_10_1DecomposedVar_16: zankl, no dependency, random choice of var, random choice of box: 45: 1-6 YES
-17. raSAT_2_1TCs_10_1DecomposedVar_17: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5: YES
-18. raSAT_2_1TCs_10_1DecomposedVar_18: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=100s: 1-5: YES
-19. raSAT_2_1TCs_10_1DecomposedVar_19: meti-tarski, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5: YES
-20. raSAT_2_1TCs_10_1DecomposedVar_20: meti-tarski, hard first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 1-6
-21. raSAT_2_1TCs_10_1DecomposedVar_21: meti-tarski, hard first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-3: YES
-22. raSAT_2_1TCs_10_1DecomposedVar_22: meti-tarski, hard first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-4: 
-23. raSAT_2_1TCs_10_1DecomposedVar_23: meti-tarski, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=200s: 1-5: YES
-24. raSAT_2_1TCs_10_1DecomposedVar_24: meti-tarski, easy first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-5: YES
-25. raSAT_2_1TCs_10_1DecomposedVar_25: meti-tarski, easy first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-6: YES
-26. raSAT_2_1TCs_10_1DecomposedVar_26: meti-tarski, easy first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-3: YES
-27. raSAT_2_1TCs_10_1DecomposedVar_27: meti-tarski, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60s: 2-4: YES
+8. raSAT_2_1TCs_10_1DecomposedVar_8: zankl, easy first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases: 52: 2-5-8
+9. raSAT_2_1TCs_10_1DecomposedVar_9: zankl, easy first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 46: 2-6-8
+10. raSAT_2_1TCs_10_1DecomposedVar_10: zankl, easy first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases: 44: 2-3-8
+11. raSAT_2_1TCs_10_1DecomposedVar_11: zankl, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases: 47: 2-4-8
+12. raSAT_2_1TCs_10_1DecomposedVar_12: zankl, hard first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases: 48: 1-4-8
+13. raSAT_2_1TCs_10_1DecomposedVar_13: zankl, hard first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases: 45: 1-3-8
+14. raSAT_2_1TCs_10_1DecomposedVar_14: zankl, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases: 56: 1-5-8
+15. raSAT_2_1TCs_10_1DecomposedVar_15: zankl, hard first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 45: 1-6-8
+16. raSAT_2_1TCs_10_1DecomposedVar_16: zankl, no dependency, random choice of var, random choice of box: 45: 1-6-8 YES
+17. raSAT_2_1TCs_10_1DecomposedVar_17: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5-8: YES
+18. raSAT_2_1TCs_10_1DecomposedVar_18: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=100s: 1-5-8: YES
+19. raSAT_2_1TCs_10_1DecomposedVar_19: meti-tarski, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5-8: YES
+20. raSAT_2_1TCs_10_1DecomposedVar_20: meti-tarski, hard first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 1-6-8
+21. raSAT_2_1TCs_10_1DecomposedVar_21: meti-tarski, hard first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-3-8: YES
+22. raSAT_2_1TCs_10_1DecomposedVar_22: meti-tarski, hard first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-4-8: YES
+23. raSAT_2_1TCs_10_1DecomposedVar_23: meti-tarski, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=200s: 1-5-8: YES
+24. raSAT_2_1TCs_10_1DecomposedVar_24: meti-tarski, easy first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-5-8: YES
+25. raSAT_2_1TCs_10_1DecomposedVar_25: meti-tarski, easy first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-6-8: YES
+26. raSAT_2_1TCs_10_1DecomposedVar_26: meti-tarski, easy first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases, tout=60: 2-3-8: YES
+27. raSAT_2_1TCs_10_1DecomposedVar_27: meti-tarski, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60s: 2-4-8: YES

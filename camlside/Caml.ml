@@ -933,10 +933,10 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
   | h :: t -> 
     let currentEasiness = h#get_easiness in
     let newEasiness = polyCons#get_easiness in
-    (* easy first *)
-    (*if currentEasiness < newEasiness then polyCons :: polyConstraints
+    (*(* (2) easy first *)
+    if currentEasiness < newEasiness then polyCons :: polyConstraints
     else if currentEasiness > newEasiness then h :: (insertionSort_byEasiness polyCons t)*)
-    (* hard first *)
+    (* (1) hard first *)
     if currentEasiness < newEasiness then h :: (insertionSort_byEasiness polyCons t)
     else if currentEasiness > newEasiness then polyCons :: polyConstraints
     else (
@@ -1096,7 +1096,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
           if lowerBound = neg_infinity || upperBound = infinity then
             if newPoint > 0. then (nextMiniSATCode, "")
             else (nextMiniSATCode + 1, "")
-          (*else (
+          (*(* (3) and (4) *)  
+          else (
             (*print_endline ("Current Intervals: " ^ string_of_intervals varsIntvsMiniSATCodesMap);
             flush stdout;*)
             (*print_endline ("Original Intervals: " ^ string_of_intervals originalVarsIntvsMiniSATCodesMap);
@@ -1170,6 +1171,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             
             if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
             else (nextMiniSATCode+1, "")*)
+          (*(* (5) and (6) *)
           else (*if varSen = 0. then*)
             (* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in
@@ -1205,19 +1207,21 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
               else if upperSAT = -1 then (* UNSAT, we learn the intervals *) 
                 let unsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) in
                 (nextMiniSATCode, unsatCore)
-              (* SAT directed *)
-              (*else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode + 1, "")
+              (*(* (5) Strategy: SAT directed using Easiness *)
+              else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode + 1, "")
               else if (*lowerSatLength > upperSatLength*) lowerEasiness > upperEasiness then (nextMiniSATCode, "")*)
-              (* UNSAT directed: *)
+              (* (6) Strategy: UNSAT directedusing Easiness *)
               else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode, "")
               else if (*lowerSatLength > upperSatLength*) lowerEasiness > upperEasiness then (nextMiniSATCode + 1, "")
               else 
                 if Random.bool() then (nextMiniSATCode + 1, "")
-                else (nextMiniSATCode, "")
-          (*else (*if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
+                else (nextMiniSATCode, "")*)
+          
+          (*(7) strategy *)
+          else (*if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
           else (nextMiniSATCode, "")*)
             if Random.bool() then (nextMiniSATCode + 1, "")
-            else (nextMiniSATCode, "")*)
+            else (nextMiniSATCode, "")
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
