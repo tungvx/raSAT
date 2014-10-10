@@ -475,8 +475,8 @@ class polynomialConstraint boolExprInit =
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      (*generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true*)
-      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true
+      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true
+      (*generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
 
