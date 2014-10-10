@@ -16,15 +16,15 @@ Settings:
     . PolynomialConstraint.ml, line 479, 194
 3. Selecting box:
   (3) SAT-directed using IA-Testing.
-    . Caml.ml, line 1249, 1017
+    . Caml.ml, line 1253, 1108, 1152-1154
   (4) UNSAT-directed using IA-Testing.
-    . Caml.ml, line 1249, 1017
-  (5) SAT-directed using IA-Testing
-    . Caml.ml, line 1246, 1218, 1182
-  (6) UNSAT-directed using IA-Testing
-    . Caml.ml, line 1249, 1221, 1182
+    . Caml.ml, line 1253, 1108, 1156-1158
+  (5) SAT-directed using eainess
+    . Caml.ml, line 1250, 1183-1230, 1220
+  (6) UNSAT-directed using easiness
+    . Caml.ml, line 1250, 1183-1230, 1224
   (7) Random
-    . Caml.ml, line 1228
+    . Caml.ml, line 1232
   
 
 running experiments:
@@ -57,3 +57,12 @@ running experiments:
 27. raSAT_2_1TCs_10_1DecomposedVar_27: meti-tarski, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60s: 2-4-8: YES
 28. raSAT_2_1TCs_10_1DecomposedVar_28: zankl, 1-7-8: YES
 29. raSAT_2_1TCs_10_1DecomposedVar_29: zankl, 2-7-8: YES
+30. raSAT_2_1TCs_10_1DecomposedVar_30: zankl, 1-5-9: YES
+31. raSAT_2_1TCs_10_1DecomposedVar_31: zankl, 1-6-9: YES
+32. raSAT_2_1TCs_10_1DecomposedVar_32: zankl, 2-5-9: YES
+33. raSAT_2_1TCs_10_1DecomposedVar_33: zankl, 2-6-9: YES
+34. raSAT_2_1TCs_10_1DecomposedVar_34: zankl, 10-7-9: YES
+35. raSAT_2_1TCs_10_1DecomposedVar_35: zankl, 10-5-8: YES
+36. raSAT_2_1TCs_10_1DecomposedVar_36: zankl, 10-6-8: YES
+37. raSAT_2_1TCs_10_1DecomposedVar_37: zankl, 10-3-8: YES
+38. raSAT_2_1TCs_10_1DecomposedVar_38: zankl, 10-4-8: YES
