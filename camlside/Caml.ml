@@ -934,12 +934,12 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
     let currentEasiness = h#get_easiness in
     let newEasiness = polyCons#get_easiness in
     
-    (* (* (1) (2) *)
-    (* (2) easy first *)
+    (*(* (1) (2) needs to change line 952 *)
+    (* (2) need to change 942 *)
     if currentEasiness < newEasiness then polyCons :: polyConstraints
     else if currentEasiness > newEasiness then h :: (insertionSort_byEasiness polyCons t)
     
-    (*(* (1) hard first *)
+    (*(* (1) need to change 938 *)
     if currentEasiness < newEasiness then h :: (insertionSort_byEasiness polyCons t)
     else if currentEasiness > newEasiness then polyCons :: polyConstraints*)
     
@@ -949,7 +949,7 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
       else polyCons :: polyConstraints
     )*)
     
-    (* (10) *)
+    (* (10) need to change line 937 and 950 *)
     Random.self_init();
     if Random.bool() then h :: (insertionSort_byEasiness polyCons t)
     else polyCons :: polyConstraints
@@ -1105,7 +1105,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
           if lowerBound = neg_infinity || upperBound = infinity then
             if newPoint > 0. then (nextMiniSATCode, "")
             else (nextMiniSATCode + 1, "")
-          (*(* (3) and (4) *)  
+          (* (3) and (4) *)  
           else (
             (*print_endline ("Current Intervals: " ^ string_of_intervals varsIntvsMiniSATCodesMap);
             flush stdout;*)
@@ -1148,19 +1148,22 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                 in
                 (*print_endline("upperUNSATPolyConstraintsNum: " ^ string_of_int upperUNSATPolyConstraintsNum);
                 flush stdout;*)
-                (* SAT directed *)
+                
+                (*(* (3) SAT directed *)
                 if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode, "")
-                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "")
-                (* UNSAT directed *)
-                (*if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "")
-                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode, "")*)
+                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "")*)
+                
+                (* (4) UNSAT directed *)
+                if lowerUNSATPolyConstraintsNum < upperUNSATPolyConstraintsNum then (nextMiniSATCode + 1, "")
+                else if lowerUNSATPolyConstraintsNum > upperUNSATPolyConstraintsNum then (nextMiniSATCode, "")
+                
                 else (
                   Random.self_init();
                   if Random.bool() then (nextMiniSATCode + 1, "")
                   else (nextMiniSATCode, "")
                 )
               )
-          )*)
+          )
           (*else 
             (* Compute the SAT length of lower interval by IA *)
             let add_satLength (satLength, varsIntvsMiniSATCodesMap) polyCons =
@@ -1216,21 +1219,24 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
               else if upperSAT = -1 then (* UNSAT, we learn the intervals *) 
                 let unsatCore = get_unsatcore_vars polyCons upperVarsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) in
                 (nextMiniSATCode, unsatCore)
-              (*(* (5) Strategy: SAT directed using Easiness *)
-              else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode + 1, "")
+                
+              (* (5) Strategy: SAT directed using Easiness, need to change line 1224 *)
+              (*else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode + 1, "")
               else if (*lowerSatLength > upperSatLength*) lowerEasiness > upperEasiness then (nextMiniSATCode, "")*)
-              (* (6) Strategy: UNSAT directedusing Easiness *)
+              
+              (* (6) Strategy: UNSAT directedusing Easiness, need to change line 1220 *)
               else if (*lowerSatLength < upperSatLength*) lowerEasiness < upperEasiness then (nextMiniSATCode, "")
               else if (*lowerSatLength > upperSatLength*) lowerEasiness > upperEasiness then (nextMiniSATCode + 1, "")
+              
               else 
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")*)
           
-          (*(7) strategy *)
+          (*(*(7) random choice of box, need to change line 1183 and 1230 *)
           else (*if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
           else (nextMiniSATCode, "")*)
             if Random.bool() then (nextMiniSATCode + 1, "")
-            else (nextMiniSATCode, "")
+            else (nextMiniSATCode, "")*)
         in
         (*print_endline ("UNSAT core: (" ^ unsatCore ^ ")");
         print_endline ("nextMiniSATcode: " ^ string_of_int nextMiniSATCode ^ ", bumped: " ^ string_of_int bumpVar);
@@ -1244,11 +1250,11 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let newLearntClauses = 
           if unsatCore = "" then newLearntClauses
           else 
-            (* (5) (6) box selection using easiness*)
-            unsatCore ^ "0 " ^ newLearntClauses
+            (*(* (5) (6) box selection using easiness*)
+            unsatCore ^ "0 " ^ newLearntClauses*)
             
-            (*(* (3) (4) box selection using number of unsat apis *)
-            unsatCore ^ newLearntClauses*)
+            (* (3) (4) box selection using number of unsat apis *)
+            unsatCore ^ newLearntClauses
         in
         let miniSATCodesVarsIntvsMap = IntMap.add nextMiniSATCode (var, lowerIntv) miniSATCodesVarsIntvsMap in
         let miniSATCodesVarsIntvsMap = IntMap.add (nextMiniSATCode + 1) (var, upperIntv) miniSATCodesVarsIntvsMap in

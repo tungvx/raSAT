@@ -9,10 +9,10 @@ open Util
 let get_element inputList =
   Random.self_init();
   
-  (*(* (1) (2) *)
+  (*(* (1) (2) need to change line 15 and 16 *)
   let randomIndex = 0 in*)
   
-  (* (10) *)
+  (* (10) need to change line 12 and 13*)
   let randomIndex = Random.int (List.length inputList) in
   
   
