@@ -24,12 +24,11 @@ type token =
   | LE
 
 open Parsing;;
-let _ = parse_error;;
 # 1 "ParserSmt.mly"
 
 open Parsing
 open Exp
-# 33 "ParserSmt.ml"
+# 32 "ParserSmt.ml"
 let yytransl_const = [|
     0 (* EOF *);
   260 (* LPAREN *);
@@ -235,28 +234,28 @@ let yyact = [|
     Obj.repr(
 # 44 "ParserSmt.mly"
                   ( _1 )
-# 239 "ParserSmt.ml"
+# 238 "ParserSmt.ml"
                : Exp.ass_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'ass_expr) in
     Obj.repr(
 # 47 "ParserSmt.mly"
                                  ( _2 )
-# 246 "ParserSmt.ml"
+# 245 "ParserSmt.ml"
                : 'fass_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'fass_expr) in
     Obj.repr(
 # 48 "ParserSmt.mly"
                                  ( _2 )
-# 253 "ParserSmt.ml"
+# 252 "ParserSmt.ml"
                : 'fass_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'smt_bool_expr) in
     Obj.repr(
 # 51 "ParserSmt.mly"
                                      ( Ch _1 )
-# 260 "ParserSmt.ml"
+# 259 "ParserSmt.ml"
                : 'ass_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'let_expr) in
@@ -264,7 +263,7 @@ let yyact = [|
     Obj.repr(
 # 52 "ParserSmt.mly"
                                  ( As (_2, _3) )
-# 268 "ParserSmt.ml"
+# 267 "ParserSmt.ml"
                : 'ass_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'ass_expr) in
@@ -272,14 +271,14 @@ let yyact = [|
     Obj.repr(
 # 53 "ParserSmt.mly"
                             ( Conj (_2, _3))
-# 276 "ParserSmt.ml"
+# 275 "ParserSmt.ml"
                : 'ass_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'ass_expr) in
     Obj.repr(
 # 54 "ParserSmt.mly"
                                  ( _2 )
-# 283 "ParserSmt.ml"
+# 282 "ParserSmt.ml"
                : 'ass_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : string) in
@@ -287,7 +286,7 @@ let yyact = [|
     Obj.repr(
 # 57 "ParserSmt.mly"
                                      ( PEq (_1, _2) )
-# 291 "ParserSmt.ml"
+# 290 "ParserSmt.ml"
                : 'let_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : string) in
@@ -295,14 +294,14 @@ let yyact = [|
     Obj.repr(
 # 58 "ParserSmt.mly"
                                      ( BEq (_1, _2) )
-# 299 "ParserSmt.ml"
+# 298 "ParserSmt.ml"
                : 'let_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'let_expr) in
     Obj.repr(
 # 59 "ParserSmt.mly"
                                  ( _2 )
-# 306 "ParserSmt.ml"
+# 305 "ParserSmt.ml"
                : 'let_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'let_expr) in
@@ -310,7 +309,7 @@ let yyact = [|
     Obj.repr(
 # 60 "ParserSmt.mly"
                                  ( Let (_1, _2) )
-# 314 "ParserSmt.ml"
+# 313 "ParserSmt.ml"
                : 'let_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -318,7 +317,7 @@ let yyact = [|
     Obj.repr(
 # 63 "ParserSmt.mly"
                                          ( Eq  (_2, _3) )
-# 322 "ParserSmt.ml"
+# 321 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -326,7 +325,7 @@ let yyact = [|
     Obj.repr(
 # 64 "ParserSmt.mly"
                                          ( (*print_endline (bool_toString 0 (Geq ($2, $3))); flush stdout;*)Geq (_2, _3) )
-# 330 "ParserSmt.ml"
+# 329 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -334,7 +333,7 @@ let yyact = [|
     Obj.repr(
 # 65 "ParserSmt.mly"
                                          ( Leq (_2, _3) )
-# 338 "ParserSmt.ml"
+# 337 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -342,7 +341,7 @@ let yyact = [|
     Obj.repr(
 # 66 "ParserSmt.mly"
                                          ( Gr  (_2, _3) )
-# 346 "ParserSmt.ml"
+# 345 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -350,14 +349,14 @@ let yyact = [|
     Obj.repr(
 # 67 "ParserSmt.mly"
                                          ( Le  (_2, _3) )
-# 354 "ParserSmt.ml"
+# 353 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_bool_expr) in
     Obj.repr(
 # 68 "ParserSmt.mly"
                                      ( _2 )
-# 361 "ParserSmt.ml"
+# 360 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_bool_expr) in
@@ -365,7 +364,7 @@ let yyact = [|
     Obj.repr(
 # 69 "ParserSmt.mly"
                                           ( And (_2, _3) )
-# 369 "ParserSmt.ml"
+# 368 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_bool_expr) in
@@ -373,28 +372,28 @@ let yyact = [|
     Obj.repr(
 # 70 "ParserSmt.mly"
                                          ( Or (_2, _3) )
-# 377 "ParserSmt.ml"
+# 376 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'smt_bool_expr) in
     Obj.repr(
 # 71 "ParserSmt.mly"
                                      ( Not _2 )
-# 384 "ParserSmt.ml"
+# 383 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
 # 72 "ParserSmt.mly"
                                  ( BVar _1 )
-# 391 "ParserSmt.ml"
+# 390 "ParserSmt.ml"
                : 'smt_bool_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'smt_bool_expr) in
     Obj.repr(
 # 75 "ParserSmt.mly"
                                   (_1)
-# 398 "ParserSmt.ml"
+# 397 "ParserSmt.ml"
                : 'smt_bool_exprs))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'smt_bool_expr) in
@@ -402,7 +401,7 @@ let yyact = [|
     Obj.repr(
 # 76 "ParserSmt.mly"
                                   (Multiple(_1, _2))
-# 406 "ParserSmt.ml"
+# 405 "ParserSmt.ml"
                : 'smt_bool_exprs))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -410,7 +409,7 @@ let yyact = [|
     Obj.repr(
 # 79 "ParserSmt.mly"
                                           ( Add (_2, _3) )
-# 414 "ParserSmt.ml"
+# 413 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -418,14 +417,14 @@ let yyact = [|
     Obj.repr(
 # 80 "ParserSmt.mly"
                                          ( Sub (_2, _3) )
-# 422 "ParserSmt.ml"
+# 421 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'smt_poly_expr) in
     Obj.repr(
 # 81 "ParserSmt.mly"
                                      ( Sub (Real (0.0), _2) )
-# 429 "ParserSmt.ml"
+# 428 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -433,7 +432,7 @@ let yyact = [|
     Obj.repr(
 # 82 "ParserSmt.mly"
                                           ( Mul (_2, _3) )
-# 437 "ParserSmt.ml"
+# 436 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -441,7 +440,7 @@ let yyact = [|
     Obj.repr(
 # 83 "ParserSmt.mly"
                                          ( Div (_2, _3) )
-# 445 "ParserSmt.ml"
+# 444 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -449,42 +448,42 @@ let yyact = [|
     Obj.repr(
 # 84 "ParserSmt.mly"
                                      ( Pow (_2, int_of_string _3) )
-# 453 "ParserSmt.ml"
+# 452 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
 # 85 "ParserSmt.mly"
                                  ( Real (float_of_string _1) )
-# 460 "ParserSmt.ml"
+# 459 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
 # 86 "ParserSmt.mly"
                                  ( Var _1 )
-# 467 "ParserSmt.ml"
+# 466 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
 # 87 "ParserSmt.mly"
                                  ( SubVar _1 )
-# 474 "ParserSmt.ml"
+# 473 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
     Obj.repr(
 # 88 "ParserSmt.mly"
                                      ( _2 )
-# 481 "ParserSmt.ml"
+# 480 "ParserSmt.ml"
                : 'smt_poly_expr))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'smt_poly_expr) in
     Obj.repr(
 # 91 "ParserSmt.mly"
                   (_1)
-# 488 "ParserSmt.ml"
+# 487 "ParserSmt.ml"
                : 'smt_poly_exprs))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'smt_poly_expr) in
@@ -492,7 +491,7 @@ let yyact = [|
     Obj.repr(
 # 92 "ParserSmt.mly"
                                  (MultiplePoly (_1, _2))
-# 496 "ParserSmt.ml"
+# 495 "ParserSmt.ml"
                : 'smt_poly_exprs))
 (* Entry main *)
 ; (fun __caml_parser_env -> raise (Parsing.YYexit (Parsing.peek_val __caml_parser_env 0)))

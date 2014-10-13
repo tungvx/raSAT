@@ -192,8 +192,8 @@ static void SIGINT_exit(int signum) {
 //=================================================================================================
 // Main:
 int main(int argc, char* argv[]) {
-//  testIRRAM();
-//  return 0;
+  //testIRRAM();
+  //return 0;
 	////cout << "Run" << endl;
 	bool debug = true;
 	double initial_time = cpuTime();
