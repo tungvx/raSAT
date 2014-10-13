@@ -1335,8 +1335,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
   let dynTest (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode) miniSATCodesConstraintsMap clausesNum strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
     Random.self_init();
 		let startTime = Sys.time() in
-		print_endline ("Solution: " ^ strCheck);
-		flush stdout;
+		(*print_endline ("Solution: " ^ strCheck);
+		flush stdout;*)
     let solution = toIntList strCheck in
 
     (*print_endline "Start get constraints and intervals";

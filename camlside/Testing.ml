@@ -132,7 +132,7 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
   match abstractTCInfList with
   | Nil -> ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
   | Cons((varsTCsMap, testCases, assignedVarsSet, testedPolyCons, remainingPolyConstraints, priorityNum), tail) ->
-    if remainingTime <= 0. then ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
+    if remainingTime <= 0. || testedPolyCons#isInfinite then ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
     else 
       let startTime = Sys.time() in
       match testCases with

@@ -723,7 +723,7 @@ int main(int argc, char* argv[]) {
 					} else if (sat == -2) { //adding decomposition clauses to solver
 //						cout << "start adding clauses" << endl;
 						string cl_uk = String_val(Field(theoCheck, 2));
-					  cout << endl << "Add decomposition clauses:" << cl_uk << "|" << endl;
+					  //cout << endl << "Add decomposition clauses:" << cl_uk << "|" << endl;
 						nDecompositions += solver_addClause(S, cl_uk);
 						//cout << S.nVars() << endl;	
 						//cout << "finish adding clauses" << endl;	
