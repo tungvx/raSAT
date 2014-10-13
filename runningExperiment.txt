@@ -20,7 +20,7 @@ Settings:
   (4) UNSAT-directed using IA-Testing.
     . Caml.ml, line 1253, 1108, 1156-1158
   (5) SAT-directed using eainess
-    . Caml.ml, line 1250, 1183-1230, 1220
+    . Caml.ml, line 1250, 1186-1233, 1223
   (6) UNSAT-directed using easiness
     . Caml.ml, line 1250, 1183-1230, 1224
   (7) Random
@@ -69,3 +69,5 @@ running experiments:
 39. raSAT_2_1TCs_10_1DecomposedVar_39: meti-tarski, 10-7-9: YES - checked
 40. raSAT_2_1TCs_10_1DecomposedVar_40: meti-tarski, 1-5-9: YES
 41. raSAT_2_1TCs_10_1DecomposedVar_41: QF_NIA/AProVE, 10-7-9: YES - checked
+42. raSAT_2_1TCs_10_1DecomposedVar_42: QF_NIA/AProVE, 10-5-8: YES
+43. raSAT_2_1TCs_10_1DecomposedVar_43: meti-tarski, 10-5-8: YES
