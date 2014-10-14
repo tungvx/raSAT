@@ -129,6 +129,22 @@ let rec poly_toPrefix isAddOrMul = function
   | Div (e1, e2) -> "(/ "^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
   | Pow (e1, n)  -> "(^ "^ poly_toPrefix 0 e1 ^ " " ^ (string_of_int n)^ ")"
 
+let rec poly_toInfix isAddOrMul = function
+  | Real c -> string_of_float c
+  | Var x -> x
+  | SubVar u -> u
+  | Add (e1, e2) -> "("^ poly_toPrefix 1 e1 ^ " + " ^ poly_toPrefix 1 e2 ^ ")"
+  | MultiplePoly (e1, e2) -> 
+    if isAddOrMul = 1 then 
+      "("^ poly_toPrefix 1 e1 ^ " + " ^ poly_toPrefix 1 e2 ^ ")"
+    else if isAddOrMul = 2 then
+      "("^ poly_toPrefix 2 e1 ^ " * " ^ poly_toPrefix 2 e2 ^ ")"
+    else ""
+  | Sub (e1, e2) -> "("^ poly_toPrefix 0 e1 ^ " - " ^ poly_toPrefix 0 e2 ^ ")"
+  | Mul (e1, e2) -> "("^ poly_toPrefix 2 e1 ^ " * " ^ poly_toPrefix 2 e2 ^ ")"
+  | Div (e1, e2) -> "("^ poly_toPrefix 0 e1 ^ " / " ^ poly_toPrefix 0 e2 ^ ")"
+  | Pow (e1, n)  -> "("^ poly_toPrefix 0 e1 ^ " ^ " ^ (string_of_int n)^ ")"
+
 (*Represent a bool expression to a string by prefix order*)
 let rec bool_toPrefix isAndOr = function
   | BVar bVar -> bVar
@@ -139,6 +155,26 @@ let rec bool_toPrefix isAndOr = function
   | Gr (e1, e2) -> "(> " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
   | Geq(e1, e2) -> "(>= " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
   | And(e1, e2) ->"(and "^ bool_toPrefix 1 e1 ^ " " ^ bool_toPrefix 1 e2^ ")"
+  | Or(e1, e2) ->"(or "^ bool_toPrefix (-1) e1 ^ " " ^ bool_toPrefix (-1) e2^ ")"
+  | Multiple(e1, e2) ->
+    if isAndOr = -1 then 
+      "(or "^ bool_toPrefix (-1) e1 ^ " " ^ bool_toPrefix (-1) e2^ ")"
+    else 
+      "(and "^ bool_toPrefix 1 e1 ^ " " ^ bool_toPrefix 1 e2^ ")"
+  | Not (e1)    ->"(not "^bool_toPrefix 0 e1^ ")"
+  
+
+(*Represent a bool expression to a string by prefix order*)
+let rec bool_toInfix isAndOr = function
+  | BVar bVar -> bVar
+  | Eq (e1, e2) -> "(= " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
+  | Neq (e1, e2) -> "(!= " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
+  | Le (e1, e2) -> "(< " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
+  | Leq(e1, e2) -> "(<= "^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
+  | Gr (e1, e2) -> "(> " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
+  | Geq(e1, e2) -> "(>= " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
+  | And(e1, e2) ->"(and "^ bool_toPrefix 1 e1 ^ " " ^ bool_toPrefix 1 e2^ ")"
+
   | Or(e1, e2) ->"(or "^ bool_toPrefix (-1) e1 ^ " " ^ bool_toPrefix (-1) e2^ ")"
   | Multiple(e1, e2) ->
     if isAndOr = -1 then 
