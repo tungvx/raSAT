@@ -8,10 +8,11 @@ type token =
   | EOF
 
 open Parsing;;
+let _ = parse_error;;
 # 2 "ParserIntervals.mly"
 open Parsing
 open IA
-# 15 "ParserIntervals.ml"
+# 16 "ParserIntervals.ml"
 let yytransl_const = [|
   257 (* IC *);
   258 (* IN *);
@@ -78,7 +79,7 @@ let yyact = [|
     Obj.repr(
 # 22 "ParserIntervals.mly"
                   ( _1 )
-# 82 "ParserIntervals.ml"
+# 83 "ParserIntervals.ml"
                : (string * IA.interval) list))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 3 : string) in
@@ -87,7 +88,7 @@ let yyact = [|
     Obj.repr(
 # 25 "ParserIntervals.mly"
                    ( [(_1, new IA.interval (float_of_string _3) (float_of_string _4))])
-# 91 "ParserIntervals.ml"
+# 92 "ParserIntervals.ml"
                : 'intervals))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'intervals) in
@@ -95,14 +96,14 @@ let yyact = [|
     Obj.repr(
 # 26 "ParserIntervals.mly"
                                  ( List.append _2 _3 )
-# 99 "ParserIntervals.ml"
+# 100 "ParserIntervals.ml"
                : 'intervals))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'intervals) in
     Obj.repr(
 # 27 "ParserIntervals.mly"
                                  ( _2 )
-# 106 "ParserIntervals.ml"
+# 107 "ParserIntervals.ml"
                : 'intervals))
 (* Entry main *)
 ; (fun __caml_parser_env -> raise (Parsing.YYexit (Parsing.peek_val __caml_parser_env 0)))

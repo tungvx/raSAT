@@ -952,7 +952,7 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
     (*(* (10) need to change line 937 and 950 *)
     Random.self_init();
     if Random.bool() then h :: (insertionSort_byEasiness polyCons t)
-    else polyCons :: polyConstraints *)
+    else polyCons :: polyConstraints*)
    
 (*Rewrite eval_all for UNSAT cores computations*)
 let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap iaTime usTime remainingTime =
@@ -1233,7 +1233,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                 if Random.bool() then (nextMiniSATCode + 1, "")
                 else (nextMiniSATCode, "")
           
-          (*(*(7) random choice of box, need to change line 1183 and 1230 *)
+          (*(*(7) random choice of box, need to change line 1183 and 1234 *)
           else (*if isPositiveSen = polyCons#isPositiveDirected then (nextMiniSATCode + 1, "")
           else (nextMiniSATCode, "")*)
             if Random.bool() then (nextMiniSATCode + 1, "")
