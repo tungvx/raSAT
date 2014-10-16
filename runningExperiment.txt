@@ -44,9 +44,9 @@ running experiments:
 14. raSAT_2_1TCs_10_1DecomposedVar_14: zankl, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases: 56: 1-5-8
 15. raSAT_2_1TCs_10_1DecomposedVar_15: zankl, hard first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 45: 1-6-8
 16. raSAT_2_1TCs_10_1DecomposedVar_16: zankl, no dependency, random choice of var, random choice of box: 45.
-17. raSAT_2_1TCs_10_1DecomposedVar_17: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5-8 YES - 
-18. raSAT_2_1TCs_10_1DecomposedVar_18: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=100s: 1-5-8: YES -
-19. raSAT_2_1TCs_10_1DecomposedVar_19: meti-tarski, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5-8: YES - 
+17. raSAT_2_1TCs_10_1DecomposedVar_17: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5-8 YES - checked
+18. raSAT_2_1TCs_10_1DecomposedVar_18: QF_NIA/AProVE, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=100s: 1-5-8: YES - checked
+19. raSAT_2_1TCs_10_1DecomposedVar_19: meti-tarski, hard first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-5-8: YES - checked
 20. raSAT_2_1TCs_10_1DecomposedVar_20: meti-tarski, hard first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 1-6-8: YES - checked
 21. raSAT_2_1TCs_10_1DecomposedVar_21: meti-tarski, hard first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-3-8: YES - checked
 22. raSAT_2_1TCs_10_1DecomposedVar_22: meti-tarski, hard first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases, tout=60s: 1-4-8: YES - checked
@@ -66,9 +66,12 @@ running experiments:
 36. raSAT_2_1TCs_10_1DecomposedVar_36: zankl, 10-6-8: YES - checked
 37. raSAT_2_1TCs_10_1DecomposedVar_37: zankl, 10-3-8: YES - checked
 38. raSAT_2_1TCs_10_1DecomposedVar_38: zankl, 10-4-8: YES - checked
-39. raSAT_2_1TCs_10_1DecomposedVar_39: meti-tarski, 10-7-9: YES -
-40. raSAT_2_1TCs_10_1DecomposedVar_40: meti-tarski, 1-5-9: YES 
-41. raSAT_2_1TCs_10_1DecomposedVar_41: QF_NIA/AProVE, 10-7-9: YES - 
-42. raSAT_2_1TCs_10_1DecomposedVar_42: QF_NIA/AProVE, 10-5-8: YES
-43. raSAT_2_1TCs_10_1DecomposedVar_43: meti-tarski, 10-5-8: YES
-44. raSAT_2_1TCs_10_1DecomposedVar_44: QF_NIA/AProVE, 1-5-9: YES 
+39. raSAT_2_1TCs_10_1DecomposedVar_39: meti-tarski, 10-7-9: YES - checked
+40. raSAT_2_1TCs_10_1DecomposedVar_40: meti-tarski, 1-5-9: YES - checked
+41. raSAT_2_1TCs_10_1DecomposedVar_41: QF_NIA/AProVE, 10-7-9: YES - checked
+42. raSAT_2_1TCs_10_1DecomposedVar_42: QF_NIA/AProVE, 10-5-8: YES - checked
+43. raSAT_2_1TCs_10_1DecomposedVar_43: meti-tarski, 10-5-8: YES - checked
+44. raSAT_2_1TCs_10_1DecomposedVar_44: QF_NIA/AProVE, 1-5-9: YES - checked
+45. raSAT_2_1TCs_10_1DecomposedVar_45: zankl, 10-7-8: YES - checked
+46. raSAT_2_1TCs_10_1DecomposedVar_46: meti-tarski, 10-7-8: YES
+47. raSAT_2_1TCs_10_1DecomposedVar_47: AProVE, 10-7-8: YES
