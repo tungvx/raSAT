@@ -1,0 +1,8 @@
+Problem,time,z3 Result
+experiments/first_benchmarks/f23.smt2,499.997146,timeout
+experiments/first_benchmarks/f22.smt2,499.875892,timeout
+experiments/first_benchmarks/pol.smt2,0.028238,unsat
+experiments/first_benchmarks/f13.smt2,499.898627,timeout
+experiments/first_benchmarks/pol1.smt2,499.999898,timeout
+experiments/first_benchmarks/f12.smt2,499.925998,timeout
+Problem,time,1

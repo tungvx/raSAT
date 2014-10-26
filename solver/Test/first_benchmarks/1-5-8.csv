@@ -1,0 +1,8 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+first_benchmarks/f23.smt2,8,8,1,500.003,417.78,2.17968,1.92871,8.63668,1.70175,48.3146,1277.0,350502.0,348118.0,350518.0,3035.0,344545.0,2938.0,unknown,Timeout,0,0
+first_benchmarks/f22.smt2,8,8,1,500.001,430.213,3.70844,1.50977,6.73298,2.81959,40.2799,1625.0,269587.0,266233.0,269603.0,4179.0,260728.0,4696.0,unknown,Timeout,0,0
+first_benchmarks/pol.smt2,6,6,1,500.001,241.438,39.2491,3.56146,13.4899,0.789887,167.562,845.0,739149.0,737778.0,739161.0,1803.0,648840.0,88518.0,unknown,Timeout,0,0
+first_benchmarks/f13.smt2,8,8,1,500.001,353.937,7.30384,3.83142,16.7454,1.11783,77.4373,1921.0,725534.0,721642.0,725550.0,4865.0,708157.0,12528.0,unknown,Timeout,0,0
+first_benchmarks/pol1.smt2,5,5,1,500.003,439.469,33.6929,0.597917,3.00453,2.6606,12.5561,872.0,191057.0,189607.0,191067.0,1894.0,146296.0,42877.0,unknown,Timeout,0,0
+first_benchmarks/f12.smt2,8,8,1,500.003,454.245,4.08039,1.45577,5.59516,1.35879,19.879,701.0,252176.0,250782.0,252192.0,1757.0,244993.0,5442.0,unknown,Timeout,0,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,0,EQ,NEQ

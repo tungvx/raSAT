@@ -191,7 +191,10 @@ static void SIGINT_exit(int signum) {
 
 //=================================================================================================
 // Main:
+#include "iRRAM/lib.h"
 int main(int argc, char* argv[]) {
+  //iRRAM_initialize(argc,argv);
+  //iRRAM::iRRAM_exec(checkSAT,"");
   //testIRRAM();
   //return 0;
 	////cout << "Run" << endl;
@@ -244,6 +247,7 @@ int main(int argc, char* argv[]) {
 	//cout << "SMT input assertion: " << sAs << endl;
 	smt = caml_genSmtForm(sInt, sAs, ub);
 	string smtContent = String_val(Field(smt, 0));
+
 	//cout << "raSAT input form: " << smtContent << "\n";
 	caml_remove_global_root(&smt);
 	delete[] sInt;
