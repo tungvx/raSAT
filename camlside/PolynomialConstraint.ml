@@ -511,6 +511,15 @@ let rec string_infix_of_constraints constraints = match constraints with
 	  string_infix_of_constraints c1 ^ " And\n" ^ string_infix_of_constraints c2
 	| BOr(c1, c2) -> 
 	  string_infix_of_constraints c1 ^ " Or\n" ^ string_infix_of_constraints c2
+	  
+
+(* Function for converting constraints into infix string for mapple input *)    
+let rec string_infix_of_constraints_maple constraints = match constraints with 
+  | Single polyCons ->  polyCons#to_string_infix
+  | And(c1, c2)  -> 
+	  string_infix_of_constraints_maple c1 ^ ", " ^ string_infix_of_constraints_maple c2
+	| BOr(c1, c2) -> 
+	  string_infix_of_constraints_maple c1 ^ ", " ^ string_infix_of_constraints_maple c2	  
 	
 	
 (*==================== START string_infix_of_polynomialConstraints ==============================*)		

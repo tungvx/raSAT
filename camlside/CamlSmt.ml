@@ -133,17 +133,17 @@ let rec poly_toInfix isAddOrMul = function
   | Real c -> string_of_float c
   | Var x -> x
   | SubVar u -> u
-  | Add (e1, e2) -> "("^ poly_toPrefix 1 e1 ^ " + " ^ poly_toPrefix 1 e2 ^ ")"
+  | Add (e1, e2) -> "("^ poly_toInfix 1 e1 ^ " + " ^ poly_toInfix 1 e2 ^ ")"
   | MultiplePoly (e1, e2) -> 
     if isAddOrMul = 1 then 
-      "("^ poly_toPrefix 1 e1 ^ " + " ^ poly_toPrefix 1 e2 ^ ")"
+      "("^ poly_toInfix 1 e1 ^ " + " ^ poly_toInfix 1 e2 ^ ")"
     else if isAddOrMul = 2 then
-      "("^ poly_toPrefix 2 e1 ^ " * " ^ poly_toPrefix 2 e2 ^ ")"
+      "("^ poly_toInfix 2 e1 ^ " * " ^ poly_toInfix 2 e2 ^ ")"
     else ""
-  | Sub (e1, e2) -> "("^ poly_toPrefix 0 e1 ^ " - " ^ poly_toPrefix 0 e2 ^ ")"
-  | Mul (e1, e2) -> "("^ poly_toPrefix 2 e1 ^ " * " ^ poly_toPrefix 2 e2 ^ ")"
-  | Div (e1, e2) -> "("^ poly_toPrefix 0 e1 ^ " / " ^ poly_toPrefix 0 e2 ^ ")"
-  | Pow (e1, n)  -> "("^ poly_toPrefix 0 e1 ^ " ^ " ^ (string_of_int n)^ ")"
+  | Sub (e1, e2) -> "("^ poly_toInfix 0 e1 ^ " - " ^ poly_toInfix 0 e2 ^ ")"
+  | Mul (e1, e2) -> "("^ poly_toInfix 2 e1 ^ " * " ^ poly_toInfix 2 e2 ^ ")"
+  | Div (e1, e2) -> "("^ poly_toInfix 0 e1 ^ " / " ^ poly_toInfix 0 e2 ^ ")"
+  | Pow (e1, n)  -> "("^ poly_toInfix 0 e1 ^ " ^ " ^ (string_of_int n)^ ")"
 
 (*Represent a bool expression to a string by prefix order*)
 let rec bool_toPrefix isAndOr = function
@@ -164,24 +164,24 @@ let rec bool_toPrefix isAndOr = function
   | Not (e1)    ->"(not "^bool_toPrefix 0 e1^ ")"
   
 
-(*Represent a bool expression to a string by prefix order*)
+(*Represent a bool expression to a string by in order*)
 let rec bool_toInfix isAndOr = function
   | BVar bVar -> bVar
-  | Eq (e1, e2) -> "(= " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
-  | Neq (e1, e2) -> "(!= " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
-  | Le (e1, e2) -> "(< " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
-  | Leq(e1, e2) -> "(<= "^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
-  | Gr (e1, e2) -> "(> " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
-  | Geq(e1, e2) -> "(>= " ^ poly_toPrefix 0 e1 ^ " " ^ poly_toPrefix 0 e2 ^ ")"
-  | And(e1, e2) ->"(and "^ bool_toPrefix 1 e1 ^ " " ^ bool_toPrefix 1 e2^ ")"
+  | Eq (e1, e2) -> poly_toInfix 0 e1 ^ " = " ^ poly_toInfix 0 e2
+  | Neq (e1, e2) -> poly_toInfix 0 e1 ^ " != " ^ poly_toInfix 0 e2
+  | Le (e1, e2) -> poly_toInfix 0 e1 ^ " < " ^ poly_toInfix 0 e2
+  | Leq(e1, e2) -> poly_toInfix 0 e1 ^ " <= " ^ poly_toInfix 0 e2
+  | Gr (e1, e2) -> poly_toInfix 0 e1 ^ " > " ^ poly_toInfix 0 e2
+  | Geq(e1, e2) -> poly_toInfix 0 e1 ^ " >= " ^ poly_toInfix 0 e2
+  | And(e1, e2) -> bool_toInfix 1 e1 ^ ", " ^ bool_toInfix 1 e2
 
-  | Or(e1, e2) ->"(or "^ bool_toPrefix (-1) e1 ^ " " ^ bool_toPrefix (-1) e2^ ")"
+  | Or(e1, e2) -> bool_toInfix (-1) e1 ^ ", " ^ bool_toInfix (-1) e2
   | Multiple(e1, e2) ->
     if isAndOr = -1 then 
-      "(or "^ bool_toPrefix (-1) e1 ^ " " ^ bool_toPrefix (-1) e2^ ")"
+      bool_toInfix (-1) e1 ^ ", " ^ bool_toInfix (-1) e2
     else 
-      "(and "^ bool_toPrefix 1 e1 ^ " " ^ bool_toPrefix 1 e2^ ")"
-  | Not (e1)    ->"(not "^bool_toPrefix 0 e1^ ")"
+      bool_toInfix 1 e1 ^ ", " ^ bool_toInfix 1 e2
+  | Not (e1)    ->"not "^bool_toInfix 0 e1
 
 (*Represent a nil expression to a string by prefix order*)
 let rec bound_toPrefix = function
@@ -841,11 +841,11 @@ let string_of_bounds bounds = match bounds with
 
 let genSmtForm sIntv sAssert ub =       
   (*get Assert expression from sAssert *)  
-  print_endline ("Start parsing SMT constraints: " ^ sAssert);
-  flush stdout;
+  (*print_endline ("Start parsing SMT constraints: " ^ sAssert);
+  flush stdout;*)
   let eAss = read sAssert in
-  print_endline (ass_expr_to_infix_string eAss);
-  flush stdout;
+  (*print_endline (ass_expr_to_infix_string eAss);
+  flush stdout;*)
  
   let pass = lstSubVar eAss in
   let bass = lstBVar eAss in   
@@ -858,6 +858,8 @@ let genSmtForm sIntv sAssert ub =
   let sub_expr = subst_bool bass pass ori_expr in
   (*print_endline (bool_toPrefix 0 sub_expr);
   flush stdout;*)
+
+  (*print_string ("solve({" ^ bool_toInfix 0 sub_expr ^ "}, [");*)
 
   (*simplify expression: operations on constants, i.e., constant +-*/ constant..., Div (a, b) = a/b*)
   let simp_expr = simplify_bool sub_expr in
@@ -901,7 +903,9 @@ let genSmtForm sIntv sAssert ub =
   let new_lstIntv = update_list [] lstIntv lst_bounds in
 
   let strIntv = toString_lstIntv new_lstIntv in  
-
+  
+  (*print_endline ("solve({" ^ bool_toInfix 0 new_expr ^ "})");
+  flush stdout;*)
   let strAss = "(assert "^(bool_toPrefix 0 new_expr)^")" in
   (*print_endline strAss;
   flush stdout;*)

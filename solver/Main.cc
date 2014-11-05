@@ -191,7 +191,6 @@ static void SIGINT_exit(int signum) {
 
 //=================================================================================================
 // Main:
-#include "iRRAM/lib.h"
 int main(int argc, char* argv[]) {
   //iRRAM_initialize(argc,argv);
   //iRRAM::iRRAM_exec(checkSAT,"");

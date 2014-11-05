@@ -29,24 +29,7 @@
  /home/tungvx/raSAT/mtl/Map.h /home/tungvx/raSAT/mtl/Alloc.h \
  /home/tungvx/raSAT/solver/Solver.h /home/tungvx/raSAT/mtl/Heap.h \
  /home/tungvx/raSAT/solver/exactRealArithmetics.h \
- /home/tungvx/raSAT/solver/modwrap.h /home/tungvx/raSAT/solver/file.h \
- iRRAM_2013_01/installed/include/iRRAM/lib.h \
- iRRAM_2013_01/installed/include/iRRAM/MPFR_interface.h \
- iRRAM_2013_01/installed/include/gmp.h \
- iRRAM_2013_01/installed/include/mpfr.h \
- iRRAM_2013_01/installed/include/iRRAM/GMP_intrat.h \
- iRRAM_2013_01/installed/include/iRRAM/errno.h \
- iRRAM_2013_01/installed/include/iRRAM/LAZYBOOLEAN.h \
- iRRAM_2013_01/installed/include/iRRAM/REAL.h \
- iRRAM_2013_01/installed/include/iRRAM/DYADIC.h \
- iRRAM_2013_01/installed/include/iRRAM/INTEGER.h \
- iRRAM_2013_01/installed/include/iRRAM/RATIONAL.h \
- iRRAM_2013_01/installed/include/iRRAM/REALMATRIX.h \
- iRRAM_2013_01/installed/include/iRRAM/SPARSEREALMATRIX.h \
- iRRAM_2013_01/installed/include/iRRAM/COMPLEX.h \
- iRRAM_2013_01/installed/include/iRRAM/INTERVAL.h \
- iRRAM_2013_01/installed/include/iRRAM/STREAMS.h \
- iRRAM_2013_01/installed/include/iRRAM/FUNCTION.h
+ /home/tungvx/raSAT/solver/modwrap.h /home/tungvx/raSAT/solver/file.h
 /home/tungvx/raSAT/solver/modwrap.o /home/tungvx/raSAT/solver/modwrap.or /home/tungvx/raSAT/solver/modwrap.od /home/tungvx/raSAT/solver/modwrap.op: /home/tungvx/raSAT/solver/modwrap.cc \
  /home/tungvx/raSAT/solver/modwrap.h
 /home/tungvx/raSAT/solver/Solver.o /home/tungvx/raSAT/solver/Solver.or /home/tungvx/raSAT/solver/Solver.od /home/tungvx/raSAT/solver/Solver.op: /home/tungvx/raSAT/solver/Solver.cc \

@@ -129,7 +129,8 @@ let genSatForm sAss sIntv esl logic =
   (*print_endline ("Logic: " ^ logic);
   flush stdout;*)
   let constraints = ParserConstraints.main LexerConstraints.lex (Lexing.from_string sAss) in
-  (*print_endline (bool_expr_to_infix_string ass);*)
+  (*print_endline ("solve({" ^ string_infix_of_constraints_maple  constraints ^ "})");
+  flush stdout;*)
   let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation) = miniSATExpr_of_constraints constraints 1 IntMap.empty logic in 
   (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
   
@@ -143,6 +144,14 @@ let genSatForm sAss sIntv esl logic =
   
   let eIntv = ParserIntervals.main LexerIntervals.lex (Lexing.from_string sIntv) in
   let nVars = List.length eIntv in
+   
+  (*let rec string_of_vars varsIntvList = match varsIntvList with
+    | [] -> ""
+    | [(var, _)] -> var
+    | (h,_)::t -> h ^ ", " ^ string_of_vars t
+  in
+  print_endline (string_of_vars eIntv ^ "])");
+  flush stdout;*)
    
   (* generate the minisat constraints for intervals *)
   let rec genMiniSATIntvString index nVars =
