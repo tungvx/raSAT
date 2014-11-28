@@ -9,16 +9,22 @@
 
 using namespace iRRAM;
 
-void testIRRAM() {
-  //REAL skoY = REAL(0.999999999355);
-  //REAL skoX = REAL(0.999999995475);
-  //cout << -REAL(2.)*skoX*skoY+skoX*skoX*skoY*skoY+REAL(1.) << std::endl;;
-  cout << REAL(2) + REAL(0.1e+0309) - REAL(0.1e+0309) << std::endl;
+char* clausesList;
+char* assignments; 
+bool checkingResult = false;
+
+int testIRRAM(const int& arg) {
+  REAL skoY = REAL(0.999999999355);
+  REAL skoX = REAL(0.999999995475);
+  cout << REAL(-2.)*skoX*skoY+skoX*skoX*skoY*skoY+REAL(1.) << std::endl;
+  if (REAL(-2.)*skoX*skoY+skoX*skoX*skoY*skoY+REAL(1.) == REAL(0)) cout << "false\n";
+  /*cout << REAL(2) + REAL(0.1e+0309) - REAL(0.1e+0309) << std::endl;
   if (REAL(2) + REAL(0.1e+0309) - REAL(0.1e+0309) > REAL(1)) {
     cout << "true" << std::endl;
   } else {    
     cout << "false" << std::endl;
-  }
+  }*/
+  return 1;
 }
 
 // function for extracting tokens (words) from a string. Tokens are seperated by delimiter in the string.
@@ -279,7 +285,7 @@ bool check(string expression, std::map<string, REAL> ass) {
 /*
  * check SAT of list of clauses (expressions) provided the assignments of variables.
  */
-bool checkSAT(char* clausesList, char* assignments) {
+int checkSAT(const int& arg) {
 	//cout << "ClausesList: " << clausesList << "\n";
 	//cout << "Assignments: " << assignments << "\n";
 // first, try to parse the assignments from the string and store them into a map for later uses.
@@ -300,9 +306,11 @@ bool checkSAT(char* clausesList, char* assignments) {
 			it != clauses.end(); ++it)
 		if (!check(*it, ass)) { // if one exression is UNSAT, reuturn false.
 			cout << "iRRAM detects error at: " << *it << std::endl;
-			return false;
+			checkingResult = false;
+			return 0;
 		}
-	return true; // all the expressions are checked to be SAT.
+  checkingResult = true;
+	return 1; // all the expressions are checked to be SAT.
 }
 
 /*

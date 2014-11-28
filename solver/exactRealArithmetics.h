@@ -1,3 +1,3 @@
-bool checkSAT(char* expression, char* assignments);
+int checkSAT(const int& arg);
 bool checkRange(char* clausesAndVarsIntervals, bool checkingSAT);
-void testIRRAM();
+int testIRRAM(const int& arg);

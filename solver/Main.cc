@@ -33,6 +33,8 @@
 #include "solver/Solver.h"
 #include "exactRealArithmetics.h"
 
+#include "iRRAM/lib.h"
+
 //Caml interaction
 #include "modwrap.h"
 #include "file.h"
@@ -191,10 +193,15 @@ static void SIGINT_exit(int signum) {
 
 //=================================================================================================
 // Main:
+extern char* clausesList;
+extern char* assignments; 
+extern bool checkingResult;
+
 int main(int argc, char* argv[]) {
-  //iRRAM_initialize(argc,argv);
+  iRRAM_initialize(argc,argv);
   //iRRAM::iRRAM_exec(checkSAT,"");
-  //testIRRAM();
+  //testIRRAM(0);
+  //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
 	bool debug = true;
@@ -696,13 +703,14 @@ int main(int argc, char* argv[]) {
 					} else if (sat == 1) {
 #ifdef iRRAM_INC
 						// get the assignments of testing.
-						char* assignments = String_val(Field(theoCheck, 1));
+						assignments = String_val(Field(theoCheck, 1));
 						// get the tested expresions.
-						char* testingClauses = String_val(Field(theoCheck, 2));
+						clausesList = String_val(Field(theoCheck, 2));
 						// get the clauses which are SAT by IA and the variables ranges.
 						char* satClausesAndVarsIntervals = String_val(
 								Field(theoCheck, 8));
-						if (checkSAT(testingClauses, assignments)) {
+						iRRAM::iRRAM_exec(checkSAT, 0);
+						if (checkingResult) {
 							check = false;
 							finalRes = sat;
 						} else {
