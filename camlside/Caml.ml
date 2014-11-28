@@ -179,8 +179,8 @@ let genSatForm sAss sIntv esl logic =
     else index + 2* nVars * (sum_total_var 1 para)
   in*)
   (*let sTrivialClause = "-" ^ string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in*)
-  let totalVars = nVars + miniSATClauses in
-  (nVars, "p cnf " ^ string_of_int totalVars ^ " " ^ string_of_int (nVars(*+1*)+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString (*^ sTrivialClause*), intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)
+  let totalMiniSATVars = nVars + index - 1 in
+  (nVars, "p cnf " ^ string_of_int totalMiniSATVars ^ " " ^ string_of_int (nVars(*+1*)+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString (*^ sTrivialClause*), intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)
 
   (*log result for satisfiable solution in an expression e*)
   let logSat polyCons ia varsIntvsMiniSATCodesMap = 
