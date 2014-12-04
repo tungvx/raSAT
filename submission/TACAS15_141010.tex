@@ -1,0 +1,1478 @@
+%\documentclass[conference, oribibl]{IEEEtran}
+\documentclass[runningheads,a4paper,oribibl]{llncs}
+\usepackage{llncsdoc}
+
+% *** MISC UTILITY PACKAGES ***
+%
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+
+\usepackage{graphicx}
+\graphicspath{ {Figs/} }
+
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{slashbox}
+\usepackage{amsfonts}
+
+\usepackage{algorithm2e}
+\usepackage{epstopdf}
+\usepackage{array}
+\usepackage{enumerate}
+
+\usepackage{epstopdf}
+
+\usepackage{url}
+%\urldef{\mailsa}\path|{khanhtv, mizuhito}@jaist.ac.jp|    
+
+%ieee requirements
+%\usepackage[utf8]{inputenc}
+%\usepackage[T1]{fontenc}
+%\usepackage{microtype} 
+%\usepackage{balance}
+
+%user definitions
+\newcommand{\Nat}{{\mathbb N}}
+\newcommand{\Real}{{\mathbb R}}
+\newcommand{\Rat}{{\mathbb Q}}
+\newcommand{\suppress}[1]{} % Comment out text.
+\newcommand{\mizuhito}[1]{\{{\bf Mizuhito:~\sf #1}\}} % Highlight text.
+\newcommand{\khanh}[1]{\{{\bf Khanh:~\sf #1}\}} % Highlight text.
+
+\newcommand{\smallHead}[1]{%
+    \par\vspace{.35cm}\noindent\textbf{#1}%
+    \par\noindent\ignorespaces%
+}
+
+\newcommand\TTTT{%
+ \textsf{T\kern-0.2em\raisebox{-0.3em}T\kern-0.2emT\kern-0.2em\raisebox{-0.3em}2}%
+}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\begin{document}
+%
+% paper title
+% can use linebreaks \\ within to get better formatting as desired
+% Do not put math or special symbols in the title.
+\title{{\bf raSAT}: SMT Solver for Polynomial Inequality}
+
+\author{Vu Xuan Tung\inst{1} and To Van Khanh\inst{2} and Mizuhito Ogawa\inst{1}} 
+\institute{
+Japan Advanced Institute of Science and Technology\\
+\email{\{tung,mizuhito\}@jaist.ac.jp}
+\and 
+University of Engineering and Technology, Vietnam National 
+University, Hanoi \\
+\email{khanhtv@vnu.edu.vn}
+}
+
+
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract
+\begin{abstract}
+This paper presents an SMT solver {\bf raSAT} for polynomial inequality. 
+It consists of a simple iterative approximation refinement, called {\bf raSAT} loop, 
+which is an extension of the standard ICP (Interval Constraint Propagation) with testing. 
+Two approximation schemes consist of interval arithmetic (over-approximation) and 
+testing (under-approximation, to boost SAT detection. 
+If both of them fail to decide, input intervals are refined by decomposition. 
+
+ICP is robust for large degrees, but the number of boxes (products of intervals) to explore 
+exponentially explodes when the number of variables increases. 
+We design strategies to choose a variable for decomposition and a box by 
+targeting on SAT detection. 
+
+Several heuristic measures, called {\em SAT likelyhood}, {\em sensitivity}, and the number of 
+unsolved atomic polynomial constraints, are compared on Zankl and Meta-Tarski benchmarks from 
+QF\_NRA category of SMT-LIB. They are also evaluated by comparing Z3 4.3 and isat3. 
+We also show a simple modification to handle mixed intergers, and experiments on 
+AProVE benchmark from QF\_NIA category of SMT-LIB. 
+\end{abstract}
+
+% no keywords
+%\keywords{interval arithmetic, affine arithmetic, SMT, polynomial constraints, 
+%testing, abstract DPLL.}
+
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \ifCLASSOPTIONpeerreview
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+% \fi
+%
+% For peerreview papers, this IEEEtran command inserts a page break and
+% creates the second title. It will be ignored for other modes.
+% \IEEEpeerreviewmaketitle
+
+\section{Introduction}
+{\em Polynomial constraint solving} is to find an instance 
+that satisfies given polynomial inequality/equality. 
+%For instance, $\exists x y. -y^2 + (x^2 - 1) y - 1 > 0 \wedge -x^2 - y^2 + 4 > 0$ is 
+%such an example. This is an easy formula, but proving its satisfiability and 
+%showing a satisfiable instance (e.g., $x = 1.8$, $y=0.9$) are not so easy.  
+%its satisfiability and a satisfiable instance 
+%(e.g., $x = 1.8$, $y=0.9$) are not so easy.  		
+%
+Many applications are reduced to solving polynomial constraints, such as 
+\begin{itemize}
+\item {\bf Locating roundoff and overflow errors}, 
+which is our motivation~\cite{ngocsefm,ngocase}. 
+%DSP decorders in practice are defined by reference algorithms in C using floating point arithmetic. 
+%In embedded systems, often it is replaced with fixed point arithmetic, 
+%which may cause visible noises. 
+%and locating such roundoff error source is not easy. 
+%For instance, consider DSP decoder like mpeg4. Usually, the decoder definition is given by a reference 
+%algorithm in C, which uses floating point number. 
+%In an embedded system, it is tempting to replace floating 
+%point into fixed point numbers. However, naive replacement would cause 
+
+\item {\bf Automatic termination proving}, 
+which reduces termination detection to finding a suitable ordering~\cite{lucas}, 
+e.g., \TTTT~\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
+Aprove~\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
+%as a solution of polynomial constraints. 
+
+\item {\bf Loop invariant generation}. 
+Farkas's lemma is a popular approach in linear loop invariant generation~\cite{Colon03}, 
+and is reduced to degree $2$ polynomials. 
+%matrix multiplications. 
+%degree $2$ polynomial constraints. 
+%Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
+Non-linear loop invariant~\cite{Sankaranarayanan} requires more complex polynomials.
+
+\item {\bf Hybrid system}. SMT for QF\_NRA are often used as backend engines~\cite{hybrid}. 
+
+\item {\bf Mechanical contrnol design}. 
+PID control is simple but widely used, and designing parameters is 
+reduced to polynomial constraints~\cite{control}. 
+%Fujitsu used polynomial constraints solving to design PID control of HDD head movement
+\end{itemize}	
+
+Solving polynomial constraints on real numbers is decidable~\cite{tarski}, 
+though that on integers is undecidable ({\em Hilbert's 10th problem}). 
+Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)~\cite{qecad} 
+is a well known technique, and 
+implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
+in some SMTs, e.g., nlSAT~\cite{Jovanovic13}. 
+It can solve general formulae at the cost of DEXPTIME, which hardly work up to 8 varaibles and degree 10.
+Satisfiability targets on simply an existential problem, which is much weaker than full problems. 
+{\em Variant quantifier elimination} reduces polynomial constraint solving to 
+polynomial optimization problems, which are solved by Groebner basis~\cite{MohabJSC12} in EXPTIME. 
+
+A practical alternative is {\em ICP} (Interval Constraint Propagation), 
+which are used in SMT solver community, e.g., isat3~\cite{isat}, dReal~\cite{dRealCADE13}.
+ICP is based on over-approximation by interval arithmetics, and iteratively refines by
+interval decompositions. 
+It is practically often more efficient than algebraic computation 
+at the cost of loss of theoretical guarantees. 
+It guarantees that, for polynomial inequality 
+$\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$, 
+\begin{itemize}
+\item if $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$ is SAT, 
+ICP eventually detects it, and 
+\item if $\exists x_1 \in [a_1,b_1] \cdots x_n \in [a_n,b_n] . \wedge_{i} f_i \geq 0$ is UNSAT, 
+ICP eventually detects it
+\end{itemize}
+under the assumptions of {\em fair} decomposition and bounded intervals $(a_i,b_i)$. 
+
+\begin{figure}[ht]
+%\begin{minipage}[b]{1.0\linewidth}
+\centering
+\includegraphics[height=1.4in,width=3.4in]{FigCompleteness.eps} 
+\caption{SAT and UNSAT detection by ICP} 
+\label{fig:complete} 
+%\end{minipage}
+\end{figure} 
+
+The boundary part is reduced to polynomial equality checking, 
+which would be solved algebraic methods, like Groebner basis. 
+Alternatively, by loosening equality to $\delta$-equality, 
+$\delta$-completeness is obtained~\cite{dRealIJCAR12,dRealLICS12}. 
+
+This paper presents an SMT solver {\bf raSAT} for polynomial inequality. 
+It consists of a simple iterative approximation refinement, called {\bf raSAT} loop, 
+which is an extension of the standard ICP with testing to accelerate SAT detection. 
+Two approximation schemes consist of interval arithmetic (over-approximation) and 
+testing (under-approximation, to boost SAT detection. 
+If both of them fail to decide, input intervals are refined by decomposition. 
+
+Compared to typical ICPs, {\bf raSAT} 
+\begin{itemize}
+\item intruoduces testing (as an under-approximation) to accelerate SAT detection, 
+\item applies various interval arithmetic, e.g., Affine intervals~\cite{Stolfi03,ngocase,tapas12}, 
+which enables to analyze the effects of input values, and 
+\item SAT confirmation step by an error-bound guaranteed floating point package {\bf iRRAM}, 
+to avoid soundess bugs caused by roundoff errors, which is an alternative to \cite{SilvaTACAS12}. 
+\end{itemize}
+These design is more on SAT detection oriented, since from our preliminary experiences, 
+if the target problems have several hundred variables, solvable cases in practice are 
+either SAT or UNSAT with small UNSAT core. 
+Thus, acceleration of SAT detection and finding UNSAT core will be keys for scalability. 
+
+ICP is robust for larger degrees, but the number of boxes (products of intervals) to explore 
+exponentially explodes when variables increase. 
+Thus, design of strategies for selecting variables to decompose and boxes to explore is crucial 
+for efficiency. 
+Our strategy design is, 
+\begin{itemize}
+\item a box with more possiblity to be SAT is selected to explore, which is estimated by 
+several heuristic measures, called {\em SAT likelyhood}, 
+and the number of unsolved atomic polynomial constraints, and
+\item a more influential variable is selected for multiple test cases and decomposition, 
+which is estimated by {\em sensitivity}. 
+\end{itemize} 
+
+{\bf raSAT} also applies incremental search, which is often faster in practice. 
+\begin{itemize}
+\item Even if input ranges are open ended, first {\bf rasat}
+loop starts with bounded ranges with certain values. If it is UNSAT, it will be enlarged 
+to include infinity. 
+\item Set the bound $isHalt$ such that interval will be be decomposed no smaller 
+than it. If neither SAT nor UNSAT is detected, reset $isHalt$ with a smaller value and restart. 
+\end{itemize} 
+
+Note that {\em SAT likelyhood} and {\em sensitivity} are estimated during interval arithmetic. 
+Especially, the latter can be applied only with Affine intervals. 
+
+Efficient UNSAT core and UNSAT confirmation with error bound guaranteed floating point arithmetic 
+are left for future work. 
+
+They are compared on Zankl and Meta-Tarski benchmarks from 
+QF\_NRA category of SMT-LIBSMT-lib benchamrks\footnote{\tt http://www.smtlib.org/}. 
+They are also evaluated by comparing 
+Z3 4.3\footnote{\tt http://z3.codeplex.com} and 
+HySAT\footnote{\tt http://hysat.informatik.uni-oldenburg.de/}. 
+We also show a simple modification to handle mixed intergers, and experiments on 
+AProVE benchmark from QF\_NIA category of SMT-LIB. 
+Generally speking, the combination of {\em SAT likelyhood} and {\em sensitivity} works best. 
+
+\begin{tabular}{llll}
+                                       & raSAT & Z3 4.3 & Hysat \\
+NRA/Zankl(166) (timeout 500sec)        & 56    &        &       \\
+NRA/Meta=Tarski (7713) (timeout 60sec) & 6304  &        &       \\
+NIA/AProVE (8829) (timeout 60sec)      & 7582  & 8271   & --- \\
+ 
+\end{tabular}
+
+\mizuhito{Concrete experimental results; the fastest is not in first priority, 
+but fastest with single simple method.}
+
+%dReal\footnote{\tt http://dreal.cs.cmu.edu/} on 
+% Realpaver\footnote{\tt http://pagesperso.lina.univ-nantes.fr/~granvilliers-l/realpaver/} 
+
+
+
+\subsection*{Related Work} \label{sec:relate}
+
+Solving polynomial constraints on real numbers is decidable~\cite{tarski}, 
+though that on integers is undecidable ({\em Hilbert's 10th problem}). 
+Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)~\cite{qecad} 
+is a well known technique, and 
+implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
+in some SMTs, e.g., nlSAT~\cite{Jovanovic13}. 
+It is DEXPTIME wrt the number of variables. In practice, it works fine up to 5-6 variables 
+with lower degrees, but solving 8 variables and degree 10 may be the current limit. 
+%There is an example to require over 20 hours on a supercomputer.
+Virtual substitution (VS)~\cite{vsmethod} focusing on small degree polynomials 
+(especially degree $2$) has better performance, but it is still EXPTIME. 
+
+SMT (SAT modulo theories) separates the case analysis and feasibility in a background theory, 
+and many implementations are available. 
+Presburger arithmetic (linear constraints) is one of the most popular background theory, and 
+polynomial constraints (non-linear constraints) become evolving. 
+Their approaches can be classified as follows. 
+The community of SMT starts to interact with that of symbolic computation, 
+such as the first and the second techniques. 
+
+\medskip \noindent
+\textbf{QE-CAD}. ~RAHD \cite{rahd} and 
+Z3 4.3 (which is referred as nlsat in~\cite{Jovanovic13}) include QE-CAD. 
+%such as QEPCAD-B, Reduce/Redlog, and Mathematica. 
+QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions), 
+scalability is still challenging, since it is DEXPTIME. 
+%Since QE-CAD is DEXPTIME wrt the number of variables, 
+
+\medskip \noindent
+\textbf{Virtual substitution (VS)}. ~
+%Virtual substitution is an EXPTIME algorithm 
+%applicable when the degree of each variable does not exceed 4. 
+SMT-RAT toolbox \cite{smtrat}\cite{vssmt} combines 
+VS, incremental DPLL, and %less lazy and 
+eager theory propagation. 
+Z3 (version 3.1), the winner of QF\_NRA in SMT competition 2011, 
+combines VS, ICP, and linearization.
+
+\medskip \noindent
+\textbf{Bit-blasting}. ~Bid-blasting in bounded bit width is often used in SMTs for QF\_NIA. 
+UCLID~\cite{uclid} reduces the number of bits (i.e., narrowing bounds for SAT instances) 
+as an under-approximation, and removes clauses as an over-approximation. 
+They refine each other, which shares a similar sprit with {\bf raSAT} loop. 
+MiniSmt~\cite{minismt}, the winner of QF\_NRA in SMT competition 2010, 
+applies it for rational numbers with symbolic representations for prefixed algebraic numbers. 
+MiniSmt can show SAT quickly with small degree polynomials, but due to the bounded bit encoding, 
+it cannot conclude UNSAT.
+Bit-blasting also suffers a lot when the degree of polynomials increases. 
+
+\medskip \noindent
+\textbf{Linearization}. ~
+Linearization of polynomials is often used over integers, such as Barcelogic~\cite{barce}, 
+which substitutes all possible integers in a given-bound to an argument of a multiplication. 
+Then, multiplications are reduced to an exhaustive search on linear constraints. 
+CORD \cite{cord} uses another linearization, called 
+CORDIC (COrdinate Rotation DIgital Computer) for real numbers. 
+Both Barcelogic and CORD apply Yices for solving linear constraints.
+Linearization also suffers a lot when the degree of polynomials increases. 
+%\mizuhito{Check CORD is whether bit-blasting or linearization}. 
+
+%\item \textbf{Nonlinear programming}.~
+%\mizuhito{RSOLVER ?}
+
+\medskip \noindent
+\textbf{Interval constraint propagation (ICP)}.~ICP applies a {\em branch-and-bound}
+approach with interval arithmetic as an over-approximation, which can conclude UNSAT. 
+If a box is refined enough, 
+it may satisfy a constraint everywhere in the box, which conclued SAT. 
+RSOLVER~\cite{rsolver}, HySAT~\cite{isat}, and dReal~\cite{dRealCADE13} are such examples. 
+As an acceleration of excluding unsatisfiable boxes, RSOLVER uses a pruning algorithm, whereas 
+HySAT applies eager theory propagation with a tight interaction with a SAT solver. 
+%These approaches overlap with ours. 
+{\bf raSAT} is also in this category. 
+Additional features of {\bf raSAT} are, (1) the use of  Affine intervals~\cite{Stolfi03}
+adding to a classical interval used in RSOLVER and HySAT, and 
+%In addition to over-approximation (interval arithmetic), 
+(2) testing as an under-approximation to acceralate SAT instance detection and 
+mutually refining strategies. 
+
+
+
+
+
+\section{Over and Under Approximation Theories and Their Refinement}
+\label{sec:raSATloop} 
+\subsection{Approximation Theory}
+
+We start with a general framework, and assume that a target constraint is 
+an existential bounded quantification 
+$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$, 
+%\exists x_1 \ldots x_n. (\underbrace{\bigwedge \limits_i x_i \in I_i}_{I}) \wedge 
+%                       (\underbrace{\bigwedge \limits_j \psi_j(x_1,\cdots,x_n)}_{P})
+where $\psi_j(x_1,\cdots,x_n)$ is an atomic formula. 
+
+$F$ is equivalnet to 
+$\exists x_1 \ldots x_n. (\bigwedge \limits_i x_i \in I_i) \wedge (\bigwedge \limits_j \psi_j(x_1,\cdots,x_n))$, 
+and we refer $\bigwedge \limits_i x_i \in I_i$ by ${\mathcal I}$ and 
+$\bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$ by ${\mathcal P}$, 
+respectively. 
+Initially, ${\mathcal I}$ has a form of the conjunction $\bigwedge \limits_i x_i \in I_i$, and later by refinement
+(Section~ref{subsec:rasatloop}), $x_i \in I_i$ is decomposed into a clause $\bigvee_j x_i \in I_{i_j}$
+and ${\mathcal I}$ becomes a CNF. 
+
+As an SMT (SAT modulo theory) problem, 
+boolean variables are assigned to each $x_i \in I_{i_j}$ in ${\mathcal I}$, 
+and truth assignments is produced by a SAT solver, 
+which are proved or disproved by a background theory $T$ whether it satisfies ${\mathcal P}$. 
+
+As notational convention, $m$ (the lower case) denotes an instance 
+($m$ is aimed at variable assignments) of $x_i \in I_{i_j}$'s, and 
+$M$ (the upper case) denotes a (full) truth assignment on $x_i \in I_{i_j}$'s. 
+We write $m \in M$ when an instance $m = (x_1,\cdots,x_n)$ satisfy 
+all $x_i \in I_{i_j}$ that are assigned true. 
+
+
+We adopt {\em very lazy theory learning}~\cite{dpll}, and 
+a backend theory $T$ is applied only for a full truth assignment $M$. 
+We regard $M$ as a conjunction $\bigwedge \limits_i x_i \in I_{i_j}$. 
+\begin{itemize}
+\item If an instance $m$ of variables appearing in ${\mathcal P}$ 
+satisfies $F$, we denote $m \models_T F$. 
+\item If $m$ satisfies $F$ for each instance $m \in M$, we denote $M \models_T F$. 
+\end{itemize}
+
+\begin{definition} \label{def:app}
+Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \psi(x_1,\cdots,x_n)$. 
+For a truth assignment on $M$, $F$ is 
+\begin{itemize}
+\item $T$-valid if $M \models_T \psi(x_1,\cdots,$ $x_n)$, 
+\item $T$-satisfiable ($T$-SAT) if $m \models_T \psi(x_1,\cdots,x_n)$ 
+for some $m \in M$, and 
+\item $T$-unsatisfiable ($T$-UNSAT) if $M \models_T \neg \psi(x_1,\cdots,x_n)$. 
+\end{itemize}
+If $T$ is clear from the context, we simply say valid, satisfiable, and unsatisfiable. 
+\end{definition}
+
+Later in Section~\ref{sec:approximation}, we will instantiate an interval and 
+an atomic polynomial inequality to $I_i$'s and $\psi_j$, respectively.
+%As a standard notation, if $F$ is {\em true}, we denote $\models F$. 
+Then, Fig. \ref{fig:T_result} illustrates Definition~\ref{def:app}. 
+\begin{figure} [ht]
+\centering
+\begin{minipage}[b]{0.45\linewidth}
+  \includegraphics[height=1.8in,width=1.9in]{T_result.eps}
+\caption{Results of a target constraint $F$ in a theory $T$}
+\label{fig:T_result}
+\end{minipage}
+\quad
+\begin{minipage}[b]{0.45\linewidth}
+   \includegraphics[height=2.2in,width=2.3in]{frame_app.eps}
+\caption{{\bf raSAT} loop}
+\label{fig:frame}
+\end{minipage}
+
+\end{figure}
+
+\begin{definition} \label{def:ApproxTheory}
+Let $T, O.T, U.T$ be theories. 
+\begin{itemize}
+\item $O.T$ is an {\em over-approximation theory} (of $T$) 
+if $O.T$-UNSAT implies $T$-UNSAT, and
+\item $U.T$ is an {\em under-approximation theory} (of $T$)
+if $U.T$-SAT implies $T$-SAT. 
+\end{itemize}
+We further assume that $O.T$-valid implies $T$-valid. 
+\end{definition}
+
+%Note that $O.T$-valid can be regarded as $U.T$, since $O.T$-valid implies $T$-valid, thus $T$-SAT. 
+A typical ICP applies $O.T$ only as an interval arithmetic. 
+Later in Section~\ref{sec:approximation}, we will instantiate interval arithmetic as $O.T$. 
+Adding to $O.T$-valid, we introduce testing as $U.T$ to accelerate SAT detection. 
+
+
+
+\subsection{Over-Approximation Theory Refinement}
+\label{sec:soundness}
+
+From now on, We focus on a \emph{polynomial inequality} such that 
+$I_i$ and $\psi_j(x_1,\cdots,x_n)$ are an open interval $(a_i,b_i)$ and 
+an atomic polynomial inequaltiy (API) $f_j > 0$, respectively. 
+We denote $\mathbb{S}(f_j) = \{x \in \Real^n \mid f_j > 0 ~\text{holds}\}$.
+
+For ICP, it is folklore that, for polynomial inequality 
+$\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$, 
+\begin{itemize}
+\item if $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$ is SAT, 
+ICP eventually detects it, and 
+\item if $\exists x_1 \in [a_1,b_1] \cdots x_n \in [a_n,b_n] . \wedge_{i} f_i \geq 0$ is UNSAT, 
+ICP eventually detects it, 
+\end{itemize}
+under the assumptions of {\em fair} decomposition and bounded intervals $(a_i,b_i)$. 
+We will prepare terminology and briefly review this fact. 
+
+%%%%%%%%%%%%%%%%%%%%%%
+\suppress{
+\begin{definition} \label{def:poly}
+A polynomial inequality is a bounded quantification 
+$\exists x_1 \in I_1 \cdots x_n \in I_n. \psi(x_1,\cdots,x_n)$ 
+such that 
+\begin{itemize}
+\item each $I_i$ is an open interval $x_i \in (a_i,b_i)$, and 
+\item $\psi(x_1,\cdots,x_n)$ is a conjunction of $f_j > 0$ 
+where $f_j$ is a polynomial over $\{x_1, \cdots, x_n\}$. 
+\end{itemize}
+$f_i > 0$ is called an atomic polynomial inequality (API). 
+We denote $\mathbb{S}(F) = \{x \in \Real^n \mid F ~\text{holds}\}$.
+\end{definition}
+
+\begin{example} \label{examp:poly_ieq}
+$\exists x \in (-1,3)~y \in (2,4) . (x^3y - y^4 > 0) \wedge (y^3 -xy >0)$
+is an example of a polynomial inequality with 2 variables and 2 APIs. 
+\end{example}
+}
+%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}
+An \emph{open box} of dimension $n$ is a set $(a_1,b_1) \times \cdots \times (a_n,b_n)$ 
+where $a_i, b_i \in \Real, a_i \leq b_i$.  
+For $\mathfrak{a} = (a_1, \cdots, a_n)$ and $\mathfrak{b} = (b_1, \cdots, b_n)$, 
+we denote $(a_1,b_1) \times \cdots \times (a_n,b_n)$ by $(\mathfrak{a}, \mathfrak{b})$. 
+\end{definition}
+
+The set of all open boxes is a basis of Euclidean topology on $\Real^n$. 
+In $\Real^n$, a set $U$ is compact if, and only if, $U$ is a bounded closed set. 
+We denote a closure of a set $U (\subseteq \Real^n)$ by $\overline{U}$. 
+%
+Since a polynomial is continuous, 
+$\mathbb{S}(\bigwedge \limits_{i=1}^m f_i > 0)$ is an open set. 
+Note $\Rat$ is dense in $\Real$, thus we can replace an SAT instance in reals with one in rationals. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\suppress{
+\begin{lemma} \label{cor:rattoreal}
+For a polynomial inequality
+$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
+If there exists an SAT instance of F in $\Real^n$, there exists also in $\Rat^n$. 
+\end{lemma}
+
+\begin{lemma} \label{cor:refinement}
+Suppose that $a_j < b_j$ for $1 \leq j \leq n$ and $f_i$'s are polynomials. 
+Assume $a_k < c < b_k$ for some $k$. 
+Then, 
+$\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n). \bigwedge \limits_{i=1}^m f_i > 0$ 
+is SAT (resp. UNSAT) if, and only if, 
+$\exists x_1 \in (a_1,b_1) \cdots x_k \in (a_k,c) \cdots x_n \in (a_n,b_n). 
+ \bigwedge \limits_{i=1}^m f_i > 0 
+ \vee 
+ \exists x_1 \in (a_1,b_1) \cdots x_k \in (c,b_k) \cdots x_n \in (a_n,b_n)). 
+ \bigwedge \limits_{i=1}^m f_i > 0$ 
+is SAT (resp. UNSAT). 
+\end{lemma}
+
+\begin{pf}
+We show for the SAT case. If-part is obvious. For only-if-part, 
+since $\mathbb{S}(\bigwedge \limits_{i=1}^m f_i > 0)$ is an open set, 
+if $y \in (a_1,b_1) \times \cdots \{c\} \cdots \times (a_n,b_n)$ satisfies 
+$\bigwedge \limits_{i=1}^m f_i > 0$, 
+there exists $x_1 \in (a_1,b_1) \cdots x_k \in (a_k,c) \cdots x_n \in (a_n,b_n)$
+(also $x_1 \in (a_1,b_1) \cdots x_k \in (c,b_k) \cdots x_n \in (a_n,b_n)$) that satisfies
+$\bigwedge \limits_{i=1}^m f_i > 0$. 
+\end{pf}
+
+Lemma~\ref{cor:rattoreal} says that proving SAT of $F$ in $\Real$ is reduced to 
+that in $\Rat$. 
+Lemma~\ref{cor:refinement} says that, in the refinement step, we can apply refinement 
+$x_k \in (a_k,b_k)$ to $x_k \in (a_k,c) \vee x_k \in (c,b_k)$, 
+instead of $x_k \in (a_k,c] \vee x_k \in (c,b_k) $
+(i.e., $c$ is ignored). 
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Initially, ${\mathcal I}$ is a conjunction. Later, by refinements, it becomes a CNF. 
+In Example~\ref{examp:poly_ieq}, 
+$x \in (-1,3)$ and $y \in (2,4)$ are refined to smaller intervals
+such that 
+$\exists x \in (-1,1) y \in (2,4) . (x^3y - y^4 > 0) \wedge (y^3 -xy >0) \vee 
+ \exists x \in (1,3) y \in (2,4) . (x^3y - y^4 > 0) \wedge (y^3 -xy >0)$, 
+which results a CNF 
+$(x \in (-1,1) \vee x \in (1,3)) \wedge (y \in (2,4)) \wedge (x^3y - y^4 > 0) \wedge (y^3 -xy >0)$.
+%(only the CNF formula $(x \in (-1,1) \vee x \in (1,3)) \wedge (y \in (2,4))$ is given to SAT solver).
+%\mizuhito{could you fulfill? Direct encoding seems a DNF?}. 
+
+
+A standard ICP applies an interval arithmetic as an over-approximation theory $O.T$. 
+However, most of properties on an interval arithmeic are proved only with the following. 
+
+\begin{definition} \label{def:completeOT}
+Let
+$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
+be a polynomial inequality such that each $I_i$ is bounded. 
+An over-approximation theory $O.T$ is {\em converging} 
+if, for each $\delta > 0$ and $c = (c_1, \cdots, c_n) \in I_1 \times \cdots \times I_n$, 
+there exists $\gamma > 0$ such that 
+$\bigwedge \limits_{j=1}^n x_j \in (c_j - \gamma, c_j + \gamma) \models_{O.T} 
+ \bigwedge \limits_{i=1}^m (f_i(c) - \delta < f_i(x) < f_i(c) + \delta)$. 
+\end{definition}
+
+$O.T$ refinemnet loop is shown in Fig.~\ref{fig:OTrefine}~(a). 
+A standard ICP based algorithm of an SMT solver applies it with $O.T$ as a classical interval arithemtic. 
+The variation of interval arithemtic will be presented in Section~\ref{sec:approximation}. 
+\begin{figure}[ht]
+\begin{minipage}[b]{1.0\linewidth}
+\centering
+\begin{tabular}{cc}
+\includegraphics[height=1.2in,width=1.7in]{OTloop.png} & 
+\includegraphics[height=1.2in,width=1.7in]{rasatloop.png} \\   
+\mbox{(a) $O.T$ theory refinement loop} & \mbox{{\bf raSAT} loop} \\
+\end{tabular}
+\end{minipage} 
+\caption{Rfinement loops} 
+\label{fig:OTrefine} 
+\end{figure}
+
+
+\begin{definition} 
+Let
+$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
+for $I_i = (a_i,b_i)$.
+A refinement strategy is {\em fair}, if, for each $c_j \in (a_j,b_j)$ and $\gamma > 0$, 
+a decomposition of $I_i$ for each $i$ eventually occurs in $(c_j - \gamma, c_j + \gamma)$ 
+(as long as neither SAT nor UNSAT is detected). 
+\end{definition}
+
+\begin{theorem} \label{th:RelComp}
+Let
+$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
+for $I_i = (a_i,b_i)$.
+Assume that an over-approximation theory $O.T$ is converging, 
+each $(a_i,b_i)$ is bounded, and a refinement strategy is fair. 
+Then, 
+\begin{itemize}
+\item if $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$ is SAT, 
+$O.T$ refinemnet loop eventually detects it, and
+\item if $\exists x_1 \in [a_1,b_1] \cdots x_n \in [a_n,b_n] . \wedge_{i} f_i \geq 0$ is UNSAT, 
+ICP eventually detects it.  
+\end{itemize}
+\end{theorem}
+
+
+\begin{proof} 
+The former is proved by the fact that, if $F$ is SAT, there exists a non-empty neiborhood (open box) 
+in $\cap \mathbb{S}(f_j)$, where $\mathbb{S}(f_j) = \{ (x_1, \cdots, x_n) \mid f_j(x_1, \cdots, x_n) > 0 \}$. 
+If the box decomposition strategy is fair, the refinemnet will eventually find such an open box. 
+
+For the latter, assume that 
+$\overline{F} = \exists x_1 \in [a_1,b_1] \cdots x_n \in [a_n,b_n] . \wedge_{i} f_i \geq 0$ is UNSAT, 
+Thus, $\mathbb{S}(\overline{F}) = \emptyset$. 
+Let $\delta(f_j)(\bar{x}) = max \{ |f_j(\bar{x}) - f_1(\bar{x})|, \cdots, 
+|f_j(\bar{x}) - f_m(\bar{x})| \mid \bar{x} \in I_1 \times \cdots \times I_n\}$. 
+From $\cap \overline{\mathbb{S}(f_j)} = \emptyset$, $\delta(f_j)(\bar{x}) > 0$ 
+for each $j$. 
+Since $\delta(f_j)$ is continuous and $\overline{I_i}$ is compact, 
+$\delta(f_j)(x)$ has the minimum value $\delta_j > 0$. 
+%for $\bar{x} \in \overline{I_1 \times \cdots \times I_n}$. 
+Let 
+%$\delta_j = min \{\delta(f_i)(x) \mid x \in I \}$ and 
+$\delta = \frac{min \{ \delta_j \}}{2}$. Then $\delta > 0$. 
+
+In either case, since $O.T$ is converging, there exists $\gamma > 0$ for $\delta > 0$ 
+satisfying Definition~\ref{def:completeOT}. 
+\qed
+\end{proof}
+
+Limitations for detecting UNSAT occur on \emph{kissing} and \emph{convergent} cases. 
+Fig.~\ref{fig:limit} left shows a kissing case 
+$x^2 + y^2 < 2^2 \wedge (x-4)^2 + (y-3)^2 < 3^2$ such that 
+$\overline{\mathbb{S}(- x^2 - y^2 + 2^2)} \cap \overline{\mathbb{S}(- (x-4)^2 - (y-3)^2 + 3^2)} 
+= \{(x,y) \mid (1.6, 1.2)\}$. 
+Thus, there are no coverings to separate them. 
+%$x^2 + y^2 < 2^2$ and $(x-4)^2 + (y-3)^2 < 3^2$. 
+%
+Fig. \ref{fig:limit} right shows a convergent case 
+$y > x + \frac{1}{x} \wedge y < x \wedge x > 0$, which is equivalent to 
+$xy > x^2 + x \wedge y < x \wedge x > 0$. 
+%The open box is $(0,\infty) \times (0,\infty)$ and 
+There are no finite coverings to separate them. 
+%$y > x + \frac{1}{x}$ and $y < x$ for $x > 0$. 
+
+\begin{figure}[ht]
+%\begin{minipage}[b]{1.0\linewidth}
+\centering
+\begin{tabular}{cc}
+\includegraphics[height=1.65in,width=1.7in]{kissing.eps} &
+\includegraphics[height=1.65in,width=1.7in]{convergence.eps}
+\end{tabular}
+\caption{Limitations for proving UNSAT} 
+\label{fig:limit} 
+%\end{minipage}
+\end{figure} 
+
+
+
+\subsection{raSAT loop}
+
+From our preliminary experiences, 
+when polynomial constraints have several hundred variables, 
+it is very difficult to detect UNSAT unless it has a small UNSAT core. 
+
+Although an $O.T$ refinement loop is enough to implement an ICP based SMT solver, 
+we extend it as {\bf raSAT} (SAT by refinement of approximations) loop to boost SAT detection 
+by adding an $U.T$ theory. 
+{\bf raSAT} loop works repeatedly as in Fig.~\ref{fig:OTrefine}~(b), 
+\begin{enumerate}
+\item When an over-approximation theory $O.T$ detects $O.T$-UNSAT (resp. $O.T$-valid), 
+answer UNSAT (resp. SAT). 
+\item When an under-approximation theory $U.T$ detects $U.T$-SAT, answer SAT. 
+\item If neither holds, a refinement is applied. 
+\end{enumerate}
+
+
+
+Our design of an SMT solver {\bf raSAT}, which implements {\bf raSAT} loop, 
+applies two heuristic features 
+\begin{itemize}
+\item An incremental search by narrowing intervals and incrementaly deepening search
+(Section~\ref{sec:incsearch}). 
+\item 
+Heurstic measures {\em SAT-likelyhood} and {\em sensitivity}, 
+for selection of a variable to decompose and a box to explore. 
+(Section~\ref{sec:SATheuristic}). 
+\end{itemize} 
+
+{\bf raSAT} also prepares various interval arithmetic as $O.T$ as in Section~\ref{sec:approximation}, 
+whereas currently only random tesing is prepared as $U.T$. 
+
+
+
+\section{Over and Under-Approximations for Intervals} \label{sec:approximation}
+
+A typical theory for $O.T$ and $U.T$ are an interval arithmetic and testing, respectively. 
+We say {\em IA-valid}, {\em IA-SAT}, and {\em IA-UNSAT}, when it is $O.T$-valid, $O.T$-SAT, and 
+$O.T$-UNSAT, respectively. 
+Similarly, we say {\em test-SAT} and {\em test-UNSAT}, when it is $U.T$-SAT and $U.T$-UNSAT, respectively. 
+Note that IA-valid and test-SAT imply SAT, and IA-UNSAT implies UNSAT, 
+whereas IA-SAT and test-UNSAT can conclude neither. 
+
+
+%We instantiate testing to $U.T$ in Section~\ref{sec:raSATloop}. 
+%%%%%%%%%%%%%%%%
+\suppress{
+\begin{definition}\label{def:testing}
+%For $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n). \bigwedge \limits_{i=1}^m f_i(x_1,\cdots,x_n) > 0$, 
+Let $M = \bigwedge \limits_{i=1}^m x_i \in (a_i,b_i)$ and 
+${\mathcal P} = \bigwedge \limits_{i=1}^m f_i(x_1,\cdots,x_n) > 0$. 
+%
+Let a choice function $\theta : (\Real \times \Real)^n \rightarrow \Real^n$ 
+such that $\theta(M) \in (a_1,b_1) \times \cdots \times (a_n,b_n)$. 
+Testing is a finite set $\Theta$ of choice functions. Then, we say 
+\begin{itemize}
+\item ${\mathcal P}$ is \emph{Test-SAT} under $M$ if $\theta(M)$ holds ${\mathcal P}$ 
+for some $\theta \in \Theta$, and 
+\item ${\mathcal P}$ is \emph{Test-UNSAT} under $M$ if $\theta(M)$ never holds ${\mathcal P}$ 
+for each $\theta \in \Theta$. 
+\end{itemize} 
+%We denote $I \models_{test(\theta)} P$ if $\bigwedge \limits_{i=1}^m f_i(\theta(I)) > 0$ holds.
+\end{definition}
+}
+%%%%%%%%%%%%%%%%
+
+At the moment, we apply \emph{k-random ticks}~\cite{tapas12} as testing, 
+which consists of periodical $k$-test instances 
+with a random offset, for generating test data of each variable.
+However, a strategy based on {\em SAT-likelyhood} and {\em sensitivity} selects variables to generate multiple 
+instances (currently 10 variables are choosen for periodical $2$-test instances, and only single random 
+instance is generated for the rest). 
+
+{\bf raSAT} prepares various Affine intervals, adding to classical interval (CI)~\cite{moore}, 
+which keeps a lower bound and an upper bound. The weakness of CI is loss of dependency 
+among values. For instance, if $x \in (2,4)$ then, $x - x$ is evaluated to $(-2,2)$.
+
+Affine Interval~\cite{af,comba93} introduces \emph{noise symbols} $\epsilon$, 
+which are interpreted as values in $(-1,1)$. 
+For instance, $x = 3 + \epsilon$ describes $x \in (2,4)$, and 
+$x - x = (3 + \epsilon) - (3 + \epsilon)$ is evaluated to $0$. 
+The drawback is that the multiplication without dependency might be less precise than CI.
+Affine intervals also cannot represent infinite intervals, e.g., $(0,\infty)$, 
+since it becomes $\infty + \infty~\epsilon$. 
+Forms of affine intervals vary by choices how to estimate multiplications. They are,
+\begin{enumerate}[(i)]
+\item $\epsilon \epsilon'$ is replaced with a fresh noise symbol 
+($AF$)~\cite{StolfiThesis,comba93}, 
+\item $\epsilon \epsilon'$ is reduced to the fixed error noise symbol 
+$\epsilon_{\pm}$ ($AF_1$ and $AF_2$) \cite{af},
+\item $\epsilon \epsilon'$ is replaced with $(-1,1) \epsilon$ 
+(or $(-1,1) \epsilon'$) ($EAI$)~\cite{ngocsefm},
+\item $\epsilon \epsilon$ is reduced to fixed noise symbols 
+$\epsilon_+$ or $\epsilon_{-}$ ($AF_2$) \cite{af}, 
+\item Chebyshev approximation of $x^2$ introduces a noise symbol $|\epsilon|$ 
+as an absolute value of $\epsilon$ with 
+$\epsilon \epsilon = |\epsilon| |\epsilon| = |\epsilon| + (-\frac{1}{4}, 0)$ and
+$\epsilon |\epsilon| = \epsilon + (-\frac{1}{4}, \frac{1}{4})$ \cite{tapas12}. 
+%(Fig.~\ref{fig:chevabs}). 
+%\item keeping products of noise symbols up to degree $2$ ($\epsilon_i \epsilon_j$),
+\end{enumerate} 
+
+
+\begin{remark}
+For Affine intervals, \emph{sensitivity}~\cite{ngocsefm} of a variable
+is a possible range of the absolute value of the coefficient of its corresponding $\epsilon$. 
+
+%In Example~\ref{examp:sensitivity}, $CAI$ estimates the coefficient of $|\epsilon_1|$ as $\textbf{3}$, 
+%which has the largest sensitivity and indicates $x$ the most influencial. 
+
+Note that Affine interval works only for bounded intervals. 
+For instance, $\infty + \infty \epsilon$ represents $(-\infty,\infty)$, which says nothing. 
+Narrowing intervals as an incremental search (Section~\ref{sec:incsearch}) partilly depends on this fact. 
+That is, if $\pm \infty$ is contained in an interval, first give finite upper/lower bounds and search 
+within these bounds using an Affine interval. If UNSAT is concluded, then enlarge to the whole intervals 
+using CI. 
+\end{remark}
+
+\begin{example} \label{examp:sensitivity}
+Let $f = x^3 - 2xy$ with $x = (0,2)$ ($x = 1 + \epsilon_1$) and $y=(1,3)$ ($y = 2+\epsilon_2$), 
+we have,
+\end{example}
+\begin{itemize}
+\item $AF_2$ estimates the range of $f$ as 
+$-3 - \epsilon_1 - 2\epsilon_2 + 3\epsilon_+ + 3\epsilon_{\pm}$, thus $(-9,6)$,
+\item $CAI$ estimates the range of $f$ as 
+$(-4,-\frac{11}{4}) + (-\frac{1}{4}, 0)\epsilon_1 - 2\epsilon_2 + \textbf{3}|\epsilon_1| + (-2,2)\epsilon_{\pm}$, 
+thus $(-8,4.5)$.
+\end{itemize}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\suppress{
+\begin{figure}[ht]
+\begin{minipage}[b]{1.0\linewidth}
+\centering
+\begin{tabular}{ll}
+\includegraphics[height=1.6in,width=1.7in]{chev1.pdf} &
+\includegraphics[height=1.6in,width=1.7in]{chev2.pdf}
+\end{tabular}
+\caption{Chebyshev approximation of $x^2$ and $x~|x|$}
+\label{fig:chevabs}
+\end{minipage}
+\end{figure}
+
+$CAI$ \cite{tapas12} consists of (ii) and (v), which keeps better precision than iv)
+for multiplicatins of the same variables, e.g., Taylor expansion. 
+%To improve precision in estimating upper and lower bounds of polynomials, we apply 
+%\textbf{Affine Arithmetic} such as $AF_1$, $AF_2$ \cite{af}, $CAI$ ~\cite{tapas12} 
+%instead of Classical Interval \cite{moore}. 
+%Note that upper and lower bounds estimated by IA are over-approximation bounds of polynomials.
+
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\suppress{
+\begin{definition}
+%For $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n). \bigwedge \limits_{i=1}^m f_i(x_1,\cdots,x_n) > 0$, 
+Let $M = \bigwedge \limits_{i=1}^m x_i \in (a_i,b_i)$ and 
+${\mathcal P} = \bigwedge \limits_{i=1}^m f_i(x_1,\cdots,x_n) > 0$. 
+%
+Let $\delta_i^l$ and $\delta_i^u$ be lower and upper bounds of $f_i(x_1,\cdots,x_n)$ 
+estimated by IA for $x_i \in (a_i,b_i)$. Then, we say 
+%
+%\vspace*{0.5em}
+\begin{itemize}
+\item ${\mathcal P}$ is \emph{IA-VALID} under $M$, if IA evaluates 
+$~\forall i \in [1,m].~\delta_i^l > 0$,
+%\vspace*{0.33em}
+\item ${\mathcal P}$ is \emph{IA-UNSAT} under $M$, 
+$~\exists i \in [1,m].~\delta_i^u \leq 0$, and 
+\item ${\mathcal P}$ is \emph{IA-SAT} under $M$, if 
+$(\exists j \in [1,m].~\delta_j^l \leq 0)\; \wedge \; 
+	(\bigwedge \limits_{i=1}^m \delta_i^u > 0)$.
+\end{itemize} 
+\end{definition}
+
+IA-VALID and IA-UNSAT safely reason satisfiability (SAT) and unsatisfiability (UNSAT), 
+respectively. However, IA-SAT cannot conclude SAT. 
+}
+
+
+
+
+\section{Strategies in raSAT} \label{sec:strategy}
+
+
+\subsection{Incremental search} 
+
+{\bf raSAT} applies two incremental strategies, 
+(1) {\em incremental windening}, and (2) {\em incremental deepening}. 
+
+Let
+$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
+for $I_i = (a_i,b_i)$, where $a_i, b_i$ would be $\pm \infty$. 
+
+\subsubsection*{Incremental windening}
+Given $0 < \delta_0 < \delta_1 < \cdots$, 
+{\em incremental windening} starts with 
+$F_0 = \exists x_1 \in I_1 \cap (-\delta_0 , \delta_0) \cdots x_n \in I_n \cap (-\delta_0 , \delta_0). 
+\bigwedge \limits_{j=1}^m f_j > 0$, 
+and if it finishes with UNSAT, it runs with 
+$F_1 = \exists x_1 \in I_1 \cap (-\delta_1 , \delta_1) \cdots x_n \in I_n \cap (-\delta_1 , \delta_1). 
+\bigwedge \limits_{j=1}^m f_j > 0$, and so on (Fig.~\ref{fig:incwid} (a)). 
+
+Note that if $\delta_i < \infty$, {\bf raSAT} applies an Affine interval; otherwise, 
+it uses CI. 
+Experiments in Section~\ref{sec:experiment} are performed 
+with $\delta_0 = 10$ and $\delta_1 = \infty$.
+
+
+\begin{figure}[ht]
+\begin{minipage}[b]{1.0\linewidth}
+\centering
+\begin{tabular}{l@{\qquad}l}
+\includegraphics[height=0.4in,width=1.8in]{IncWiden.png} &
+\includegraphics[height=1.5in,width=2in]{IncDeepen.png} \\
+\mbox{(a) Incremenal widening} & \mbox{(b) Incremental Deepening} \\
+\end{tabular}
+\caption{Chebyshev approximation of $x^2$ and $x~|x|$}
+\label{fig:incwid}
+\end{minipage}
+\end{figure}
+
+
+
+
+\subsubsection*{Incremental deepening}
+
+Starting with $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
+$I_1 \times \cdots \times I_n$ is decomposed into many boxes. 
+$F$ becomes the disjunction of existential formulae corrsponding to these boxes. 
+{\bf raSAT} searches these boxes in depth-first manner, which may leads to local optimal search. 
+To avoid it, {\bf raSAT} applies a threshold $\gamma$, such that no more decomposition will be 
+applied when a box becomes smaller than $\gamma$. 
+If neither SAT nor UNSAT is detected, {\bf raSAT} restarts with a smaller threshhold. 
+
+Let $\gamma_0 > \gamma_1 > \cdots > 0$, and {\bf raSAT} incrementally deepens its search 
+with these threshholds, i.e., starting with $\delta_0$, and if it fails, restart with $\delta_1$, 
+and so on (Fig~\ref{fig:incwid} (b)). 
+Experiments in Section~\ref{sec:experiment} are performed 
+with $\gamma_0 = 0.1$ and $\gamma_{i+1} =  \gamma_i / 10$. 
+
+
+
+\subsection{SAT directed heuristics measure}
+
+With several hundred variables, we observe possibilty of 
+\begin{itemize}
+\item either SAT, or
+\item UNSAT with small UNSAT core.
+\end{itemize}
+For the latter, we need an efficient heuristics to find an UNSAT core, which is left as future work. 
+For the former, the keys are how to choose variables to decompose, and 
+how to choose a box to explore. 
+The number of variables to decompose leads exponential growth of boxes, which  
+shares the same problem with variables to generate multiple test instances (in $U.T$). 
+{\bf raSAT} choose such variables in two steps; first it selects {\em test-UNSAT APIs}, and
+then choose variables that appear in these APIs. 
+We design SAT-directed heuristic measures based on the interval arithemtic ($O.T$). 
+
+Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$ 
+becomes $\vee \exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0$ 
+after box decomposition. 
+We denote the estimated range of $f_j$ for $x_1 \in I'_1 \cdots x_n \in I'_n$ with IA ($O.T$)
+by $range(f_j, I'_1 \times \cdots \times I'_n)$. 
+If an IA is an Affine interval, $f_j$ for $x_1 \in I'_1 \cdots x_n \in I'_n$ is estimated with 
+the form $[c_1,d_1]\epsilon_1 + \cdots + [c_n,d_n]\epsilon_n$, 
+and by instanciating $\epsilon_i$ with $[-1,1]$, 
+the resulting classical interval coincides with $range(f_j, I'_1 \times \cdots \times I'_n)$. 
+
+For $\exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
+if some $f_j > 0$ is UNSAT, the box $I'_1 \times \cdots \times I'_n$ is UNSAT. 
+If every $f_j > 0$ is SAT, $F$ is SAT. 
+Thus, if the box $I'_1 \times \cdots \times I'_n$ needs to be explore, it must contain 
+a test-UNSAT APT (thus IA-SAT). 
+We choose a test-UNSAT API $f_j > 0$ and let $I = | f_j |_{I'_1 \times \cdots \times I'_n}$. 
+Thus $h > 0$. we define 
+\begin{itemize} 
+\item {\em sensitivity} of a variable $x_i$ in a test-UNSAT API $f_j > 0$ is $max(|c_i|, |d_i|)$. 
+\item {\em SAT-likelyhood} of an API $f_j > 0$ is $| I \cap (0,\infty) | / |I|$, and 
+\item {\em SAT-likelyhood} of a box $I'_1 \times \cdots \times I'_n$ is 
+the least SAT-likelyhood of test-UNSAT APIs. 
+\end{itemize} 
+
+\begin{example}
+\mizuhito{TO be filled}
+\end{example}
+
+
+{\em SAT-likelyhood} of an API intends to estimate APIs how likely to be SAT. 
+For choosing variables, {\bf raSAT} first choose a test-UNSAT API by SAT-likelyhood. 
+There are two choices, either the largest or the least. 
+{\em Sensitivity} of a variable intends to estimate variables how influencial to the value of an API. 
+From selected APIs by SAT-likelyhood, {\bf raSAT} selects variables with larger sensitivity. 
+This selection of variables are used for (1) {\em multiple test instances generation}, and 
+(2) {\em decomposition}. 
+
+For choosing a box to explore, {\bf raSAT} chooses more likely to be SAT. 
+There are two choice, (1) a box with the largest SAT-likelyhood, and 
+(2) a box with the largest number of SAT (either IA-valid or test-SAT) APIs. 
+
+Experiments in Section~\ref{sec:experiment} are performed 
+with 10 variables (1 varable for each 10 APIs selected by SAT-likelyhood) 
+for multiple test generation (2 instances), and 
+1 variable for decomposition. 
+
+\suppress{
+I. Selecting API for testing:
+  (1) Difficulty first by SAT-likelihood.   
+  (2) Easy first by SAT-likelihood
+  (10) Random.,
+II. Selecting Variable:
+  (8) With sensitivity
+  (9) Without sensitivity - Random: 
+III. Selecting box:
+  (3) SAT-directed using IA-Testing.
+  (4) UNSAT-directed using IA-Testing.
+  (5) SAT-directed using SAT-likelihood
+  (6) UNSAT-directed using SAT-likelihood
+  (7) Random
+}
+
+
+
+
+
+
+\section{Experiments} \label{sec:experiment}
+
+
+%\subsection{{\bf raSAT} Implementation} 
+We implement \textbf{raSAT} loop as an SMT {\bf raSAT}, 
+based on MiniSat 2.2 as a backend SAT solver. 
+Variaous combinations of strategies of {\bf raSAT} (Section~\ref{sec:strategy})
+are compared. 
+The best choice of {\bf raSAT} is also compared with \textbf{Z3 4.3} and \textbf{iSAT3}, 
+where the former is considered to be the state of the art (\cite{Jovanovic13}), and 
+the latter is an ICP based tool. 
+Note that our comparison is only on polynomial inequality. 
+%Example~\ref{ex1} in Appendix~\ref{app:raSATexample} illustrates how {\bf raSAT} works. 
+The experiments are on a system with Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. 
+
+Other than heuristics mentioned in Section~\ref{sec:strategy}, 
+there are lots of heuristic choices. 
+For instance, 
+\begin{itemize}
+\item how to generate test instances (in $U.T$), 
+\item how to decompose an interval, 
+\end{itemize} 
+and so on. 
+Experiments below %in Section~\ref{sec:experiment} 
+are performed 
+with randome generation ($k$-random tick) for the former and the blanced decomposition 
+(dividing at the exact middle) for the latter. 
+Further investigation is left for future. 
+
+
+\subsection{Benchmarks from SMT-LIB} \label{sec:expsmtlib}
+
+In SMT-LIB~\footnote{\tt http://www.smt-lib.org}, 
+benchmark programs on non-linear real number arithmetic 
+(QF\_NRA) are categorized into Meti-Tarski, Keymaera, Kissing, Hong, and Zankl families. 
+Until SMT-COMP 2011, benchmarks are only Zankl family. 
+In SMT-COMP 2012, other families have been added, and currently growing. 
+General comparison among various existing tools on these benchmarks is summarized in 
+Table.1 in \cite{Jovanovic13}, which shows Z3 4.3 is one of the strongest. 
+
+From them, we take problems of polynomial inequality only %(not containing $''=''$). 
+The brief statistics and explanation are as follows. 
+\begin{itemize}
+\item {\bf Meti-Tarski} contains 5364 inequalities among 8377, taken from elementary physics.
+Typically, they are small problems which have lower degrees and few variables, 
+i.e., 3 or 4 variables in each problem. 
+Frequently, linear constraints are mixed in these problems.
+\item {\bf Keymaera} contains 161 inequalities among 4442. 
+\item {\bf Kissing} has 45 problems, all of which contains equality (mostly single equality). 
+%They are taken from the cases of touching curves. 
+\item {\bf Hong} has 20 inequalities among 20, tuned for QE-CAD and quite artificial. 
+\item {\bf Zankl} has 151 inequalities among 166, taken from termination provers. 
+Problems may contain many ($>100$) variables, in which some APIs have $>15$ variables
+\end{itemize}
+
+
+We perform experiments only on Zankl, and Meti-Tarski families. 
+Table \ref{tab:expsmtlib} shows the number of solved problems and 
+their total running time (in seconds). 
+
+For Zankl family,  {\bf Z3 4.3} shows better performance than {\bf raSAT}. 
+ {\bf Z3 4.3} runs very fast for problems that contain linear constraints combined with 
+non-linear constraints of lower degrees (e.g., degree $4$). 
+We observe that {\bf raSAT} outperforms {\bf Z3 4.3} when problems have 
+a long monomial (e.g., 60), higher degrees (e.g., 6), and APIs with more variables 
+(e.g., $>14$). 
+For instance, only {\bf raSAT} can solve \emph{matrix-2-all-5,8,11,12}, and 
+is quicker to show SAT (by testing) in \emph{matrix-2-all-9,10}. 
+
+Among large number of problems in Meti-Tarski, 
+we extract 832 problems for the experiment. 
+\textbf{Z3 4.3} solved all problems, and 
+\textbf{raSAT} solved 657 (SAT/UNSAT) problems among 832. 
+Actually, \textbf{raSAT} solved almost all SAT problems, 
+but UNSAT problems are less. 
+One reason is that kissing cases occur frequently in UNSAT problems of Meti-Tarski, 
+which \textbf{raSAT} cannot handle. 
+%We expect that preprocessing on linear constraint parts could improve. 
+Note that, in Table.1 in \cite{Jovanovic13}, only QE-CAD based tools work fine 
+(\textbf{Z3 3.1} does not apply QE-CAD, whereas \textbf{Z3 4.3} $=$ \textbf{nlSAT}
+includes QE-CAD). 
+Although \textbf{raSAT} has certain limitations on UNSAT problems, 
+it shows enough comparable results in Meti-Tarski benchmarks 
+and seems faster than most of QE-CAD based tools (except for \textbf{Z3 4.3}). 
+
+
+\subsection{Polynomial constraints over integers} \label{sec:NIA}
+
+
+
+
+\subsection {Effectiveness of designed strategies} 
+\label{sec:strategies}
+There are three immediate measures on the size of polynomial constraints. They are the highest degree of polynomials, the number of variables, and the number of APIs. Our strategies focus on selecting APIs(for testing) and selecting variable (for multiple test cases and for decomposition), selecting decomposed box of the chosen variable in TEST-UNSAT API. Thus, in order to justify the effectiveness of these strategies, we need to test them on problems with varieties of APIs number (selecting APIs) and varieties of variables number in each API (selecting variable). For this criteria, we use Zankl family for evaluating strategies. 
+
+The number of APIs for this family varies from $1$ to $2231$ and the maximum number of variables in each APIs varies from $1$ to $422$. 
+
+
+\begin{itemize}
+  \item Selecting APIs, selecting decomposed boxes:
+    \begin{description}
+      \item[(1)] Using SAT likely-hood %(1)-(5)
+      \item[(2)] Randomly % (10) - (7)
+    \end{description}
+  \item Selecting one variable each API for testing, one variable of TEST-UNSAT API for decomposition:
+    \begin{description}
+       \item[(3)] Using sensitivity % (8)
+       \item[(5)] Randomly % (9)
+    \end{description}
+\end{itemize}
+
+We will compare the combinations $(1)-(5)$ and $(2)-(5)$ to see how SAT likely-hood affects the results. And comparison betweeen $(1)-(5)$ and $(1)-(3)$ illustrates the effectiveness of sensitivity. In these experiments, timeout is set to $500s$.
+
+ Table \ref{tab:strategies-zankl} shows the results of strategies. While $(1)-(5)$ solved $33$ problems in $27.09s$, $(2)-(5)$ took $933.78s$ to solve $31$ problems. In fact, among $31$ solved problems of $(2)-(5)$, $(1)-(5)$ solved $30$. The remaining problem is a SAT one, and $(2)-(5)$ solved it in $34.36s$. So excluding this problem, $(2)-(5)$ solved $30$ problems in $933.78s - 34.36s = 899.42s$ and $(1)-(5)$ took $27.09s$ to solved all these $30$ problems plus $3$ other problems. Using SAT likely-hood to select the most difficult API first for testing is very reasonable. This is because the goal of testing is to find an assignment for variables that satisfies \textbf{all} APIs. Selecting the most difficult APIs first has the following benefits: 
+\begin{itemize}
+  \item The most difficult APIs are likely not satisfied by most of test cases (of variables in these APIs). This early avoids exploring additional unnecessary combination with test cases of variables in other easier APIs.
+  \item If the most difficult APIs are satisfied by some test cases, these test cases might also satisfy the easier APIs.
+\end{itemize}
+
+raSAT uses SAT likely-hood to choose a decomposed box so that the chosen box will make the TEST-UNSAT API more likely to be SAT. This seems to work for SAT problems but not for UNSAT ones. In fact, this is not the case. Since for UNSAT problems, we need to check both of the decomposed boxes to prove the unsatisfiability (in any order). So for UNSAT constraints, it is not the problem of how to choose a decomposed box, but the problem of how to decompose a box. That is how to choose a point within an interval for decomposition so that the UNSAT boxes are early separated. Currently, raSAT uses the middle point. For example, $[0, 10]$ will be decomposed into $[0, 5]$ and $[5, 10]$. The question of how to decompose a box is left for our future work.
+
+Combination $(1)-(3)$ solved $41$ problems in comparison with $33$ problems of $(1)-(5)$. There are $5$ large problems (more than $100$ variables and more than $240$ APIs in each problem) which were solved by $(1)-(3)$ (solving time was from $20s$ to $300s$) but not solved (timed out - more than $500s$) by $(1)-(5)$. Choosing the most important variable (using sensitivity) for multiple test cases and for decomposition worked here.
+
+\begin{table*}[t]
+\centering
+\scalebox{1.15}{
+{\renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{ | c | c | c | c |}
+    \hline
+    {Strategies} & {SAT} & {UNSAT} & {time(s)} \\ \hline
+    (1)-(5) & 22 & 11 & 27.09 \\ \hline
+    (2)-(5) & 21 & 10 & 933.78 \\ \hline
+    (1)-(3) & 31 & 10 & 765.48 \\ \hline
+    \end{tabular}
+    }
+    }
+    \medskip
+   	\caption{Experiments of strategies on Zankl family}
+   	\label{tab:strategies-zankl}
+\end{table*}
+
+\subsection {Comparison with other tools on QF\_NRA and QF\_NIA benchmarks} 
+\label{sec:comparisons}
+\subsubsection{Comparison with Z3 and isat3 on QF\_NRA.}
+Table \ref{tab:QF_NRA} presents the results of isat3, raSAT and Z3 on 2 families (Zankl and Meti-tarski) of QF\_NRA. Only problems with inequalities are extracted for testing. The timeout for Zankl family is $500s$ and for Meti-tarski is $60s$ (the problems in Meti-tarski are quite small - less than 8 variables and less than 25 APIs for each problem). For isat3, ranges of all variables are uniformly set to $[-1000, 1000]$
+
+Both isat3 and raSAT use interval arithmetics for deciding constraints. However, raSAT additionally use testing for accelerating SAT detection. As the result, raSAT solved larger number of SAT problems in comparison with isat3. In Table \ref{tab:QF_NRA}, isat3 conludes UNSAT when variables are in the ranges $[-1000, 1000]$, while raSAT conclude UNSAT over $[-infinity, infinity]$.
+
+
+In comparison with Z3, for Zankl family, Z3 4.3 showed better performance than raSAT in the problems with lots of small constraints: short monomial (less than $5$), small number of variables (less than $10$). For problems where most of constraints are long monomial (more than $5$) and have large number of variables (more than $10$), raSAT results are quite comparable with ones of Z3, often even outperfoming when the problem contains large number of vary long constraints (more than $40$ monomials and/or more than $20$ variables). For instance, \textit{matrix-5-all-27, matrix-5-all-01, matrix-4-all-3, matrix-4-all-33, matrix-3-all-5, matrix-3-all-23, matrix-3-all-2, matrix-2-all-8} are such problems which can be solved by raSAT but not by Z3.
+
+Meti-tarski family contains quite small problems (less than 8 variables and less than 25 APIs for each problem). Z3 solved all the SAT problems, while raSAT solved around $94\%$ ($33322/3528$) of them. Approximately $70\%$ of UNSAT problems are solved by raSAT. As mentioned, raSAT has to explore all the decomposed boxes for proving unsatisfiability. Thus the question "How to decompose boxes so that the UNSAT boxes are early detected?" needs to be solved in order to improve the ability of detecting UNSAT for raSAT.
+\begin{table*}[t]
+\centering
+\scalebox{1.15}{
+{\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|c|c|r|c|c|r|}
+\hline
+\multirow{2}{*}{Solver} & \multicolumn{3}{c|}{Zankl (151)} & \multicolumn{3}{c|}{Meti-Tarski (5101)}\\
+\cline{2-7}
+& {SAT} & {UNSAT}  &{time(s)} & {SAT} & {UNSAT}  &{time(s)}\\
+%\hline
+%{CVC3 2.4.1} & 0 & 0 & 0 & 0 & 9 &10.678 & -- & -- & --\\
+\hline
+\textbf{isat3} & 14 & 15 & 209.20 & 2916 & 1225 & 885.36\\
+\hline
+\textbf{raSAT} & 31 & 10 & 765.48 & 3322 & 1052 & 753.00\\
+\hline
+\textbf{Z3 4.3}& \textbf{54} &\textbf{23}& \textbf{1034.56} & \textbf{3528} & \textbf{1569} & \textbf{50235.39} \\
+\hline
+\end{tabular}
+}
+}
+\medskip
+\caption{Experimental results for Hong, Zankl, and Meti-Tarski families}
+\label{tab:QF_NRA}
+\end{table*}
+
+\subsubsection{Comparison with Z3 on QF\_NIA.}
+We also did experiments on QF\_NIA/AProVE benchmarks to evaluate raSAT loop for Integer constraints. There are $6850$ problems which do not contain equalities. The timeout for this experiment is $60s$. Table \ref{tab:QF_NIA} shows the result of Z3 and raSAT for this family.
+
+\begin{table*}[t]
+\centering
+\scalebox{1.15}{
+{\renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{ | c | c | c | c |}
+    \hline
+    Solver & SAT & UNSAT & time (s) \\ \hline
+    raSAT & 6764 & 0 & 1230.54 \\ \hline
+    Z3 & \textbf{6784} & \textbf{36} & \textbf{139.78} \\ \hline
+    \end{tabular}
+    }
+    }
+    \medskip
+   	\caption{Experiments on QF\_NIA/AProVE}
+   	\label{tab:QF_NIA}
+\end{table*}
+ 
+raSAT solved almost the same number of SAT problems as Z3 ($6764$ for raSAT with $6784$ for Z3). Nearly $99\%$ problems having been solved by raSAT is a quite encouraging number. 
+Currently, raSAT cannot conclude any UNSAT problems. Again, this is due to exhaustive balanced decompositions.
+
+
+
+
+
+\section{Equality handling} \label{sec:equality}
+
+\subsection{Greater-than-or-Equal Handling} \label{sec:geq}
+
+{\bf raSAT} loop is designed to solve polynomial inequality. 
+There are several ways to extend to handle equality, in which our idea shares similarity with 
+dReal~\cite{dRealCADE13,dRealLICS12}. 
+
+\begin{definition} \label{def:strict_unsat}
+$\bigwedge \limits_{j} f_j \geq 0$ is 
+{\em strict-SAT} (resp. {\em strict-UNSAT}) 
+if $\bigwedge \limits_{j} f_j > \delta_j$ is SAT 
+(resp. $\bigwedge \limits_{j} f_j > -\delta_j$ is UNSAT) for some $\delta_j >0$.
+\end{definition}
+
+\begin{lemma} \label{lem:strict_sat}
+If $\bigwedge \limits_{j} f_j \geq 0$ is {\em strict-SAT} (resp. {\em strict-UNSAT}), 
+it is SAT (resp. UNSAT).
+\end{lemma}
+
+Note that netiher strict-SAT nor strict-UNSAT (i.e., kissing situation), 
+%if $\bigwedge \limits_{j} f_j \geq 0$ is SAT but $\bigwedge \limits_{j} f_j > 0$ is UNSAT 
+Lemma~\ref{lem:strict_sat} cannot conclude anything, and \textbf{raSAT} says {\em unknown}. 
+%In implementation of \textbf{raSAT}, when $\geq$ appears, exploration of IA-SAT 
+%(resp. IA-UNSAT) is reduced to that of IA-strict-SAT (resp. IA-strict-UNSAT). 
+
+
+\subsection{SAT on Equality by Intermediate Value Theorem} \label{sec:eq}
+For solving polynomial constraints with single equality ($g=0$), we apply {\em Intermediate Value Theorem}. 
+That is, if existing 2 test cases such that $g > 0$ and $g < 0$, then $g=0$ is SAT somewhere in between, 
+as in Fig.~\ref{fig:ivt}. 
+
+\begin{lemma} \label{lemma:ivt}
+For $F = \exists x_1 \in (a_1,b_1) \wedge \cdots \wedge x_n \in (a_n,b_n). 
+\bigwedge \limits_{j}^m f_j > 0~\wedge~g = 0$, $F$ is SAT, if 
+there is a box $(l_1, h_1) \times \cdots \times (l_n,h_n)$ with $ (l_i,h_i) \subseteq (a_i,b_i)$ 
+such that 
+\begin{enumerate}[(i)]
+\item $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in the box, and 
+\item there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$.
+\end{enumerate}
+\end{lemma}
+
+{\bf raSAT} first tries to find an IA-VALID box for $\bigwedge \limits_{j}^m f_j > 0$ by refinements. 
+If such a box is found, it tries to find 2 instances for $g > 0$ and $g < 0$ by testing. 
+Intermediate Value Theorem guarantees the existence of an SAT instance in between. 
+Note that this method works for single equality and does not find an exact SAT instance. 
+If multiple equalities do not share variables each other, we can apply Intermediate Value Theorem 
+repeatedly to decide SAT. In Zankl benchmarks in SMT-lib, there are 15 gen-**.smt2 that contain equality
+(among 166 problems), and each of them satisty this condition. 
+
+
+ 
+\suppress{
+In Table \ref{tab:eqexp} we show preliminary experiment for 15 problems that contain polynomial equalities in Zankl family. \textbf{raSAT} works well for these SAT problems and it can detect all SAT problems (11 among 15). At the current implementation, raSAT reports \emph{unknown} for UNSAT problems. The first 4 columns indicate \emph{name of problems}, \emph{the number of variables}, \emph{the number of polynomial equalities} and \emph{the number of inequalities}  in each problem, respectively. The last 2 columns show comparison results of \textbf{Z3 4.3} and \textbf{raSAT}.
+\begin{table}
+\centering
+\scalebox{1.0}{
+\begin{tabular}[b]{|c|c|c|c|c|c|c|c|}
+\hline
+%\multirow{2}{*}{Problem} & {No.} & {No.} & {No.}&
+{Problem} & {No.} & {No.} & {No.}&
+\multicolumn{2}{c|}{\textbf{Z3 4.3} (15/15)} &\multicolumn{2}{c|}{\textbf{raSAT} (11/15)}\\
+\cline{5-8}
+Name & Variables& Equalities& Inequalities&{Result} & {Time(s)}&{Result} & {Time(s)}\\
+\hline
+gen-03 & 1 & 1 & 0& SAT &0.01 & SAT &0.015\\
+\hline
+gen-04 & 1 & 1 & 0& SAT &0.01 & SAT &0.015\\
+\hline
+gen-05 & 2 & 2 & 0& SAT &0.01 & SAT &0.046\\
+\hline
+gen-06 & 2 & 2 & 1& SAT &0.01 & SAT &0.062\\
+\hline
+gen-07 & 2 & 2 & 0& SAT &0.01 & SAT &0.062\\
+\hline
+gen-08 & 2 & 2 & 1& SAT &0.01 & SAT &0.062\\
+\hline
+gen-09 & 2 & 2 & 1& SAT &0.03 & SAT &0.062\\
+\hline
+gen-10 & 1 & 1 & 0& SAT &0.02 & SAT &0.031\\
+\hline
+gen-13 & 1 & 1 & 0& UNSAT &0.05 & unknown &0.015\\
+\hline
+gen-14 & 1 & 1 & 0& UNSAT &0.01 & unknown &0.015\\
+\hline
+gen-15 & 2 & 3 & 0& UNSAT &0.01 & unknown &0.015\\
+\hline
+gen-16 & 2 & 2 & 1& SAT &0.01 & SAT &0.062\\
+\hline
+gen-17 & 2 & 3 & 0& UNSAT &0.01 & unknown &0.031\\
+\hline
+gen-18 & 2 & 2 & 1& SAT &0.01 & SAT &0.078\\
+\hline
+gen-19 & 2 & 2 & 1& SAT &0.05 & SAT &0.046\\
+\hline
+\end{tabular}
+}
+\caption{Experimental results for 15 equality problems of Zankl family}
+\label{tab:eqexp}
+\end{table}
+
+We also apply the same idea for multiple equalities $\bigwedge \limits_{i} g_i = 0$ such that $Var(g_k) \cap Var(g_{k'}) = \emptyset$ where $Var(g_k)$ is denoted for the set of variables in the polynomial $g_k$. In the next section we will present idea for solving general cases of multiple equalities.
+}
+
+
+
+
+\section{Conclusion} \label{sec:conclusion and Future Work}
+
+
+This paper presented {\bf raSAT} loop, which mutually refines over and under--approximation 
+theories. For polynomial inequlaity, we adopted interval arithemtic and testing for 
+over and under-approximation theories, respectively. 
+{\bf raSAT} loop is implemented as an SMT {\bf raSAT}. 
+The result of Experiments on QF\_NRA in SMT-lib is encouraging, and 
+{\bf raSAT} shows comparable and sometimes outperforming to existing SMTs, e.g., 
+Z3 4.3, HySAT, and dReal. For instance, ****** which has ** variables and degree ** 
+was solved by {\bf raSAT}, whereas none of above mentioned SMTS can. 
+%
+\suppress{
+\subsection{Observation and Discussion} 
+
+From experimental results in Section~\ref{sec:experiments} and~\ref{sec:expsmtlib}, 
+we observe the followings. 
+\begin{itemize}
+\item The degree of polynomials will not affect much. 
+\item The number of variables are matters, but also for Z3 4.3. 
+The experimental results do not show exponential growth, and we expect 
+the strategy of selection of an API in which related intervals are decomposed
+seems effective in practice. By observing Zankl examples, we think the maximum 
+number of variables of each API seems a dominant factor. 
+\item Effects of the number of APIs are not clear at the moment. In simple benchmarks, 
+{\bf raSAT} is faster than Z3 4.3, however we admit that we have set small degree $n=6$
+for each API. 
+\end{itemize}
+
+For instance, {\em matrix-2-all-5,8,11,12} in Zankl 
+contain a long monomial (e.g., $60$) with the max degree $6$, and 
+relatively many variables (e.g., $14$), which cannot be solved by Z3 4.3, but 
+{\bf raSAT} does. 
+As a general feeling, if an API contains more than $30 \sim 40$ variables, 
+{\bf raSAT} seems saturating. 
+We expect that, adding to a strategy to select an API (Section~\ref{sec:intervaldecomp}), 
+we need a strategy to select variables in the focus. We expect this can be designed 
+with sensitivity (Example~\ref{examp:sensitivity}) and would work in practice. 
+Note that sensitivity can be used only with noise symbols in Affine intervals. 
+Thus, iSAT and RSOLVER cannot use this strategy, though they are based on IA, too. 
+
+\subsection{Future Work}
+}
+%
+{\bf raSAT} still remains in naive proto-type status, and 
+there are lots of future work. 
+
+\medskip \noindent 
+{\bf Mixed integers}. 
+Mixed integers are additional requirements on variables on which SAT instances are integers. 
+This is quite straightforward in {\bf raSAT}, since a box is easy to find grid points. 
+
+\medskip \noindent 
+{\bf Exact confirmation}.
+Currently, {\bf raSAT} uses floating point arithmetic. Thus, results can be unsound. 
+We are planning to add a confirmation phase to confirm whether an SAT instance is exact
+by roundoff error bound guaranteed floating arithmetic libraries, such as ****. 
+
+
+\medskip \noindent 
+{\bf Sensitivity implementation}. 
+For incremental test data generation and refinement, we adopt dynamic sorting on APIs. 
+We further design a strategy to select target variables by sensitivity. 
+However, it is not implemented yet, and must be. 
+
+\medskip \noindent 
+{\bf Multiple equality handling}. 
+Section~\ref{sec:eq} shows single equality handling. 
+We are planning to extend the use of Intermediate Value Theorem to multiple equality with 
+shared variables. 
+
+\medskip \noindent 
+{\bf Infinite interval handling}
+Affine intervals do not work for infinite intervals. 
+Currently, {\bf raSAT} applies classical intervals for infinite intervals. 
+Hoever, infinite intervals may become finite after refinements. 
+
+
+\medskip \noindent 
+{\bf Randamization}
+Current strategies may be lead to explore local optimals. 
+As {\em restart} in SAT solvers, we hope to inlcude restart and randamization techiniques 
+to aviod sticking to local optimals. 
+
+
+
+%%%
+\suppress{
+\subsubsection{Extension of {\bf raSAT} loop}
+\begin{itemize}
+\item {\bf Equality handling}: currently, {\bf raSAT} loop can handle only inequalities. 
+Before applying ideal based technique, such as {\em Gr{\"o}bner basis}, 
+we are planning to implement a non-constructive detection of equality 
+by {\em intermediate value theorem}. 
+
+\suppress{
+\item{\textbf{Polynomial equality by Intermediate value theorem}:} 
+Consider 
+\begin{center}
+$(x_1 \in (a_1,b_1) \wedge \cdots \wedge x_n \in (a_n,b_n))~\bigwedge 
+\limits_{j}^m f_j(x_1,\cdots,x_n) > 0~\wedge~g(x_1,\cdots, x_n) = 0.$
+\end{center}
+SAT can be proved by two steps. First, find a box of the product of 
+$(l_{ik},h_{ik}) \subseteq (l_i,h_i)$ (by interval arithmetic) such that 
+\begin{center}
+$\forall x_1 \in (l_{1k},h_{1k}) \cdots x_n \in (l_{nk},h_{nk}).~\bigwedge 
+ \limits_{j}^m f_j(x_1,\cdots,x_n) > 0$~~~~(IA-VALID) 
+\end{center}
+and find two instances (by testing) in the box with $g(a_1,\cdots,a_n) > 0$ 
+and $g(b_1,\cdots,b_n) < 0$. By Intermediate value theorem, we can conclude 
+$\exists x_1 \in (l_1,h_1) \cdots x_n \in (l_n,h_n).~g(x_1,\cdots, x_n) = 0$. 
+}
+
+\item \textbf{Solving polynomial constraints on integers}: 
+In integer domain, the number of test data is finite if interval constraints are bounded. 
+Then, Test-UNSAT implies UNSAT if all possible test data are generated. 
+A tight interaction between testing and interval decomposition could be investigated.
+Mixed integers are also challenging. 
+\end{itemize}
+
+
+\subsubsection{\textbf{raSAT} Development}
+
+\begin{itemize}
+\item \textbf{Avoiding local optimal}: 
+we borrow an idea of \emph{restart} in MiniSAT for escaping from hopeless local search 
+(i.e., solution set is not dense or empty). 
+\emph{Heuristics} would be, after a deep interval decomposition of 
+a box and Test-UNSAT are reported, backtrack occurs to choose a randomly selected box. 
+
+\item \textbf{Separation of linear constraints}: 
+Many benchmarks contain linear constraints. Current implementation does not have 
+any tuning, but {\bf raSAT} loop only. 
+Practically, separating linear and non-linear constraints and solving them 
+in a coordinated way between Presbuger arithmetic and {\bf raSAT} would improve. 
+During this separation, variables of intersecting linear constraints would be candidates 
+for interval decompositions. 
+
+\item \textbf{Incremental DPLL}: For interactions with the SAT solver, 
+we currently apply the very lazy theory learning. Combination with 
+\emph{eager} theory propagation would improve, in which we can propagate 
+a conflict from a partial truth assignment instead of waiting 
+for a full truth assignment obtained by SAT solver.
+\end{itemize}
+}
+%%
+
+%%
+\suppress{
+\subsection{Applications}
+\begin{itemize}
+\item \textbf{Checking overflow and roundoff error}: In the computers, the real numbers are represented by finite numbers (i.e., floating point numbers, fixed point numbers). Due to finite representation, the over-flow and roundoff errors (OREs) \cite{ngocsefm, ngocase} may occur. The OREs will be propagated through computations of the program. Further, the computations themselves also cause OREs because the arithmetic needs to round the result to fit the number format. Besides, OREs are also affected by types of statements, i.e., branch, loop, assignment statements.
+By symbolic execution, ORE constraints are propagated from a program and ORE problems are reduced to problems of solving ORE constraints for verifying whether OREs occur. 
+%For solving ORE constraint, combination of the new form of affine arithmetic ($CAI_1$) and \emph{sensitivity} (i.e., high degrees, )
+
+\item \textbf{Loop invariant generation}: The problem of linear invariant generation is often reduced to the problem of non-linear constraint solving. 
+Since Farkas's Lemma \cite{Colon03} uses the product of matrices with polynomial constraint solving, we can extend the target for non-linear invariant generation.
+%Based on Farkas' Lemma \cite{Colon03}, non-linear constraints on coefficients of the target linear invariant are generated and a satisfiable instance of these constraints is a candidate of the linear invariant. 
+\end{itemize}
+}
+%%
+
+
+%\balance
+\bibliographystyle{splncs}
+\bibliography{generic}
+
+
+\end{document}
+
+

@@ -1,0 +1,102 @@
+%
+% A style file for JAIST master thesis, 2002.1 gondow
+% ($Id: jaist-e-master.sty,v 1.3 2002/01/17 13:13:01 gondow Exp gondow $)
+%
+
+% 1pt = 1/72 in, 1 in = 2.54 cm
+
+\makeatletter
+
+\parindent      1.0em
+\topmargin      0.0in
+\oddsidemargin  0.0in
+\evensidemargin 0.0in
+\textwidth      6.3in
+\textheight     8.77in
+
+\renewcommand{\author} [2]{
+    \renewcommand{\@author}{#1}
+    \newcommand{\@studentnumber}{#2}
+}
+\renewcommand{\date} [2]{
+    \newcommand{\@datei} {#1} % submitted date
+    \newcommand{\@dateii}{#2} % graduated date
+}
+\newcommand{\school} [1]{\newcommand{\@school} {#1}}
+\newcommand{\major}  [1]{\newcommand{\@major}  {#1}}
+\newcommand{\adviser}[1]{\newcommand{\@adviser}{#1}}
+\newcommand{\judge}[3]{
+    \newcommand{\@judgei}  {#1}
+    \newcommand{\@judgeii} {#2}
+    \newcommand{\@judgeiii}{#3}
+}
+
+\renewcommand{\maketitle}{
+    \begin{titlepage}
+    	\large\sf
+        \thispagestyle{empty}
+	\begin{center}
+	    \null
+	    \vskip 1.5cm
+    	    {\Large\bf \@title} \par
+	    \vskip 1.5cm
+	    By \@author\par
+	    \vskip 1.5cm
+
+    	    A thesis submitted to \par
+            School of \@school, \par
+            Japan Advanced Institute of Science and Technology, \par
+            in partial fulfillment of the requirements \par
+            for the degree of \par
+            Master of \@school \par
+            Graduate Program in \@school
+	\end{center}
+	\vfil
+	\begin{center}
+	    Written under the direction of \par
+	    \@adviser \par
+	\end{center}
+	\vfil
+	\begin{center}
+	\@dateii
+	\end{center}
+
+	\newpage
+	\thispagestyle{empty}
+
+	\begin{center}
+	    \null
+	    \vskip 1.5cm
+    	    {\Large\bf \@title} \par
+	    \vskip 1.5cm
+	    By \@author \ (\@studentnumber) \par
+	    \vskip 1.5cm
+
+    	    A thesis submitted to \par
+            School of \@school, \par
+            Japan Advanced Institute of Science and Technology, \par
+            in partial fulfillment of the requirements \par
+            for the degree of \par
+            Master of \@school \par
+            Graduate Program in \@school
+	\end{center}
+	\vfil
+	\begin{center}
+	    Written under the direction of \par
+	    \@adviser \par
+	    \vskip 0.5cm
+    	    and approved by \par
+	    \@judgei \par
+	    \@judgeii \par
+	    \@judgeiii \par
+	\end{center}
+	\vfil
+	\begin{center}
+	\@datei \ (Submitted)
+	\end{center}
+
+	\renewcommand{\thefootnote}{}
+	\footnote{Copyright \copyright\ \number\year\ by \@author}
+    \end{titlepage}
+}
+\makeatother

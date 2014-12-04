@@ -1,0 +1,46 @@
+%
+% A style file for JAIST-specific master thesis abstract, 2002/1/16 gondow
+% ($Id: jaist-e-master-abstract.sty,v 1.2 2002/01/15 16:09:30 gondow Exp gondow $)
+%
+
+\makeatletter
+
+\parindent      1.0em
+\topmargin      0.0in
+\oddsidemargin  0.0in
+\evensidemargin 0.0in
+\textwidth      6.3in
+\textheight     8.77in
+
+\renewcommand{\author}[2]{
+    \renewcommand{\@author}{#1}
+    \newcommand{\@studentnumber}{#2}
+}
+%\newcommand{\eauthor} [1]{\newcommand{\@eauthor} {#1}}
+\newcommand{\school}  [1]{\newcommand{\@school}  {#1}}
+\newcommand{\keywords}[1]{\newcommand{\@keywords}{#1}}
+
+\renewcommand{\maketitle}{
+  \large
+  \vskip 2em
+  \begin{center}
+  {\LARGE \@title \par}
+  \vskip 2em 
+  \@author \ (\@studentnumber) \\
+  \vskip .5em \par
+  School of \@school,\par
+  Japan Advanced Institute of Science and Technology\par
+  \vskip 1em
+  \@date
+  \renewcommand{\thefootnote}{}
+  \footnote{Copyright \copyright\ \number\year\ by \@author}
+ \end{center}
+ \par
+ \vskip 1.3em
+ \begin{flushleft}
+   {\bf Keywords:}\hspace{1ex} \@keywords.
+ \end{flushleft}
+ \vskip 1.0em
+}
+
+\makeatother

@@ -1,0 +1,47 @@
+% $Id: abstract-e.tex,v 1.4 2003/01/20 06:10:42 gondow Exp $
+\documentclass[12pt]{article}
+\usepackage{jaist-e-master-abstract}
+
+\title{How to Use Style File for Master Thesis Abstract} % title
+\author{Katsuhiko Gondow}{110123}       %% your name, student number
+\school{Information Science}            %% your school
+\date{February 14, 2003}                %% submitted date 
+\keywords{jaist-e-master-abstract.sty, title, author, school, keywords}
+    	    	    	    	        %% keywords (2 through 5 is good)
+\begin{document}
+\maketitle
+
+The file \verb+jaist-e-master-abstract.sty+ is a \LaTeX style file
+for JAIST-specific master thesis abstract.
+Using the style file is recommended, but not limited.
+
+If you do not use the style file, make sure that your abstract
+includes the following:
+\begin{list}{$\bullet$}{\leftmargin30pt\itemsep0pt\parsep0pt}
+\item {\bf title}
+\item {\bf author's name}
+\item {\bf school, student number}
+\item {\bf submitted date}
+\item {\bf keywords} (2 through 5 is good)
+\item {\bf copyright notice} 
+	(Write ``Copyright \copyright\ \textit{date} by \textit{name}
+    	 at the left bottom in the first page.)
+\end{list}
+
+If you do use the style file, which is in the following directory,
+\begin{quote}
+\texttt{/usr/local/share/jaist.texmf/tex/jaist/master/}
+\end{quote}
+make sure to define the following in the preamble:
+\begin{verbatim}
+     \title{title}
+     \author{author's name}{student number}
+     \school{your school}
+     \date{submitted date}
+     \keywords{keywords}
+\end{verbatim}
+
+Of course, you also need to describe \verb+\maketitle+ right after
+\verb+\begin{document}+.
+\end{document}
+
