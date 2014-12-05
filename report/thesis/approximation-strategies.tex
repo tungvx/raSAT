@@ -183,7 +183,7 @@ instead of $x_k \in (a_k,c] \vee x_k \in (c,b_k) $
 Initially, interval constraints consists of conjunction only. Later, by refinements, it becomes a CNF. 
 
 
-\begin{example} \label{examp:poly_ieq}
+%\begin{example} \label{examp:poly_ieq}
 $\exists x \in (-1,3)~y \in (2,4) . (x^3y - y^4 > 0) \wedge (y^3 -xy >0)$
 is an example of a polynomial inequality with 2 variables and 2 APIs. 
 
@@ -195,7 +195,7 @@ which results a CNF
 $(x \in (-1,1) \vee x \in (1,3)) \wedge (y \in (2,4)) \wedge (x^3y - y^4 > 0) \wedge (y^3 -xy >0)$.
 %(only the CNF formula $(x \in (-1,1) \vee x \in (1,3)) \wedge (y \in (2,4))$ is given to SAT solver).
 %\mizuhito{could you fulfill? Direct encoding seems a DNF?}. 
-\end{example}
+%\end{example}
 
 Note that an interval arithmetic used in ICP is a converging theory. 
 
@@ -267,7 +267,7 @@ Let $\delta = \frac{min \{ \delta_{j,k} \}}{2}$.
 Since $O.T$ is converging, there exists $\gamma > 0$ for $\delta > 0$ 
 satisfying Definition~\ref{def:completeOT}, and fair decomposition eventually finds open boxes
 such that $\mathbb{S}(f_j)$ and $\mathbb{S}(f_k)$ are separated. 
-\qed
+%\qed
 \end{proof}
 
 Limitations for detecting UNSAT occur on \emph{kissing} and \emph{convergent} cases. 

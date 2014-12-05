@@ -1,9 +1,60 @@
 %$Id: thesis-e.tex,v 1.4 2003/01/20 06:05:12 gondow Exp $
 \documentclass[12pt]{report}
 \usepackage{jaist-e-master}
-\usepackage{multirow}
+\usepackage{llncsdoc}
+% *** MISC UTILITY PACKAGES ***
+%
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proof}{Proof}
+\newtheorem{example}{Example}
+\newtheorem{lemma}{Lemma}
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+
 \usepackage{graphicx}
 \graphicspath{ {Figs/} }
+
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{slashbox}
+\usepackage{amsfonts}
+
+\usepackage{algorithm2e}
+\usepackage{epstopdf}
+\usepackage{array}
+\usepackage{enumerate}
+
+\usepackage{epstopdf}
+
+\usepackage{url}
+%\urldef{\mailsa}\path|{khanhtv, mizuhito}@jaist.ac.jp|    
+
+%ieee requirements
+%\usepackage[utf8]{inputenc}
+%\usepackage[T1]{fontenc}
+%\usepackage{microtype} 
+%\usepackage{balance}
+
+%user definitions
+\newcommand{\Nat}{{\mathbb N}}
+\newcommand{\Real}{{\mathbb R}}
+\newcommand{\Rat}{{\mathbb Q}}
+\newcommand{\suppress}[1]{} % Comment out text.
+\newcommand{\mizuhito}[1]{\{{\bf Mizuhito:~\sf #1}\}} % Highlight text.
+\newcommand{\khanh}[1]{\{{\bf Khanh:~\sf #1}\}} % Highlight text.
+
+\newcommand{\smallHead}[1]{%
+    \par\vspace{.35cm}\noindent\textbf{#1}%
+    \par\noindent\ignorespaces%
+}
+
+\newcommand\TTTT{%
+ \textsf{T\kern-0.2em\raisebox{-0.3em}T\kern-0.2emT\kern-0.2em\raisebox{-0.3em}2}%
+}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
 %
 \title{Equality handling and efficiency improvement of SMT for non-linear constraints over reals}                                %% title 
 \author{VU XUAN TUNG}{1310007}                %% author's name
