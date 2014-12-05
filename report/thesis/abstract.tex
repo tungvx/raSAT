@@ -1,3 +1,22 @@
 \begin{abstract}
+This thesis presents an SMT solver {\bf raSAT} for polynomial constraints. Solving polynomial constraints is raised from many applications of Software verification such as roundoff/overflow error analysis, automatic termination proving or loop invariant generation. In 1951, Tarski proposed a decision method for solving polynomial constraints over real numbers.  
+{\bf raSAT} consists of a simple iterative approximation refinement, called {\bf raSAT} loop, 
+which is an extension of the standard ICP (Interval Constraint Propagation) with testing. 
+Two approximation schemes consist of interval arithmetic (over-approximation) and 
+testing (under-approximation), to accelerate SAT detection. 
+If both fails, input intervals are refined by decomposition. 
 
+ICP is robust for large degrees, but the number of boxes (products of intervals) to explore 
+exponentially explodes when the number of variables increases. 
+We design strategies for boosting SAT detection on the choice of a variable to decompose
+and a box to explore. 
+
+to choose a variable for decomposition and a box by 
+targeting on SAT detection. 
+
+Several heuristic measures, called {\em SAT likelyhood}, {\em sensitivity}, and the number of 
+unsolved atomic polynomial constraints, are compared on Zankl and Meti-Tarski benchmarks from 
+QF\_NRA category of SMT-LIB. They are also evaluated by comparing {\bf Z3 4.3} and {\bf iSAT3}. 
+We also show a simple modification to handle mixed intergers, and experiments on 
+AProVE benchmark from QF\_NIA category of SMT-LIB.
 \end{abstract}
