@@ -4,8 +4,8 @@ open Variable
 
 (* ============================= START of polynomialConstraint class ================================= *)
 (* Class for storing informations of a constraint *)
-class polynomialConstraint boolExprInit =
-  let varsSetInit = get_vars_set_boolExpr boolExprInit in
+class polynomialConstraint boolExprInit variablesSetInit =
+  let varsSetInit = variablesSetInit in
   let (isPositiveDirected, isEquation, isNotEquation) = 
     match boolExprInit with
     | Eq _ -> (false, true, false)

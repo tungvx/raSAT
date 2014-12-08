@@ -82,32 +82,6 @@ let sign_simp sign (num: float) = match sign with
 | _ ->
   if  (num < 0.) then rev sign ^ string_of_float (abs_float num)
   else sign ^ string_of_float num  
-
-(*Represente a polynomial expression by a string*)
-let rec poly_toString sign  = function
-  | Real c -> sign_simp sign c
-  | Var x -> sign ^ x
-  | Mul (Real 1., Var x) -> sign ^ x
-  | Mul (Var x, Real 1.) -> sign ^ x
-  | Mul (Real -1., Var x) -> rev sign ^ x
-  | Mul (Var x, Real -1.) -> rev sign ^ x
-  | Add (e1, e2) -> (poly_toString sign e1) ^ (poly_toString "+" e2)
-  | Sub (e1, e2) -> (poly_toString sign e1) ^
-      (if (isVar e2) then                    
-  (poly_toString "-" e2)
-      else
-  "-("^(poly_toString "" e2)^")")
-  | Mul (e1, e2) -> 
-      (if (isVar e1) then 
-         (poly_toString sign e1)
-      else
-         sign^"("^(poly_toString "" e1)^")" )
-      ^ "*" ^ 
-      (if (isVar e2) then                    
-  (poly_toString "" e2)
-      else
-  "("^(poly_toString "" e2)^")")
-  | Pow (e1, n)  -> sign ^ "("^(poly_toString "" e1)^")" ^ "^" ^ (string_of_int n)
   
 
 let rec getMB m intvList = match intvList with
@@ -180,71 +154,13 @@ let genSatForm sAss sIntv esl logic =
   in*)
   (*let sTrivialClause = "-" ^ string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in*)
   let totalMiniSATVars = nVars + index - 1 in
-  (nVars, "p cnf " ^ string_of_int totalMiniSATVars ^ " " ^ string_of_int (nVars(*+1*)+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString (*^ sTrivialClause*), intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)
-
-  (*log result for satisfiable solution in an expression e*)
-  let logSat polyCons ia varsIntvsMiniSATCodesMap = 
-    let boolExpr = polyCons#get_constraint in
-    let polyExp = get_exp boolExpr in
-    let (bound, _)  = poly_eval polyExp polyCons#get_varsSet ia varsIntvsMiniSATCodesMap in
-    match boolExpr with
-    |Eq e -> 
-      (poly_toString "" e) ^ "=" ^
-        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" = 0"  
-    |Neq e -> 
-      (poly_toString "" e) ^ "=" ^
-        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" != 0"  
-    |Leq e -> 
-      (poly_toString "" e) ^ "=" ^
-        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" <= 0"
-
-    |Le e -> 
-      (poly_toString "" e) ^ "=" ^
-      "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" < 0"
-
-    |Geq e -> 
-      (poly_toString "" e) ^ "=" ^
-        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" >= 0"
-
-    |Gr e -> 
-      (poly_toString "" e) ^ "=" ^
-        "["^(string_of_float bound#l) ^","^(string_of_float bound#h) ^ "]"^" > 0"
-    
+  (nVars, "p cnf " ^ string_of_int totalMiniSATVars ^ " " ^ string_of_int (nVars(*+1*)+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString (*^ sTrivialClause*), intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)    
 
   (*Generate information about a test case*)
   let rec logTestCase ass = match ass with
     | [] -> ""
     | (x, a):: t -> (x ^" = "^ string_of_float a) ^ "\n" ^ (logTestCase t)
   
-  (*record the result for each constraint by a test case*)
-  let logValue boolExp ass = 
-    let polyExp = get_exp boolExp in
-    
-    let value = evalFloat ass polyExp in
-    
-    match boolExp with
-    |Eq e -> 
-      (poly_toString "" e) ^"="^ (string_of_float value) ^" = 0"
-    |Neq e -> 
-      (poly_toString "" e) ^"="^ (string_of_float value) ^" != 0"  
-    |Leq e -> 
-      (poly_toString "" e) ^"="^ (string_of_float value) ^" <= 0" 
-      (*^"="^ (string_of_float rightVal)*)
-    |Le e -> 
-      (poly_toString "" e) ^"="^ (string_of_float value) ^" < 0"
-    |Geq e -> 
-      (poly_toString "" e) ^"="^ (string_of_float value) ^" >= 0"
-    |Gr e -> 
-      (poly_toString "" e) ^"="^ (string_of_float value) ^" > 0"
-
-  (*End logValue*)
-  
-
-  let rec logValue_all e ass = match e with
-    |[] -> ""
-    |[a] -> logValue a ass    
-    |h::t->
-      (logValue h ass) ^"\n"^ (logValue_all t ass)
 
 (*remove unnecessary assignment*)
 let rec red_ass assIntv lstVar = match assIntv with
@@ -748,194 +664,7 @@ let rec decomp_reduce ass esl = match ass with
       if (s1 = "") then
          (s3, s4^s2, bump_vars ^ " " ^ svars, final_code)
       else 
-         ("(ic "^s3 ^" "^s1^")", s4^s2, bump_vars ^ " " ^ svars, final_code)       
-
-  (*get positive, negative part from a constraint*)
-  let rec get_pos_neg (pos, neg) sign e = match e with
-    |Real c -> 
-           if (c *.sign > 0.) then (1.0, pos, neg)
-           else if (c *. sign < 0.) then (-1.0, pos, neg)
-           else (1.0, pos, neg)
-    |Var x -> 
-      if (sign > 0.0) then (1.0, x::pos, neg)
-      else (1.0, pos, x::neg)
-    |Mul (Real c, e1) -> 
-      if (c *. sign > 0.) then get_pos_neg (pos, neg) sign e1
-      else if (c *.sign < 0.) then get_pos_neg (pos, neg) (-1. *. sign) e1
-      else (1.0, pos, neg)
-    |Mul (e1, Real c) -> 
-      if (c *. sign > 0.) then get_pos_neg (pos, neg) sign e1
-      else if (c *.sign < 0.) then get_pos_neg (pos, neg) (-1. *. sign) e1
-      else (1.0, pos, neg)
-    |Mul (e1, e2) -> 
-      let (s1, pos1, neg1) = get_pos_neg ([], []) sign e1 in
-      let (s2, pos2, neg2) = get_pos_neg ([], []) 1.0 e2 in
-      let p = ref pos in
-      let n = ref neg in
-      if (pos1 != []) && (pos2 != []) then
-         p := List.append !p (List.append pos1 pos2); 
-      if (neg1 != []) && (neg2 != []) then
-         p := List.append !p (List.append neg1 neg2); 
-      if (pos1 != []) && (neg2 != []) then
-         n := List.append !n (List.append pos1 neg2); 
-      if (neg1 != []) && (pos2 != []) then
-         n := List.append !n (List.append neg1 pos2); 
-
-      if (sign *. s1 *. s2 < 0.) then
-         (1.0, !n, !p)
-      else
-         (1.0, !p, !n)
-    |Add (e1, e2) -> 
-      let (s, pos1, neg1) = get_pos_neg (pos, neg) sign e1 in
-      get_pos_neg (pos1, neg1) sign e2
-    |Sub (e1, e2) ->
-      let (s, pos1, neg1) = get_pos_neg (pos, neg) sign e1 in
-      get_pos_neg (pos1, neg1) (-1. *. sign) e2
-    |Pow (e1, n) -> (*This case will not happen in our implementation*)
-      get_pos_neg (pos, neg) sign e1
-
-  (*Decomposition intervals based on positive and negative parts*)
-  (*let dynamicDecom_pos assIntv dIntv lstVarID nextMiniSATCode uk_cl esl =
-    let cl_TestUS = get_exp (List.hd uk_cl) in
-
-    (*Get the positive and negative list of variables*)
-    let (sign, pos, neg) = get_pos_neg ([], []) 1.0 cl_TestUS in
-
-    let pos_ = Util.red_list pos in
-    let neg_ = Util.red_list neg in
-
-    (* let list_vars = lstVars uk_cl in
-    let new_ass = red_ass assIntv list_vars in *)
-    let pos_ass = red_ass assIntv pos_ in (* pos_ass contains intervals of only positive variables *)
-    let neg_ass = red_ass assIntv neg_ in (* neg_ass contains intervals of only negative variables *)
-
-    (*let red_ass = decomp_reduce new_ass esl in*)
-    let red_pos = decomp_reduce pos_ass esl in (* red_pos contains intervals of positive vars with length greater than epsilon esl *)
-    let red_neg = decomp_reduce neg_ass esl in (* red_neg contains intervals of negative vars with length greater than epsilon esl *)
-		(*print_endline "after reduce";
-		flush stdout;*)
-
-    if (red_pos = []) && (red_neg = []) then (* all the intervals are small enough, stop decomposition*) 
-    (
-      (*print_endline ("UNKNOWN API: " ^ (bool_expr_to_infix_string (List.hd uk_cl))); (* bool_expr_to_infix_string is defined in ast.ml *)
-      print_endline ("Intervals: " ^ (string_of_intervals assIntv));
-      flush stdout;*)
-      let s = uk_lit uk_cl lstVarID in
-      (dIntv, s, "", false)
-    )
-    else (*Continue decomposition*)
-    (
-      let subPos = sub_list red_pos red_neg in (* remove the common variables with red_neg from red_pos *)
-      let subNeg = sub_list red_neg red_pos in(* remove the common variables with red_pos from red_neg *)
-      if (subPos = []) && (subNeg =[]) then ( (* red_pos and red_neg are exactly the same *)
-        let (sInterval, sLearn, bump_vars) = ass_decomp_pn red_pos lstVarID (nextMiniSATCode + 1) esl in (* sInterval is the decomposed intervals of variables in prefix form
-                               sLearn: is the list of new literals to be added into minisat
-                               bump_vars: list of codes (nextMiniSATCode) *)
-        if (dIntv <> "") then (
-          (*print_endline sInterval;
-          print_endline sLearn;
-          flush stdout;*)
-          ("(ic "^dIntv ^" "^sInterval^")", sLearn, bump_vars, true) 
-        )
-        else
-          (sInterval, sLearn, bump_vars, true)
-      )
-      else (  
-        let (sInterval_pos, sLearn_pos, bump_pos) = ass_decomp_pn subPos lstVarID (nextMiniSATCode + 1) esl in
-        let iPos = List.length subPos in
-        let (sInterval_neg, sLearn_neg, bump_neg) = ass_decomp_pn subNeg lstVarID (nextMiniSATCode + iPos * 2 + 1) esl in    
-        let sInterval = ref "" in
-        let sLearn = ref "" in
-        if (sInterval_pos <> "") && (sInterval_neg <> "") then
-          sInterval := "(ic "^sInterval_pos ^" "^sInterval_neg^")"
-        else if (sInterval_pos <> "") then
-          sInterval := sInterval_pos
-        else
-          sInterval := sInterval_neg;
-          sLearn := sLearn_pos ^ sLearn_neg;
-          if (dIntv <> "") then (
-            (*print_endline !sInterval;
-            print_endline !sLearn;
-            flush stdout;*)
-            ("(ic "^dIntv ^" "^(!sInterval)^")", !sLearn, bump_pos ^ bump_neg, true) 
-          )
-          else
-            (!sInterval, !sLearn, bump_pos ^ bump_neg, true)
-      )
-    )
-  (* ====================== END dynamicDecom_pos ======================== *)
-
-  (*Decomposition based on a test case*)
-  let dynamicDecom_test assIntv dIntv lstVarID nextMiniSATCode uk_cl esl t = 
-    let cl_TestUS = get_exp (List.hd uk_cl) in
-
-    (*round off test cases tc*)
-    let tc = round_test t in
-
-    (*Get the positive and negative list of variables*)
-    let (sign, pos, neg) = get_pos_neg ([], []) 1.0 cl_TestUS in
-
-    let pos_ = Util.red_list pos in
-    let neg_ = Util.red_list neg in
-
-    (* let list_vars = lstVars uk_cl in
-    let new_ass = red_ass assIntv list_vars in *)
-    let pos_ass = red_ass assIntv pos_ in
-    let neg_ass = red_ass assIntv neg_ in
-
-    (*let red_ass = decomp_reduce new_ass esl in*)
-    let red_pos = decomp_reduce pos_ass esl in
-    let red_neg = decomp_reduce neg_ass esl in    
-
-    if (red_pos = []) && (red_neg = []) then (*Stop decomposition*) 
-    (
-      let s = uk_lit uk_cl lstVarID in
-      (dIntv, s, "", false)
-    )
-    else (*Continue decomposition*)
-    (
-      let subPos = sub_list red_pos red_neg in
-      let subNeg = sub_list red_neg red_pos in
-      if (subPos = []) && (subNeg =[]) then (
-        let (sInterval, sLearn, bump_vars, code) = ass_decomp_test_both red_pos lstVarID nextMiniSATCode esl tc in
-          if (dIntv <> "") then
-            ("(ic "^dIntv ^" "^sInterval^")", sLearn, bump_vars, true)
-          else
-            (sInterval, sLearn, bump_vars, true)
-      )
-      else (  
-        let (sInterval_pos, sLearn_pos, bump_pos, code_pos) = ass_decomp_test_pos subPos lstVarID nextMiniSATCode esl tc in
-        let (sInterval_neg, sLearn_neg, bump_neg, code_neg) = ass_decomp_test_neg subNeg lstVarID code_pos esl tc in
-        let intersec = sub_list red_pos subPos in
-        let (sInterval_both, sLearn_both, bump_both, code_both) = 
-              ass_decomp_test_both intersec lstVarID code_neg esl tc in
-        let sInterval = ref "" in
-        let sLearn = ref "" in
-        sInterval := sInterval_pos;
-        if (!sInterval <> "") then (
-          if (sInterval_neg <> "") then 
-            sInterval := "(ic "^ !sInterval ^" "^sInterval_neg^")";
-            if (sInterval_both <> "") then
-              sInterval := "(ic " ^ (!sInterval) ^ " " ^ sInterval_both ^ ")";
-        )
-        else (
-          if (sInterval_neg <> "") then ( 
-            sInterval := sInterval_neg;
-            if (sInterval_both <> "") then
-              sInterval := "(ic " ^ (!sInterval) ^ " " ^ sInterval_both^")";
-          )
-          else
-            sInterval := sInterval_both;
-        );
-        sLearn := sLearn_pos ^ sLearn_neg ^ sLearn_both;
-        if (dIntv <> "") then
-          ("(ic "^dIntv ^" "^ (!sInterval) ^")", !sLearn, bump_pos ^ bump_neg ^ bump_both, true)
-        else
-          (!sInterval, !sLearn, bump_pos ^ bump_neg ^ bump_both, true)
-      )
-    )
-  *)
-  (*======= end unbalance decomposition =======*)
+         ("(ic "^s3 ^" "^s1^")", s4^s2, bump_vars ^ " " ^ svars, final_code)
   
 let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraints with
   | [] -> [polyCons]
@@ -1335,9 +1064,6 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
       else
         getConsAndIntv t nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap chosenPolyConstraints chosenVarsIntvsMiniSATCodesMap
 
-  let rec allLog polyConstraints ia varsIntvsMiniSATCodesMap = match polyConstraints with
-    |[] -> ""
-    |h::t -> (logSat h ia varsIntvsMiniSATCodesMap) ^ "\n" ^ (allLog t ia varsIntvsMiniSATCodesMap)  
 
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
