@@ -1,6 +1,11 @@
 \chapter{Introduction}
-{\em Polynomial constraint solving} is to find an instance 
-that satisfies given polynomial inequality/equality. 
+\section{Polynomial constraint solving}
+{\em Polynomial constraint solving} is a task of computing an assignment of variables to real/integer numbers 
+that satisfies given polynomial inequalities/equations. If such an assignment exists, the constraint is said to be satisfiable (SAT); otherwise we mention it as unsatisfiable (UNSAT). 
+\begin{example} \label{examp:poly_ieq}
+$\exists x \in (-1,3)~y \in (2,4) . (x^3y - y^4 > 0) \wedge (y^3 -xy >0)$
+is an example of a polynomial inequality with 2 variables and 2 APIs. 
+\end{example}
 %For instance, $\exists x y. -y^2 + (x^2 - 1) y - 1 > 0 \wedge -x^2 - y^2 + 4 > 0$ is 
 %such an example. This is an easy formula, but proving its satisfiability and 
 %showing a satisfiable instance (e.g., $x = 1.8$, $y=0.9$) are not so easy.  
@@ -10,7 +15,7 @@ that satisfies given polynomial inequality/equality.
 Many applications are reduced to solving polynomial constraints, such as 
 \begin{itemize}
 \item {\bf Locating roundoff and overflow errors}, 
-which is our motivation~\cite{ngocsefm,ngocase}. 
+which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:1858996.1859056}
 %DSP decorders in practice are defined by reference algorithms in C using floating point arithmetic. 
 %In embedded systems, often it is replaced with fixed point arithmetic, 
 %which may cause visible noises. 
@@ -21,20 +26,20 @@ which is our motivation~\cite{ngocsefm,ngocase}.
 %point into fixed point numbers. However, naive replacement would cause 
 
 \item {\bf Automatic termination proving}, 
-which reduces termination detection to finding a suitable ordering~\cite{lucas}, 
+which reduces termination detection to finding a suitable ordering~\cite{Lucas:2008:CCS:1361735.1361760}, 
 e.g., \TTTT~\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
 Aprove~\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
 %as a solution of polynomial constraints. 
 
 \item {\bf Loop invariant generation}. 
-Farkas's lemma is a popular approach in linear loop invariant generation~\cite{Colon03}, 
+Farkas's lemma is a popular approach in linear loop invariant generation~\cite{Colon}, 
 and is reduced to degree $2$ polynomials. 
 %matrix multiplications. 
 %degree $2$ polynomial constraints. 
 %Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
-Non-linear loop invariant~\cite{Sankaranarayanan} requires more complex polynomials.
+Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
 
-\item {\bf Hybrid system}. SMT for QF\_NRA are often used as backend engines~\cite{hybrid}. 
+\item {\bf Hybrid system}. SMT for QF\_NRA are often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
 
 \item {\bf Mechanical contrnol design}. 
 PID control is simple but widely used, and designing parameters is 
