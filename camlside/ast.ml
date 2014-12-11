@@ -572,3 +572,125 @@ let check_sat_af_two_ci_get_satLength_boolExpr boolExpr varsSet varsNum varsIntv
     check_sat_get_satLength_providedBounds boolExpr newBound
   else (sat, satLength)
 
+let check_constracted oldBound newBound = 
+  oldBound#l < newBound#l || oldBound#h > newBound#h
+
+let get_intersection bound1 bound2 =
+  let newLowerBound = max bound1#l bound2#l in
+  let newHigherBound = min bound1#h bound2#h in
+  let newBound = new IA.interval newLowerBound newHigherBound in
+  newBound
+
+let get_bound polyExpr varsSet varsIntvsMap =
+  let varsNum = VariablesSet.cardinal varsSet in
+  let afTwoBound  = poly_eval_af2 polyExpr varsSet varsNum varsIntvsMap in
+  let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
+  get_intersection  afTwoBound ciBound
+
+let rec backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInterval result =
+  if polyExprInterval#h < polyExprInterval#l then (result, new IA.interval 1. (-1.))
+  else
+  match polyExpr with
+  | Var x -> 
+    if x = var then 
+      if polyExprInterval#l > intv#l || polyExprInterval#h < intv#h then
+        (true, get_intersection polyExprInterval intv)
+      else (result, intv)
+    else (result, intv)
+	| Add((e1, varsSet1), (e2, varsSet2)) -> 
+	  let (tmpResult1, tmpIntv1) =
+	    if VariablesSet.mem var varsSet1 then
+	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
+	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
+	      let newBound1 = IA.CI.(polyExprInterval - bound2) in
+	      if check_constracted bound1 newBound1 then 
+	        backward_propagate_boolExpr var intv varsIntvsMap e1 (get_intersection bound1 newBound1) result
+	      else 
+	        (result, intv)
+	    else (result, intv)
+	  in
+	  let varsIntvsMap =
+	    if tmpResult1 then StringMap.add var tmpIntv1 varsIntvsMap
+	    else varsIntvsMap
+	  in
+	  let (tmpResult2, tmpIntv2) =
+	    if VariablesSet.mem var varsSet2 then
+	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
+	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
+	      let newBound2 = IA.CI.(polyExprInterval - bound1) in 
+	      if check_constracted bound2 newBound2 then
+	        backward_propagate_boolExpr var tmpIntv1 varsIntvsMap e1 (get_intersection bound2 newBound2) tmpResult1
+	      else (tmpResult1, tmpIntv1)
+	    else (tmpResult1, tmpIntv1)
+	  in (tmpResult2, tmpIntv2)
+	| Sub((e1, varsSet1), (e2, varsSet2)) -> 
+	  let (tmpResult1, tmpIntv1) =
+	    if VariablesSet.mem var varsSet1 then
+	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
+	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
+	      let newBound1 = IA.CI.(polyExprInterval + bound2) in
+	      if check_constracted bound1 newBound1 then 
+	        backward_propagate_boolExpr var intv varsIntvsMap e1 (get_intersection bound1 newBound1) result
+	      else 
+	        (result, intv)
+	    else (result, intv)
+	  in
+	  let varsIntvsMap =
+	    if tmpResult1 then StringMap.add var tmpIntv1 varsIntvsMap
+	    else varsIntvsMap
+	  in
+	  let (tmpResult2, tmpIntv2) =
+	    if VariablesSet.mem var varsSet2 then
+	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
+	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
+	      let newBound2 = IA.CI.(bound1 - polyExprInterval) in 
+	      if check_constracted bound2 newBound2 then
+	        backward_propagate_boolExpr var tmpIntv1 varsIntvsMap e1 (get_intersection bound2 newBound2) tmpResult1
+	      else (tmpResult1, tmpIntv1)
+	    else (tmpResult1, tmpIntv1)
+	  in (tmpResult2, tmpIntv2)
+	| Mul((e1, varsSet1), (e2, varsSet2)) ->
+	  let (tmpResult1, tmpIntv1) =
+	    if VariablesSet.mem var varsSet1 then
+	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
+	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
+	      let newBound1 =
+	        if bound2#l < 0. && bound2#h > 0. then
+	          new IA.interval neg_infinity infinity (* later we need special processing here *)
+	        else
+	          IA.CI.(polyExprInterval * (new IA.interval (1. /. bound2#h) (1. /. bound2#l)))
+	      in
+	      if check_constracted bound1 newBound1 then 
+	        backward_propagate_boolExpr var intv varsIntvsMap e1 (get_intersection bound1 newBound1) result
+	      else 
+	        (result, intv)
+	    else (result, intv)
+	  in
+	  let varsIntvsMap =
+	    if tmpResult1 then StringMap.add var tmpIntv1 varsIntvsMap
+	    else varsIntvsMap
+	  in
+	  let (tmpResult2, tmpIntv2) =
+	    if VariablesSet.mem var varsSet2 then
+	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
+	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
+	      let newBound2 = 
+	        if bound1#l < 0. && bound1#h > 0. then
+	          new IA.interval neg_infinity infinity (* later we need special processing here *)
+	        else
+	          IA.CI.(polyExprInterval * (new IA.interval (1. /. bound1#h) (1. /. bound1#l)))
+	      in 
+	      if check_constracted bound2 newBound2 then
+	        backward_propagate_boolExpr var tmpIntv1 varsIntvsMap e1 (get_intersection bound2 newBound2) tmpResult1
+	      else (tmpResult1, tmpIntv1)
+	    else (tmpResult1, tmpIntv1)
+	  in (tmpResult2, tmpIntv2)
+	| Pow((e1,variablesSet), n)  -> 
+	  if VariablesSet.mem var variablesSet then
+	    if n <= 1 then
+	      backward_propagate_boolExpr var intv varsIntvsMap e1 polyExprInterval result
+	    else
+	      backward_propagate_boolExpr var intv varsIntvsMap (Mul((Pow((e1,variablesSet), n-1), variablesSet), (e1, variablesSet))) polyExprInterval result  
+	  else 
+	    (result, intv)
+	| Real r -> (result, intv)

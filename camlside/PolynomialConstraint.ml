@@ -221,6 +221,24 @@ class polynomialConstraint boolExprInit variablesSetInit =
       in
       List.fold_left add_sat_direction_extra currentVarSATDirectionMap varsSen
       
+      
+    method backward_interval_propagate var intv (varsIntvsMiniSATCodesMap:(IA.interval * int) Variable.StringMap.t) =
+      let (polyExprInterval, polyExpr) = 
+        match boolExpr with
+        |Eq e -> (new IA.interval 0. 0., e)
+        |Neq e -> (iaValue, e)
+        |Leq e -> (new IA.interval iaValue#l 0., e)
+        |Le e -> (new IA.interval iaValue#l 0., e)
+        |Geq e -> (new IA.interval 0. iaValue#h, e)
+        |Gr e -> (new IA.interval 0. iaValue#h, e)
+      in
+      let add_intv (isInfinite, varsIntvsMap) var =
+        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
+      in
+      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+      backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInterval false
+      
     method log_test = 
       let testValueString = string_of_float testValue in
       match boolExpr with

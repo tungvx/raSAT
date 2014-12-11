@@ -797,6 +797,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
       ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false)
     else (*Continue decomposition*)
       let decompose_var var ((intv, varId), varSen, isPositiveSen) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
+        let (narrowed, newIntv) = polyCons#backward_interval_propagate var intv varsIntvsMiniSATCodesMap in
         let lowerBound = intv#l in
         let upperBound = intv#h in
         let newPoint = 
