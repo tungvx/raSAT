@@ -1,2 +1,89 @@
 \chapter{Over-Approximation and Under-Approximation for Polynomials}
 This section presents Interval Arithmetic as an over-approximation theory, and testing as an under-approximation theory.
+Let 
+$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$, 
+%\exists x_1 \ldots x_n. (\underbrace{\bigwedge \limits_i x_i \in I_i}_{I}) \wedge 
+%                       (\underbrace{\bigwedge \limits_j \psi_j(x_1,\cdots,x_n)}_{P})
+where $\psi_j(x_1,\cdots,x_n)$ is an atomic formula. 
+%
+$F$ is equivalnet to 
+$\exists x_1 \ldots x_n. (\bigwedge \limits_i x_i \in I_i) \wedge (\bigwedge \limits_j \psi_j(x_1,\cdots,x_n))$, 
+and we call $\bigwedge \limits_i x_i \in I_i$ {\em interval constraints}, and 
+we refer $\bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$ by $\psi(x_1,\cdots,x_n)$. 
+Initially, interval constraints have a form of the conjunction $\bigwedge \limits_i x_i \in I_i$, 
+and later by refinement, $x_i \in I_i$ is decomposed into a clause $\bigvee_j x_i \in I_{i_j}$, 
+which makes a CNF. 
+
+As an SMT (SAT modulo theory) problem, 
+boolean variables are assigned to each $x_i \in I_{i_j}$, 
+and truth assignments is produced by a SAT solver, 
+which are proved or disproved by a background theory $T$ whether it satisfies $\psi(x_1,\cdots,x_n)$. 
+
+As notational convention, $m$ (the lower case) denotes 
+a variable assignments on $x_i$'s, and 
+$M$ (the upper case) denotes a truth assignment on $x_i \in I_{i_j}$'s. 
+We write $m \in M$ when an instance $m = \{ x_i \leftarrow c_i \}$ satisfies 
+all $c_i \in I_{i_j}$ that are assigned true by $M$. 
+
+We assume {\em very lazy theory learning}~\cite{dpll}, and 
+a backend theory $T$ is applied only for a full truth assignment $M$. 
+%We regard $M$ as a conjunction $\bigwedge \limits_i x_i \in I_{i_j}$. 
+\begin{itemize}
+\item If an instance $m$ satisfies $\psi(x_1,\cdots,x_n)$, we denote $m \models_T \psi(x_1,\cdots,x_n)$. 
+\item If each instance $m$ with $m \in M$ satisfies $\psi(x_1,\cdots,x_n)$, 
+we denote $M \models_T \psi(x_1,\cdots,x_n)$. 
+\end{itemize}
+
+\begin{definition} \label{def:app}
+Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \psi(x_1,\cdots,x_n)$. 
+For a truth assignment on $M$, $F$ is 
+\begin{itemize}
+\item $T$-valid if $M \models_T \psi(x_1,\cdots,$ $x_n)$, 
+\item $T$-satisfiable ($T$-SAT) if $m \models_T \psi(x_1,\cdots,x_n)$ 
+for some $m \in M$, and 
+\item $T$-unsatisfiable ($T$-UNSAT) if $M \models_T \neg \psi(x_1,\cdots,x_n)$. 
+\end{itemize}
+If $T$ is clear from the context, we simply say valid, satisfiable, and unsatisfiable. 
+\end{definition}
+
+%%%%%%%%%%%%%
+\suppress{
+Then, Fig. \ref{fig:T_result} illustrates Definition~\ref{def:app}. 
+\begin{figure} [ht]
+\centering
+\begin{minipage}[b]{0.45\linewidth}
+  \includegraphics[height=1.8in,width=1.9in]{T_result.eps}
+\caption{Results of a target constraint $F$ in a theory $T$}
+\label{fig:T_result}
+\end{minipage}
+\quad
+\begin{minipage}[b]{0.45\linewidth}
+   \includegraphics[height=2.2in,width=2.3in]{frame_app.eps}
+\caption{{\bf raSAT} loop}
+\label{fig:frame}
+\end{minipage}
+\end{figure}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition} \label{def:ApproxTheory}
+Let $T, O.T, U.T$ be theories. 
+\begin{itemize}
+\item $O.T$ is an {\em over-approximation theory} (of $T$) 
+if $O.T$-UNSAT implies $T$-UNSAT, and
+\item $U.T$ is an {\em under-approximation theory} (of $T$)
+if $U.T$-SAT implies $T$-SAT. 
+\end{itemize}
+We further assume that $O.T$-valid implies $T$-valid. 
+\end{definition}
+
+%Note that $O.T$-valid can be regarded as $U.T$, since $O.T$-valid implies $T$-valid, thus $T$-SAT. 
+A typical ICP applies $O.T$ only as an interval arithmetic. 
+Later in Section~\ref{sec:approximation}, we will instantiate interval arithmetic as $O.T$. 
+Adding to $O.T$-valid, {\bf raSAT} introduce testing as $U.T$ to accelerate SAT detection. 
+\section{Interval Arithmetic}
+Given a polynomial and intervals of the variables, interval arithmetic will compute an interval which contains all possible values of the polynomial. 
+\subsection{Classical Interval}
+\subsection{Affine Interval}
+
+\section{Testing}
