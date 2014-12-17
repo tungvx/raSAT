@@ -114,7 +114,14 @@ with weaker theoretical completeness.
 \end{enumerate}
 
 \section{Proposed Approach and Contributions}
-Our aim is an efficient decision method for solving polynomial constraint. We combine ICP with Grobner basis method in order to solve the following cases.
+Our aim is an SMT solver for solving polynomial constraint. We first focus on strict inequalities because of they allow approximations.
+\begin{enumerate}
+\item
+Inequalities allow under-approximation. Under-approximation computes a range $U.range(f)$ of a polynomial $f$ such that $range(f) \supset U.range(f)$. On the other hand, over-approximation estimates a range $O.range(f)$ of a polynomial $f$ that covers all the possible values of $f$, i.e. $range(f) \subset O.range(f)$. For an inequality $f>0$, if $O.range(f)$ stays in the negative side
+\item
+For the SAT case, if $f(\bar{x}) > 0$ has a real solution $\bar{x_0}$, there exist rational points near $\bar{x_0}$ which are also solutions of the inequality. 
+\end{enumerate}
+\begin{comment}
 \subsection{Inequalities}
 Constraints with inequalities can be categorized into four cases:
 \begin{enumerate}
@@ -148,6 +155,8 @@ Constraints with inequalities can be categorized into four cases:
 %\end{minipage}
 \end{figure} 
 \end{enumerate}
+\end{comment}
+
 $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$, 
 \begin{itemize}
 \item If $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$ is SAT, 
