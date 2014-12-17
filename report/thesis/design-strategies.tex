@@ -1,7 +1,8 @@
-\chapter{Over and Under-approximation strategies}
+\chapter{Design strategies}
+We implemented a number of strategies for improving efficiency of raSAT: incremental search and refinement heuristics.
 \section{Incremental search} \label{sec:incsearch}
-{\bf raSAT} applies two incremental strategies, 
-(1) {\em incremental windening}, and (2) {\em incremental deepening}. 
+{\bf raSAT} applies three incremental strategies, 
+(1) {\em incremental windening}, (2) {\em incremental deepening} and (3) {\em incremental testing}. 
 Let
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
 for $I_i = (a_i,b_i)$. %where $a_i, b_i$ would be $\pm \infty$. 
@@ -46,6 +47,45 @@ If neither SAT nor UNSAT is detected, {\bf raSAT} restarts with a smaller thresh
 Let $\gamma_0 > \gamma_1 > \cdots > 0$, and {\bf raSAT} incrementally deepens its search 
 with these threshholds, i.e., starting with $\delta_0$, and if it fails, restart with $\delta_1$, 
 and so on (Fig~\ref{fig:incwid} (b)). 
+
+\subsection{Incremental testing}
+Large number of test cases affect the efficiency of testing phase. Suppose $n$ variables appear in the polynomial of constraint and $2$ test cases are generated for each variable, totally $2^n$ combinations of test cases are generated. 
+
+\begin{example}
+Variables set of the constraint in Example ~\ref{examp:unsat-example} is $\{x, y\}$(the number of variables $n = 2$). If we generate $2$ test cases for each variable: $\{5, 6\}$ for $x$ and $\{1, 7\}$ for $y$, $2^n = 4$ combinations of those test cases are presented $\{(5, 1), (5, 7), (6, 1), (6, 7)\}$.
+\end{example}
+raSAT solves this problem by:
+\begin{enumerate}
+\item restricting the number of test cases to $2^{10}$:
+\begin{itemize}
+\item Ten variables are selected and raSAT generates 2 test cases for each.
+\item One test case are prepared for each remaining variable.
+\end{itemize}
+\item on-demand generation of test cases:
+Each inequality/equation is sequentially selected for testing. Only test cases for variables of the chosen inequality/equation are generated. This can early avoid unsatisfiable combinations.
+\begin{example}
+Let the constraint is $x > 1 \wedge y*z > 3$. In testing phase, e.g., $x > 1$ will be selected first and test cases for $x$ is $\{0, 2\}$. Here the test case $x = 0$ does not satisfy $x>1$, it will be removed without combining with test cases of $y$ and $z$. On the other hand, if test cases of $y$ and $z$ are also generated at the beginning, e.g, $\{2, 7\}$ for $y$ and $\{5, 9\}$ for $z$; the 4 unnecessary combinations: $\{(0, 2, 5),(0, 2, 9),(0, 7, 5), (0, 7, 9)\}$ need to be all checked.
+\end{example}
+\end{enumerate}
+
+SAT-likelihood and sensitivity are criteria used for selecting inequality/equation and variable respectively.
+
+\begin{definition}
+Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$ be a constraint. 
+We denote the estimated range of $f_j$ for $x_1 \in I_1 \cdots x_n \in I_n$ with IA ($O.T$)
+by $range(f_j, I_1 \times \cdots \times I_n)$. 
+If an IA is an affine interval, 
+it is in the form $[c_1,d_1]\epsilon_1 + \cdots + [c_n,d_n]\epsilon_n$, 
+and by instantiating $\epsilon_i$ with $[-1,1]$, 
+the resulting classical interval coincides with $range(f_j, I'_1 \times \cdots \times I'_n)$. 
+We define 
+\begin{itemize} 
+\item {\em Sensitivity} of a variable $x_i$ in a test-UNSAT API $f_j > 0$ is $max(|c_i|, |d_i|)$. 
+\item {\em SAT-likelyhood} of an API $f_j > 0$ is $| I \cap (0,\infty) | / |I|$, and 
+\item {\em SAT-likelyhood} of a box $I'_1 \times \cdots \times I'_n$ is 
+the least SAT-likelyhood of test-UNSAT APIs. 
+\end{itemize} 
+\end{definition}
 
 \subsection{Over-Approximation Theory Refinement}
 \label{sec:soundness}
@@ -445,29 +485,6 @@ how to choose a box to explore.
 {\bf raSAT} chooses such a variable in two steps; first it selects a {\em test-UNSAT API}, and
 then chooses a variable that appears in the API. 
 We design SAT-directed heuristic measures based on the interval arithemtic ($O.T$). 
-
-Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$ 
-becomes $\vee~( \exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0)$ 
-after box decomposition. 
-For $\exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
-if some $f_j > 0$ is UNSAT, the box $I'_1 \times \cdots \times I'_n$ is UNSAT. 
-If every $f_j > 0$ is SAT, $F$ is SAT. 
-Thus, if the box $I'_1 \times \cdots \times I'_n$ needs to be explore, it must contain 
-a test-UNSAT API (thus IA-SAT). 
-
-We denote the estimated range of $f_j$ for $x_1 \in I'_1 \cdots x_n \in I'_n$ with IA ($O.T$)
-by $range(f_j, I'_1 \times \cdots \times I'_n)$. 
-If an IA is an affine interval, 
-it is in the form $[c_1,d_1]\epsilon_1 + \cdots + [c_n,d_n]\epsilon_n$, 
-and by instanciating $\epsilon_i$ with $[-1,1]$, 
-the resulting classical interval coincides with $range(f_j, I'_1 \times \cdots \times I'_n)$. 
-We define 
-\begin{itemize} 
-\item {\em Sensitivity} of a variable $x_i$ in a test-UNSAT API $f_j > 0$ is $max(|c_i|, |d_i|)$. 
-\item {\em SAT-likelyhood} of an API $f_j > 0$ is $| I \cap (0,\infty) | / |I|$, and 
-\item {\em SAT-likelyhood} of a box $I'_1 \times \cdots \times I'_n$ is 
-the least SAT-likelyhood of test-UNSAT APIs. 
-\end{itemize} 
 
 \begin{example} \label{examp:SATlikelyhood}
 In Example~\ref{examp:sensitivity}, 
