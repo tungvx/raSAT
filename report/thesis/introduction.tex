@@ -114,13 +114,24 @@ with weaker theoretical completeness.
 \end{enumerate}
 
 \section{Proposed Approach and Contributions}
-Our aim is an SMT solver for solving polynomial constraint. We first focus on strict inequalities because of they allow approximations.
+Our aim is an SMT solver for solving polynomial constraint. We first focus on strict inequalities because of the following reasons.
 \begin{enumerate}
 \item
-Inequalities allow under-approximation. Under-approximation computes a range $U.range(f)$ of a polynomial $f$ such that $range(f) \supset U.range(f)$. On the other hand, over-approximation estimates a range $O.range(f)$ of a polynomial $f$ that covers all the possible values of $f$, i.e. $range(f) \subset O.range(f)$. For an inequality $f>0$, if $O.range(f)$ stays in the negative side
+Satisfiable inequalities allow over-approximation. An over-approximation estimates the range of a polynomial $f$ as $O.range(f)$ that covers all the possible values of $f$, i.e. $range(f) \subseteq O.range(f)$. For an inequality $f>0$, if $O.range(f)$ stays in the positive side, it can be concluded as SAT. On the other hand, over-approximation cannot prove the satisfiability of SAT equations.
 \item
-For the SAT case, if $f(\bar{x}) > 0$ has a real solution $\bar{x_0}$, there exist rational points near $\bar{x_0}$ which are also solutions of the inequality. 
+Satisfiable inequalities allow under-approximation. An under-approximation computes the range of the polynomial $f$ as  $U.range(f)$ such that $range(f) \supseteq U.range(f)$. If $U.range(f)$ is on the positive side, $f > 0$ can be said to be SAT. Due to the continuity of $f$, finding such an under-approximation for solving $f > 0$ is more feasible than that for $f = 0$.
+\begin{itemize}
+\item If $f(\bar{x}) > 0$ has a real solution $\bar{x_0}$, there exist rational points near $\bar{x_0}$ which also satisfy the inequality. Solving inequalities over real numbers thus can be reduced to that over rational numbers.
+\item The real solution of $f(\bar{x}) = 0$ cannot be approximated to any rational number.
+\end{itemize}
 \end{enumerate}
+For UNSAT constraint (both inequalities and equations) can be solved by over-approximation. Suppose $O.range(f)$ is the result of an over-approximation for a polynomial $f$.
+\begin{enumerate}
+\item If $O.range(f)$ resides on the negative side, $f > 0$ is UNSAT.
+\item If $O.range(f)$ stays on either negative or positive side, $f = 0$ is UNSAT.
+\end{enumerate}
+
+
 \begin{comment}
 \subsection{Inequalities}
 Constraints with inequalities can be categorized into four cases:
