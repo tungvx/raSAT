@@ -131,7 +131,41 @@ For UNSAT constraint (both inequalities and equations) can be solved by over-app
 \item If $O.range(f)$ stays on either negative or positive side, $f = 0$ is UNSAT.
 \end{enumerate}
 
+Our approach of "iterative approximation refinement" for solving polynomial constraint was proposed and implemented as an SMT solver named raSAT in \cite{VanKhanh201227}. This work improves the efficiency of the tool and extend it to handle equations. The summary of the proposed method in \cite{VanKhanh201227} is:
+\begin{enumerate}
+\item Over-approximation is used for both disproving and proving polynomial inequalities. In addition, under-approximation is used for boosting SAT detection. When both of these method cannot conclude the satisfiability, the input formula is refined so that the result of approximation become more precise. 
+\item Interval Arithmetic (IA) and Testing are instantiated as an over-approximation and an under-approximation respectively. While IA defines the computations over the intervals, e.g. $[1, 3] +_{IA} [3, 6] = [2, 9]$, Testing attempts to propose a number of assignments from variables to real numbers and check each assignment against the given constraint to find a SAT instance.
+\item In refinement phase, intervals of variables are decomposed into smaller ones. For example, $x \in [0, 10]$ becomes $x \in [0, 4] \vee x \in [4, 10]$.
+\item \citet{VanKhanh201227} also proposed a method for detecting satisfiability of equations using the Intermediate Value Theorem.
+\end{enumerate}
 
+The contributions of this work are as follows:
+\begin{enumerate}
+\item Although the method of using IA is robust for large degrees of polynomial, the number of boxes (products of intervals) grows exponentially with respect to the number of variables during refinement (interval decomposition). As a result, strategies for selecting variables to decomposed and boxes to explore play a crucial role in efficiency. We introduce the following strategies:
+\begin{itemize}
+\item A box with more possiblity to be SAT is selected to explore, which is estimated by 
+several heuristic measures, called {\em SAT likelyhood}, 
+and the number of unsolved atomic polynomial constraints.
+\item A more influential variable is selected for multiple test cases and decomposition. 
+This is estimated by {\em sensitivity} which is determined during the computation of IA.
+\end{itemize}
+\item Two schemes of incremental search are proposed for enhancing solving process: 
+\begin{itemize} 
+\item {\bf Incremental deepening}. 
+raSAT follows the depth-first-search manner. In order to escape local optimums, it starts searching with a threshold that each interval will be decomposed no smaller than it. 
+If neither SAT nor UNSAT is detected, a smaller threshold is taken and raSAT restarts. 
+\item {\bf Incremental widening}. 
+Starting with a small interval, if raSAT detects UNSAT, input intervals are enlarged
+and raSAT restarts. For SAT constraint, small (finite) interval allows sensitivity to be computed because Affine Interval \cite{VanKhanh201227} requires finite range of variables. As a consequence, our above strategies will take effects on finding SAT instance. For the UNSAT case, combination of small intervals and incremental deepening helps raSAT quickly determines the threshold in which unsatisfiability may be proved by IA. 
+\end{itemize} 
+\begin{comment}
+SAT-likelihood is introduced to measure the possibility of an inequality to be satisfiable. Sensitivity is proposed to estimate the influence of a variable to the value of a polynomial.
+\end{comment}
+\item SAT confirmation step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
+\tt http://irram.uni-trier.de}, to avoid soundess bugs caused by roundoff errors.
+\item This work also implement the idea of using Intermediate Value Theorem to show the satisfiability of equations which was suggested in \cite{VanKhanh201227}.
+\item We also extend raSAT to handle constraint over integer numbers. In testing phase, we only generate the integer values for variables. In addition, the threshold used for stopping decomposition is set to $1$.
+\end{enumerate}
 \begin{comment}
 \subsection{Inequalities}
 Constraints with inequalities can be categorized into four cases:
@@ -167,7 +201,7 @@ Constraints with inequalities can be categorized into four cases:
 \end{figure} 
 \end{enumerate}
 \end{comment}
-
+\begin{comment}
 $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$, 
 \begin{itemize}
 \item If $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$ is SAT, 
@@ -250,3 +284,7 @@ very large problems (e.g., with several hundred variables) with the combination 
 \medskip 
 {\bf raSAT} applies SAT confirmation to avoid soundness errors caused by roundoff/overflow errors. 
 Another static analysis based approach is found in~\cite{SilvaTACAS12}. 
+\end{comment}
+
+\section{Thesis outline}
+Coming soon...

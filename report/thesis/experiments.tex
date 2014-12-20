@@ -1,178 +1,7 @@
 \chapter{Experiments}
+This chapter is going to present the experiments results which reflect how effective our designed strategies are. In addition, comparison between raSAT, Z3 and iSAT3 will be also shown. The experiments were done on a system with  Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. In the experiments, we exclude the problems which contain equalities because currently raSAT focuses on inequalities only.
 
-We implemented \textbf{raSAT} loop as an SMT {\bf raSAT}, 
-based on MiniSat 2.2 as a backend SAT solver. In this section, we are going to present the experiments results which reflect how effective our designed strategies are. In addition, comparison between raSAT, Z3 and iSAT3 will be also shown. The experiments were done on a system with  Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. In the experiments, we exclude the problems which contain equalities because currently raSAT focuses on inequalities only.
-
-\subsection {Effectiveness of designed strategies} 
-\label{sec:strategies}
-There are three immediate measures on the size of polynomial constraints. They are the highest degree of polynomials, the number of variables, and the number of APIs. Our strategies focus on selecting APIs(for testing) and selecting variable (for multiple test cases and for decomposition), selecting decomposed box of the chosen variable in TEST-UNSAT API. Thus, in order to justify the effectiveness of these strategies, we need to test them on problems with varieties of APIs number (selecting APIs) and varieties of variables number in each API (selecting variable). For this criteria, we use Zankl family for evaluating strategies. The number of APIs for this family varies from $1$ to $2231$ and the maximum number of variables in each APIs varies from $1$ to $422$. 
-
-As mentioned, raSAT uses SAT likely-hood evaluation to judge the difficulty of an API. In testing, raSAT chooses the likely most difficult API to test first. In box decomposition, again SAT likely-hood is used to evaluate decomposed boxes again the TEST-UNSAT API. For easy reference, we will name the strategies as followings
-
-\begin{itemize}
-  \item Selecting APIs, selecting decomposed boxes:
-    \begin{description}
-      \item[(1)] Using SAT likely-hood %(1)-(5)
-      \item[(2)] Randomly % (10) - (7)
-    \end{description}
-  \item Selecting one variable each API for testing, one variable of TEST-UNSAT API for decomposition:
-    \begin{description}
-       \item[(3)] Using sensitivity % (8)
-       \item[(5)] Randomly % (9)
-    \end{description}
-\end{itemize}
-
-We will compare the combinations $(1)-(5)$ and $(2)-(5)$ to see how SAT likely-hood affects the results. And comparison betweeen $(1)-(5)$ and $(1)-(3)$ illustrates the effectiveness of sensitivity. In these experiments, timeout is set to $500s$.
-
- Table \ref{tab:strategies-zankl} shows the results of strategies. While $(1)-(5)$ solved $33$ problems in $27.09s$, $(2)-(5)$ took $933.78s$ to solve $31$ problems. In fact, among $31$ solved problems of $(2)-(5)$, $(1)-(5)$ solved $30$. The remaining problem is a SAT one, and $(2)-(5)$ solved it in $34.36s$. So excluding this problem, $(2)-(5)$ solved $30$ problems in $933.78s - 34.36s = 899.42s$ and $(1)-(5)$ took $27.09s$ to solved all these $30$ problems plus $3$ other problems. Using SAT likely-hood to select the most difficult API first for testing is very reasonable. This is because the goal of testing is to find an assignment for variables that satisfies \textbf{all} APIs. Selecting the most difficult APIs first has the following benefits: 
-\begin{itemize}
-  \item The most difficult APIs are likely not satisfied by most of test cases (of variables in these APIs). This early avoids exploring additional unnecessary combination with test cases of variables in other easier APIs.
-  \item If the most difficult APIs are satisfied by some test cases, these test cases might also satisfy the easier APIs.
-\end{itemize}
-
-raSAT uses SAT likely-hood to choose a decomposed box so that the chosen box will make the TEST-UNSAT API more likely to be SAT. This seems to work for SAT problems but not for UNSAT ones. In fact, this is not the case. Since for UNSAT problems, we need to check both of the decomposed boxes to prove the unsatisfiability (in any order). So for UNSAT constraints, it is not the problem of how to choose a decomposed box, but the problem of how to decompose a box. That is how to choose a point within an interval for decomposition so that the UNSAT boxes are early separated. Currently, raSAT uses the middle point. For example, $[0, 10]$ will be decomposed into $[0, 5]$ and $[5, 10]$. The question of how to decompose a box is left for our future work.
-
-Combination $(1)-(3)$ solved $41$ problems in comparison with $33$ problems of $(1)-(5)$. There are $5$ large problems (more than $100$ variables and more than $240$ APIs in each problem) which were solved by $(1)-(3)$ (solving time was from $20s$ to $300s$) but not solved (timed out - more than $500s$) by $(1)-(5)$. Choosing the most important variable (using sensitivity) for multiple test cases and for decomposition worked here.
-
-\begin{table*}[t]
-\centering
-\scalebox{1.15}{
-{\renewcommand{\arraystretch}{1.3}
-    \begin{tabular}{ | c| c | c | c | c |}
-    \hline
-    {Strategies} & {Group} & {SAT} & {UNSAT} & {time(s)} \\ \hline
-    (1)-(5) & matrix-1-all-* & 22 & 11 & 27.09 \\ \hline
-    (2)-(5) & matrix-1-all-*& 21 & 10 & 933.78 \\ \hline
-    (1)-(3) & matrix-1-all-*& 31 & 10 & 765.48 \\ \hline
-    \end{tabular}
-    }
-    }
-    \medskip
-   	\caption{Experiments of strategies on Zankl family}
-   	\label{tab:strategies-zankl}
-\end{table*}
-
-\subsection {Comparison with other tools on QF\_NRA and QF\_NIA benchmarks} 
-\label{sec:comparisons}
-\subsubsection{Comparison with Z3 and isat3 on QF\_NRA.}
-Table \ref{tab:QF_NRA} presents the results of isat3, raSAT and Z3 on 2 families (Zankl and Meti-tarski) of QF\_NRA. Only problems with inequalities are extracted for testing. The timeout for Zankl family is $500s$ and for Meti-tarski is $60s$ (the problems in Meti-tarski are quite small - less than 8 variables and less than 25 APIs for each problem). For isat3, ranges of all variables are uniformly set to $[-1000, 1000]$
-
-Both isat3 and raSAT use interval arithmetics for deciding constraints. However, raSAT additionally use testing for accelerating SAT detection. As the result, raSAT solved larger number of SAT problems in comparison with isat3. In Table \ref{tab:QF_NRA}, isat3 conludes UNSAT when variables are in the ranges $[-1000, 1000]$, while raSAT conclude UNSAT over $[-infinity, infinity]$.
-
-
-In comparison with Z3, for Zankl family, Z3 4.3 showed better performance than raSAT in the problems with lots of small constraints: short monomial (less than $5$), small number of variables (less than $10$). For problems where most of constraints are long monomial (more than $5$) and have large number of variables (more than $10$), raSAT results are quite comparable with ones of Z3, often even outperfoming when the problem contains large number of vary long constraints (more than $40$ monomials and/or more than $20$ variables). For instance, \textit{matrix-5-all-27, matrix-5-all-01, matrix-4-all-3, matrix-4-all-33, matrix-3-all-5, matrix-3-all-23, matrix-3-all-2, matrix-2-all-8} are such problems which can be solved by raSAT but not by Z3.
-
-Meti-tarski family contains quite small problems (less than 8 variables and less than 25 APIs for each problem). Z3 solved all the SAT problems, while raSAT solved around $94\%$ ($33322/3528$) of them. Approximately $70\%$ of UNSAT problems are solved by raSAT. As mentioned, raSAT has to explore all the decomposed boxes for proving unsatisfiability. Thus the question "How to decompose boxes so that the UNSAT boxes are early detected?" needs to be solved in order to improve the ability of detecting UNSAT for raSAT.
-\begin{table*}[t]
-\centering
-\scalebox{1.15}{
-{\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{|l|c|c|r|c|c|r|}
-\hline
-\multirow{2}{*}{Solver} & \multicolumn{3}{c|}{Zankl (151)} & \multicolumn{3}{c|}{Meti-Tarski (5101)}\\
-\cline{2-7}
-& {SAT} & {UNSAT}  &{time(s)} & {SAT} & {UNSAT}  &{time(s)}\\
-%\hline
-%{CVC3 2.4.1} & 0 & 0 & 0 & 0 & 9 &10.678 & -- & -- & --\\
-\hline
-\textbf{isat3} & 14 & 15 & 209.20 & 2916 & 1225 & 885.36\\
-\hline
-\textbf{raSAT} & 31 & 10 & 765.48 & 3322 & 1052 & 753.00\\
-\hline
-\textbf{Z3 4.3}& \textbf{54} &\textbf{23}& \textbf{1034.56} & \textbf{3528} & \textbf{1569} & \textbf{50235.39} \\
-\hline
-\end{tabular}
-}
-}
-\medskip
-\caption{Experimental results for Hong, Zankl, and Meti-Tarski families}
-\label{tab:QF_NRA}
-\end{table*}
-
-\subsubsection{Comparison with Z3 on QF\_NIA.}
-We also did experiments on QF\_NIA/AProVE benchmarks to evaluate raSAT loop for Integer constraints. There are $6850$ problems which do not contain equalities. The timeout for this experiment is $60s$. Table \ref{tab:QF_NIA} shows the result of Z3 and raSAT for this family.
-
-\begin{table*}[t]
-\centering
-\scalebox{1.15}{
-{\renewcommand{\arraystretch}{1.3}
-    \begin{tabular}{ | c | c | c | c |}
-    \hline
-    Solver & SAT & UNSAT & time (s) \\ \hline
-    raSAT & 6764 & 0 & 1230.54 \\ \hline
-    Z3 & \textbf{6784} & \textbf{36} & \textbf{139.78} \\ \hline
-    \end{tabular}
-    }
-    }
-    \medskip
-   	\caption{Experiments on QF\_NIA/AProVE}
-   	\label{tab:QF_NIA}
-\end{table*}
- 
-raSAT solved almost the same number of SAT problems as Z3 ($6764$ for raSAT with $6784$ for Z3). Nearly $99\%$ problems having been solved by raSAT is a quite encouraging number. 
-Currently, raSAT cannot conclude any UNSAT problems. Again, this is due to exhaustive balanced decompositions.
-
-
-%\subsection{{\bf raSAT} Implementation} 
-We implement \textbf{raSAT} loop as an SMT solver {\bf raSAT}, 
-based on MiniSat 2.2 as a backend SAT solver. 
-Various combinations of strategies of {\bf raSAT} (in Section~\ref{sec:strategy})
-and random stategies are compared on {\em Zankl}, {\em Meti-Tarski} in NRA category 
-and {\em AProVE} in NIA category from SMT-LIB. 
-The best combination of choices are 
-\begin{enumerate}
-\item a test-UNSAT API by the least SAT-likelyhood, 
-\item a variable by the largest sensitivity, and 
-\item a box by the largest SAT-likelyhood, 
-\end{enumerate} 
-and sometimes a random choice of a test-UNSAT API (instead of the least SAT-likelyhood) 
-shows an equaly good result. 
-They are also compared with \textbf{Z3 4.3} and \textbf{iSAT3}, 
-where the former is considered to be the state of the art (\cite{Jovanovic13}), and 
-the latter is a popular ICP based tool. 
-Note that our comparison is only on polynomial inequality. 
-%Example~\ref{ex1} in Appendix~\ref{app:raSATexample} illustrates how {\bf raSAT} works. 
-The experiments are on a system with Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. 
-
-
-\subsection{Benchmarks from SMT-LIB} \label{sec:expsmtlib}
-
-In SMT-LIB~\footnote{\tt http://www.smt-lib.org}, 
-benchmark programs on non-linear real number arithmetic 
-(QF\_NRA) are categorized into Meti-Tarski, Keymaera, Kissing, Hong, and Zankl families. 
-Until SMT-COMP 2011, benchmarks are only Zankl family. 
-In SMT-COMP 2012, other families have been added, and currently growing. 
-General comparison among various existing tools on these benchmarks is summarized in 
-Table.1 in \cite{Jovanovic13}, which shows Z3 4.3 is one of the strongest. 
-
-From them, we extract problems of polynomial inequality only %(not containing $''=''$). 
-The brief statistics and explanation are as follows. 
-\begin{itemize}
-\item {\bf Zankl} has 151 inequalities among 166, taken from termination provers. 
-A Problem may contain several hundred variables, an API may contain more than one hundred variable, 
-and the number of APIs may be over thousands, though the maximum degree is up to $6$. 
-\item {\bf Meti-Tarski} contains 5101 inequalities among 7713, taken from elementary physics.
-They are mostly small problems, up to 8 varaibles (mostly up to 5 variables), and up to 20 APIs. 
-\item {\bf Keymaera} contains 161 inequalities among 4442. 
-\item {\bf Kissing} has 45 problems, all of which contains equality (mostly single equality). 
-%They are taken from the cases of touching curves. 
-\item {\bf Hong} has 20 inequalities among 20, tuned for QE-CAD and quite artificial. 
-\end{itemize}
-
-
-\mizuhito{
-Experiments in Section~\ref{sec:experiment} are performed 
-with 10 variables (1 varable for each 10 APIs selected by SAT-likelyhood) 
-for multiple test generation (random $2$ ticks), and  variable for decomposition. 
-
-Experiments in Section~\ref{sec:experiment} are performed 
-with $\gamma_0 = 0.1$ and $\gamma_{i+1} =  \gamma_i / 10$. 
-
-$\delta_0 = 10$, $\delta_1 = \infty$. 
-}
-
-
-\subsection{Experiments on strategy combinations} \label{sec:expstrategy}
+\section{Experiments on strategy combinations} \label{sec:expstrategy}
 
 We perform experiments only on Zankl, and Meti-Tarski families. 
 
@@ -309,7 +138,7 @@ with randome generation ($k$-random tick) for the former and the blanced decompo
 Further investigation is left for future. 
 
 
-\subsection{Comparison with other SMT solvers}
+\section{Comparison with other SMT solvers}
 
 We compare {\bf raSAT} with other SMT solvers on NRA benchmarks, Zankl and Meti-Tarski. 
 The timeouts for Zankl and Meti-tarski are $500s$ and $60s$, respectively. 
@@ -363,7 +192,7 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 
 
 
-\subsection{Polynomial constraints over integers} \label{sec:NIA}
+\section{Polynomial constraints over integers} \label{sec:NIA}
 
 {\bf raSAT} loop is easily modified to NIA (nonlinear arithmetic over integers) from NRA, 
 by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch} 
