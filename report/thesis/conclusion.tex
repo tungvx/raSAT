@@ -40,29 +40,18 @@ Note that sensitivity can be used only with noise symbols in Affine intervals.
 Thus, iSAT and RSOLVER cannot use this strategy, though they are based on IA, too. 
 
 \section{Future Work}
-%
-{\bf raSAT} still remains in naive proto-type status, and 
-there are lots of future work. 
 
 \medskip \noindent 
-{\bf UNSAT core}. 
-\mizuhito{to be filled}
+{\bf UNSAT core}
 
 \medskip \noindent 
 {\bf Exact confirmation}.
-Currently, {\bf raSAT} uses floating point arithmetic. Thus, results can be unsound. 
-We are planning to add a confirmation phase to confirm whether an SAT instance is exact
-by roundoff error bound guaranteed floating arithmetic libraries, such as ****. 
+Currently, {\bf raSAT} uses iRRAM to verify SAT instances only. 
+We are planning to implement confirmation phase to UNSAT cases. 
 
 \medskip \noindent 
-{\bf Equality handling}. 
-%Section~\ref{sec:eq} shows single equality handling. 
-We are planning to extend the use of Intermediate Value Theorem to multiple equality with 
-shared variables. 
-
-\medskip \noindent 
-{\bf Further strategy refiment}. 
-\mizuhito{Test data generation, blanced box decomposition}
+{\bf Further strategy refinement}. 
+Test data generation, blanced box decomposition
 
 
 %%%

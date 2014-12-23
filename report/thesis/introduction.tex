@@ -1,6 +1,6 @@
 \chapter{Introduction}
 \section{Polynomial constraint solving}
-{\em Polynomial constraint solving} is a task of computing an assignment of variables to real/integer numbers 
+{\em Polynomial constraint solving over real numbers} is a task of computing an assignment of real values to variables
 that satisfies given polynomial inequalities/equations. If such an assignment exists, the constraint is said to be satisfiable (SAT) and the assignment is called SAT instance; otherwise we mention it as unsatisfiable (UNSAT). 
 \begin{example} \label{examp:unsat-example}
 $x^2 + y^2 < 1 \wedge xy > 1$ is an example of an UNSAT constraint. While the set of satisfiable points for the first inequality ($x^2 + y^2 < 1$) is the read circle in Figure \ref{fig:unsat-example}, the set for the second one is the green area. Because these two areas do not intersect, the conjunction of two equalities is UNSAT.
@@ -78,39 +78,26 @@ is implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recent
 in
 Z3 4.3 (which is referred as nlsat in~\cite{Jovanovic13}).
 Although QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions), 
-scalability is still challenging, since it is DEXPTIME. 
+scalability is still challenging, since its complexity is doubly-exponential with respect to the number of variables. 
 %Since QE-CAD is DEXPTIME wrt the number of variables, 
 
-\item \textbf{Virtual substitution (VS)}. ~
-SMT-RAT toolbox \cite{smtrat}\cite{vssmt} combines 
-VS, incremental DPLL, and %less lazy and 
-eager theory propagation. 
-Z3 (version 3.1), the winner of QF\_NRA in SMT competition 2011, 
-combines VS, ICP, and linearization.
+\item \textbf{Virtual substitution (VS)}. VS eliminates an existential quantifier by substituting the corresponding quantified variable with a very small value ($-\infty$), and either each root (with respect to that variable) of polynomials appearing in the constraint or each root plus an infinitesimal $\epsilon$. Disjunction of constraints after substitutions is equivalent to the original constraint. Because VS needs the formula for roots of polynomials, its application is restricted to polynomials of degree up to 4. SMT-RAT and  
+Z3 \cite{PBM12} applies VS.
 
-\item \textbf{Bit-blasting}. ~Bit-blasting in bounded bit width is often used in SMTs for QF\_NIA. 
-UCLID~\cite{uclid} reduces the number of bits (i.e., narrowing bounds for SAT instances) 
-as an under-approximation, and removes clauses as an over-approximation. 
-They refine each other, which shares a similar sprit with {\bf raSAT} loop. 
-MiniSmt~\cite{minismt}, the winner of QF\_NRA in SMT competition 2010, 
-applies it for rational numbers with symbolic representations for prefixed algebraic numbers. 
-MiniSmt can show SAT quickly with small degree polynomials, but due to the bounded bit encoding, 
-it cannot conclude UNSAT.
-Bit-blasting also suffers a lot when the degree of polynomials increases. 
+\item \textbf{Bit-blasting}. 
+In this category of methodology, numerical variables are represented by a sequence of binary variables. The given constraint is converted into another constraint over the boolean variables. SAT solver is then used to find a satisfiable instance of binary variables which can be used to calculate the values of numerical variables.  MiniSmt~\cite{Zankl:2010:SNR:1939141.1939168}, the winner of QF\_NRA in SMT competition 2010, 
+applies it for (ir)-rational numbers.
+It can show SAT quickly, but due to the bounded bit encoding, 
+it cannot conclude UNSAT. In addition, high degree of polynomial results in large SAT formula which is an obstacle of bit-blasting.
 
 \item \textbf{Linearization}. ~
-CORD \cite{cord} uses another linearization, called 
-CORDIC (COrdinate Rotation DIgital Computer) for real numbers. 
-Both Barcelogic and CORD apply Yices for solving linear constraints.
-Linearization also suffers a lot when the degree of polynomials increases. 
+CORD \cite{cordic} uses COrdinate Rotation DIgital Computer (CORDIC) for real numbers to linearizes multiplications into a sequence of linear constraints. Each time one multiplication is linearized, a number of new constraints and new variables are introduced. As a consequence, high degree polynomials in the original constraint lead to large number of linear constraints. 
 
-\item \textbf{Interval Constraint Propagation} 
-which are used in SMT solver community, e.g., {\bf iSAT3}~\cite{isat}, 
-{\bf dReal}~\cite{dRealCADE13}, and RSOLVER~\cite{rsolver}. 
-ICP is based on over-approximation by interval arithmetics, and iteratively refines by
-interval decompositions. 
-It is practically often more efficient than algebraic computation 
-with weaker theoretical completeness. 
+\item \textbf{Interval Constraint Propagation (ICP)} 
+which are used in SMT solver community, e.g., iSAT3~\cite{isat}, 
+dReal~\cite{dRealCADE13}, and RSOLVER~\cite{rsolver}. 
+ICP combines over-approximation by interval arithmetics and constraint propagation to prune out the set of unsatisfiable points. When pruning does not work, decomposition (branching) on intervals is applied. 
+ICP which is capable of solving "multiple thousand arithmetic constraints over some thousands of variables" \cite{isat} is practically often more efficient than algebraic computation.
 \end{enumerate}
 
 \section{Proposed Approach and Contributions}
@@ -131,9 +118,9 @@ For UNSAT constraint (both inequalities and equations) can be solved by over-app
 \item If $O.range(f)$ stays on either negative or positive side, $f = 0$ is UNSAT.
 \end{enumerate}
 
-Our approach of "iterative approximation refinement" for solving polynomial constraint was proposed and implemented as an SMT solver named raSAT in \cite{VanKhanh201227}. This work improves the efficiency of the tool and extend it to handle equations. The summary of the proposed method in \cite{VanKhanh201227} is:
+Our approach of "iterative approximation refinement" - \textbf{raSAT} loop for solving polynomial constraint was proposed and implemented as an SMT solver named raSAT in \cite{VanKhanh201227}. This work improves the efficiency of the tool and extend it to handle equations. The summary of the proposed method in \cite{VanKhanh201227} is:
 \begin{enumerate}
-\item Over-approximation is used for both disproving and proving polynomial inequalities. In addition, under-approximation is used for boosting SAT detection. When both of these method cannot conclude the satisfiability, the input formula is refined so that the result of approximation become more precise. 
+\item Over-approximation is used for both disproving and proving polynomial inequalities. In addition, under-approximation is used for boosting SAT detection. When both of these methods cannot conclude the satisfiability, the input formula is refined so that the result of approximation become more precise. 
 \item Interval Arithmetic (IA) and Testing are instantiated as an over-approximation and an under-approximation respectively. While IA defines the computations over the intervals, e.g. $[1, 3] +_{IA} [3, 6] = [2, 9]$, Testing attempts to propose a number of assignments from variables to real numbers and check each assignment against the given constraint to find a SAT instance.
 \item In refinement phase, intervals of variables are decomposed into smaller ones. For example, $x \in [0, 10]$ becomes $x \in [0, 4] \vee x \in [4, 10]$.
 \item \citet{VanKhanh201227} also proposed a method for detecting satisfiability of equations using the Intermediate Value Theorem.
@@ -164,7 +151,7 @@ SAT-likelihood is introduced to measure the possibility of an inequality to be s
 \item SAT confirmation step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
 \tt http://irram.uni-trier.de}, to avoid soundess bugs caused by roundoff errors.
 \item This work also implement the idea of using Intermediate Value Theorem to show the satisfiability of equations which was suggested in \cite{VanKhanh201227}.
-\item We also extend raSAT to handle constraint over integer numbers. In testing phase, we only generate the integer values for variables. In addition, the threshold used for stopping decomposition is set to $1$.
+\item We also extend raSAT to handle constraint over integer numbers. For this extension, we only generate the integer values for variables in testing phase. In addition, the threshold used for stopping decomposition is set to $1$.
 \end{enumerate}
 \begin{comment}
 \subsection{Inequalities}

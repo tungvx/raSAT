@@ -1,30 +1,6 @@
 \chapter{Equality handling}
-\subsection{Greater-than-or-Equal Handling} \label{sec:geq}
 
-{\bf raSAT} loop is designed to solve polynomial inequality. 
-There are several ways to extend to handle equality, in which our idea shares similarity with 
-dReal~\cite{dRealCADE13,dRealLICS12}. 
-
-\begin{definition} \label{def:strict_unsat}
-$\bigwedge \limits_{j} f_j \geq 0$ is 
-{\em strict-SAT} (resp. {\em strict-UNSAT}) 
-if $\bigwedge \limits_{j} f_j > \delta_j$ is SAT 
-(resp. $\bigwedge \limits_{j} f_j > -\delta_j$ is UNSAT) for some $\delta_j >0$.
-\end{definition}
-
-\begin{lemma} \label{lem:strict_sat}
-If $\bigwedge \limits_{j} f_j \geq 0$ is {\em strict-SAT} (resp. {\em strict-UNSAT}), 
-it is SAT (resp. UNSAT).
-\end{lemma}
-
-Note that netiher strict-SAT nor strict-UNSAT (i.e., kissing situation), 
-%if $\bigwedge \limits_{j} f_j \geq 0$ is SAT but $\bigwedge \limits_{j} f_j > 0$ is UNSAT 
-Lemma~\ref{lem:strict_sat} cannot conclude anything, and \textbf{raSAT} says {\em unknown}. 
-%In implementation of \textbf{raSAT}, when $\geq$ appears, exploration of IA-SAT 
-%(resp. IA-UNSAT) is reduced to that of IA-strict-SAT (resp. IA-strict-UNSAT). 
-
-
-\subsection{SAT on Equality by Intermediate Value Theorem} \label{sec:eq}
+\section{SAT on Equality by Intermediate Value Theorem} \label{sec:eq}
 For solving polynomial constraints with single equality ($g=0$), we apply {\em Intermediate Value Theorem}. 
 That is, if existing 2 test cases such that $g > 0$ and $g < 0$, then $g=0$ is SAT somewhere in between, 
 as in Fig.~\ref{fig:ivt}. 
@@ -48,9 +24,6 @@ If multiple equalities do not share variables each other, we can apply Intermedi
 repeatedly to decide SAT. In Zankl benchmarks in SMT-lib, there are 15 gen-**.smt2 that contain equality
 (among 166 problems), and each of them satisty this condition. 
 
-
- 
-\suppress{
 In Table \ref{tab:eqexp} we show preliminary experiment for 15 problems that contain polynomial equalities in Zankl family. \textbf{raSAT} works well for these SAT problems and it can detect all SAT problems (11 among 15). At the current implementation, raSAT reports \emph{unknown} for UNSAT problems. The first 4 columns indicate \emph{name of problems}, \emph{the number of variables}, \emph{the number of polynomial equalities} and \emph{the number of inequalities}  in each problem, respectively. The last 2 columns show comparison results of \textbf{Z3 4.3} and \textbf{raSAT}.
 \begin{table}
 \centering
@@ -100,6 +73,9 @@ gen-19 & 2 & 2 & 1& SAT &0.05 & SAT &0.046\\
 \end{table}
 
 We also apply the same idea for multiple equalities $\bigwedge \limits_{i} g_i = 0$ such that $Var(g_k) \cap Var(g_{k'}) = \emptyset$ where $Var(g_k)$ is denoted for the set of variables in the polynomial $g_k$. In the next section we will present idea for solving general cases of multiple equalities.
-}
+
+
+\section{Equality handling using Grobner basis}
+Coming soon...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%

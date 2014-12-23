@@ -42,6 +42,7 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 
 \begin{table*}[t]
 \centering
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r | r | r |r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
@@ -101,9 +102,9 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 \\
 \hline
 \end{tabular}
-
+}
 \bigskip
-
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{ | l | r | r  r | r  | r | r | r | r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
@@ -117,7 +118,7 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 \\
 \hline
 \end{tabular}
-
+}
 \medskip
 \caption{Combnations of {\bf raSAT} strategies on NRA/Zankl,Meti-Tarski benchmark} 
 \label{tab:rasat-experiments}
@@ -170,10 +171,11 @@ SMT solvers need to trace all problems. Thus, it takes much longer time.
 
 \begin{table*}[t]
 \centering
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r | r | r |r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3)} & \multicolumn{4}{c|}{\bf iSAT3} \\
+    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} \\
 \hline
     & \multicolumn{3}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} & \multicolumn{2}{|c|}{SAT} 
     & \multicolumn{2}{|c|}{UNSAT} & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
@@ -186,10 +188,13 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 1225 & 73.83 \\
 \hline
 \end{tabular}
+}
 \medskip 
 \caption{Comparison among SMT solvers} \label{tab:comparison}
 \end{table*}
 
+
+\section{Experiments on equality handling}
 
 
 \section{Polynomial constraints over integers} \label{sec:NIA}
