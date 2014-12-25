@@ -48,6 +48,36 @@ Let $\gamma_0 > \gamma_1 > \cdots > 0$, and {\bf raSAT} incrementally deepens it
 with these threshholds, i.e., starting with $\delta_0$, and if it fails, restart with $\delta_1$, 
 and so on (Fig~\ref{fig:incwid} (b)). 
 
+\subsection{Incremental testing}
+One obstacle in testing is the exponentially large number of test instances. If $2$ values are generated for each of $n$ variables, $2^n$ test cases (combinations of generated values) will present. 
+\begin{example}
+Suppose $\{x, y\}$ is the set of variables which appears in the input constraint and let $\{2, 9\}$ and $\{5, 8\}$ are generated values for $x$ and $y$ respectively. In total $4$ test cases arise: $(x, y) = (2, 5), (2, 8), (9, 5), (9, 8)$.
+\end{example}
+
+In order to tackle the problem, the following strategies are proposed:
+\begin{enumerate}
+\item Restrict the number of test cases to $2^{10}$ by choosing most $10$ influential variables which are decided by the following procedures:
+\begin{itemize}
+\item
+\item
+\end{itemize}
+\item Incrementally generate test values for variables to prune test cases that do not satisfy an API. This was proposed by \citeauthor{khanhReport} in \cite{khanhReport}:
+\begin{itemize}
+\item Dynamically sort the IA-SAT APIs.
+\item Generate the test values for variables of selected APIs.
+\end{itemize}
+\begin{example}
+Let $x^2 > 4$ and $x*y > 0$ are two IA-VALID APIs to be tested and somehow they are sorted in that order, i.e. $x^2 > 4$ is selected before $x*y > 0$. Suppose $\{1, 3\}$ are generated as test values for $x$ which are is enough to test the first selected API, i.e. $x^2 > 4$. As a result of testing, $x = 1$ is excluded from the satisfiable test cases whilst $x = 3$ is not. Next, when $x*y > 0$ is considered, $y$ needs to be generated $2$ values, e.g. $\{-3, 4\}$ and two test cases $(x, y) = (3, -3), (3, 4)$ come out to be checked. In this example, $(x, y) = (1, -3)$ and  $(x, y) = (1, 4)$ are early pruned by only testing $x = 1$ against $x^2 > 4$ .
+\end{example}
+\begin{figure}[ht]
+\centering
+\includegraphics{incremental_test.png} 
+\caption{Incremental Testing Example} 
+\label{fig:incremental-test} 
+%\end{minipage}
+\end{figure} 
+\end{enumerate}
+
 \section{SAT directed heuristics measure} \label{sec:SATheuristics}
 
 With several hundred variables, we observe that an SMT solver works 
@@ -105,4 +135,7 @@ For test generation, we will select multiple variables by repeating the selectio
 
 For choosing a box to explore, {\bf raSAT} chooses more likely to be SAT. 
 There are two choice, (1) a box with the largest SAT-likelyhood, and 
-(2) a box with the largest number of SAT (either IA-valid or test-SAT) APIs. 
+(2) a box with the largest number of SAT (either IA-valid or test-SAT) APIs.
+
+\section{Other}
+UNSAT core, test case generation, interval decomposition 
