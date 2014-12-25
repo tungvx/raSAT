@@ -9,7 +9,7 @@
       <w>90</w>
       <h>27</h>
     </coordinates>
-    <panel_attributes>x</panel_attributes>
+    <panel_attributes/>
     <additional_attributes/>
   </element>
   <element>
@@ -20,7 +20,7 @@
       <w>90</w>
       <h>27</h>
     </coordinates>
-    <panel_attributes>y</panel_attributes>
+    <panel_attributes/>
     <additional_attributes/>
   </element>
   <element>
@@ -31,7 +31,7 @@
       <w>90</w>
       <h>27</h>
     </coordinates>
-    <panel_attributes>y</panel_attributes>
+    <panel_attributes/>
     <additional_attributes/>
   </element>
   <element>
@@ -59,28 +59,6 @@
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>738</x>
-      <y>360</y>
-      <w>89</w>
-      <h>152</h>
-    </coordinates>
-    <panel_attributes/>
-    <additional_attributes>72;27;27;135</additional_attributes>
-  </element>
-  <element>
-    <type>com.umlet.element.Relation</type>
-    <coordinates>
-      <x>783</x>
-      <y>360</y>
-      <w>89</w>
-      <h>152</h>
-    </coordinates>
-    <panel_attributes/>
-    <additional_attributes>27;27;72;135</additional_attributes>
-  </element>
-  <element>
-    <type>com.umlet.element.Relation</type>
-    <coordinates>
       <x>486</x>
       <y>360</y>
       <w>98</w>
@@ -94,6 +72,50 @@
     <coordinates>
       <x>540</x>
       <y>360</y>
+      <w>89</w>
+      <h>152</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>27;27;72;135</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>468</x>
+      <y>495</y>
+      <w>90</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>576</x>
+      <y>495</y>
+      <w>90</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>549</x>
+      <y>495</y>
+      <w>89</w>
+      <h>152</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>27;135;72;27</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>594</x>
+      <y>495</y>
       <w>89</w>
       <h>152</h>
     </coordinates>

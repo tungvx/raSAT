@@ -39,15 +39,23 @@ with $\delta_0 = 10$ and $\delta_1 = \infty$.
 Starting with $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
 $I_1 \times \cdots \times I_n$ is decomposed into many boxes, 
 and $F$ becomes the disjunction of existential formulae corrsponding to these boxes. 
-{\bf raSAT} searches these boxes in depth-first manner, which may leads to local optimal search. 
+{\bf raSAT} searches these boxes in depth-first manner. Figure \ref{fig:depth-first-search} illustrates the search procedure of raSAT. First, the initially box $I$ is examined (by IA and testing) and suppose raSAT detects neither SAT or UNSAT here. As a consequence, $I$ is decomposed into $2$ boxes $I_{11}$ and $I_{12}$ such that $\bar{x} \in I \leftrightarrow \bar{x} \in I_{11} \vee \bar{x} \in I_{12}$. raSAT will choose one of the two boxes to explore, for example $I_{11}$. If IA and testing cannot detect satisfiability of the given constraint in the box $I_{11}$, decomposition of this box takes place:  $\bar{x} \in I_{11} \leftrightarrow \bar{x} \in I_{21} \vee \bar{x} \in I_{22}$. Either $I_{21}$ or $I_{22}$ is selected next. The process continues until SAT/UNSAT is detected which may leads to exhaustive local search.
 To avoid it, {\bf raSAT} applies a threshold $\gamma$, such that no more decomposition will be 
 applied when a box becomes smaller than $\gamma$. 
-If neither SAT nor UNSAT is detected, {\bf raSAT} restarts with a smaller threshhold. 
+If neither SAT nor UNSAT is detected, {\bf raSAT} restarts with a smaller threshold. 
 
 Let $\gamma_0 > \gamma_1 > \cdots > 0$, and {\bf raSAT} incrementally deepens its search 
-with these threshholds, i.e., starting with $\delta_0$, and if it fails, restart with $\delta_1$, 
+with these thresholds, i.e., starting with $\delta_0$, and if it fails, restart with $\delta_1$, 
 and so on (Fig~\ref{fig:incwid} (b)). 
 
+\begin{figure}[ht]
+%\begin{minipage}[b]{1.0\linewidth}
+\centering
+\includegraphics{depth-first-search.jpg} 
+\caption{\textbf{raSAT} design} 
+\label{fig:depth-first-search} 
+%\end{minipage}
+\end{figure} 
 \subsection{Incremental testing}
 One obstacle in testing is the exponentially large number of test instances. If $2$ values are generated for each of $n$ variables, $2^n$ test cases (combinations of generated values) will present. 
 \begin{example}
@@ -56,10 +64,10 @@ Suppose $\{x, y\}$ is the set of variables which appears in the input constraint
 
 In order to tackle the problem, the following strategies are proposed:
 \begin{enumerate}
-\item Restrict the number of test cases to $2^{10}$ by choosing most $10$ influential variables which are decided by the following procedures:
+\item Restrict the number of test cases to $2^{10}$ by choosing most $10$ influential variables which are decided by the following procedures for generating multiple ($2$) test values.
 \begin{itemize}
-\item
-\item
+\item Select API by SAT-likelihood
+\item Select $1$ variable of each selected API.
 \end{itemize}
 \item Incrementally generate test values for variables to prune test cases that do not satisfy an API. This was proposed by \citeauthor{khanhReport} in \cite{khanhReport}:
 \begin{itemize}
