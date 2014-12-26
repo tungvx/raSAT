@@ -50,7 +50,7 @@ which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:185899
 \item {\bf Automatic termination proving}, 
 which reduces termination detection to finding a suitable ordering~\cite{Lucas:2008:CCS:1361735.1361760}, 
 e.g., \TTTT~\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
-Aprove~\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
+AProVE~\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
 %as a solution of polynomial constraints. 
 
 \item {\bf Loop invariant generation}. 
@@ -72,7 +72,7 @@ reduced to polynomial constraints~\cite{control}.
 \section{Existing approaches}
 Although solving polynomial constraints on real numbers is decidable~\cite{tarski}, current methodologies have their own pros and cos. They can be classified into the following categories: 
 \begin{enumerate}
-\item \textbf{Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)} ~\cite{qecad} 
+\item \textbf{Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)}~\cite{qecad} 
 is a complete technique, and 
 is implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
 in
@@ -81,7 +81,7 @@ Although QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions),
 scalability is still challenging, since its complexity is doubly-exponential with respect to the number of variables. 
 %Since QE-CAD is DEXPTIME wrt the number of variables, 
 
-\item \textbf{Virtual substitution (VS)}. VS eliminates an existential quantifier by substituting the corresponding quantified variable with a very small value ($-\infty$), and either each root (with respect to that variable) of polynomials appearing in the constraint or each root plus an infinitesimal $\epsilon$. Disjunction of constraints after substitutions is equivalent to the original constraint. Because VS needs the formula for roots of polynomials, its application is restricted to polynomials of degree up to 4. SMT-RAT and  
+\item \textbf{Virtual substitution } eliminates an existential quantifier by substituting the corresponding quantified variable with a very small value ($-\infty$), and either each root (with respect to that variable) of polynomials appearing in the constraint or each root plus an infinitesimal $\epsilon$. Disjunction of constraints after substitutions is equivalent to the original constraint. Because VS needs the formula for roots of polynomials, its application is restricted to polynomials of degree up to 4. SMT-RAT and  
 Z3 \cite{PBM12} applies VS.
 
 \item \textbf{Bit-blasting}. 
@@ -272,10 +272,6 @@ very large problems (e.g., with several hundred variables) with the combination 
 {\bf raSAT} applies SAT confirmation to avoid soundness errors caused by roundoff/overflow errors. 
 Another static analysis based approach is found in~\cite{SilvaTACAS12}. 
 \end{comment}
-
-\section{Preliminaries}
-\subsection{Abstract DPLL}
-\subsection{SMT}
 
 \section{Thesis outline}
 Coming soon...
