@@ -3,10 +3,11 @@
 \section{SMT}
 \section{Polynomial constraints}
 A polynomial is formally defined as:
-\begin{table}[h]
-\begin{footnotesize}
-\begin{tabular}{lll}
-$ polynomial $ & $::=$ & $  variable \, | \,  rational_const \, | \, $\\
-\end{tabular}
-\end{footnotesize}
-\end{table}
+\begin{center}
+\begin{grammar}
+<polynomial> ::= 1 | <variable> | rational\_constant 
+				 \alt polynomial + polynomial
+			     \alt polynomial - polynomial
+			     \alt polynomial * polynomial
+\end{grammar}
+\end{center}
