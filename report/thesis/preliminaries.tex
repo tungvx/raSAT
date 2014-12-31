@@ -9,5 +9,20 @@ A polynomial is formally defined as:
 				 \alt polynomial + polynomial
 			     \alt polynomial - polynomial
 			     \alt polynomial * polynomial
+
+<constraint> ::= bound\_constraint $\wedge$ polynomial\_constraint
+
+<bound\_constraint> ::= $\bigwedge\limits_{i} \bigvee\limits_{j} bound\_atom_{ij}$
+
+<bound\_atom> ::= variable $\in$ [rational\_constant, rational\_constant]
+
+<polynomial\_constraint> ::= $\bigwedge\limits_{i} \bigvee\limits_{j} polynomial\_atom_{ij}$
+
+<polynomial\_atom> ::= polynomial \textless 0
+					\alt polynomial \textgreater 0
+					\alt polynomial $\ge$ 0
+					\alt polynomial $\le$ 0
+					\alt polynomial $=$ 0
+					\alt polynomial $\ne$ 0
 \end{grammar}
 \end{center}
