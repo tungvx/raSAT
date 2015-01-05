@@ -45,14 +45,45 @@ Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which
 \end{definition}
 
 \begin{definition}
-Let $\Sigma$, $\varphi$ and $M=(U, I)$ are a signature, $\Sigma-$formula and a $\Sigma-$model respectively. The evaluation of $\varphi$ against $M$ which is denoted by $\varphi^M$ is defined recursively as:
+Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$-model.
+\end{definition}
+
+\begin{definition}
+Let $\Sigma = (S, P, F, \alpha)$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$formula and a $\Sigma-$model respectively. The evaluation of $\varphi$ against $M$ which is denoted by $\varphi^M$ is defined recursively as:
 \begin{enumerate}
 \item $c^M = C^I$ for $c \in F$ and $c$ is a constant
 \item $f^M(t_1, \cdots, t_n) = f^I(t_1^M, \cdots, t_n^M)$
 \item $p^M(t_1, \cdots, t_n) = p^I(t_1^M, \cdots, t_n^M)$
 \end{enumerate}
+We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = true$. If $\varphi^M = false$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
 \end{definition}
 
+\begin{lemma}\label{lemma:model-sat-unsat}
+Given any $\Sigma$-model $M$ and $\Sigma$-formula $\varphi$, we have $\models_M \varphi \iff \models_M \neg \varphi$
+\end{lemma}
+
+\begin{proof}
+$\models_M \varphi \iff \varphi^M = true \iff \neg \varphi^M = false \iff (\neg \varphi)^M = false \iff \models^M \neg \varphi$
+\end{proof}
+
+\begin{definition}
+Let $T = \{M\_i | i = 1, 2, \cdots \}$ be a $\Sigma$-theory. A $\Sigma$-formula $\varphi$ is:
+\begin{itemize}
+\item satisfiable in $T$ or T-SAT iff $\exists i\models_{M_i} \varphi$
+\item valid in $T$ or T-VALID iff $\forall i \models_{M_i} \varphi$
+\item unsatisfiable in $T$ or T-UNSAT iff $\forall i \not\models_{M_i} \varphi$
+\end{itemize}
+\end{definition}
+
+\begin{lemma} \label{lemma:theory-valid-unsat}
+If $T = \{M_i | i = 1, 2, \cdots\}$ be a $\Sigma$-theory, then $\varphi$ is T-VALID $\iff$ $\neg\varphi$ is T-UNSAT
+\end{lemma}
+
+\begin{proof}
+$\varphi$ is T-VALID $\iff \forall i \models_{M_i} \iff \forall i \not\models_{M_i} \neg\varphi$ (Lemma \ref{lemma:model-sat-unsat}) $\iff \neg\varphi$ is T-UNSAT.
+\end{proof}
+
+\begin{comment}
 \begin{definition} \label{def:app}
 Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \psi(x_1,\cdots,x_n)$. 
 For a truth assignment on $M$, $F$ is 
@@ -64,6 +95,7 @@ for some $m \in M$, and
 \end{itemize}
 If $T$ is clear from the context, we simply say valid, satisfiable, and unsatisfiable. 
 \end{definition}
+\end{comment}
 
 %%%%%%%%%%%%%
 \suppress{
@@ -86,21 +118,53 @@ Then, Fig. \ref{fig:T_result} illustrates Definition~\ref{def:app}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{definition} \label{def:ApproxTheory}
-Let $T, O.T, U.T$ be theories. 
+Let $T, T'$ be $\Sigma$-theories and $\varphi$ be any $\Sigma$-formula. 
 \begin{itemize}
-\item $O.T$ is an {\em over-approximation theory} (of $T$) 
-if $O.T$-UNSAT implies $T$-UNSAT, and
-\item $U.T$ is an {\em under-approximation theory} (of $T$)
-if $U.T$-SAT implies $T$-SAT. 
+\item $T'$ is an {\em over-approximation theory} (of $T$) 
+iff $T'$-UNSAT of $\varphi$ implies $T$-UNSAT of $\varphi$.
+\item $T'$ is an {\em under-approximation theory} (of $T$)
+iff $T'$-SAT of $\varphi$ implies $T$-SAT of $\varphi$. 
 \end{itemize}
-We further assume that $O.T$-valid implies $T$-valid. 
 \end{definition}
+
+\begin{theorem}
+If $T^O$ be an over-approximation theory of $T$, then for any $\Sigma$-formula $\varphi$: $\varphi$ is $T^0$-VALID $\implies \varphi$ is $T$-VALID.
+\end{theorem}
+
+\begin{proof}
+$\varphi$ is $T^O$-VALID $\implies$ $\neg\varphi$ is $T^O$-UNSAT (Lemma \ref{lemma:theory-valid-unsat}) $\implies \neg\varphi$ is $T$-UNSAT (Definition \ref{def:ApproxTheory}) $\implies \varphi$ is T-VALID (Lemma \ref{lemma:theory-valid-unsat})
+\end{proof}
 
 %Note that $O.T$-valid can be regarded as $U.T$, since $O.T$-valid implies $T$-valid, thus $T$-SAT. 
 A typical ICP applies $O.T$ only as an interval arithmetic. 
 Later in Section~\ref{sec:approximation}, we will instantiate interval arithmetic as $O.T$. 
 Adding to $O.T$-valid, {\bf raSAT} introduce testing as $U.T$ to accelerate SAT detection. 
+
+
 \section{raSAT loop}
+The theory of real numbers contain infinitely many model where each is of the form $(\mathbb{R}, I)$ and they differ to each other in the mapped values to variables. In other word, each model can be represented by an assignment of one real number to each variable. 
+State of search procedure contains  $(BC, PC, CB, PC^V, PC^U)$
+
+\begin{table*}[t]
+  \centering
+  \begin{tabular}{ll}
+  \hline\\
+  \large 
+  $\frac{BC \models_{SAT} \bot}{(BC, PC, \emptyset, \emptyset, \emptyset) \to UNSAT}$ \\\\
+  \large 
+  $\frac{BC \models_{SAT} CB}{(BC, PC, \emptyset, \emptyset, \emptyset) \to (BC, PC, CB, \emptyset, \emptyset)}$ \\\\
+  $\frac{CB \not= \emptyset \qquad PC^V \subseteq PC \qquad PC^U \subseteq PC \qquad PC^V \cap PC^U = PC \qquad PC^V \cup PC^U = \emptyset \qquad PC^V \text{ is }  T^O\text{-VALID} \qquad PC^U \text{ is }  T^O\text{-SAT}}{(BC, PC, CB, \emptyset, \emptyset) \to (BC, PC, CB, PC^V, PC^U)}$ \\\\  
+  \large 
+  $\frac{PC^U \text{ is }  T^U\text{-SAT}}{(BC, PC, CB, PC^V, PC^U) \to SAT}$ \\\\
+  \large 
+  $\frac{PC^U \text{ is }  T^U\text{-UNSAT} \qquad (I_j = x_j \in [l_j, h_j]) \in CB \qquad d > l_j \qquad d < h_j \qquad I_{j1} = x_j \in [l_j, d] \qquad I_{j2} = x_j \in [d, h_j]}{(BC, PC, CB, PC^V, PC^U) \to (BC \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), PC, \emptyset, \emptyset, \emptyset)}$ \\\\
+  \large 
+  $\frac{\{pc_i| i = 1,\cdots, n\} \subseteq PC^U \qquad pc_i \text{ is }  T^O\text{-UNSAT} \qquad var(pc_i) = \{x_{ij}|j=1,\cdots, m_i\} \qquad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in CB}{(BC, PC, CB, \emptyset, \emptyset) \to (BC \wedge \bigwedge\limits_{i=1}^n \bigvee\limits_{j=1}^m \neg I_{ij}, PC, \emptyset, \emptyset, \emptyset)}$ \\\\
+  \hline\\
+  \end{tabular}
+  \caption{Transition rules}\label{tab:transition-rules}
+\end{table*}
+
 \section{Soundness - Completeness}
 refinement
 \section{Interval Arithmetic}
