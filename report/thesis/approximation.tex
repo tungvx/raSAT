@@ -1,7 +1,6 @@
 \chapter{Over-Approximation and Under-Approximation}
-This chapter presents Interval Arithmetic as an over-approximation theory, and Testing as an under-approximation theory.
-Let 
 \section{Approximation theory}
+\begin{comment}
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$, 
 %\exists x_1 \ldots x_n. (\underbrace{\bigwedge \limits_i x_i \in I_i}_{I}) \wedge 
 %                       (\underbrace{\bigwedge \limits_j \psi_j(x_1,\cdots,x_n)}_{P})
@@ -34,6 +33,7 @@ a backend theory $T$ is applied only for a full truth assignment $M$.
 \item If each instance $m$ with $m \in M$ satisfies $\psi(x_1,\cdots,x_n)$, 
 we denote $M \models_T \psi(x_1,\cdots,x_n)$. 
 \end{itemize}
+\end{comment}
 
 \begin{definition}
 Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which $U$ is the universe and $I$ is the interpretation of symbols. $I$ maps:
@@ -143,23 +143,25 @@ Adding to $O.T$-valid, {\bf raSAT} introduce testing as $U.T$ to accelerate SAT 
 
 \section{raSAT loop}
 The theory of real numbers contain infinitely many model where each is of the form $(\mathbb{R}, I)$ and they differ to each other in the mapped values to variables. In other word, each model can be represented by an assignment of one real number to each variable. 
-State of search procedure contains  $(BC, PC, CB, PC^V, PC^U)$
+State of search procedure contains  $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$
 
 \begin{table*}[t]
   \centering
   \begin{tabular}{ll}
   \hline\\
   \large 
-  $\frac{BC \models_{SAT} \bot}{(BC, PC, \emptyset, \emptyset, \emptyset) \to UNSAT}$ \\\\
+  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \Psi, \emptyset, \emptyset, \emptyset) \to UNSAT}$ \\\\
   \large 
-  $\frac{BC \models_{SAT} CB}{(BC, PC, \emptyset, \emptyset, \emptyset) \to (BC, PC, CB, \emptyset, \emptyset)}$ \\\\
-  $\frac{CB \not= \emptyset \qquad PC^V \subseteq PC \qquad PC^U \subseteq PC \qquad PC^V \cap PC^U = PC \qquad PC^V \cup PC^U = \emptyset \qquad PC^V \text{ is }  T^O\text{-VALID} \qquad PC^U \text{ is }  T^O\text{-SAT}}{(BC, PC, CB, \emptyset, \emptyset) \to (BC, PC, CB, PC^V, PC^U)}$ \\\\  
+  $\frac{\Pi \models_{SAT} \Pi^c \quad \Pi^{c'} = flattern(\Pi^c)}{(\Pi, \Psi, \emptyset, \emptyset, \emptyset) \to (\Pi, \Psi, \Pi^{c'}, \emptyset, \emptyset)}$ \\\\
+  $\frac{\Pi^c \not= \emptyset \quad \Psi^V \subseteq \Psi \quad \Psi^U \subseteq \Psi \quad \Psi^V \cap \Psi^U = \Psi \quad \Psi^V \cup \Psi^U = \emptyset \quad \Psi^V \text{ is }  T^O\text{-VALID} \quad \Psi^U \text{ is }  T^O\text{-SAT}}{(\Pi, \Psi, \Pi^c, \emptyset, \emptyset) \to (\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U)}$ \\\\  
   \large 
-  $\frac{PC^U \text{ is }  T^U\text{-SAT}}{(BC, PC, CB, PC^V, PC^U) \to SAT}$ \\\\
+  $\frac{\Psi^V = \Psi}{(\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U) \to SAT}$ \\\\
   \large 
-  $\frac{PC^U \text{ is }  T^U\text{-UNSAT} \qquad (I_j = x_j \in [l_j, h_j]) \in CB \qquad d > l_j \qquad d < h_j \qquad I_{j1} = x_j \in [l_j, d] \qquad I_{j2} = x_j \in [d, h_j]}{(BC, PC, CB, PC^V, PC^U) \to (BC \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), PC, \emptyset, \emptyset, \emptyset)}$ \\\\
+  $\frac{\Pi^c \not= \emptyset \quad \Psi^U \not= \emptyset \quad \Psi^U \text{ is }  T^U\text{-SAT}}{(\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U) \to SAT}$ \\\\
   \large 
-  $\frac{\{pc_i| i = 1,\cdots, n\} \subseteq PC^U \qquad pc_i \text{ is }  T^O\text{-UNSAT} \qquad var(pc_i) = \{x_{ij}|j=1,\cdots, m_i\} \qquad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in CB}{(BC, PC, CB, \emptyset, \emptyset) \to (BC \wedge \bigwedge\limits_{i=1}^n \bigvee\limits_{j=1}^m \neg I_{ij}, PC, \emptyset, \emptyset, \emptyset)}$ \\\\
+  $\frac{\Psi^U \text{ is }  T^U\text{-UNSAT} \quad \varphi \in \Psi^U \quad x_j \in \varphi \quad (I_j = x_j \in [l_j, h_j]) \in \Pi^c \quad l_j < d \in \mathbb{R} < h_j \quad I_{j1} = x_j \in [l_j, d] \quad I_{j2} = x_j \in [d, h_j]}{(\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \Psi, \emptyset, \emptyset, \emptyset)}$ \\\\
+  \large 
+  $\frac{\{\varphi_i| i = 1,\cdots, n; \; \varphi_i \text{ is } T^O\text{-UNSAT}\} \subseteq \Psi \quad var(\varphi_i) = \{x_{ij}|j=1,\cdots, m_i\} \quad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in \Pi^c}{(\Pi, \Psi, \Pi^c, \emptyset, \emptyset) \to (\Pi \wedge \bigwedge\limits_{i=1}^n \bigvee\limits_{j=1}^{m_i} \neg I_{ij}, \Psi, \emptyset, \emptyset, \emptyset)}$ \\\\
   \hline\\
   \end{tabular}
   \caption{Transition rules}\label{tab:transition-rules}
@@ -310,7 +312,7 @@ The variation of interval arithemtic will be presented in Section~\ref{sec:appro
 \begin{figure}[ht]
 \begin{minipage}[b]{1.0\linewidth}
 \centering
-\begin{tabular}{c@{\qquad}c}
+\begin{tabular}{c@{\quad}c}
 \includegraphics[height=0.6in,width=1.7in]{OTloop.png} & 
 \includegraphics[height=0.9in,width=1.7in]{rasatloop.png} \\   
 \mbox{(a) $O.T$ refinement loop} & \mbox{{\bf raSAT} loop} \\
