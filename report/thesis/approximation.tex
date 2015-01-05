@@ -35,6 +35,24 @@ a backend theory $T$ is applied only for a full truth assignment $M$.
 we denote $M \models_T \psi(x_1,\cdots,x_n)$. 
 \end{itemize}
 
+\begin{definition}
+Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which $U$ is the universe and $I$ is the interpretation of symbols. $I$ maps:
+\begin{enumerate}
+\item each constant $c$ to an element $c^I \in U$
+\item each $n-$arity predicate symbol $p \in P$ to a total function: $p^I: U^n \mapsto \{true, false\}$
+\item each $n-$arity function symbol $f \in F$ to a total function: $f^I : U^n \mapsto U$
+\end{enumerate}
+\end{definition}
+
+\begin{definition}
+Let $\Sigma$, $\varphi$ and $M=(U, I)$ are a signature, $\Sigma-$formula and a $\Sigma-$model respectively. The evaluation of $\varphi$ against $M$ which is denoted by $\varphi^M$ is defined recursively as:
+\begin{enumerate}
+\item $c^M = C^I$ for $c \in F$ and $c$ is a constant
+\item $f^M(t_1, \cdots, t_n) = f^I(t_1^M, \cdots, t_n^M)$
+\item $p^M(t_1, \cdots, t_n) = p^I(t_1^M, \cdots, t_n^M)$
+\end{enumerate}
+\end{definition}
+
 \begin{definition} \label{def:app}
 Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \psi(x_1,\cdots,x_n)$. 
 For a truth assignment on $M$, $F$ is 
