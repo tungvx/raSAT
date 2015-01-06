@@ -95,22 +95,22 @@ $\varphi$ is T-VALID $\iff \forall M \in T; \models_{M} \iff \forall M \in T; \n
 
 \section{Polynomial constraints over real numbers}
 \subsection{Syntax}
-We instantiate the signature $\Sigma = (S, P, F, \alpha)$ in Section ~\ref{subsection:smt-syntax} for polynomial constraints as following:
+We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, \alpha^p)$ in Section ~\ref{subsection:smt-syntax} for polynomial constraints as following:
 \begin{enumerate}
-\item $S = \{Real\}$
-\item $P = \{>, <, \ge, \le, =, \not=\}$
-\item $F = \{+, -, *\}$
-\item $\forall p \in P$; $\alpha(p) = (Real, Real)$ and $\forall f \in F$; $\alpha(f) = (Real, Real, Real)$
+\item $S^p = \{Real\}$
+\item $P^p = \{>, <, \ge, \le, =, \not=\}$
+\item $F^p = \{+, -, *\}$
+\item $\forall p \in P^p$; $\alpha(p) = (Real, Real)$ and $\forall f \in F^p$; $\alpha(f) = (Real, Real, Real)$
 \end{enumerate}
 A polynomial and a polynomial constraint are a term and a formula respectively.
 
 \subsection{Semantics}
-A model $M = (\mathbb{R}, I)$ of real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
+A model $M^{\mathbb{R}} = (\mathbb{R}, I^{\mathbb{R}})$ of real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
 \begin{enumerate}
-\item $I(Real) = \mathbb{R}$.
-\item $\forall p \in P$; $I(p) = \{(r_1, r_2) | r_1, r_2 \in \mathbb{R}$ and $r1 \; p^{\mathbb{R}} \; r2\}$ where $p^{\mathbb{R}}$ is the normal comparison operation of real number corresponding to the symbol $p$.
-\item $\forall f \in F$; $I(f) = \{(r_1, r_2, r_3) | r_1, r_2, r_3 \in \mathbb{R}$ and $r_1 \; f^{\mathbb{R}} \; r_2 =^{\mathbb{R}} r_3\}$ where $f^{\mathbb{R}}$ is the normal real arithmetic corresponding to the symbol $f$.
-\item $\forall v \in V$; $I(v) \in \mathbb{R}$.
+\item $I^{\mathbb{R}}(Real) = \mathbb{R}$.
+\item $\forall p \in P^p$; $I^{\mathbb{R}}(p) = \{(r_1, r_2) | r_1, r_2 \in \mathbb{R}$ and $r1 \; p^{\mathbb{R}} \; r2\}$ where $p^{\mathbb{R}}$ is the normal comparison operation of real number corresponding to the symbol $p$.
+\item $\forall f \in F^p$; $I^{\mathbb{R}}(f) = \{(r_1, r_2, r_3) | r_1, r_2, r_3 \in \mathbb{R}$ and $r_1 \; f^{\mathbb{R}} \; r_2 =^{\mathbb{R}} r_3\}$ where $f^{\mathbb{R}}$ is the normal real arithmetic corresponding to the symbol $f$.
+\item $\forall v \in V$; $I^{\mathbb{R}}(v) \in \mathbb{R}$.
 \end{enumerate}
 By this instantiation, each model differs to another by the mapping from one variable to a real number.
-The theory of real numbers is $T = \{M | M$ is a model of real numbers $\}$
+The theory of real numbers is $T^{\mathbb{R}} = \{M^{\mathbb{R}} | M^{\mathbb{R}}$ is a model of real numbers $\}$
