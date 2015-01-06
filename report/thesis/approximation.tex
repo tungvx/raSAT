@@ -1,5 +1,5 @@
 \chapter{Over-Approximation and Under-Approximation}
-\section{Approximation theory}
+\section{Approximation Theory}
 \begin{comment}
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$, 
 %\exists x_1 \ldots x_n. (\underbrace{\bigwedge \limits_i x_i \in I_i}_{I}) \wedge 
@@ -92,9 +92,41 @@ A typical ICP applies $O.T$ only as an interval arithmetic.
 Later in Section~\ref{sec:approximation}, we will instantiate interval arithmetic as $O.T$. 
 Adding to $O.T$-valid, {\bf raSAT} introduce testing as $U.T$ to accelerate SAT detection. 
 
+\section{Interval Arithmetic as an Over-Approximation Theory}
+A model $M^{IA} = (U^{IA}, I^{IA})$ over intervals contains a set of all intervals $M^{IA} = \{[l, h] | l, h \in \mathbb{R} \text{ and } l <= h\}$ and a map $I^{IA}$ that satisfies the following conditions.
+\begin{enumerate}
+\item $I^{IA}(Real) = U^{IA}$
+\item $\forall p \in P^p$; $I^{IA}(p)=\{(i_1, i_2)| i_1, i_2 \in M^{IA} \text{ and } i_1 \; p^{IA} \; i2\}$. The definition of $ p^{IA}$ is as follow:
+\begin{itemize}
+\item $[l_1, h_1] \succ^{IA} [l_2,  h_2] \iff l_1 > h_2$
+\item $[l_1, h_1] \prec [l_2,  h_2] \iff h_1 < l_2$
+\item $[l_1, h_1] \succeq^{IA} [l_2,  h_2] \iff l_1 \ge h_2$
+\item $[l_1, h_1] \preceq^{IA} [l_2,  h_2] \iff h_1 \le l_2$
+\item $[l_1, h_1] \approx^{IA} [l_2,  h_2] \iff l_1 = h_1 = l_2 = h_2$
+\item $i_1 \not\approx^{IA} i_2 \iff i_1 \succ^{IA} i_2 \vee i_1 \prec^{IA} i_2$
+\end{itemize}
+\item $\forall f \in F^p \setminus \{\mathbf{0}, \mathbf{1}\}$; $I^{IA}(f) = \{(i_1, i_2, i_3)| i_1, i_2, i_3 \in U^{IA} \text{ and } i_1 \; f^{IA} \; i_2 = i_3\}$ where $f^{IA}$ satisfies the following properties:
+\begin{itemize}
+\item $i_1 \oplus^{IA} i_2 = i_3 \iff \{r_1 + r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\} \subseteq i_3$.
+\item $i_1 \ominus^{IA} i_2 = i_3 \iff \{r_1 - r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\} \subseteq i_3$.
+\item $i_1 \otimes^{IA} i_2 = i_3 \iff \{r_1 * r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\} \subseteq i_3$.
+\end{itemize}
+\item $I^{IA}(\mathbf{0}) = [0,0]$ and $I^{IA}(\mathbf{0}) = [1,1]$
+\item $\forall v \in V$; $I^{IA} \in U^{IA}$
+\end{enumerate}
+Theory $T^{IA} = \{M^{IA}| M^{IA} \text{ is a model over intervals}\}$
+
+\section{Testing as an Under-Approximation Theory}
+
 
 \section{raSAT loop}
-The theory of real numbers contain infinitely many model where each is of the form $(\mathbb{R}, I)$ and they differ to each other in the mapped values to variables. In other word, each model can be represented by an assignment of one real number to each variable. 
+\begin{grammar}
+<bound\_atom> ::= <variable> $\in$ [real, real] | <variable> $\in$ (-inf, real] | <variable> $\in$ [real, inf) | <variable> $\in$ (-inf, inf)
+
+
+<bound\_constraint> ::= $\bigwedge\limits_i\bigvee\limits_jbound\_atom_{ij}$
+\end{grammar}
+In other word, each model can be represented by an assignment of one real number to each variable. 
 State of search procedure contains  $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$
 
 \begin{table*}[t]

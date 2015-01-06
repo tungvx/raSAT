@@ -98,19 +98,20 @@ $\varphi$ is T-VALID $\iff \forall M \in T; \models_{M} \iff \forall M \in T; \n
 We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, \alpha^p)$ in Section ~\ref{subsection:smt-syntax} for polynomial constraints as following:
 \begin{enumerate}
 \item $S^p = \{Real\}$
-\item $P^p = \{>, <, \ge, \le, =, \not=\}$
-\item $F^p = \{+, -, *\}$
-\item $\forall p \in P^p$; $\alpha(p) = (Real, Real)$ and $\forall f \in F^p$; $\alpha(f) = (Real, Real, Real)$
+\item $P^p = \{\succ, \prec, \succeq, \preceq, \approx, \not\approx\}$
+\item $F^p = \{\oplus, \ominus, \otimes, \mathbf{0}, \mathbf{1}\}$
+\item $\forall p \in P^p$; $\alpha^p(p) = (Real, Real)$ and $\forall f \in F^p\setminus \{\mathbf{0}, \mathbf{1}\}$; $\alpha^p(f) = (Real, Real, Real)$; $\alpha^p(\mathbf{0}) = Real$; $\alpha^p(\mathbf{1})=Real$
 \end{enumerate}
-A polynomial and a polynomial constraint are a term and a formula respectively.
+A polynomial and a polynomial constraint are a $\Sigma^\mathbb{R}$-term and a $\Sigma^\mathbb{R}$-formula respectively. However, for simplicity, we currently focus on small portion of $\Sigma^\mathbb{R}$-formulas
 
 \subsection{Semantics}
-A model $M^{\mathbb{R}} = (\mathbb{R}, I^{\mathbb{R}})$ of real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
+A model $M^{\mathbb{R}} = (\mathbb{R}, I^{\mathbb{R}})$ over real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
 \begin{enumerate}
 \item $I^{\mathbb{R}}(Real) = \mathbb{R}$.
-\item $\forall p \in P^p$; $I^{\mathbb{R}}(p) = \{(r_1, r_2) | r_1, r_2 \in \mathbb{R}$ and $r1 \; p^{\mathbb{R}} \; r2\}$ where $p^{\mathbb{R}}$ is the normal comparison operation of real number corresponding to the symbol $p$.
-\item $\forall f \in F^p$; $I^{\mathbb{R}}(f) = \{(r_1, r_2, r_3) | r_1, r_2, r_3 \in \mathbb{R}$ and $r_1 \; f^{\mathbb{R}} \; r_2 =^{\mathbb{R}} r_3\}$ where $f^{\mathbb{R}}$ is the normal real arithmetic corresponding to the symbol $f$.
+\item $\forall p \in P^p$; $I^{\mathbb{R}}(p) = \{(r_1, r_2) | r_1, r_2 \in \mathbb{R}$ and $r1 \; p^{\mathbb{R}} \; r2\}$ where $(\succ^\mathbb{R}, \prec^{\mathbb{R}},\succeq^\mathbb{R},\preceq^{\mathbb{R}}, \approx^\mathbb{R}, \not\approx^\mathbb{R}) = (>, <, \ge, \le, =, \neq)$.
+\item $\forall f \in F^p \setminus \{\mathbf{0}, \mathbf{1}\}$; $I^{\mathbb{R}}(f) = \{(r_1, r_2, r_3) | r_1, r_2, r_3 \in \mathbb{R}$ and $r_1 \; f^{\mathbb{R}} \; r_2 =^{\mathbb{R}} r_3\}$ where $(\oplus, \ominus, \otimes) = (+, -, *)$.
+\item $I^\mathbb{R}(\mathbf{0}) = 0$ and $I^\mathbb{R}(\mathbf{1}) = 1$
 \item $\forall v \in V$; $I^{\mathbb{R}}(v) \in \mathbb{R}$.
 \end{enumerate}
-By this instantiation, each model differs to another by the mapping from one variable to a real number.
+By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model.
 The theory of real numbers is $T^{\mathbb{R}} = \{M^{\mathbb{R}} | M^{\mathbb{R}}$ is a model of real numbers $\}$
