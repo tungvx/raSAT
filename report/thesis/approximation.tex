@@ -35,54 +35,6 @@ we denote $M \models_T \psi(x_1,\cdots,x_n)$.
 \end{itemize}
 \end{comment}
 
-\begin{definition}
-Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which $U$ is the universe and $I$ is the interpretation of symbols. $I$ maps:
-\begin{itemize}
-\item each constant $c$ to an element $c^I \in U$
-\item each $n-$arity predicate symbol $p \in P$ to a total function: $p^I: U^n \mapsto \{true, false\}$
-\item each $n-$arity function symbol $f \in F$ to a total function: $f^I : U^n \mapsto U$
-\end{itemize}
-\end{definition}
-
-\begin{definition}
-Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$-model.
-\end{definition}
-
-\begin{definition}
-Let $\Sigma = (S, P, F, \alpha)$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$formula and a $\Sigma-$model respectively. The evaluation of $\varphi$ against $M$ which is denoted by $\varphi^M$ is defined recursively as:
-\begin{enumerate}
-\item $c^M = C^I$ for $c \in F$ and $c$ is a constant
-\item $f^M(t_1, \cdots, t_n) = f^I(t_1^M, \cdots, t_n^M)$
-\item $p^M(t_1, \cdots, t_n) = p^I(t_1^M, \cdots, t_n^M)$
-\end{enumerate}
-We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = true$. If $\varphi^M = false$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
-\end{definition}
-
-\begin{lemma}\label{lemma:model-sat-unsat}
-Given any $\Sigma$-model $M$ and $\Sigma$-formula $\varphi$, we have $\models_M \varphi \iff \models_M \neg \varphi$
-\end{lemma}
-
-\begin{proof}
-$\models_M \varphi \iff \varphi^M = true \iff \neg \varphi^M = false \iff (\neg \varphi)^M = false \iff \models^M \neg \varphi$
-\end{proof}
-
-\begin{definition}
-Let $T = \{M\_i | i = 1, 2, \cdots \}$ be a $\Sigma$-theory. A $\Sigma$-formula $\varphi$ is:
-\begin{itemize}
-\item satisfiable in $T$ or T-SAT iff $\exists i\models_{M_i} \varphi$
-\item valid in $T$ or T-VALID iff $\forall i \models_{M_i} \varphi$
-\item unsatisfiable in $T$ or T-UNSAT iff $\forall i \not\models_{M_i} \varphi$
-\end{itemize}
-\end{definition}
-
-\begin{lemma} \label{lemma:theory-valid-unsat}
-If $T = \{M_i | i = 1, 2, \cdots\}$ be a $\Sigma$-theory, then $\varphi$ is T-VALID $\iff$ $\neg\varphi$ is T-UNSAT
-\end{lemma}
-
-\begin{proof}
-$\varphi$ is T-VALID $\iff \forall i \models_{M_i} \iff \forall i \not\models_{M_i} \neg\varphi$ (Lemma \ref{lemma:model-sat-unsat}) $\iff \neg\varphi$ is T-UNSAT.
-\end{proof}
-
 \begin{comment}
 \begin{definition} \label{def:app}
 Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \psi(x_1,\cdots,x_n)$. 

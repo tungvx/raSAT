@@ -4,13 +4,97 @@
 
 \section{SMT}
 \subsection{Syntax}
+\begin{definition}
+A signature $\Sigma$ is a 4-tuple $(S, P, F, \alpha)$ containing a set $S$ of sorts, a set $P$ of predicate symbols, a set $F$ of function symbols, and a map $\alpha$ which associates symbols to their sorts.
+\begin{itemize}
+\item $\forall p \in P; \alpha(p)$ is a $n$-tuple argument sorts of $p$.
+\item $\forall f \in F; \alpha(f)$ is a $n$-tuple of argument and returned sorts of $f$.
+\end{itemize}
+\end{definition}
+
+
+We denote $V$ as the set of variables and extend $\alpha$ to include the sort of each variable, i.e. $\forall v \in V; \alpha(v)$ returns the sort of $v$. Followings are the definitions of terms and formulas.
+
+\begin{definition}
+The set $TERM$ of terms is the set that satisfies the properties
+\begin{enumerate}
+\item $v \in V \Rightarrow v \in TERM$
+\item $t_1,\cdots,t_n \in TERM$; $f \in F \Rightarrow f(t_1,\cdots, t_n) \in TERM$
+\end{enumerate}
+\end{definition}
+
+\begin{definition}
+The set $FORM$ of formulas is the set that satisfies the properties:
+\begin{enumerate}
+\item $\bot \in FORM$
+\item $t_1,\cdots,t_n \in TERM$; $p \in P \Rightarrow p(t_1,\cdots, t_n) \in FORM$
+\item $\varphi, \psi \in FORM \Rightarrow (\varphi \circ \psi) \in FORM$ where $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$
+\item $\varphi \in FORM \Rightarrow \neg\varphi \in FORM$
+\item $\varphi \in FORM; v \in V \Rightarrow (\forall v)\varphi, (\exists v)\varphi \in FORM$
+\end{enumerate}
+\end{definition}
 
 \subsection{Semantics}
 
+\begin{definition}
+Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which $U$ is the universe and $I$ is the interpretation of symbols.
+\begin{itemize}
+\item $\forall s \in S$; $I(s) \subseteq U$ specifies the possible values of sort $s$.
+\item $\forall f \in F$; $I(f) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_{n-1})\} \mapsto I(s_n)$ with $, \alpha(f) = (s_1,\cdots, s_n)$
+\item $\forall p \in P$; $I(p) \subseteq \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_n), \alpha(p) = (s_1,\cdots, s_n)\}$
+\item $\forall v \in V$; $I(v) \in I(\alpha(v))$
+\end{itemize}
+\end{definition}
+
+\begin{definition}
+Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$-models.
+\end{definition}
+
+\begin{definition}
+Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$formula and a $\Sigma-$model respectively. The evaluations of $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
+\begin{enumerate}
+\item If $t = v \in V$, then $t^M = I(v)$.
+\item If $t = f(t_1, \cdots, t_n)$, then $t^M = I(f)(t_1^M, \cdots, t_n^M)$ for $f \in F$ and $t_1,\cdots, t_n \in TERM$
+\end{enumerate}
+Similarly, the evaluation $\varphi^M$ of $\varphi$ is defined as:
+\begin{enumerate}
+\item If $\varphi = \bot$, then $\varphi^M = false$.
+\item If $\varphi = p(t_1,\cdots,t_n)$, then $\varphi^M = ((t_1^M,\cdots,t_n^M) \in I(p)$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
+\item If $\varphi = \varphi_1 \circ \varphi_2$, then $\varphi^M = \varphi_1^M \circ \varphi_2^M$ for $\circ ^\in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$ and $\varphi_1, \varphi_2 \in FORM$
+\item If $\varphi = \neg\varphi'$, then $\varphi^M = \neg(\varphi'^M)$ for $\varphi' \in FORM$
+\item If $\varphi = \forall v \varphi'$, then $\varphi^M = \bigwedge\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$,  $\varphi' \in FORM$ and $I<v \mapsto v_i>$ denotes the map after updating the map from $v$ to $v_i$ into $I$.
+\item If $\varphi = \exists v \varphi'$, then $\varphi^M = \bigvee\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$ and  $\varphi' \in FORM$.
+\end{enumerate}
+We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = true$. If $\varphi^M = false$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
+\end{definition}
+
+\begin{lemma}\label{lemma:model-sat-unsat}
+Given any $\Sigma$-model $M$ and $\Sigma$-formula $\varphi$, we have $\models_M \varphi \iff \not\models_M \neg \varphi$
+\end{lemma}
+
+\begin{proof}
+$\models_M \varphi \iff \varphi^M = true \iff \neg \varphi^M = false \iff (\neg \varphi)^M = false \iff \not\models^M \neg \varphi$
+\end{proof}
+
+\begin{definition}
+Let $T$ be a $\Sigma$-theory. A $\Sigma$-formula $\varphi$ is:
+\begin{itemize}
+\item satisfiable in $T$ or T-SAT iff $\exists M \in T$; $\models_{M} \varphi$
+\item valid in $T$ or T-VALID iff $\forall M \in T$; $\models_{M} \varphi$
+\item unsatisfiable in $T$ or T-UNSAT iff $\forall M \in T$; $\not\models_{M} \varphi$
+\end{itemize}
+\end{definition}
+
+\begin{lemma} \label{lemma:theory-valid-unsat}
+If $T$ be a $\Sigma$-theory, then $\varphi$ is T-VALID $\iff$ $\neg\varphi$ is T-UNSAT
+\end{lemma}
+
+\begin{proof}
+$\varphi$ is T-VALID $\iff \forall M \in T; \models_{M} \iff \forall M \in T; \not\models_{M} \neg\varphi$ (Lemma \ref{lemma:model-sat-unsat}) $\iff \neg\varphi$ is T-UNSAT.
+\end{proof}
 
 \section{Polynomial constraints over real numbers}
 A polynomial is formally defined as:
-\begin{center}
 \begin{grammar}
 <polynomial> ::= 1 | <variable> | rational\_constant 
 				 \alt polynomial + polynomial
@@ -32,4 +116,3 @@ A polynomial is formally defined as:
 					\alt polynomial $=$ 0
 					\alt polynomial $\ne$ 0
 \end{grammar}
-\end{center}
