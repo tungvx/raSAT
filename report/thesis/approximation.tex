@@ -96,7 +96,7 @@ Adding to $O.T$-valid, {\bf raSAT} introduce testing as $U.T$ to accelerate SAT 
 A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all intervals $U^p_{IA} = \{[l, h] | l, h \in \mathbb{R} \text{ and } l <= h\}$ and a map $I^p_{IA}$ that satisfies the following conditions.
 \begin{enumerate}
 \item $I^p_{IA}(Real) = U^p_{IA}$
-\item $\forall p \in P^p$; $I^p_{IA}(p)=\{(i_1, i_2)| i_1, i_2 \in M^p_{IA} \text{ and } i_1 \; p_{IA} \; i2\}$. The definition of $ p_{IA}$ is as follow:
+\item $\forall p \in P^p$; $I^p_{IA}(p)=\{(i_1, i_2)| i_1, i_2 \in M^p_{IA} \text{ and } i_1 \; p_{IA} \; i_2\}$. The definition of $ p_{IA}$ is as follow:
 \begin{itemize}
 \item $[l_1, h_1] \succ_{IA} [l_2,  h_2] \iff l_1 > h_2$
 \item $[l_1, h_1] \prec_{IA} [l_2,  h_2] \iff h_1 < l_2$
@@ -144,7 +144,10 @@ By induction hypothesis, we have $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and
 \begin{proof}
 We need to prove that $\forall \varphi^p (\varphi^p$ is $\Pi^p_{IA}$-UNSAT $\implies \varphi^p$ is $\Pi^p_\mathbb{R}$-UNSAT). 
 Given an $\Sigma^p$-formula $\varphi^p$ and suppose that $\varphi^p$ is $\Pi^p_{IA}$-UNSAT.
-Suppose $\varphi^p$ is not $\Pi^p_\mathbb{R}$-UNSAT, that means it is either  $\Pi^p_\mathbb{R}$-SAT or  $\Pi^p_\mathbb{R}$-VALID. In either case, there exist at least a model $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$. 
+Suppose $\varphi^p$ is not $\Pi^p_\mathbb{R}$-UNSAT, that means it is either  $\Pi^p_\mathbb{R}$-SAT or  $\Pi^p_\mathbb{R}$-VALID. In either case, there exist at least a model $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$ such that $\models_{M^p_\mathbb{R}} \varphi^p \iff (\varphi^p)^{M^p_\mathbb{R}}= true$.
+\begin{enumerate}
+\item If $\varphi^p = p(t_1, t_2)$ for some $p \in P^p$, then $(\varphi^p)^{M^p_\mathbb{R}}= true \iff t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}}$. In addition, $\varphi^p$ is $\Pi^p_{IA}$-UNSAT $\iff (\varphi^p)^{\Pi^p_{IA}} = false \iff t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = false$
+\end{enumerate}
 \end{proof}
 
 \section{Testing as an Under-Approximation Theory}
