@@ -102,16 +102,16 @@ We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, \alpha^p)$ in Section ~
 \item $F^p = \{\oplus, \ominus, \otimes, \mathbf{0}, \mathbf{1}\}$
 \item $\forall p \in P^p$; $\alpha^p(p) = (Real, Real)$ and $\forall f \in F^p\setminus \{\mathbf{0}, \mathbf{1}\}$; $\alpha^p(f) = (Real, Real, Real)$; $\alpha^p(\mathbf{0}) = Real$; $\alpha^p(\mathbf{1})=Real$
 \end{enumerate}
-A polynomial and a polynomial constraint are a $\Sigma^\mathbb{R}$-term and a $\Sigma^\mathbb{R}$-formula respectively. However, for simplicity, we currently focus on small portion of $\Sigma^\mathbb{R}$-formulas
+A polynomial and a polynomial constraint are a $\Sigma^p$-term and a $\Sigma^p$-formula respectively. However, for simplicity, we currently focus on small portion of $\Sigma^p$-formulas
 
 \subsection{Semantics}
-A model $M^{\mathbb{R}} = (\mathbb{R}, I^{\mathbb{R}})$ over real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
+A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
 \begin{enumerate}
-\item $I^{\mathbb{R}}(Real) = \mathbb{R}$.
-\item $\forall p \in P^p$; $I^{\mathbb{R}}(p) = \{(r_1, r_2) | r_1, r_2 \in \mathbb{R}$ and $r1 \; p^{\mathbb{R}} \; r2\}$ where $(\succ^\mathbb{R}, \prec^{\mathbb{R}},\succeq^\mathbb{R},\preceq^{\mathbb{R}}, \approx^\mathbb{R}, \not\approx^\mathbb{R}) = (>, <, \ge, \le, =, \neq)$.
-\item $\forall f \in F^p \setminus \{\mathbf{0}, \mathbf{1}\}$; $I^{\mathbb{R}}(f) = \{(r_1, r_2, r_3) | r_1, r_2, r_3 \in \mathbb{R}$ and $r_1 \; f^{\mathbb{R}} \; r_2 =^{\mathbb{R}} r_3\}$ where $(\oplus, \ominus, \otimes) = (+, -, *)$.
-\item $I^\mathbb{R}(\mathbf{0}) = 0$ and $I^\mathbb{R}(\mathbf{1}) = 1$
-\item $\forall v \in V$; $I^{\mathbb{R}}(v) \in \mathbb{R}$.
+\item $I^p_{\mathbb{R}}(Real) = \mathbb{R}$.
+\item $\forall p \in P^p$; $I_{\mathbb{R}}(p) = \{(r_1, r_2) | r_1, r_2 \in \mathbb{R}$ and $r1 \; p_{\mathbb{R}} \; r2\}$ where $(\succ_\mathbb{R}, \prec_{\mathbb{R}},\succeq_\mathbb{R},\preceq_{\mathbb{R}}, \approx_\mathbb{R}, \not\approx_\mathbb{R}) = (>, <, \ge, \le, =, \neq)$.
+\item $\forall f \in F^p \setminus \{\mathbf{0}, \mathbf{1}\}$; $I^p_{\mathbb{R}}(f) = \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}$ such that $I^p_{\mathbb{R}}(f)(r_1, r_2)  = r_1 \; f_{\mathbb{R}} \; r_2$ where $(\oplus_{\mathbb{R}}, \ominus_{\mathbb{R}}, \otimes_{\mathbb{R}}) = (+, -, *)$.
+\item $I^p_\mathbb{R}(\mathbf{0}) = 0$ and $I^p_\mathbb{R}(\mathbf{1}) = 1$
+\item $\forall v \in V$; $I^p_{\mathbb{R}}(v) \in \mathbb{R}$.
 \end{enumerate}
-By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model.
-The theory of real numbers is $T^{\mathbb{R}} = \{M^{\mathbb{R}} | M^{\mathbb{R}}$ is a model of real numbers $\}$
+By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model.
+The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$
