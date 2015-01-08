@@ -41,7 +41,7 @@ Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which
 \begin{itemize}
 \item $\forall s \in S$; $I(s) \subseteq U$ specifies the possible values of sort $s$.
 \item $\forall f \in F$; $I(f) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_{n-1})\} \mapsto I(s_n)$ with $, \alpha(f) = (s_1,\cdots, s_n)$
-\item $\forall p \in P$; $I(p) \subseteq \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_n), \alpha(p) = (s_1,\cdots, s_n)\}$
+\item $\forall p \in P$; $I(p) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_n)\} \mapsto \{true, false\}$ with $\alpha(p) = (s_1,\cdots, s_n)$
 \item $\forall v \in V$; $I(v) \in I(\alpha(v))$
 \end{itemize}
 \end{definition}
@@ -49,6 +49,7 @@ Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which
 \begin{definition}
 Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$-models.
 \end{definition}
+A theory $T'$ is a subset of theory $T$ iff $T' \subseteq T$.
 
 \begin{definition}
 Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$formula and a $\Sigma-$model respectively. The evaluations of $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
@@ -59,7 +60,7 @@ Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature,
 Similarly, the evaluation $\varphi^M$ of $\varphi$ is defined as:
 \begin{enumerate}
 \item If $\varphi = \bot$, then $\varphi^M = false$.
-\item If $\varphi = p(t_1,\cdots,t_n)$, then $\varphi^M = ((t_1^M,\cdots,t_n^M) \in I(p)$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
+\item If $\varphi = p(t_1,\cdots,t_n)$, then $\varphi^M = I(p)(t_1^M,\cdots,t_n^M)$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
 \item If $\varphi = \varphi_1 \circ \varphi_2$, then $\varphi^M = \varphi_1^M \circ \varphi_2^M$ for $\circ ^\in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$ and $\varphi_1, \varphi_2 \in FORM$
 \item If $\varphi = \neg\varphi'$, then $\varphi^M = \neg(\varphi'^M)$ for $\varphi' \in FORM$
 \item If $\varphi = \forall v \varphi'$, then $\varphi^M = \bigwedge\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$,  $\varphi' \in FORM$ and $I<v \mapsto v_i>$ denotes the map after updating the map from $v$ to $v_i$ into $I$.
@@ -99,8 +100,8 @@ We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, \alpha^p)$ in Section ~
 \begin{enumerate}
 \item $S^p = \{Real\}$
 \item $P^p = \{\succ, \prec, \succeq, \preceq, \approx, \not\approx\}$
-\item $F^p = \{\oplus, \ominus, \otimes, \mathbf{0}, \mathbf{1}\}$
-\item $\forall p \in P^p$; $\alpha^p(p) = (Real, Real)$ and $\forall f \in F^p\setminus \{\mathbf{0}, \mathbf{1}\}$; $\alpha^p(f) = (Real, Real, Real)$; $\alpha^p(\mathbf{0}) = Real$; $\alpha^p(\mathbf{1})=Real$
+\item $F^p = \{\oplus, \ominus, \otimes, \mathbf{1}\}$
+\item $\forall p \in P^p$; $\alpha^p(p) = (Real, Real)$ and $\forall f \in F^p\setminus \{\mathbf{1}\}$; $\alpha^p(f) = (Real, Real, Real)$; $\alpha^p(\mathbf{1})=Real$
 \end{enumerate}
 A polynomial and a polynomial constraint are a $\Sigma^p$-term and a $\Sigma^p$-formula respectively. However, for simplicity, we currently focus on small portion of $\Sigma^p$-formulas
 
@@ -108,10 +109,12 @@ A polynomial and a polynomial constraint are a $\Sigma^p$-term and a $\Sigma^p$-
 A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
 \begin{enumerate}
 \item $I^p_{\mathbb{R}}(Real) = \mathbb{R}$.
-\item $\forall p \in P^p$; $I_{\mathbb{R}}(p) = \{(r_1, r_2) | r_1, r_2 \in \mathbb{R}$ and $r1 \; p_{\mathbb{R}} \; r2\}$ where $(\succ_\mathbb{R}, \prec_{\mathbb{R}},\succeq_\mathbb{R},\preceq_{\mathbb{R}}, \approx_\mathbb{R}, \not\approx_\mathbb{R}) = (>, <, \ge, \le, =, \neq)$.
-\item $\forall f \in F^p \setminus \{\mathbf{0}, \mathbf{1}\}$; $I^p_{\mathbb{R}}(f) = \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}$ such that $I^p_{\mathbb{R}}(f)(r_1, r_2)  = r_1 \; f_{\mathbb{R}} \; r_2$ where $(\oplus_{\mathbb{R}}, \ominus_{\mathbb{R}}, \otimes_{\mathbb{R}}) = (+, -, *)$.
-\item $I^p_\mathbb{R}(\mathbf{0}) = 0$ and $I^p_\mathbb{R}(\mathbf{1}) = 1$
+\item $\forall p \in P^p$; $I_{\mathbb{R}}(p) = \mathbb{R} \times \mathbb{R} \mapsto \{true, false\}$ such that $ I_\mathbb{R}^p(r_1, r_2) = r1 \; p_{\mathbb{R}} \; r2$ where $(\succ_\mathbb{R}, \prec_{\mathbb{R}},\succeq_\mathbb{R},\preceq_{\mathbb{R}}, \approx_\mathbb{R}, \not\approx_\mathbb{R}) = (>, <, \ge, \le, =, \neq)$.
+\item $\forall f \in F^p \setminus \{\mathbf{1}\}$; $I^p_{\mathbb{R}}(f) = \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}$ such that $I^p_{\mathbb{R}}(f)(r_1, r_2)  = r_1 \; f_{\mathbb{R}} \; r_2$ where $(\oplus_{\mathbb{R}}, \ominus_{\mathbb{R}}, \otimes_{\mathbb{R}}) = (+, -, *)$.
+\item $I^p_\mathbb{R}(\mathbf{1}) = 1$
 \item $\forall v \in V$; $I^p_{\mathbb{R}}(v) \in \mathbb{R}$.
 \end{enumerate}
-By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model.
-The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$
+The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$.
+By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Because a theory is a set of models, it can also be represented by a set of variables assignments. For example, a map from variables to intervals $\Pi = \{v \in [l, h] | v \in V\}$ is enough to represent a theory which is a subset of $T^p_\mathbb{R}$. We denote this theory as $\Pi^p_\mathbb{R}$.
+
+% % % % % % % % % % % 
