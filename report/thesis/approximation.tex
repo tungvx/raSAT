@@ -116,10 +116,28 @@ A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all i
 \item $I^p_{IA}(\mathbf{1}) = [1,1]$
 \item $\forall v \in V$; $I^p_{IA} \in U^p_{IA}$
 \end{enumerate}
-Theory $T^p_{IA} = \{M^p_{IA}| M^p_{IA} \text{ is a model over intervals}\}$
+Theory $T^p_{IA} = \{M^p_{IA}| M^p_{IA} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{IA}$ as the model represented by $\Pi = \{x \in [l, h] | v \in V\}$. 
 
-\begin{theorem}
-If $\Pi = \{v \in [l, h] | v \in V\}$ is a map from variables to intervals, then $\Pi^p_{IA}$ is an over-approximation of $\Pi^p_\mathbb{R}$.
+\begin{lemma}
+$\forall i_1, i_2 \in U^p_{IA}; \forall r_1 \in i_2, r_2 \in i_2; \forall p \in P^p (i_1 \; p_{IA} \; i_2 = true \implies r_1 \; p_\mathbb{R} \; r_2 = true)$
+\end{lemma}
+
+\begin{proof}
+Let $i_1 = [l_1, h_1]$ and $i_2 = [l_2, h_2]$ where $l_1 \le h_1$ and $l_2 \le h_2$. We have: 
+\begin{itemize}
+\item $r_1 \in i_1 \implies l_1 \le r_1 \le h_1$. 
+\item $r_2 \in i_2 \implies l_2 \le r_2 \le h_2$. 
+\end{itemize}
+Suppose that $i_1 \; p_{IA} \; i_2$, we need to prove that $r_1 \; p_\mathbb{R} \; r_2$ by considering all the possible cases of $p$:
+\begin{enumerate}
+\item If $p$ is $\succ$, the we have $[l_1, h_1] \succ_{IA} [l_2, h_2] \implies l_1 > h_2 \implies r_1 > r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies r_1 \succ_\mathbb{R} r_2$.
+\item If $p$ is $\prec$, the we have $[l_1, h_1] \prec_{IA} [l_2, h_2] \implies h_1 < l_2 \implies r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies r_1 \prec_\mathbb{R} r_2$.
+\item If $p$ is $\succeq$, the we have $i_1 \succeq_{IA} i_2 \implies \neg (i_1 \prec i_2) \implies \neg() r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies r_1 \prec_\mathbb{R} r_2$.
+\end{enumerate}
+\end{proof}
+
+\begin{theorem} \label{theorem:IA-OverAprox}
+If $\Pi = \{v \in [l, h] | v \in V\}$ is a map from variables to intervals, then $\{\Pi^p_{IA}\}$ is an over-approximation of $\Pi^p_\mathbb{R}$.
 \end{theorem}
 
 \begin{lemma} \label{lemma:IA-OT}
@@ -144,11 +162,12 @@ By induction hypothesis, we have $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and
 \end{proof}
 
 \begin{proof}
-We need to prove that $\forall \varphi^p (\varphi^p$ is $\Pi^p_{IA}$-UNSAT $\implies \varphi^p$ is $\Pi^p_\mathbb{R}$-UNSAT). 
-Given an $\Sigma^p$-formula $\varphi^p$ and suppose that $\varphi^p$ is $\Pi^p_{IA}$-UNSAT.
+In order to prove Theorem ~\ref{lemma:IA-OT}, we need to prove that $\forall \varphi^p (\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies \varphi^p$ is $\Pi^p_\mathbb{R}$-UNSAT). 
+
+Given an $\Sigma^p$-formula $\varphi^p$ and suppose that $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT.
 Suppose $\varphi^p$ is not $\Pi^p_\mathbb{R}$-UNSAT, that means it is either  $\Pi^p_\mathbb{R}$-SAT or  $\Pi^p_\mathbb{R}$-VALID. In either case, there exist at least a model $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$ such that $\models_{M^p_\mathbb{R}} \varphi^p \iff (\varphi^p)^{M^p_\mathbb{R}}= true$.
 \begin{enumerate}
-\item If $\varphi^p = p(t_1, t_2)$ for some $p \in P^p$, then $(\varphi^p)^{M^p_\mathbb{R}}= true \iff t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}}$. In addition, $\varphi^p$ is $\Pi^p_{IA}$-UNSAT $\iff (\varphi^p)^{\Pi^p_{IA}} = false \iff t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = false$
+\item If $\varphi^p = p(t_1, t_2)$ for some $p \in P^p$, then $(\varphi^p)^{M^p_\mathbb{R}}= true \iff t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}}$. In addition, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\iff (\varphi^p)^{\Pi^p_{IA}} = false \iff t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = false$
 \end{enumerate}
 \end{proof}
 
