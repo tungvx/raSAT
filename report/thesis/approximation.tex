@@ -163,7 +163,14 @@ Suppose $\varphi^p$ is not $\Pi^p_\mathbb{R}$-UNSAT, that means it is either  $\
 <bound\_constraint> ::= $\bigwedge\limits_i\bigvee\limits_jbound\_atom_{ij}$
 \end{grammar}
 In other word, each model can be represented by an assignment of one real number to each variable. 
-State of search procedure contains  $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$
+State of search procedure contains  $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ where 
+\begin{itemize}
+\item $\Pi$ is the interval constraint
+\item $\varphi$ represents the polynomial constraint.
+\item $\varphi^V$ contains the constraints that are valid under over-approximation.
+\item $\varphi^U$ is the set of constraints which are UNKNOWN under over-approximation.
+\end{itemize}
+The transition rules are described in Table ~\ref{tab:transition-rules}. Figure ~\ref{fig:smt-design} illustrates the transition system. 
 
 \begin{table*}[t]
   \centering
