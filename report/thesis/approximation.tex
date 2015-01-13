@@ -172,7 +172,7 @@ Suppose $\varphi^p$ is not $\Pi^p_\mathbb{R}$-UNSAT, that means it is either  $\
 \item If $\varphi^p = p(t_1, t_2)$ for some $p \in P^p$, then $(\varphi^p)^{M^p_\mathbb{R}}= true \implies t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}}$. 
 
 On the other hand, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies (\varphi^p)^{\Pi^p_{IA}} = false \implies t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = false$. In addition, because $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and $t_2^{M^p_\mathbb{R}} \in t_2^{\Pi^p_{IA}}$ (Lemma ~\ref{lemma:IA-OT}), $t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = false \implies \neg(t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}})$ (Lemma ~\ref{lemma:IA-R-OP}). This is a contradiction. As the result, $\varphi^p$ must be $\Pi^p_\mathbb{R}$-UNSAT.
-\item If $\varphi^p = \varphi^p_1 \wedge \varphi^p_2$ is  
+\item If $\varphi^p = \varphi^p_1 \wedge \varphi^p_2$, then we have $\varphi^p$ is  $\{\Pi^p_{IA}\}$-UNSAT $\implies \not\models_{\Pi^p_{IA}}(\varphi^p_1 \wedge \varphi^p_2) \implies (\varphi^p_1 \wedge \varphi^p_2)^{\Pi^p_{IA}} = false \implies (\varphi^p_1)^{\Pi^p_{IA}} \wedge (\varphi^p_2)^{\Pi^p_{IA}} = false \implies (\varphi^p_1)^{\Pi^p_{IA}} = false$ and $(\varphi^p_2)^{\Pi^p_{IA}} = false$. By induction hypothesis, $\varphi^p_1$ and $\varphi^p_2$ are $\Pi^p_\mathbb{R}$-UNSAT $\implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_1$ and $\forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_2 \implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} (\varphi^p_1 \wedge \varphi^p_2) \implies \varphi^p_1 \wedge \varphi^p_2$ is $\Pi^p_\mathbb{R}$-UNSAT.
 \end{enumerate}
 \end{proof}
 
