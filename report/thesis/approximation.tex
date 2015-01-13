@@ -213,18 +213,19 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
   \begin{tabular}{ll}
   \hline\\
   \large 
-  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \Psi, \emptyset, \emptyset, \emptyset) \to UNSAT}$ \tiny $\Pi$\_UNSAT \\\\
+  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset) \to UNSAT}$ \tiny $\Pi$\_UNSAT \\\\
   \large 
-  $\frac{\Pi \models_{SAT} \Pi^c \quad \Pi^{c'} = flattern(\Pi^c)}{(\Pi, \Psi, \emptyset, \emptyset, \emptyset) \to (\Pi, \Psi, \Pi^{c'}, \emptyset, \emptyset)}$ \tiny $\Pi$\_SAT\\\\
-  $\frac{\Pi^c \not= \emptyset \quad \Psi^V \subseteq \Psi \quad \Psi^U \subseteq \Psi \quad \Psi^V \cap \Psi^U = \Psi \quad \Psi^V \cup \Psi^U = \emptyset \quad \Psi^V \text{ is }  T_O\text{-VALID} \quad \Psi^U \text{ is }  T_O\text{-SAT}}{(\Pi, \Psi, \Pi^c, \emptyset, \emptyset) \to (\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U)}$ \tiny $T_O$\_SAT \\\\  
+  $\frac{\Pi \models_{SAT} \Pi^c \quad \Pi^{c'} = flattern(\Pi^c)}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset) \to (\Pi, \varphi, \Pi^{c'}, \emptyset, \emptyset)}$ \tiny $\Pi$\_SAT\\\\
+  \large
+  $\frac{\Pi^c \not= \emptyset \quad   \varphi^V \wedge \varphi^U = \varphi \quad \varphi^V \cup \varphi^U = \emptyset \quad \varphi^V \text{ is }  \Pi^c_{IA}\text{-VALID}}{(\Pi, \varphi, \Pi^c, \emptyset, \emptyset) \to (\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)}$ \tiny IA\_SAT \\\\  
   \large 
-  $\frac{\Psi^V = \Psi}{(\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U) \to SAT}$ \tiny $T_O$\_VALID \\\\
+  $\frac{\varphi^V = \varphi}{(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U) \to SAT}$ \tiny IA\_VALID \\\\
   \large 
-  $\frac{\Pi^c \not= \emptyset \quad \Psi^U \not= \emptyset \quad \Psi^U \text{ is }  T^U\text{-SAT}}{(\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U) \to SAT}$ \tiny $T^U$\_SAT \\\\
+  $\frac{\Pi^c \not= \emptyset \quad \varphi^U \not= \emptyset \quad \varphi^U \text{ is }  \Pi^c_T\text{-SAT}}{(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U) \to SAT}$ \tiny TEST\_SAT \\\\
   \large 
-  $\frac{\Psi^U \text{ is }  T^U\text{-UNSAT} \quad \varphi \in \Psi^U \quad x_j \in \varphi \quad (I_j = x_j \in [l_j, h_j]) \in \Pi^c \quad l_j < d \in \mathbb{R} < h_j \quad I_{j1} = x_j \in [l_j, d] \quad I_{j2} = x_j \in [d, h_j]}{(\Pi, \Psi, \Pi^c, \Psi^V, \Psi^U) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \Psi, \emptyset, \emptyset, \emptyset)}$ \tiny REFINE \\\\
+  $\frac{\varphi^U \text{ is }  \Pi^c_T\text{-UNSAT} \quad x_j \in var(\varphi^U) \quad (I_j = x_j \in [l_j, h_j]) \in \Pi^c \quad l_j < d \in \mathbb{R} < h_j \quad I_{j1} = x_j \in [l_j, d] \quad I_{j2} = x_j \in [d, h_j]}{(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \varphi, \emptyset, \emptyset, \emptyset)}$ \tiny REFINE \\\\
   \large 
-  $\frac{\{\varphi_i| i = 1,\cdots, n; \; \varphi_i \text{ is } T_O\text{-UNSAT}\} \subseteq \Psi \quad var(\varphi_i) = \{x_{ij}|j=1,\cdots, m_i\} \quad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in \Pi^c}{(\Pi, \Psi, \Pi^c, \emptyset, \emptyset) \to (\Pi \wedge \bigwedge\limits_{i=1}^n \bigvee\limits_{j=1}^{m_i} \neg I_{ij}, \Psi, \emptyset, \emptyset, \emptyset)}$ \tiny $T_O$\_UNSAT \\\\
+  $\frac{\{\varphi_i| \varphi_i \wedge \varphi'_i = \varphi; \; \varphi_i \text{ is } T_O\text{-UNSAT}\} \quad var(\varphi_i) = \{x_{ij}|j=1,\cdots, m_i\} \quad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in \Pi^c}{(\Pi, \varphi, \Pi^c, \emptyset, \emptyset) \to (\Pi \wedge \bigwedge\limits_i \bigvee\limits_{j=1}^{m_i} \neg I_{ij}, \varphi, \emptyset, \emptyset, \emptyset)}$ \tiny IA\_UNSAT \\\\
   \hline\\
   \end{tabular}
   \caption{Transition rules}\label{tab:transition-rules}
