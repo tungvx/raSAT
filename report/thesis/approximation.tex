@@ -177,7 +177,19 @@ On the other hand, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies (\varphi^p)^{
 \end{proof}
 
 \section{Testing as an Under-Approximation Theory}
+\begin{definition}
+Let $T^p \subseteq T^p_\mathbb{R}$ be a sub-theory of real numbers. Any sub-theory $T^p_T$ of $T^p$, i.e. $T^p_T \subseteq T^p$ is call a theory of testing with respect to $T^p$.
+\end{definition}
 
+\begin{theorem}
+If $T^p_T$ is a theory of testing w.r.t $T^p$, $T^p_R$ is an under-approximation of $T^p$.
+\end{theorem}
+
+\begin{proof}
+Let $\varphi^p$ is a $\Sigma^p$-formula and suppose it is $T^p_T$-SAT. We need to prove $\varphi^p$ is $T^p$-SAT. We have $\varphi^p$ is $T^p_T$-SAT $\implies \exists M^p \in T^p_T \; \models_{M^p} \varphi^p \implies \exists M^p \in T^p \; \models_{M^p} \varphi^p$ (because $T^p_T \subseteq T^p$) $\implies \varphi^p$ is $T^p$-SAT.
+\end{proof}
+
+Given a theory $T^p$, we randomly select a number of its models to form a theory of testing $T^p_T$ w.r.t $T^p$.
 
 \section{raSAT loop}
 \begin{grammar}
@@ -219,6 +231,23 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
 \end{table*}
 
 \section{Soundness - Completeness}
+\subsection{Soundness}
+\begin{theorem}
+Let $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ be any state of our system, then we have $\varphi^V$ is $\Pi^c$-VALID.
+\end{theorem}
+
+\begin{proof}
+Proof is done by induction.
+\end{proof}
+
+\begin{theorem}
+Let $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ be any state of our system, then we have $\varphi^V$ is $\Pi^c$-VALID.
+\end{theorem}
+
+\begin{proof}
+
+\end{proof}
+
 \begin{comment}
 \section{Over-Approximation Theory Refinement}
 \label{sec:soundness}
