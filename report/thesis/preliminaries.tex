@@ -94,6 +94,14 @@ If $T$ be a $\Sigma$-theory, then $\varphi$ is T-VALID $\iff$ $\neg\varphi$ is T
 $\varphi$ is T-VALID $\iff \forall M \in T; \models_{M} \iff \forall M \in T; \not\models_{M} \neg\varphi$ (Lemma \ref{lemma:model-sat-unsat}) $\iff \neg\varphi$ is T-UNSAT.
 \end{proof}
 
+\begin{lemma} \label{lemma:subtheory-SAT}
+If $T' \subseteq T$, then $\varphi$ is $T'$-SAT $\implies \varphi$ is $T$-SAT.
+\end{lemma}
+
+\begin{proof}
+$\varphi$ is $T'$-SAT $\implies \exists M \in T'; \; \models_M \varphi \implies \exists M \in T; \; \models_M \varphi$ (because $T' \subseteq T$) $\implies \varphi$ is $T$-SAT.
+\end{proof}
+
 \section{Polynomial constraints over real numbers}
 \subsection{Syntax}
 We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, \alpha^p)$ in Section ~\ref{subsection:smt-syntax} for polynomial constraints as following:
