@@ -238,6 +238,8 @@ Let $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ be any state of our system, th
 \begin{enumerate}
 \item $\Pi^c_\mathbb{R} \subseteq T^p_\mathbb{R}$
 \item $\varphi^V$ is $\Pi^c_{R}$-VALID.
+\item $\varphi^U = \emptyset \vee (\varphi = \varphi^U \wedge \varphi^V)$
+\item $\varphi$ is $\Pi_\mathbb{R}$-UNSAT $\implies$ $\varphi$ is $T^p_\mathbb{R}$-UNSAT
 \end{enumerate}
 \end{theorem}
 
@@ -245,6 +247,17 @@ Let $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ be any state of our system, th
 \begin{enumerate}
 \item Easy from the definition.
 \item Easy to see.
+\item Easy from the transitions.
+\item The proof is done inductively:
+\begin{itemize}
+\item Initial state: $(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty), \varphi, \emptyset, \emptyset, \emptyset)$ and by definition, $((\bigwedge\limits_{v \in V}v \in (-\infty, +\infty))_\mathbb{R} = T^p_R$. Then, the invariant trivially holds.
+\item Each transition is considered:
+\begin{itemize}
+\item For rules $\Pi$\_SAT, IA\_SAT the interval constraint $\Pi$ does not changed, so if the properties holds for the former state, it also does for the later one.
+\item For REFINE transition: Denote $\Pi' = \Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})$. We will prove that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT $\implies \varphi$ is $\Pi_\mathbb{R}$-UNSAT. First suppose that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT. Let
+\item for IA\_UNSAT transition, 
+\end{itemize}
+\end{itemize}
 \end{enumerate}
 \end{proof}
 
@@ -261,10 +274,13 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 \item If the system output SAT, there are two possibles transition to SAT:
 \begin{itemize}
 \item In the case of IA\_VALID, we have $\varphi^V$ is $\Pi^c_{R}$-VALID (invariant 2) $\implies \varphi^V$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT (because $\varphi^V = \varphi$ is the condition of this transition). In addition, following invariant 1, we have $\Pi^c_\mathbb{R} \subseteq T^p_\mathbb{R}$, then $\varphi$ is $T^p_\mathbb{R}$-SAT (Lemma ~\ref{lemma:subtheory-SAT}).
-\item In the case of TEST\_SAT, $\varphi$
+\item In the case of TEST\_SAT, $\varphi^U$ is $\Pi^c_\mathbb{R}$-SAT $\implies \exists M \in \Pi^c_\mathbb{R} \; \models_M \varphi^V$. Let $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$ such that $\models_{M^c_\mathbb{R}} \varphi^V$ which implies $(\varphi^V)^{M^c_\mathbb{R}} = true$. In addition, because $\varphi^V$ is $\Pi^c_\mathbb{R}$-VALID (invariant 2) and $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$, we have $\models_{M^c_\mathbb{R}} \varphi^U$ or $(\varphi^U)^{M^c_\mathbb{R}} = true$. Consider the evaluation of $\varphi$ under the model $M^c_\mathbb{R}$: $(\varphi)^{M^c_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^c_\mathbb{R}}$ (invariant 3) $= (\varphi^U)^{M^c_\mathbb{R}} \wedge (\varphi^V)^{M^c_\mathbb{R}} = true \wedge true = true \implies \models_{M^c_\mathbb{R}} \varphi \implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
 \end{itemize}
+\item  If the system output UNSAT, there is only one transition of rule $\Pi$\_UNSAT. Because $\Pi \models_{SAT} \bot$, $\Pi_\mathbb{R}$ is empty (Lemma ?). As a result, $\varphi$ is $\Pi_\mathbb{R}$-UNSAT which implies that $\varphi$ is $T^p_\mathbb{R}$-UNSAT (invariant 4).
 \end{enumerate}
 \end{proof}
+
+\subsection{Completeness}
 
 \begin{comment}
 \section{Over-Approximation Theory Refinement}
