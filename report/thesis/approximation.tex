@@ -1,4 +1,4 @@
-\chapter{Over-Approximation and Under-Approximation}
+%\chapter{Over-Approximation and Under-Approximation}\label{chap:OT-UT}
 \section{Approximation Theory}
 \begin{comment}
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$, 
@@ -92,16 +92,31 @@ A typical ICP applies $O.T$ only as an interval arithmetic.
 Later in Section~\ref{sec:approximation}, we will instantiate interval arithmetic as $O.T$. 
 Adding to $O.T$-valid, {\bf raSAT} introduce testing as $U.T$ to accelerate SAT detection. 
 
-\section{Interval Arithmetic as an Over-Approximation Theory}
-A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all intervals $U^p_{IA} = \{[l, h] | l, h \in \mathbb{R} \text{ and } l <= h\}$ and a map $I^p_{IA}$ that satisfies the following conditions.
+\section{Interval Arithmetic as an Over-Approximation Theory}\label{sec:IA}
+\subsection{Real Intervals}
+We adopt the definition of real intervals from \cite{Hickey:2001:IAP:502102.502106}:
+\begin{definition}\cite{Hickey:2001:IAP:502102.502106}
+Let $a$ and $b$ be reals such that $a \le b$.
+\begin{center}
+\begin{tabular}{ r c l }
+  $\langle a, b \rangle$ & $\overset{def}{=}$ & $\{x \in \mathbb{R} | a \le x \le b\}$ \\
+  $\langle -\infty, b \rangle$ & $\overset{def}{=}$ & $\{x \in \mathbb{R} | x \le b\}$ \\
+  $\langle a, +\infty \rangle$ & $\overset{def}{=}$ & $\{x \in \mathbb{R} | a \le x\}$ \\  
+  $\langle -\infty, +\infty \rangle$ & $\overset{def}{=}$ & $\mathbb{R}$ \\  
+\end{tabular}
+\end{center}
+\end{definition}
+All intervals in this definition can be summarized by $\langle a, b \rangle$ where $a, b \in \mathbb{R} \cup \{-\infty, +\infty\}$ with the assumption that $\forall c \in \mathbb{R}-\infty < c < \infty$.
+\subsection{Interval Arithmetic as an Over-Approximation Theory}
+A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all intervals $U^p_{IA} = \{\langle l, h\rangle | l, h \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } l \le h\}$ and a map $I^p_{IA}$ that satisfies the following conditions.
 \begin{enumerate}
 \item $I^p_{IA}(Real) = U^p_{IA}$
 \item $\forall p \in P^p$; $I^p_{IA}(p)= U^p_{IA} \times U^p_{IA} \mapsto U^p_{IA}$ where $I^p_{IA}(p)(i_1, i_2) = i_1 \; p_{IA} \; i_2$. The definition of $ p_{IA}$ is as follow:
 \begin{itemize}
-\item $[l_1, h_1] \succ_{IA} [l_2,  h_2] = true \iff l_1 > h_2$
-\item $[l_1, h_1] \succ_{IA} [l_2,  h_2] = false \iff h_1 \le l_2$
-\item $[l_1, h_1] \prec_{IA} [l_2,  h_2] = true \iff h_1 < l_2$
-\item $[l_1, h_1] \prec_{IA} [l_2,  h_2] = false \iff l_1 \ge h_2$
+\item $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2,  h_2\rangle  = true \iff l_1 > h_2$
+\item $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2,  h_2\rangle  = false \iff h_1 \le l_2$
+\item $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2,  h_2\rangle  = true \iff h_1 < l_2$
+\item $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2,  h_2\rangle  = false \iff l_1 \ge h_2$
 \item $i_1 \succeq_{IA} i_2 = \neg(i_1 \prec_{IA} i_2)$
 \item $i_1 \preceq_{IA} i_2 = \neg(i_1 \succ_{IA} i_2)$
 \item $i_1 \approx_{IA} i_2 = i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2$
@@ -113,34 +128,34 @@ A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all i
 \item $i_1 \ominus_{IA} i_2 \supseteq \{r_1 - r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
 \item $i_1 \otimes_{IA} i_2 \supseteq \{r_1 * r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
 \end{itemize}
-\item $I^p_{IA}(\mathbf{1}) = [1,1]$
+\item $I^p_{IA}(\mathbf{1}) = \langle 1,1\rangle $
 \item $\forall v \in V$; $I^p_{IA} \in U^p_{IA}$
 \end{enumerate}
-Theory $T^p_{IA} = \{M^p_{IA}| M^p_{IA} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{IA}$ as the model represented by $\Pi = \{x \in [l, h] | v \in V\}$. 
+Theory $T^p_{IA} = \{M^p_{IA}| M^p_{IA} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{IA}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
 
 \begin{lemma} \label{lemma:IA-R-OP}
 $\forall i_1, i_2 \in U^p_{IA}; \forall r_1 \in i_2, r_2 \in i_2; \forall p \in P^p (i_1 \; p_{IA} \; i_2 = false \implies \neg(r_1 \; p_\mathbb{R} \; r_2))$
 \end{lemma}
 
 \begin{proof}
-Let $i_1 = [l_1, h_1]$ and $i_2 = [l_2, h_2]$ where $l_1 \le h_1$ and $l_2 \le h_2$. We have: 
+Let $i_1 = \langle l_1, h_1\rangle $ and $i_2 = \langle l_2, h_2\rangle $ where $l_1 \le h_1$ and $l_2 \le h_2$. We have: 
 \begin{itemize}
 \item $r_1 \in i_1 \implies l_1 \le r_1 \le h_1$. 
 \item $r_2 \in i_2 \implies l_2 \le r_2 \le h_2$. 
 \end{itemize}
 Suppose  that $i_1 \; p_{IA} \; i_2 = false$, we need to show $\neg(r_1 \; p_\mathbb{R} \; r_2)$ by considering all the possible cases of $p$:
 \begin{enumerate}
-\item If $p$ is $\succ$, the we have $[l_1, h_1] \succ_{IA} [l_2, h_2] = false \implies h_1 \le l_2 \implies r_1 \le r_2$ (because $r_1 \le h_1$ and $l_2 \le r_2$) $\implies \neg(r_1 > r2) \implies \neg(r_1 \succ_\mathbb{R} r_2)$.
-\item If $p$ is $\prec$, the we have $[l_1, h_1] \prec_{IA} [l_2, h_2] = false \implies l_1 \ge h_2 \implies r_1 \ge r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 < r_2) \implies \neg(r_1 \prec_\mathbb{R} r_2)$.
-\item If $p$ is $\succeq$, the we have $[l_1, h_1] \succeq_{IA} [l_2, h_2] = false \implies \neg ([l_1, h_1] \prec_{IA} [l_2, h_2]) = false \implies [l_1, h_1] \prec_{IA} [l_2, h_2] = true \implies h_1 < l_2 \implies r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies \neg(r_1 \ge r_2) \implies \neg(r_1 \succeq_\mathbb{R} r_2)$.
-\item If $p$ is $\preceq$, the we have $[l_1, h_1] \preceq_{IA} [l_2, h_2] = false \implies \neg ([l_1, h_1] \succ_{IA} [l_2, h_2]) = false \implies [l_1, h_1] \succ_{IA} [l_2, h_2] = true \implies l_1 > h	_2 \implies r_1 > r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 \le r_2) \implies \neg(r_1 \preceq_\mathbb{R} r_2)$.
+\item If $p$ is $\succ$, the we have $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = false \implies h_1 \le l_2 \implies r_1 \le r_2$ (because $r_1 \le h_1$ and $l_2 \le r_2$) $\implies \neg(r_1 > r2) \implies \neg(r_1 \succ_\mathbb{R} r_2)$.
+\item If $p$ is $\prec$, the we have $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = false \implies l_1 \ge h_2 \implies r_1 \ge r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 < r_2) \implies \neg(r_1 \prec_\mathbb{R} r_2)$.
+\item If $p$ is $\succeq$, the we have $\langle l_1, h_1\rangle  \succeq_{IA} \langle l_2, h_2\rangle  = false \implies \neg (\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle ) = false \implies \langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = true \implies h_1 < l_2 \implies r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies \neg(r_1 \ge r_2) \implies \neg(r_1 \succeq_\mathbb{R} r_2)$.
+\item If $p$ is $\preceq$, the we have $\langle l_1, h_1\rangle  \preceq_{IA} \langle l_2, h_2\rangle  = false \implies \neg (\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle ) = false \implies \langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = true \implies l_1 > h	_2 \implies r_1 > r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 \le r_2) \implies \neg(r_1 \preceq_\mathbb{R} r_2)$.
 \item If $p$ is $\approx$, the we have $i_1 \approx_{IA} i_2 = false \implies i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2 = false \implies i_1 \succeq_{IA} i_2 = false \text{ or } i_1 \preceq_{IA} i_2 = false \implies r_1 < r_2 \text{ or } r_1 > r_2$ (as the third and fourth case of this proof) $\implies \neg(r_1 = r_2) \implies \neg(r_1 \approx_\mathbb{R} r_2)$.
 \item If $p$ is $\not\approx$, the we have $i_1 \not\approx_{IA} i_2 = false \implies \neg(i_1 \approx_{IA} i_2) = false \implies \neg(i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2) = false \implies \neg(i_1 \succeq_{IA} i_2) \vee \neg(i_1 \preceq_{IA} i_2) = false \implies i_1 \prec_{IA} i_2 \vee i_1 \succ_{IA} i_2 = false \implies i_1 \prec_{IA} i_2 = false \text{ and } i_1 \succ_{IA} i_2 = false \implies r_1 \ge r_2 \text{ and } r_1 \le r_2$ (as the first and second case of this proof) $\implies r_1 = r_2 \implies \neg(r_1 \not= r_2) \implies \neg(r_1 \not\approx_\mathbb{R} r_2)$.
 \end{enumerate}
 \end{proof}
 
 \begin{theorem} \label{theorem:IA-OverAprox}
-If $\Pi = \{v \in [l, h] | v \in V\}$ is a map from variables to intervals, then $\{\Pi^p_{IA}\}$ is an over-approximation of $\Pi^p_\mathbb{R}$.
+If $\Pi = \{v \in \langle l, h\rangle  | v \in V\}$ is a map from variables to intervals, then $\{\Pi^p_{IA}\}$ is an over-approximation of $\Pi^p_\mathbb{R}$.
 \end{theorem}
 
 \begin{lemma} \label{lemma:IA-OT}
@@ -152,7 +167,7 @@ Proof is done by induction on structure of term.
 Let $t \in TERM^p$ and $M^p_\mathbb{R} = (\mathbb{R}, I^p_\mathbb{R}) \in \Pi^p_\mathbb{R}$
 \begin{enumerate}
 \item If $t = v \in V$, then $t^{M^p_\mathbb{R}} = I^p_\mathbb{R}(v) \in \Pi(v)$ because $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$. In addition, $t^{\Pi^p_{IA}} = \Pi^p_\mathbb{R}$.
-\item If $t = \mathbf{1}$, then $t^{M^p_\mathbb{R}} = 1 \in [1, 1] = t^{\Pi^p_{IA}}$
+\item If $t = \mathbf{1}$, then $t^{M^p_\mathbb{R}} = 1 \in \langle 1, 1\rangle  = t^{\Pi^p_{IA}}$
 \item If $t = t_1 \; f \; t_2$ for some $f \in F^p \setminus \{0, 1\}$
 
 $t^{M^p_\mathbb{R}} = t_1^{M^p_\mathbb{R}} \; f_\mathbb{R} \; t_1^{M^p_\mathbb{R}}$
@@ -192,12 +207,6 @@ Let $\varphi^p$ is a $\Sigma^p$-formula and suppose it is $T^p_T$-SAT. We need t
 Given a theory $T^p$, we randomly select a number of its models to form a theory of testing $T^p_T$ w.r.t $T^p$.
 
 \section{raSAT loop}
-\begin{grammar}
-<bound\_atom> ::= <variable> $\in$ [real, real] | <variable> $\in$ (-inf, real] | <variable> $\in$ [real, inf) | <variable> $\in$ (-inf, inf)
-
-
-<bound\_constraint> ::= $\bigwedge\limits_i\bigvee\limits_jbound\_atom_{ij}$
-\end{grammar}
 In other word, each model can be represented by an assignment of one real number to each variable. 
 State of search procedure contains  $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ where 
 \begin{itemize}
