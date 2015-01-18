@@ -1,4 +1,4 @@
-%\chapter{Over-Approximation and Under-Approximation}\label{chap:OT-UT}
+\chapter{Over-Approximation and Under-Approximation}\label{chap:OT-UT}
 \section{Approximation Theory}
 \begin{comment}
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$, 
@@ -106,7 +106,43 @@ Let $a$ and $b$ be reals such that $a \le b$.
 \end{tabular}
 \end{center}
 \end{definition}
-All intervals in this definition can be summarized by $\langle a, b \rangle$ where $a, b \in \mathbb{R} \cup \{-\infty, +\infty\}$ with the assumption that $\forall c \in \mathbb{R}-\infty < c < \infty$.
+All intervals in this definition can be summarized by $\langle a, b \rangle$ where $a, b \in \mathbb{R} \cup \{-\infty, +\infty\}$ and $a \le b$ with the assumption that $\forall c \in \mathbb{R}-\infty < c < \infty$. Furthermore,\citet{Hickey:2001:IAP:502102.502106} also defined arithmetic operations for $\mathbb{R} \cup \{-\infty, +\infty\}$ which is summarized in Table ~.
+
+\begin{tabular}{c||*{5}{c|}}
+$x + y$
+&$-\infty$&NR&0
+&PR&$+\infty$\\\hline
+$-\infty$ &$-\infty$&$-\infty$&$-\infty$&$-\infty$&$\bot$\\\hline
+$NR$ &&NR&NR&$\mathbb{R}$&$+\infty$\\\hline
+$0$&&&0&PR&$+\infty$\\\hline
+$PR$ &&&&PR&$+\infty$\\\hline
+$+\infty$ &&&&&$+\infty$\\\hline
+\end{tabular}
+\quad
+\begin{tabular}{c||*{5}{c|}}
+$x - y$
+&$-\infty$&NR&0
+&PR&$+\infty$\\\hline
+$-\infty$ &$\bot$&$+\infty$&$+\infty$&$+\infty$&$+\infty$\\\hline
+$NR$ &$-\infty$&$\mathbb{R}$&PR&PR&$+\infty$\\\hline
+$0$&$-\infty$&NR&0&PR&$+\infty$\\\hline
+$PR$ &$-\infty$&NR&NR&$\mathbb{R}$&$+\infty$\\\hline
+$+\infty$ &$-\infty$&$-\infty$&$-\infty$&$-\infty$&$\bot$\\\hline
+\end{tabular}
+\newline
+\vspace*{1 cm}
+\newline
+\begin{tabular}{c||*{5}{c|}}
+$x \times y$
+&$-\infty$&NR&0
+&PR&$+\infty$\\\hline
+$+\infty$ &$+\infty$&$+\infty$&$\bot$&$-\infty$&$-\infty$\\\hline
+$NR$ &&PR&0&NR&$-\infty$\\\hline
+$0$&&&0&0&$\bot$\\\hline
+$PR$ &&&&PR&$+\infty$\\\hline
+$+\infty$ &&&&&$+\infty$\\\hline
+\end{tabular}
+
 \subsection{Interval Arithmetic as an Over-Approximation Theory}
 A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all intervals $U^p_{IA} = \{\langle l, h\rangle | l, h \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } l \le h\}$ and a map $I^p_{IA}$ that satisfies the following conditions.
 \begin{enumerate}
