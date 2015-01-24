@@ -26,6 +26,12 @@ P & M & $\langle h_1 \times l_2, h_1 \times h_2 \rangle $ \\ \hline
 P & N & $\langle h_1 \times l_2, l_1 \times h_2 \rangle $ \\ \hline
 M & P & $\langle l_1 \times h_2, h_1 \times h_2 \rangle $ \\ \hline
 M & M & $\langle \min (l_1 \times h_2, h_1 \times l_2), max (l_1 \times l_2, h_1 \times h_2) \rangle $ \\ \hline
+M & N & $\langle h_1 \times l_2, l_1 \times l_2 \rangle $ \\ \hline
+N & P & $\langle l_1 \times h_2, h_1 \times l_2 \rangle $ \\ \hline
+N & M & $\langle l_1 \times h_2, l_1 \times l_2 \rangle $ \\ \hline
+N & N & $\langle h_1 \times h_2, l_1 \times l_2 \rangle $ \\ \hline
+Z & P, N, M, Z & $\langle 0, 0 \rangle $ \\ \hline
+P, N, M & Z & $\langle 0, 0 \rangle $ \\ \hline
 \end{tabular}
 \end{center}
 \end{itemize}
@@ -35,7 +41,58 @@ M & M & $\langle \min (l_1 \times h_2, h_1 \times l_2), max (l_1 \times l_2, h_1
 \item $\forall v \in V$; $I^p_{CI} \in U^p_{CI}$
 \end{enumerate}
 Theory $T^p_{CI} = \{M^p_{CI}| M^p_{CI} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{CI}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
+\begin{theorem}
+CI is an IA.
+\end{theorem}
+\begin{proof}
+Easy.
+\end{proof}
 \section{Affine Interval}
+A model $M^p_{AI} = (U^p_{AI}, I^p_{AI})$ over intervals contains a set of all intervals $U^p_{AI} = U^p_{IA}$ and a map $I^p_{CI}$ that satisfies the following conditions.
+\begin{enumerate}
+\item $I^p_{AI}(Real) = I^p_{IA}(Real)$
+\item $\forall p \in P^p$; $I^p_{AI}(p)= I^p_{IA}(p)$
+\item $\forall f \in F^p \setminus \{\mathbf{1}\}$; $I^p_{AI}(f) = U^p_{AI} \times U^p_{AI} \mapsto U^p_{AI}$ such that $ I^p_{CI}(f)(i_1, i_2)= i_1 \; f_{CI} \; i_2$ where the definition of $f_{CI}$ is:
+\begin{itemize}
+\item $\langle l_1, h_1 \rangle \oplus_{CI} \langle l_2, h_2 \rangle = \langle l_1 + l_2, h_1 + h_2 \rangle $.
+\item $\langle l_1, h_1 \rangle \ominus_{CI} \langle l_2, h_2 \rangle = \langle l_1 - h_2, h_1 - l_2 \rangle $.
+\item Operation $i_1 \otimes_{CI} i_2$ is defined using case analysis on the types of $i_1$ and $i_2$. First, the intervals are classified into the following:
+\begin{itemize}
+\item $P = \{\langle a, b \rangle | a \ge 0 \wedge b > 0 \}$
+\item $N = \{\langle a, b \rangle | b \le 0 \wedge a < 0 \}$
+\item $M = \{\langle a, b \rangle | a < 0 < b \}$
+\item $Z = \{\langle a, b \rangle\}$
+The definition of $\otimes_{CI}$ is given in Table ~
+\begin{center}
+\begin{tabular}{ | c | c | c |}
+\hline
+Class of $\langle l_1, h_1 \rangle$ & Class of $\langle l_2, h_2 \rangle$ & $\langle l_1, h_1 \rangle \otimes_{CI} \langle l_2, h_2 \rangle$ \\ \hline
+P & P & $\langle l_1 \times l_2, h_1 \times h_2 \rangle $ \\ \hline
+P & M & $\langle h_1 \times l_2, h_1 \times h_2 \rangle $ \\ \hline
+P & N & $\langle h_1 \times l_2, l_1 \times h_2 \rangle $ \\ \hline
+M & P & $\langle l_1 \times h_2, h_1 \times h_2 \rangle $ \\ \hline
+M & M & $\langle \min (l_1 \times h_2, h_1 \times l_2), max (l_1 \times l_2, h_1 \times h_2) \rangle $ \\ \hline
+M & N & $\langle h_1 \times l_2, l_1 \times l_2 \rangle $ \\ \hline
+N & P & $\langle l_1 \times h_2, h_1 \times l_2 \rangle $ \\ \hline
+N & M & $\langle l_1 \times h_2, l_1 \times l_2 \rangle $ \\ \hline
+N & N & $\langle h_1 \times h_2, l_1 \times l_2 \rangle $ \\ \hline
+Z & P, N, M, Z & $\langle 0, 0 \rangle $ \\ \hline
+P, N, M & Z & $\langle 0, 0 \rangle $ \\ \hline
+\end{tabular}
+\end{center}
+\end{itemize}
+
+\end{itemize}
+\item $I^p_{CI}(\mathbf{1}) = \langle 1,1\rangle $
+\item $\forall v \in V$; $I^p_{CI} \in U^p_{CI}$
+\end{enumerate}
+Theory $T^p_{CI} = \{M^p_{CI}| M^p_{CI} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{CI}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
+\begin{theorem}
+AI is an IA.
+\end{theorem}
+\begin{proof}
+Easy.
+\end{proof}
 
 \begin{comment}
 We design an SMT solver named raSAT~\footnote{\url{http://www.jaist.ac.jp/~mizuhito/tools/rasat.html}} to solve polynomial constraint. 
