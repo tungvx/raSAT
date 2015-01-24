@@ -48,10 +48,16 @@ CI is an IA.
 Easy.
 \end{proof}
 \section{Affine Interval}
-A model $M^p_{AI} = (U^p_{AI}, I^p_{AI})$ over intervals contains a set of all intervals $U^p_{AI} = U^p_{IA}$ and a map $I^p_{CI}$ that satisfies the following conditions.
+Affine Interval use the formula $a_0 + \sum_{i=1}^{n}a_i\epsilon_i$ to represent the interval $\langle a_0 - \sum_{i=1}^{n}|a_i|, a_0 + \sum_{i=1}^{n}|a_i| \rangle$ with $a_i \in \mathbb{R}$ for $i = 0, 1, \cdots$. For example, the affine interval form of $(x \in) \langle 2, 4 \rangle$ and $(y \in) \langle 0, 2 \rangle$ is $3 + \epsilon_1$ and $1 + \epsilon_2$ respectively, thus:
+
+\begin{center}
+$x^2 - x \times y = (3 + \epsilon_1)^2 - (3 + \epsilon_1) \times (1 + \epsilon_2)$
+\end{center}
+ 
+A model $M^p_{AI} = (U^p_{AI}, I^p_{AI})$ over intervals contains a set of all intervals $U^p_{AI} = {a_0 + \sum_{i=1}^{n}a_i\epsilon_i | \forall i \in \{0, 1, \cdots, n\}; a_i \in \mathbb{R}}$ and a map $I^p_{CI}$ that satisfies the following conditions.
 \begin{enumerate}
-\item $I^p_{AI}(Real) = I^p_{IA}(Real)$
-\item $\forall p \in P^p$; $I^p_{AI}(p)= I^p_{IA}(p)$
+\item $I^p_{AI}(Real) = U^p_{AI}$
+\item $\forall p \in P^p$; $I^p_{AI}(p)= U^p_{AI} \times U^p_{AI} \mapsto \{true, false\}$ such that $I^p_{AI}(p)(a_0 + \sum_{i=1}^{n}a_i\epsilon_i, b_0 + \sum_{i=1}^{n}b_i\epsilon_i) = I^p_{AI}(p)(\langle a_0 - \sum_{i=1}^{n}|a_i|, a_0 + \sum_{i=1}^{n}|a_i| \rangle, \langle b_0 - \sum_{i=1}^{n}|b_i|, b_0 + \sum_{i=1}^{n}|b_i| \rangle)$
 \item $\forall f \in F^p \setminus \{\mathbf{1}\}$; $I^p_{AI}(f) = U^p_{AI} \times U^p_{AI} \mapsto U^p_{AI}$ such that $ I^p_{CI}(f)(i_1, i_2)= i_1 \; f_{CI} \; i_2$ where the definition of $f_{CI}$ is:
 \begin{itemize}
 \item $\langle l_1, h_1 \rangle \oplus_{CI} \langle l_2, h_2 \rangle = \langle l_1 + l_2, h_1 + h_2 \rangle $.
