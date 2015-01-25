@@ -48,51 +48,54 @@ CI is an IA.
 Easy.
 \end{proof}
 \section{Affine Interval}
-Affine Interval use the formula $a_0 + \sum_{i=1}^{n}a_i\epsilon_i$ to represent the interval $\langle a_0 - \sum_{i=1}^{n}|a_i|, a_0 + \sum_{i=1}^{n}|a_i| \rangle$ with $a_i \in \mathbb{R}$ for $i = 0, 1, \cdots$. For example, the affine interval form of $(x \in) \langle 2, 4 \rangle$ and $(y \in) \langle 0, 2 \rangle$ is $3 + \epsilon_1$ and $1 + \epsilon_2$ respectively, thus:
+Affine Interval use the formula $a_0 + \sum\limits_{i=1}^{n} a_i\epsilon_i$ to represent the interval $\langle a_0 - \sum\limits_{i=1}^{n}|a_i|, a_0 + \sum\limits_{i=1}^{n}|a_i| \rangle$ with $a_i \in \mathbb{R}$ for $i = 0, 1, \cdots$. For example, the affine interval form of $(x \in) \langle 2, 4 \rangle$ and $(y \in) \langle 0, 2 \rangle$ is $3 + \epsilon_1$ and $1 + \epsilon_2$ respectively, thus:
 
 \begin{center}
-$x^2 - x \times y = (3 + \epsilon_1)^2 - (3 + \epsilon_1) \times (1 + \epsilon_2)$
+$\begin{aligned}[t]
+    x^2 - x \times y  &= (3 + \epsilon_1)^2 - (3 + \epsilon_1) \times (1 + \epsilon_2)\\
+     &= 9 + 6\epsilon_1 + \epsilon_1^2- (3 + 3\epsilon_2 + \epsilon_1 + \epsilon_1\epsilon_2) \\
+     &= 6 + 5\epsilon_1 - 3\epsilon_2 + \epsilon_1^2 + \epsilon_1\epsilon_2
+\end{aligned}$
 \end{center}
- 
-A model $M^p_{AI} = (U^p_{AI}, I^p_{AI})$ over intervals contains a set of all intervals $U^p_{AI} = {a_0 + \sum_{i=1}^{n}a_i\epsilon_i | \forall i \in \{0, 1, \cdots, n\}; a_i \in \mathbb{R}}$ and a map $I^p_{CI}$ that satisfies the following conditions.
+Types of AI vary by choices of estimating multiplications $\epsilon_1^2$ and $\epsilon_1\epsilon_2$:
 \begin{enumerate}
-\item $I^p_{AI}(Real) = U^p_{AI}$
-\item $\forall p \in P^p$; $I^p_{AI}(p)= U^p_{AI} \times U^p_{AI} \mapsto \{true, false\}$ such that $I^p_{AI}(p)(a_0 + \sum_{i=1}^{n}a_i\epsilon_i, b_0 + \sum_{i=1}^{n}b_i\epsilon_i) = I^p_{AI}(p)(\langle a_0 - \sum_{i=1}^{n}|a_i|, a_0 + \sum_{i=1}^{n}|a_i| \rangle, \langle b_0 - \sum_{i=1}^{n}|b_i|, b_0 + \sum_{i=1}^{n}|b_i| \rangle)$
-\item $\forall f \in F^p \setminus \{\mathbf{1}\}$; $I^p_{AI}(f) = U^p_{AI} \times U^p_{AI} \mapsto U^p_{AI}$ such that $ I^p_{CI}(f)(i_1, i_2)= i_1 \; f_{CI} \; i_2$ where the definition of $f_{CI}$ is:
-\begin{itemize}
-\item $\langle l_1, h_1 \rangle \oplus_{CI} \langle l_2, h_2 \rangle = \langle l_1 + l_2, h_1 + h_2 \rangle $.
-\item $\langle l_1, h_1 \rangle \ominus_{CI} \langle l_2, h_2 \rangle = \langle l_1 - h_2, h_1 - l_2 \rangle $.
-\item Operation $i_1 \otimes_{CI} i_2$ is defined using case analysis on the types of $i_1$ and $i_2$. First, the intervals are classified into the following:
-\begin{itemize}
-\item $P = \{\langle a, b \rangle | a \ge 0 \wedge b > 0 \}$
-\item $N = \{\langle a, b \rangle | b \le 0 \wedge a < 0 \}$
-\item $M = \{\langle a, b \rangle | a < 0 < b \}$
-\item $Z = \{\langle a, b \rangle\}$
-The definition of $\otimes_{CI}$ is given in Table ~
-\begin{center}
-\begin{tabular}{ | c | c | c |}
-\hline
-Class of $\langle l_1, h_1 \rangle$ & Class of $\langle l_2, h_2 \rangle$ & $\langle l_1, h_1 \rangle \otimes_{CI} \langle l_2, h_2 \rangle$ \\ \hline
-P & P & $\langle l_1 \times l_2, h_1 \times h_2 \rangle $ \\ \hline
-P & M & $\langle h_1 \times l_2, h_1 \times h_2 \rangle $ \\ \hline
-P & N & $\langle h_1 \times l_2, l_1 \times h_2 \rangle $ \\ \hline
-M & P & $\langle l_1 \times h_2, h_1 \times h_2 \rangle $ \\ \hline
-M & M & $\langle \min (l_1 \times h_2, h_1 \times l_2), max (l_1 \times l_2, h_1 \times h_2) \rangle $ \\ \hline
-M & N & $\langle h_1 \times l_2, l_1 \times l_2 \rangle $ \\ \hline
-N & P & $\langle l_1 \times h_2, h_1 \times l_2 \rangle $ \\ \hline
-N & M & $\langle l_1 \times h_2, l_1 \times l_2 \rangle $ \\ \hline
-N & N & $\langle h_1 \times h_2, l_1 \times l_2 \rangle $ \\ \hline
-Z & P, N, M, Z & $\langle 0, 0 \rangle $ \\ \hline
-P, N, M & Z & $\langle 0, 0 \rangle $ \\ \hline
-\end{tabular}
-\end{center}
-\end{itemize}
-
-\end{itemize}
-\item $I^p_{CI}(\mathbf{1}) = \langle 1,1\rangle $
-\item $\forall v \in V$; $I^p_{CI} \in U^p_{CI}$
+\item AA \cite{Comba93affinearithmetic, Stolfi97self-validatednumerical} replaces $\epsilon_1\epsilon_2$ by a fresh noise symbol. 
+\item AF1 and AF2 \cite{Messine_extensionsof} prepares a fixed noise symbol for any $\epsilon_1\epsilon_2$.
+\item EAI \cite{Ngoc:2009:ORE:1685167.1685421} replaces $\epsilon_1\epsilon_2$ by $\langle -1, 1 \rangle\epsilon_1$ or $\langle -1, 1 \rangle\epsilon_2$.
+\item AF2 \cite{Messine_extensionsof} replaces $\epsilon_1^2$ by the fixed noise symbols $\epsilon_+$ or $\epsilon_-$.
 \end{enumerate}
-Theory $T^p_{CI} = \{M^p_{CI}| M^p_{CI} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{CI}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
+A model $M^p_{AF2} = (U^p_{AF2}, I^p_{AF2})$ over intervals contains a set of all intervals $U^p_{AF2} = \{a_0 + \sum\limits_{i=1}^{n}a_i\epsilon_i + a_{n+1}\epsilon_+ + a_{n+2}\epsilon_- + a_{n+3}\epsilon_{\pm} | \forall i \in \{0, 1, \cdots, n+3\}; a_i \in \mathbb{R}\}$ and a map $I^p_{AF2}$ that satisfies the following conditions.
+\begin{enumerate}
+\item $I^p_{AF2}(Real) = U^p_{AF2}$
+\item $\forall p \in P^p$; $I^p_{AF2}(p)= U^p_{AF2} \times U^p_{AF2} \mapsto \{true, false\}$ such that $I^p_{AF2}(p)(a_0 + \sum\limits_{i=1}^{n}a_i\epsilon_i + a_{n+1}\epsilon_+ + a_{n+2}\epsilon_- + a_{n+3}\epsilon_{\pm}, b_0 + \sum\limits_{i=1}^{n}b_i\epsilon_i + b_{n+1}\epsilon_+ + b_{n+2}\epsilon_- + b_{n+3}\epsilon_{\pm}) = I^p_{AI}(p)(\langle a_0 - \sum\limits_{i=1}^{n}|a_i| - a_{n+2} - a_{n+3}, a_0 + \sum\limits_{i=1}^{n}|a_i| + a_{n+1} + a_{n+3} \rangle, \langle b_0 - \sum\limits_{i=1}^{n}|b_i| - b_{n+2} - b_{n+3}, b_0 + \sum\limits_{i=1}^{n}|b_i| + b_{n+1} + b_{n+3} \rangle)$
+\item $\forall f \in F^p \setminus \{\mathbf{1}\}$; $I^p_{AF2}(f) = U^p_{AF2} \times U^p_{AF2} \mapsto U^p_{AF2}$ such that $ I^p_{AF2}(f)(i_1, i_2)= i_1 \; f_{AF2} \; i_2$ where the definition of $f_{AF2}$ is as following. Let $i_1 = a_0 + \sum\limits_{i=1}^{n}a_i\epsilon_i + a_{n+1}\epsilon_+ + a_{n+2}\epsilon_- + a_{n+3}\epsilon_{\pm}$ and $i_2 = b_0 + \sum\limits_{i=1}^{n}b_i\epsilon_i + b_{n+1}\epsilon_+ + b_{n+2}\epsilon_- + b_{n+3}\epsilon_{\pm}$, then:
+\begin{itemize}
+\item $i_1 \oplus_{AF2} i_2 = a_0 + b_0 + \sum\limits_{i=1}^{n}(a_i + b_i)\epsilon_i + (a_{n+1} + b_{n+1})\epsilon_+ + (a_{n+2} + b_{n+2})\epsilon_- + (a_{n+3} + b_{n+3})\epsilon_\pm$.
+\item $i_1 \ominus_{AF2} i_2 = a_0 - b_0 + \sum\limits_{i=1}^{n}(a_i - b_i)\epsilon_i + (a_{n+1} + b_{n+1})\epsilon_+ + (a_{n+2} + b_{n+2})\epsilon_- + (a_{n+3} + b_{n+3})\epsilon_\pm$.
+\item $i_1 \otimes_{AF2} i_2 = a_0b_0 + \sum\limits_{i=1}^{n}(a_0b_i + a_ib_0)\epsilon_i + K_1\epsilon_+ + K_2\epsilon_-  + K_3\epsilon_\pm$, where:
+
+$K_1 = \sum\limits_{i=1,a_ib_i>0}^{n+3}a_ib_i + \left\{ 
+  \begin{array}{l l}
+    a_0b_{n+1} + a_{n+1}b_0 & \quad \text{if } a_0 \ge 0 \text{ and } b_0 \ge 0\\
+    a_0b_{n+1} - a_{n+2}b_0 & \quad \text{if } a_0 \ge 0 \text{ and } b_0 < 0\\
+    -a_0b_{n+2} + a_{n+1}b_0 & \quad \text{if } a_0 < 0 \text{ and } b_0 \ge 0\\
+    -a_0b_{n+2} - a_{n+2}b_0 & \quad \text{if } a_0 < 0 \text{ and } b_0 < 0\\
+  \end{array} \right.$
+  
+$K_2 = \sum\limits_{i=1,a_ib_i<0}^{n+3}a_ib_i + \left\{ 
+  \begin{array}{l l}
+    a_0b_{n+2} + a_{n+2}b_0 & \quad \text{if } a_0 \ge 0 \text{ and } b_0 \ge 0\\
+    a_0b_{n+2} - a_{n+1}b_0 & \quad \text{if } a_0 \ge 0 \text{ and } b_0 < 0\\
+    -a_0b_{n+1} + a_{n+2}b_0 & \quad \text{if } a_0 < 0 \text{ and } b_0 \ge 0\\
+    -a_0b_{n+1} - a_{n+1}b_0 & \quad \text{if } a_0 < 0 \text{ and } b_0 < 0\\
+  \end{array} \right.$  
+
+$K_3 = \sum\limits_{i=1}^{n+3}\sum\limits_{j=1,j \neq i}^{n+3}|a_ib_j| + |a_0|b_{n+3} + a_{n+3}|b_0|$
+\end{itemize}
+\item $I^p_{AF2}(\mathbf{1}) = 1$
+\item $\forall v \in V$; $I^p_{AF2} \in U^p_{AF2}$
+\end{enumerate}
+Theory $T^p_{AF2} = \{M^p_{AF2}| M^p_{AF2} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{CI}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
 \begin{theorem}
 AI is an IA.
 \end{theorem}
@@ -286,13 +289,4 @@ III. Selecting box:
   (6) UNSAT-directed using SAT-likelihood
   (7) Random
 }
-
-\end{comment}
-\begin{figure}[ht]
-%\begin{minipage}[b]{1.0\linewidth}
-\centering
-\includegraphics[width=\textwidth]{smt-design.png} 
-\caption{\textbf{raSAT} design} 
-\label{fig:smt-design} 
-%\end{minipage}
-\end{figure} 
+\end{comment} 

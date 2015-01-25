@@ -2,7 +2,7 @@
 \section{Abstract DPLL}
 
 
-\section{SMT}
+\section{Satisfiability Modulo Theories - SMT}
 \subsection{Syntax} \label{subsection:smt-syntax}
 \begin{definition}
 A signature $\Sigma$ is a 4-tuple $(S, P, F, \alpha)$ containing a set $S$ of sorts, a set $P$ of predicate symbols, a set $F$ of function symbols, and a map $\alpha$ which associates symbols to their sorts.
@@ -52,7 +52,7 @@ Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$
 A theory $T'$ is a subset of theory $T$ iff $T' \subseteq T$.
 
 \begin{definition}
-Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$formula and a $\Sigma-$model respectively. The evaluations of $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
+Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$term, a $\Sigma-$formula and a $\Sigma-$model respectively. The evaluations of $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
 \begin{enumerate}
 \item If $t = v \in V$, then $t^M = I(v)$.
 \item If $t = f(t_1, \cdots, t_n)$, then $t^M = I(f)(t_1^M, \cdots, t_n^M)$ for $f \in F$ and $t_1,\cdots, t_n \in TERM$
@@ -124,5 +124,7 @@ A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers co
 \end{enumerate}
 The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$.
 By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Because a theory is a set of models, it can also be represented by a set of variables assignments. For example, a map from variables to intervals $\Pi = \{v \in [l, h] | v \in V\}$ is enough to represent a theory which is a subset of $T^p_\mathbb{R}$. We denote this theory as $\Pi^p_\mathbb{R}$.
+
+\subsubsection*{Representing (sub-)theory of real numbers as constraints of intervals}
 
 % % % % % % % % % % % 
