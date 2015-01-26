@@ -147,16 +147,24 @@ $+\infty$ &&&&&$+\infty$\\\hline
 A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all intervals $U^p_{IA} = \{\langle l, h\rangle | l, h \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } l \le h\}$ and a map $I^p_{IA}$ that satisfies the following conditions.
 \begin{enumerate}
 \item $I^p_{IA}(Real) = U^p_{IA}$
-\item $\forall p \in P^p$; $I^p_{IA}(p)= U^p_{IA} \times U^p_{IA} \mapsto \{true, false\}$ where $I^p_{IA}(p)(i_1, i_2) = i_1 \; p_{IA} \; i_2$. The definition of $ p_{IA}$ is as follow:
+\item $\forall p \in P^p$; $I^p_{IA}(p)= U^p_{IA} \times U^p_{IA} \mapsto \{0, 1, \mathring{u}\}$ where $I^p_{IA}(p)(i_1, i_2) = i_1 \; p_{IA} \; i_2$. The definition of $ p_{IA}$ is as follow:
 \begin{itemize}
-\item $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2,  h_2\rangle  = true \iff l_1 > h_2$
-\item $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2,  h_2\rangle  = false \iff h_1 \le l_2$
-\item $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2,  h_2\rangle  = true \iff h_1 < l_2$
-\item $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2,  h_2\rangle  = false \iff l_1 \ge h_2$
-\item $i_1 \succeq_{IA} i_2 = \neg(i_1 \prec_{IA} i_2)$
-\item $i_1 \preceq_{IA} i_2 = \neg(i_1 \succ_{IA} i_2)$
-\item $i_1 \approx_{IA} i_2 = i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2$
-\item $i_1 \not\approx_{IA} i_2 = \neg(i_1 \approx_{IA} i_2)$
+\item $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2,  h_2\rangle  = \left\{ 
+  \begin{array}{c l}
+    1 & \quad \text{if } l_1 > h_2\\
+    0 & \quad \text{if } h_1 \le l_2 \\
+    \mathring{u} & \quad \text{otherwise }\\
+  \end{array} \right.$
+\item $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2,  h_2\rangle  = \left\{ 
+  \begin{array}{c l}
+    1 & \quad \text{if } h_1 < l_2\\
+    0 & \quad \text{if } l_1 \ge h_2 \\
+    \mathring{u} & \quad \text{otherwise }\\
+  \end{array} \right.$
+\item $i_1 \succeq_{IA} i_2 = 1 - (i_1 \prec_{IA} i_2)$
+\item $i_1 \preceq_{IA} i_2 = 1 - (i_1 \succ_{IA} i_2)$
+\item $i_1 \approx_{IA} i_2 = min (i_1 \succeq_{IA} i_2, i_1 \preceq_{IA} i_2)$
+\item $i_1 \not\approx_{IA} i_2 = 1 - (i_1 \approx_{IA} i_2)$
 \end{itemize}
 \item $\forall f \in F^p \setminus \{\mathbf{1}\}$; $I^p_{IA}(f) = U^p_{IA} \times U^p_{IA} \mapsto U^p_{IA}$ such that $ I^p_{IA}(f)(i_1, i_2)= i_1 \; f_{IA} \; i_2$ where $f_{IA}$ satisfies the following properties:
 \begin{itemize}
@@ -170,7 +178,7 @@ A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all i
 Theory $T^p_{IA} = \{M^p_{IA}| M^p_{IA} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{IA}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
 
 \begin{lemma} \label{lemma:IA-R-OP}
-$\forall i_1, i_2 \in U^p_{IA}; \forall r_1 \in i_2, r_2 \in i_2; \forall p \in P^p (i_1 \; p_{IA} \; i_2 = false \implies \neg(r_1 \; p_\mathbb{R} \; r_2))$
+$\forall i_1, i_2 \in U^p_{IA}; \forall r_1 \in i_2, r_2 \in i_2; \forall p \in P^p (i_1 \; p_{IA} \; i_2 = 0 \implies r_1 \; p_\mathbb{R} \; r_2 = 0)$
 \end{lemma}
 
 \begin{proof}
@@ -179,14 +187,14 @@ Let $i_1 = \langle l_1, h_1\rangle $ and $i_2 = \langle l_2, h_2\rangle $ where 
 \item $r_1 \in i_1 \implies l_1 \le r_1 \le h_1$. 
 \item $r_2 \in i_2 \implies l_2 \le r_2 \le h_2$. 
 \end{itemize}
-Suppose  that $i_1 \; p_{IA} \; i_2 = false$, we need to show $\neg(r_1 \; p_\mathbb{R} \; r_2)$ by considering all the possible cases of $p$:
+Suppose  that $i_1 \; p_{IA} \; i_2 = 0 $, we need to show $r_1 \; p_\mathbb{R} \; r_2 = 0$ by considering all the possible cases of $p$:
 \begin{enumerate}
-\item If $p$ is $\succ$, the we have $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = false \implies h_1 \le l_2 \implies r_1 \le r_2$ (because $r_1 \le h_1$ and $l_2 \le r_2$) $\implies \neg(r_1 > r2) \implies \neg(r_1 \succ_\mathbb{R} r_2)$.
-\item If $p$ is $\prec$, the we have $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = false \implies l_1 \ge h_2 \implies r_1 \ge r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 < r_2) \implies \neg(r_1 \prec_\mathbb{R} r_2)$.
-\item If $p$ is $\succeq$, the we have $\langle l_1, h_1\rangle  \succeq_{IA} \langle l_2, h_2\rangle  = false \implies \neg (\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle ) = false \implies \langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = true \implies h_1 < l_2 \implies r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies \neg(r_1 \ge r_2) \implies \neg(r_1 \succeq_\mathbb{R} r_2)$.
-\item If $p$ is $\preceq$, the we have $\langle l_1, h_1\rangle  \preceq_{IA} \langle l_2, h_2\rangle  = false \implies \neg (\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle ) = false \implies \langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = true \implies l_1 > h	_2 \implies r_1 > r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 \le r_2) \implies \neg(r_1 \preceq_\mathbb{R} r_2)$.
-\item If $p$ is $\approx$, the we have $i_1 \approx_{IA} i_2 = false \implies i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2 = false \implies i_1 \succeq_{IA} i_2 = false \text{ or } i_1 \preceq_{IA} i_2 = false \implies r_1 < r_2 \text{ or } r_1 > r_2$ (as the third and fourth case of this proof) $\implies \neg(r_1 = r_2) \implies \neg(r_1 \approx_\mathbb{R} r_2)$.
-\item If $p$ is $\not\approx$, the we have $i_1 \not\approx_{IA} i_2 = false \implies \neg(i_1 \approx_{IA} i_2) = false \implies \neg(i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2) = false \implies \neg(i_1 \succeq_{IA} i_2) \vee \neg(i_1 \preceq_{IA} i_2) = false \implies i_1 \prec_{IA} i_2 \vee i_1 \succ_{IA} i_2 = false \implies i_1 \prec_{IA} i_2 = false \text{ and } i_1 \succ_{IA} i_2 = false \implies r_1 \ge r_2 \text{ and } r_1 \le r_2$ (as the first and second case of this proof) $\implies r_1 = r_2 \implies \neg(r_1 \not= r_2) \implies \neg(r_1 \not\approx_\mathbb{R} r_2)$.
+\item If $p$ is $\succ$, the we have $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = 0  \implies h_1 \le l_2 \implies r_1 \le r_2$ (because $r_1 \le h_1$ and $l_2 \le r_2$) $\implies \neg(r_1 > r2) \implies \neg(r_1 \succ_\mathbb{R} r_2)$.
+\item If $p$ is $\prec$, the we have $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = 0  \implies l_1 \ge h_2 \implies r_1 \ge r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 < r_2) \implies \neg(r_1 \prec_\mathbb{R} r_2)$.
+\item If $p$ is $\succeq$, the we have $\langle l_1, h_1\rangle  \succeq_{IA} \langle l_2, h_2\rangle  = 0  \implies \neg (\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle ) = 0  \implies \langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = true \implies h_1 < l_2 \implies r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies \neg(r_1 \ge r_2) \implies \neg(r_1 \succeq_\mathbb{R} r_2)$.
+\item If $p$ is $\preceq$, the we have $\langle l_1, h_1\rangle  \preceq_{IA} \langle l_2, h_2\rangle  = 0  \implies \neg (\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle ) = 0  \implies \langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = true \implies l_1 > h	_2 \implies r_1 > r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies \neg(r_1 \le r_2) \implies \neg(r_1 \preceq_\mathbb{R} r_2)$.
+\item If $p$ is $\approx$, the we have $i_1 \approx_{IA} i_2 = 0  \implies i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2 = 0  \implies i_1 \succeq_{IA} i_2 = 0  \text{ or } i_1 \preceq_{IA} i_2 = 0  \implies r_1 < r_2 \text{ or } r_1 > r_2$ (as the third and fourth case of this proof) $\implies \neg(r_1 = r_2) \implies \neg(r_1 \approx_\mathbb{R} r_2)$.
+\item If $p$ is $\not\approx$, the we have $i_1 \not\approx_{IA} i_2 = 0  \implies \neg(i_1 \approx_{IA} i_2) = 0  \implies \neg(i_1 \succeq_{IA} i_2 \wedge i_1 \preceq_{IA} i_2) = 0  \implies \neg(i_1 \succeq_{IA} i_2) \vee \neg(i_1 \preceq_{IA} i_2) = 0  \implies i_1 \prec_{IA} i_2 \vee i_1 \succ_{IA} i_2 = 0  \implies i_1 \prec_{IA} i_2 = 0  \text{ and } i_1 \succ_{IA} i_2 = 0  \implies r_1 \ge r_2 \text{ and } r_1 \le r_2$ (as the first and second case of this proof) $\implies r_1 = r_2 \implies \neg(r_1 \not= r_2) \implies \neg(r_1 \not\approx_\mathbb{R} r_2)$.
 \end{enumerate}
 \end{proof}
 
@@ -222,8 +230,8 @@ Suppose $\varphi^p$ is not $\Pi^p_\mathbb{R}$-UNSAT, that means it is either  $\
 \begin{enumerate}
 \item If $\varphi^p = p(t_1, t_2)$ for some $p \in P^p$, then $(\varphi^p)^{M^p_\mathbb{R}}= true \implies t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}}$. 
 
-On the other hand, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies (\varphi^p)^{\Pi^p_{IA}} = false \implies t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = false$. In addition, because $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and $t_2^{M^p_\mathbb{R}} \in t_2^{\Pi^p_{IA}}$ (Lemma ~\ref{lemma:IA-OT}), $t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = false \implies \neg(t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}})$ (Lemma ~\ref{lemma:IA-R-OP}). This is a contradiction. As the result, $\varphi^p$ must be $\Pi^p_\mathbb{R}$-UNSAT.
-\item If $\varphi^p = \varphi^p_1 \wedge \varphi^p_2$, then we have $\varphi^p$ is  $\{\Pi^p_{IA}\}$-UNSAT $\implies \not\models_{\Pi^p_{IA}}(\varphi^p_1 \wedge \varphi^p_2) \implies (\varphi^p_1 \wedge \varphi^p_2)^{\Pi^p_{IA}} = false \implies (\varphi^p_1)^{\Pi^p_{IA}} \wedge (\varphi^p_2)^{\Pi^p_{IA}} = false \implies (\varphi^p_1)^{\Pi^p_{IA}} = false$ and $(\varphi^p_2)^{\Pi^p_{IA}} = false$. By induction hypothesis, $\varphi^p_1$ and $\varphi^p_2$ are $\Pi^p_\mathbb{R}$-UNSAT $\implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_1$ and $\forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_2 \implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} (\varphi^p_1 \wedge \varphi^p_2) \implies \varphi^p_1 \wedge \varphi^p_2$ is $\Pi^p_\mathbb{R}$-UNSAT.
+On the other hand, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies (\varphi^p)^{\Pi^p_{IA}} = 0  \implies t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = 0 $. In addition, because $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and $t_2^{M^p_\mathbb{R}} \in t_2^{\Pi^p_{IA}}$ (Lemma ~\ref{lemma:IA-OT}), $t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = 0  \implies \neg(t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}})$ (Lemma ~\ref{lemma:IA-R-OP}). This is a contradiction. As the result, $\varphi^p$ must be $\Pi^p_\mathbb{R}$-UNSAT.
+\item If $\varphi^p = \varphi^p_1 \wedge \varphi^p_2$, then we have $\varphi^p$ is  $\{\Pi^p_{IA}\}$-UNSAT $\implies \not\models_{\Pi^p_{IA}}(\varphi^p_1 \wedge \varphi^p_2) \implies (\varphi^p_1 \wedge \varphi^p_2)^{\Pi^p_{IA}} = 0  \implies (\varphi^p_1)^{\Pi^p_{IA}} \wedge (\varphi^p_2)^{\Pi^p_{IA}} = 0  \implies (\varphi^p_1)^{\Pi^p_{IA}} = 0 $ and $(\varphi^p_2)^{\Pi^p_{IA}} = 0 $. By induction hypothesis, $\varphi^p_1$ and $\varphi^p_2$ are $\Pi^p_\mathbb{R}$-UNSAT $\implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_1$ and $\forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_2 \implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} (\varphi^p_1 \wedge \varphi^p_2) \implies \varphi^p_1 \wedge \varphi^p_2$ is $\Pi^p_\mathbb{R}$-UNSAT.
 \end{enumerate}
 \end{proof}
 

@@ -15,11 +15,12 @@
 
 % *** MISC UTILITY PACKAGES ***
 %
-\newtheorem{definition}{Definition}
-\newtheorem{theorem}{Theorem}
-\newtheorem{proof}{Proof}
-\newtheorem{example}{Example}
-\newtheorem{lemma}{Lemma}
+\usepackage{amsthm}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{proof}{Proof}
+\newtheorem{example}{Example}[section]
+\newtheorem{lemma}{Lemma}[section]
 \usepackage{amssymb}
 \setcounter{tocdepth}{3}
 \usepackage{tikz} 

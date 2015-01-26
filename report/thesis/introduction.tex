@@ -1,9 +1,9 @@
 \chapter{Introduction}
-\section{Polynomial constraint solving}
-{\em Polynomial constraint solving over real numbers} is a task of computing an assignment of real values to variables
+\section{Polynomial Constraint Solving}
+{\em Polynomial constraint solving over real numbers} aims at computing an assignment of real values to variables
 that satisfies given polynomial inequalities/equations. If such an assignment exists, the constraint is said to be satisfiable (SAT) and the assignment is called SAT instance; otherwise we mention it as unsatisfiable (UNSAT). 
 \begin{example} \label{examp:unsat-example}
-$x^2 + y^2 < 1 \wedge xy > 1$ is an example of an UNSAT constraint. While the set of satisfiable points for the first inequality ($x^2 + y^2 < 1$) is the read circle in Figure \ref{fig:unsat-example}, the set for the second one is the blue area. Because these two areas do not intersect, the conjunction of two equalities is UNSAT.
+The formula $x^2 + y^2 < 1 \wedge xy > 1$ is an example of an unsatisfiable one. While the set of satisfiable points for the first inequality ($x^2 + y^2 < 1$) is the read circle in Figure \ref{fig:unsat-example}, the set for the second one is the blue area. Because these two areas do not intersect, the conjunction of two equalities is UNSAT.
 \end{example}
 
 \begin{figure}[ht]
@@ -49,8 +49,8 @@ which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:185899
 
 \item {\bf Automatic termination proving}, 
 which reduces termination detection to finding a suitable ordering~\cite{Lucas:2008:CCS:1361735.1361760}, 
-e.g., \TTTT~\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
-AProVE~\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
+e.g., \TTTT\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
+AProVE\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
 %as a solution of polynomial constraints. 
 
 \item {\bf Loop invariant generation}. 
@@ -61,7 +61,7 @@ and is reduced to degree $2$ polynomials.
 %Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
 Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
 
-\item {\bf Hybrid system}. SMT for QF\_NRA are often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
+\item {\bf Hybrid system}. Solving polynomial constraints over real numbers is often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
 
 \item {\bf Mechanical contrnol design}. 
 PID control is simple but widely used, and designing parameters is 
@@ -69,7 +69,7 @@ reduced to polynomial constraints~\cite{control}.
 %Fujitsu used polynomial constraints solving to design PID control of HDD head movement
 \end{itemize}	
 
-\section{Existing approaches}
+\section{Existing Approaches}
 Although solving polynomial constraints on real numbers is decidable~\cite{tarski}, current methodologies have their own pros and cos. They can be classified into the following categories: 
 \begin{enumerate}
 \item \textbf{Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)}~\cite{qecad} 
@@ -273,5 +273,5 @@ very large problems (e.g., with several hundred variables) with the combination 
 Another static analysis based approach is found in~\cite{SilvaTACAS12}. 
 \end{comment}
 
-\section{Thesis outline}
+\section{Thesis Outline}
 Coming soon...

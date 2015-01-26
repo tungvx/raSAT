@@ -1,7 +1,7 @@
 \chapter{Experiments}
 This chapter is going to present the experiments results which reflect how effective our designed strategies are. In addition, comparison between raSAT, Z3 and iSAT3 will be also shown. The experiments were done on a system with  Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. In the experiments, we exclude the problems which contain equalities because currently raSAT focuses on inequalities only.
 
-\section{Experiments on strategy combinations} \label{sec:expstrategy}
+\section{Experiments on Strategy Combinations} \label{sec:expstrategy}
 
 We perform experiments only on Zankl, and Meti-Tarski families. 
 
@@ -139,7 +139,7 @@ with randome generation ($k$-random tick) for the former and the blanced decompo
 Further investigation is left for future. 
 
 
-\section{Comparison with other SMT solvers}
+\section{Comparison with other SMT Solvers}
 
 We compare {\bf raSAT} with other SMT solvers on NRA benchmarks, Zankl and Meti-Tarski. 
 The timeouts for Zankl and Meti-tarski are $500s$ and $60s$, respectively. 
@@ -194,10 +194,10 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 \end{table*}
 
 
-\section{Experiments on equality handling}
+\section{Experiments on Equality Handling}
 
 
-\section{Polynomial constraints over integers} \label{sec:NIA}
+\section{Polynomial Constraints over Integers} \label{sec:NIA}
 
 {\bf raSAT} loop is easily modified to NIA (nonlinear arithmetic over integers) from NRA, 
 by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch} 

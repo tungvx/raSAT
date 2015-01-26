@@ -1,4 +1,4 @@
-\chapter{Design strategies}
+\chapter{Design Strategies}
 We implemented a number of strategies for improving efficiency of raSAT: incremental search and refinement heuristics.
 \section{Incremental search} \label{sec:incsearch}
 {\bf raSAT} applies three incremental strategies, 
@@ -7,7 +7,7 @@ Let
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
 for $I_i = (a_i,b_i)$. %where $a_i, b_i$ would be $\pm \infty$. 
 
-\subsection{Incremental windening}
+\subsection{Incremental Windening}
 Given $0 < \delta_0 < \delta_1 < \cdots$, 
 {\em incremental windening} starts with 
 $F_0 = \exists x_1 \in I_1 \cap (-\delta_0 , \delta_0) \cdots x_n \in I_n \cap (-\delta_0 , \delta_0). 
@@ -34,7 +34,7 @@ with $\delta_0 = 10$ and $\delta_1 = \infty$.
 \end{figure}
 
 
-\subsection{Incremental deepening}
+\subsection{Incremental Deepening}
 
 Starting with $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
 $I_1 \times \cdots \times I_n$ is decomposed into many boxes, 
@@ -59,7 +59,7 @@ and so on (Fig~\ref{fig:incwid} (b)).
 %\end{minipage}
 \end{figure} 
 \end{comment}
-\subsection{Incremental testing}
+\subsection{Incremental Testing}
 One obstacle in testing is the exponentially large number of test instances. If $2$ values are generated for each of $n$ variables, $2^n$ test cases (combinations of generated values) will present. 
 \begin{example}
 Suppose $\{x, y\}$ is the set of variables which appears in the input constraint and let $\{2, 9\}$ and $\{5, 8\}$ are generated values for $x$ and $y$ respectively. In total $4$ test cases arise: $(x, y) = (2, 5), (2, 8), (9, 5), (9, 8)$.
@@ -89,7 +89,7 @@ Let $x^2 > 4$ and $x*y > 0$ are two IA-VALID APIs to be tested and somehow they 
 \end{figure} 
 \end{enumerate}
 
-\section{SAT directed heuristics measure} \label{sec:SATheuristics}
+\section{SAT-directed Heuristics Measure} \label{sec:SATheuristics}
 
 With several hundred variables, we observe that an SMT solver works 
 when either SAT, or UNSAT with small UNSAT core.

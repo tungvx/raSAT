@@ -1,6 +1,44 @@
 \chapter{Preliminaries}
 \section{Abstract DPLL}
+\subsection{Syntax}
+\begin{definition}
+The signature of propositional logic has an alphabet consisting of
+\begin{enumerate}
+\item proposition symbols: $p_0, p_1, \cdots$,
+\item logical connective: $\wedge, \vee, \rightarrow, \leftrightarrow, \neg, \bot$.
+\end{enumerate}
+\end{definition}
 
+\begin{definition}
+The set PROP of propositions is the set that satisfies the following properties
+\begin{enumerate}
+\item $\forall i \in \mathbb{N} \; p_i \in PROP$,
+\item $\bot \in PROP$,
+\item $\varphi, \psi \in PROP \implies \varphi \circ \psi \in PROP$ where $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$,
+\item $\varphi \in PROP \implies \neg\varphi \in PROP$.
+\end{enumerate}
+\end{definition}
+\subsection{Semantics}
+\begin{definition}
+A model $M$ is a map $M : \{p_i | i \in \mathbb{N}\} \mapsto \{0, 1\}$
+\end{definition}
+\begin{definition} \label{def:pro-val}
+Given a model $M$ and a proposition $\varphi \in PROP$, the valuation of $\varphi$ which is denoted by $\varphi^M$ is defined recursively as:
+\begin{enumerate}
+\item If $\varphi = p_i$ for some $i$, then $\varphi^M = M(p_i)$.
+\item If $\varphi = \bot$, then $\varphi^M = 0$.
+\item If $\varphi = \varphi_1 \wedge \varphi_2$, then $\varphi^M = min(\varphi_1^M,
+ \varphi_2^M)$.
+\item If $\varphi = \varphi_1 \vee \varphi_2$, then $\varphi^M = max(\varphi_1^M, \varphi_2^M)$.
+\item If $\varphi = \varphi_1 \rightarrow \varphi_2$, then $\varphi^M = max(1 - \varphi_1^M, \varphi_2^M)$. 
+\item If $\varphi = \varphi_1 \leftrightarrow \varphi_2$, then $\varphi^M = \left\{ 
+  \begin{array}{c l}
+    1 & \quad \text{if } \varphi_1^M = \varphi_2^M\\
+    0 & \quad \text{otherwise }\\
+  \end{array} \right.$
+\item If $\varphi = \neg \varphi'$, then $\varphi^M = 1 - \varphi'^M$.
+\end{enumerate}
+\end{definition}
 
 \section{Satisfiability Modulo Theories - SMT}
 \subsection{Syntax} \label{subsection:smt-syntax}
@@ -41,10 +79,12 @@ Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which
 \begin{itemize}
 \item $\forall s \in S$; $I(s) \subseteq U$ specifies the possible values of sort $s$.
 \item $\forall f \in F$; $I(f) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_{n-1})\} \mapsto I(s_n)$ with $, \alpha(f) = (s_1,\cdots, s_n)$
-\item $\forall p \in P$; $I(p) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_n)\} \mapsto \{true, false\}$ with $\alpha(p) = (s_1,\cdots, s_n)$
+\item $\forall p \in P$; $I(p) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_n)\} \mapsto \{0, 1, \mathring{u}\}$ with $\alpha(p) = (s_1,\cdots, s_n)$
 \item $\forall v \in V$; $I(v) \in I(\alpha(v))$
 \end{itemize}
 \end{definition}
+
+The interpretation of one predicate symbol is allowed to be not total and the symbol $\mathring{u}$ (unknown) is used to indicate the result of undefined operations. For further convenience, we also define the following relations: $\mathring{u} < 0, 1$ and $\mathring{u} > 0, 1$ and the following arithmetic $1 - \mathring{u} = \mathring{u}$ which are useful when we evaluate the values of logical connectives, i.e. $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$, or $\neg$. 
 
 \begin{definition}
 Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$-models.
@@ -52,21 +92,23 @@ Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$
 A theory $T'$ is a subset of theory $T$ iff $T' \subseteq T$.
 
 \begin{definition}
-Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$term, a $\Sigma-$formula and a $\Sigma-$model respectively. The evaluations of $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
+Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$term, a $\Sigma-$formula and a $\Sigma-$model respectively. The valuations of $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
 \begin{enumerate}
 \item If $t = v \in V$, then $t^M = I(v)$.
 \item If $t = f(t_1, \cdots, t_n)$, then $t^M = I(f)(t_1^M, \cdots, t_n^M)$ for $f \in F$ and $t_1,\cdots, t_n \in TERM$
 \end{enumerate}
-Similarly, the evaluation $\varphi^M$ of $\varphi$ is defined as:
+Similarly, the valuation $\varphi^M$ of $\varphi$ is defined as:
 \begin{enumerate}
-\item If $\varphi = \bot$, then $\varphi^M = false$.
-\item If $\varphi = p(t_1,\cdots,t_n)$, then $\varphi^M = I(p)(t_1^M,\cdots,t_n^M)$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
-\item If $\varphi = \varphi_1 \circ \varphi_2$, then $\varphi^M = \varphi_1^M \circ \varphi_2^M$ for $\circ ^\in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$ and $\varphi_1, \varphi_2 \in FORM$
-\item If $\varphi = \neg\varphi'$, then $\varphi^M = \neg(\varphi'^M)$ for $\varphi' \in FORM$
-\item If $\varphi = \forall v \varphi'$, then $\varphi^M = \bigwedge\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$,  $\varphi' \in FORM$ and $I<v \mapsto v_i>$ denotes the map after updating the map from $v$ to $v_i$ into $I$.
-\item If $\varphi = \exists v \varphi'$, then $\varphi^M = \bigvee\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$ and  $\varphi' \in FORM$.
+\item If $\varphi = p(t_1,\cdots,t_n)$, then $\varphi^M = \left\{ 
+  \begin{array}{c l}
+    I(p)(t_1^M,\cdots,t_n^M) & \quad \text{if } (t_1^M, \cdots, t_n^M) \in Img(I(p))\\
+    \mathring{u} & \quad \text{otherwise }\\
+  \end{array} \right.$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
+\item If $\varphi = \bot, \neg\varphi', \varphi_1 \circ \varphi_2$ for $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$ and $\varphi', \varphi_1, \varphi_2 \in FORM$, then $\varphi^M$ is defined similarly as in Definition~\ref{def:pro-val}.
+\item If $\varphi = \forall v \varphi'$, then $\varphi^M = \min\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$,  $\varphi' \in FORM$ and $I<v \mapsto v_i>$ denotes the map after updating the map from $v$ to $v_i$ into $I$.
+\item If $\varphi = \exists v \varphi'$, then $\varphi^M = \max\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$ and  $\varphi' \in FORM$.
 \end{enumerate}
-We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = true$. If $\varphi^M = false$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
+We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = 1$. If $\varphi^M = 0$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
 \end{definition}
 
 \begin{lemma}\label{lemma:model-sat-unsat}
@@ -74,7 +116,7 @@ Given any $\Sigma$-model $M$ and $\Sigma$-formula $\varphi$, we have $\models_M 
 \end{lemma}
 
 \begin{proof}
-$\models_M \varphi \iff \varphi^M = true \iff \neg \varphi^M = false \iff (\neg \varphi)^M = false \iff \not\models^M \neg \varphi$
+$\models_M \varphi \iff \varphi^M = 1 \iff 1 - \varphi^M = 0 \iff (\neg \varphi)^M = 0 \iff \not\models^M \neg \varphi$
 \end{proof}
 
 \begin{definition}
@@ -83,6 +125,7 @@ Let $T$ be a $\Sigma$-theory. A $\Sigma$-formula $\varphi$ is:
 \item satisfiable in $T$ or T-SAT iff $\exists M \in T$; $\models_{M} \varphi$
 \item valid in $T$ or T-VALID iff $\forall M \in T$; $\models_{M} \varphi$
 \item unsatisfiable in $T$ or T-UNSAT iff $\forall M \in T$; $\not\models_{M} \varphi$
+\item unknown in $T$ or T-UNKNOWN iff $\forall M \in T$; $\varphi^M = \mathring{u}$
 \end{itemize}
 \end{definition}
 
@@ -91,7 +134,7 @@ If $T$ be a $\Sigma$-theory, then $\varphi$ is T-VALID $\iff$ $\neg\varphi$ is T
 \end{lemma}
 
 \begin{proof}
-$\varphi$ is T-VALID $\iff \forall M \in T; \models_{M} \iff \forall M \in T; \not\models_{M} \neg\varphi$ (Lemma \ref{lemma:model-sat-unsat}) $\iff \neg\varphi$ is T-UNSAT.
+$\varphi$ is T-VALID $\iff \forall M \in T; \; \models_{M} \varphi \iff \forall M \in T; \; \not\models_{M} \neg\varphi$ (Lemma \ref{lemma:model-sat-unsat}) $\iff \neg\varphi$ is T-UNSAT.
 \end{proof}
 
 \begin{lemma} \label{lemma:subtheory-SAT}
@@ -125,6 +168,7 @@ A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers co
 The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$.
 By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Because a theory is a set of models, it can also be represented by a set of variables assignments. For example, a map from variables to intervals $\Pi = \{v \in [l, h] | v \in V\}$ is enough to represent a theory which is a subset of $T^p_\mathbb{R}$. We denote this theory as $\Pi^p_\mathbb{R}$.
 
-\subsubsection*{Representing (sub-)theory of real numbers as constraints of intervals}
+\subsubsection*{Representing (sub-)theory of real numbers as a constraint of intervals}
+
 
 % % % % % % % % % % % 
