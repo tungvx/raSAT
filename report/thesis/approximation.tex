@@ -342,13 +342,16 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 \item If the system output SAT, there are two possibles transition to SAT:
 \begin{itemize}
 \item In the case of IA\_VALID, we have $\varphi^V$ is $\Pi^c_{R}$-VALID (invariant 2) $\implies \varphi^V$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT (because $\varphi^V = \varphi$ is the condition of this transition). In addition, following invariant 1, we have $\Pi^c_\mathbb{R} \subseteq T^p_\mathbb{R}$, then $\varphi$ is $T^p_\mathbb{R}$-SAT (Lemma ~\ref{lemma:subtheory-SAT}).
-\item \sloppy In the case of TEST\_SAT, $\varphi^U$ is $\Pi^c_\mathbb{R}$-SAT $\implies \exists M \in \Pi^c_\mathbb{R} \; \models_M \varphi^V$. Let ${M^c_\mathbb{R} \in \Pi^c_\mathbb{R}}$ such that $\models_{M^c_\mathbb{R}} \varphi^V$ which implies $(\varphi^V)^{M^c_\mathbb{R}} = 1$. In addition, because $\varphi^V$ is $\Pi^c_\mathbb{R}$-VALID (invariant 2) and $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$, we have $\models_{M^c_\mathbb{R}} \varphi^U$ or $(\varphi^U)^{M^c_\mathbb{R}} = true$. Consider the evaluation of $\varphi$ under the model $M^c_\mathbb{R}$: ${(\varphi)^{M^c_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^c_\mathbb{R}}}$ (invariant 3) $= min((\varphi^U)^{M^c_\mathbb{R}}, (\varphi^V)^{M^c_\mathbb{R}}) = min(1, 1) = 1 \implies \models_{M^c_\mathbb{R}} \varphi \implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
+\item \sloppy In the case of TEST\_SAT, $\varphi^U$ is $\Pi^c_\mathbb{R}$-SAT $\implies \exists M \in \Pi^c_\mathbb{R} \; \models_M \varphi^V$. Let ${M^c_\mathbb{R} \in \Pi^c_\mathbb{R}}$ such that $\models_{M^c_\mathbb{R}} \varphi^V$ which implies $(\varphi^V)^{M^c_\mathbb{R}} = 1$. In addition, because $\varphi^V$ is $\Pi^c_\mathbb{R}$-VALID (invariant 2) and $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$, we have $\models_{M^c_\mathbb{R}} \varphi^U$ or ${(\varphi^U)^{M^c_\mathbb{R}} = 1}$. Consider the evaluation of $\varphi$ under the model $M^c_\mathbb{R}$: ${(\varphi)^{M^c_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^c_\mathbb{R}}}$ (invariant 3) $= min((\varphi^U)^{M^c_\mathbb{R}}, (\varphi^V)^{M^c_\mathbb{R}}) = min(1, 1) = 1 \implies \models_{M^c_\mathbb{R}} \varphi \implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
 \end{itemize}
 \item  If the system output UNSAT, there is only one transition of rule $\Pi$\_UNSAT. Because $\Pi \models_{SAT} \bot$, $\Pi_\mathbb{R}$ is empty (Lemma ?). As a result, $\varphi$ is $\Pi_\mathbb{R}$-UNSAT which implies that $\varphi$ is $T^p_\mathbb{R}$-UNSAT (invariant 4).
 \end{enumerate}
 \end{proof}
 
 \subsection{Completeness}
+\begin{definition}
+
+\end{definition}
 
 
 \begin{comment}
