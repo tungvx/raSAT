@@ -104,18 +104,18 @@ ICP which is capable of solving "multiple thousand arithmetic constraints over s
 Our aim is an SMT solver for solving polynomial constraint. We first focus on strict inequalities because of the following reasons.
 \begin{enumerate}
 \item
-Satisfiable inequalities allow over-approximation. An over-approximation estimates the range of a polynomial $f$ as $O.range(f)$ that covers all the possible values of $f$, i.e. $range(f) \subseteq O.range(f)$. For an inequality $f>0$, if $O.range(f)$ stays in the positive side, it can be concluded as SAT. On the other hand, over-approximation cannot prove the satisfiability of SAT equations.
+Satisfiable inequalities allow over-approximation. An over-approximation estimates the range of a polynomial $f$ as $range^O(f)$ that covers all the possible values of $f$, i.e. $range(f) \subseteq range^O(f)$. For an inequality $f>0$, if $range^O(f)$ stays in the positive side, it can be concluded as SAT. On the other hand, over-approximation cannot prove the satisfiability of SAT equations.
 \item
-Satisfiable inequalities allow under-approximation. An under-approximation computes the range of the polynomial $f$ as  $U.range(f)$ such that $range(f) \supseteq U.range(f)$. If $U.range(f)$ is on the positive side, $f > 0$ can be said to be SAT. Due to the continuity of $f$, finding such an under-approximation for solving $f > 0$ is more feasible than that for $f = 0$.
+Satisfiable inequalities allow under-approximation. An under-approximation computes the range of the polynomial $f$ as  $range^U(f)$ such that $range(f) \supseteq range^U(f)$. If $range^U(f)$ is on the positive side, $f > 0$ can be said to be SAT. Due to the continuity of $f$, finding such an under-approximation for solving $f > 0$ is more feasible than that for $f = 0$.
 \begin{itemize}
 \item If $f(\bar{x}) > 0$ has a real solution $\bar{x_0}$, there exist rational points near $\bar{x_0}$ which also satisfy the inequality. Solving inequalities over real numbers thus can be reduced to that over rational numbers.
 \item The real solution of $f(\bar{x}) = 0$ cannot be approximated to any rational number.
 \end{itemize}
 \end{enumerate}
-For UNSAT constraint (both inequalities and equations) can be solved by over-approximation. Suppose $O.range(f)$ is the result of an over-approximation for a polynomial $f$.
+For UNSAT constraint (both inequalities and equations) can be solved by over-approximation. Suppose $range^O(f)$ is the result of an over-approximation for a polynomial $f$.
 \begin{enumerate}
-\item If $O.range(f)$ resides on the negative side, $f > 0$ is UNSAT.
-\item If $O.range(f)$ stays on either negative or positive side, $f = 0$ is UNSAT.
+\item If $range^O(f)$ resides on the negative side, $f > 0$ is UNSAT.
+\item If $range^O(f)$ stays on either negative or positive side, $f = 0$ is UNSAT.
 \end{enumerate}
 
 Our approach of "iterative approximation refinement" - \textbf{raSAT} loop for solving polynomial constraint was proposed and implemented as an SMT solver named raSAT in \cite{VanKhanh201227}. This work improves the efficiency of the tool and extend it to handle equations. The summary of the proposed method in \cite{VanKhanh201227} is:

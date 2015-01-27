@@ -143,6 +143,10 @@ $PR$ &&&&PR&$+\infty$\\\hline
 $+\infty$ &&&&&$+\infty$\\\hline
 \end{tabular}
 
+\begin{definition} \label{def:real_intervals}
+The set of all real intervals $\mathbb{I}$ is defined as $\mathbb{I} = \{\langle a, b \rangle | a, b \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } a \le b \}$.
+\end{definition}
+
 \subsection{Interval Arithmetic as an Over-Approximation Theory}
 A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all intervals $U^p_{IA} = \{\langle l, h\rangle | l, h \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } l \le h\}$ and a map $I^p_{IA}$ that satisfies the following conditions.
 \begin{enumerate}
@@ -173,7 +177,7 @@ A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all i
 \item $I^p_{IA}(\mathbf{1}) = \langle 1,1\rangle $
 \item $\forall v \in V$; $I^p_{IA} \in U^p_{IA}$
 \end{enumerate}
-Theory $T^p_{IA} = \{M^p_{IA}| M^p_{IA} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{IA}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
+Theory $T^p_{IA} = \{M^p_{IA}| M^p_{IA} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. An assignment $\{v \mapsto i \in \mathbb{I} | v \in V\}$ and an interval constraint $\bigwedge\limits_{v \in V} v \in i$ are equivalent in terms of the set of assignments from variables to real numbers. So by abusing notation, for a constraint of the form $\Pi = \bigwedge\limits_{v \in V} v \in i$, we denote $\Pi^p_{IA}$ as a model of interval arithmetics for polynomial constraints. By definition, $\{\Pi^p_{IA}\}$ represents the a sub-theory of $T^p_{IA}$.
 
 \begin{lemma} \label{lemma:IA-R-OP}
 Let $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ be a model over intervals, we have:
@@ -192,15 +196,15 @@ Suppose  that $i_1 \; p_{IA} \; i_2 = 0 $, we need to show $not \; (r_1 \; p_\ma
 \begin{enumerate}
 \item If $p$ is $\succ$, the we have $\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = 0  \implies h_1 \le l_2 \implies r_1 \le r_2$ (because $r_1 \le h_1$ and $l_2 \le r_2$) $\implies not \; (r_1 > r2) \implies not \; (r_1 \succ_\mathbb{R} r_2)$.
 \item If $p$ is $\prec$, the we have $\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = 0  \implies l_1 \ge h_2 \implies r_1 \ge r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies not \; (r_1 < r_2) \implies not \; (r_1 \prec_\mathbb{R} r_2)$.
-\item If $p$ is $\succeq$, the we have $\langle l_1, h_1\rangle  \succeq_{IA} \langle l_2, h_2\rangle  = 0  \implies 1 -  (\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle ) = 0  \implies \langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = 1 \implies h_1 < l_2 \implies r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies not \; (r_1 \ge r_2) \implies not \; (r_1 \succeq_\mathbb{R} r_2)$.
-\item If $p$ is $\preceq$, the we have $\langle l_1, h_1\rangle  \preceq_{IA} \langle l_2, h_2\rangle  = 0  \implies 1 - (\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle ) = 0  \implies \langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = 1 \implies l_1 > h	_2 \implies r_1 > r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies not \; (r_1 \le r_2) \implies not \; (r_1 \preceq_\mathbb{R} r_2)$.
-\item If $p$ is $\approx$, the we have $i_1 \approx_{IA} i_2 = 0  \implies min(i_1 \succeq_{IA} i_2 , i_1 \preceq_{IA} i_2) = 0  \implies i_1 \succeq_{IA} i_2 = 0  \text{ or } i_1 \preceq_{IA} i_2 = 0  \implies r_1 < r_2 \text{ or } r_1 > r_2$ (as the third and fourth case of this proof) $\implies not \; (r_1 = r_2) \implies not \; (r_1 \approx_\mathbb{R} r_2)$.
-\item If $p$ is $\not\approx$, the we have $i_1 \not\approx_{IA} i_2 = 0  \implies 1 - (i_1 \approx_{IA} i_2) = 0  \implies min(i_1 \succeq_{IA} i_2, i_1 \preceq_{IA} i_2) = 1 \implies i_1 \succeq_{IA} i_2 = 1$ and $i_1 \preceq_{IA} i_2 = 1   \implies 1 - (i_1 \prec_{IA} i_2) = 1 \text{ and } 1 - (i_1 \succ_{IA} i_2) = 1  \implies i_1 \prec_{IA} i_2 = 0  \text{ and } i_1 \succ_{IA} i_2 = 0  \implies r_1 \ge r_2 \text{ and } r_1 \le r_2$ (as the first and second case of this proof) $\implies r_1 = r_2 \implies not \; (r_1 \not= r_2) \implies not \; (r_1 \not\approx_\mathbb{R} r_2)$.
+\item If $p$ is $\succeq$, the we have $\langle l_1, h_1\rangle  \succeq_{IA} \langle l_2, h_2\rangle  = 0  \implies {1 -  (\langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle ) = 0}  \implies \langle l_1, h_1\rangle  \prec_{IA} \langle l_2, h_2\rangle  = 1 \implies h_1 < l_2 \implies r_1 < r_2$ (because $r_1 \le h_1$ and $r_2 \ge l_2$) $\implies not \; (r_1 \ge r_2) \implies not \; (r_1 \succeq_\mathbb{R} r_2)$.
+\item If $p$ is $\preceq$, the we have $\langle l_1, h_1\rangle  \preceq_{IA} \langle l_2, h_2\rangle  = 0  \implies {1 - (\langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle ) = 0}  \implies \langle l_1, h_1\rangle  \succ_{IA} \langle l_2, h_2\rangle  = 1 \implies l_1 > h	_2 \implies r_1 > r_2$ (because $r_1 \ge l_1$ and $r_2 \le h_2$) $\implies not \; (r_1 \le r_2) \implies not \; (r_1 \preceq_\mathbb{R} r_2)$.
+\item If $p$ is $\approx$, the we have $i_1 \approx_{IA} i_2 = 0  \implies min(i_1 \succeq_{IA} i_2 , i_1 \preceq_{IA} i_2) = 0  \implies {i_1 \succeq_{IA} i_2 = 0}  \text{ or } i_1 \preceq_{IA} i_2 = 0  \implies r_1 < r_2 \text{ or } r_1 > r_2$ (as the third and fourth case of this proof) $\implies not \; (r_1 = r_2) \implies not \; (r_1 \approx_\mathbb{R} r_2)$.
+\item \sloppy If $p$ is $\not\approx$, the we have $i_1 \not\approx_{IA} i_2 = 0  \implies 1 - (i_1 \approx_{IA} i_2) = 0  \implies {min(i_1 \succeq_{IA} i_2, i_1 \preceq_{IA} i_2) = 1} \implies i_1 \succeq_{IA} i_2 = 1$ and $i_1 \preceq_{IA} i_2 = 1   \implies 1 - (i_1 \prec_{IA} i_2) = 1 \text{ and } 1 - (i_1 \succ_{IA} i_2) = 1  \implies {i_1 \prec_{IA} i_2 = 0  \text{ and } i_1 \succ_{IA} i_2 = 0}  \implies {r_1 \ge r_2} \text{ and } {r_1 \le r_2}$ (as the first and second case of this proof) $\implies r_1 = r_2 \implies not \; (r_1 \not= r_2) \implies not \; (r_1 \not\approx_\mathbb{R} r_2)$.
 \end{enumerate}
 \end{proof}
 
 \begin{lemma} \label{lemma:IA-OT}
-$\forall t \in TERM^p \; \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; t^{M^p_\mathbb{R}} \in t^{\Pi^p_{IA}}$.
+Let $\Pi = \bigwedge\limits_{v \in V}v \in i$ with $i \in \mathbb{I}$, we have ${\forall t \in TERM^p \; \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; t^{M^p_\mathbb{R}} \in t^{\Pi^p_{IA}}}$.
 \end{lemma}
 
 \begin{proof}
@@ -220,7 +224,7 @@ By induction hypothesis, we have $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and
 \end{proof}
 
 \begin{theorem} \label{theorem:IA-OverAprox}
-If $\Pi = \{v \in \langle l, h\rangle  | v \in V\}$ is a map from variables to intervals, then $\{\Pi^p_{IA}\}$ is an over-approximation of $\Pi^p_\mathbb{R}$.
+If $\Pi = \bigwedge\limits_{v \in V}v \in i$ with $i \in \mathbb{I}$ is a map from variables to intervals, then $\{\Pi^p_{IA}\}$ is an over-approximation of $\Pi^p_\mathbb{R}$.
 \end{theorem}
 
 \begin{proof}
@@ -229,9 +233,9 @@ In order to prove Theorem ~\ref{theorem:IA-OverAprox}, we need to prove that $\f
 Given an $\Sigma^p$-formula $\varphi^p$ and suppose that $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT.
 Suppose $\varphi^p$ is not $\Pi^p_\mathbb{R}$-UNSAT, that means it is either  $\Pi^p_\mathbb{R}$-SAT or  $\Pi^p_\mathbb{R}$-VALID. In either case, there exist at least a model $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$ such that $\models_{M^p_\mathbb{R}} \varphi^p \iff (\varphi^p)^{M^p_\mathbb{R}}= true$.
 \begin{enumerate}
-\item If $\varphi^p = p(t_1, t_2)$ for some $p \in P^p$, then $(\varphi^p)^{M^p_\mathbb{R}}= true \implies t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}}$. 
+\item \sloppy If $\varphi^p = p(t_1, t_2)$ for some $p \in P^p$, then $(\varphi^p)^{M^p_\mathbb{R}}= true \implies t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}}$. 
 
-On the other hand, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies (\varphi^p)^{\Pi^p_{IA}} = 0  \implies t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = 0 $. In addition, because $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and $t_2^{M^p_\mathbb{R}} \in t_2^{\Pi^p_{IA}}$ (Lemma ~\ref{lemma:IA-OT}), $t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = 0  \implies \neg(t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}})$ (Lemma ~\ref{lemma:IA-R-OP}). This is a contradiction. As the result, $\varphi^p$ must be $\Pi^p_\mathbb{R}$-UNSAT.
+On the other hand, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies (\varphi^p)^{\Pi^p_{IA}} = 0  \implies t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = 0 $. In addition, because $t_1^{M^p_\mathbb{R}} \in t_1^{\Pi^p_{IA}}$ and $t_2^{M^p_\mathbb{R}} \in t_2^{\Pi^p_{IA}}$ (Lemma ~\ref{lemma:IA-OT}), ${t_1^{\Pi^p_{IA}} \; p_{IA} \; t_2^{\Pi^p_{IA}} = 0}  \implies \neg(t_1^{M^p_\mathbb{R}} \; p_\mathbb{R} \; t_2^{M^p_\mathbb{R}})$ (Lemma ~\ref{lemma:IA-R-OP}). This is a contradiction. As the result, $\varphi^p$ must be $\Pi^p_\mathbb{R}$-UNSAT.
 \item If $\varphi^p = \varphi^p_1 \wedge \varphi^p_2$, then we have $\varphi^p$ is  $\{\Pi^p_{IA}\}$-UNSAT $\implies \not\models_{\Pi^p_{IA}}(\varphi^p_1 \wedge \varphi^p_2) \implies (\varphi^p_1 \wedge \varphi^p_2)^{\Pi^p_{IA}} = 0  \implies (\varphi^p_1)^{\Pi^p_{IA}} \wedge (\varphi^p_2)^{\Pi^p_{IA}} = 0  \implies (\varphi^p_1)^{\Pi^p_{IA}} = 0 $ and $(\varphi^p_2)^{\Pi^p_{IA}} = 0 $. By induction hypothesis, $\varphi^p_1$ and $\varphi^p_2$ are $\Pi^p_\mathbb{R}$-UNSAT $\implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_1$ and $\forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} \varphi^p_2 \implies \forall M^p_\mathbb{R} \in \Pi^p_\mathbb{R} \; \not\models_{M^p_{IA}} (\varphi^p_1 \wedge \varphi^p_2) \implies \varphi^p_1 \wedge \varphi^p_2$ is $\Pi^p_\mathbb{R}$-UNSAT.
 \end{enumerate}
 \end{proof}
@@ -246,17 +250,18 @@ If $T^p_T$ is a theory of testing w.r.t $T^p$, $T^p_R$ is an under-approximation
 \end{theorem}
 
 \begin{proof}
-Let $\varphi^p$ is a $\Sigma^p$-formula and suppose it is $T^p_T$-SAT. We need to prove $\varphi^p$ is $T^p$-SAT. We have $\varphi^p$ is $T^p_T$-SAT $\implies \exists M^p \in T^p_T \; \models_{M^p} \varphi^p \implies \exists M^p \in T^p \; \models_{M^p} \varphi^p$ (because $T^p_T \subseteq T^p$) $\implies \varphi^p$ is $T^p$-SAT.
+Let $\varphi^p$ is a $\Sigma^p$-formula and suppose it is $T^p_T$-SAT. We need to prove $\varphi^p$ is $T^p$-SAT. We have $\varphi^p$ is $T^p_T$-SAT $\implies \exists M^p \in T^p_T \; \models_{M^p} \varphi^p \implies \exists M^p \in T^p \; \models_{M^p} \varphi^p$ {(because $T^p_T \subseteq T^p$)} $\implies \varphi^p$ is $T^p$-SAT.
 \end{proof}
 
 Given a theory $T^p$, we randomly select a number of its models to form a theory of testing $T^p_T$ w.r.t $T^p$.
 
-\section{raSAT loop}
+\section{raSAT Loop}
 In other word, each model can be represented by an assignment of one real number to each variable. 
 State of search procedure contains  $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ where 
 \begin{itemize}
-\item $\Pi$ is the interval constraint
+\item $\Pi$ is the interval constraint.
 \item $\varphi$ represents the polynomial constraint.
+\item $\Pi^c = \bigwedge\limits_{v \in V} v \in i$ with $i \in \mathbb{I}$ is the result of DPLL procedure on $\Pi$.
 \item $\varphi^V$ contains the constraints that are valid under over-approximation.
 \item $\varphi^U$ is the set of constraints which are UNKNOWN under over-approximation.
 \end{itemize}
@@ -313,11 +318,11 @@ Let $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ be any state of our system, th
 \item Easy from the transitions.
 \item The proof is done inductively:
 \begin{itemize}
-\item Initial state: $(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty), \varphi, \emptyset, \emptyset, \emptyset)$ and by definition, $((\bigwedge\limits_{v \in V}v \in (-\infty, +\infty))_\mathbb{R} = T^p_R$. Then, the invariant trivially holds.
+\item \sloppy Initial state: $(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty), \varphi, \emptyset, \emptyset, \emptyset)$ and by definition, ${(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty))_\mathbb{R} = T^p_R}$. Then, the invariant trivially holds.
 \item Each transition is considered:
 \begin{itemize}
 \item For rules $\Pi$\_SAT, IA\_SAT the interval constraint $\Pi$ does not changed, so if the properties holds for the former state, it also does for the later one.
-\item For REFINE transition: Denote $\Pi' = \Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})$. We will prove that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT $\implies \varphi$ is $\Pi_\mathbb{R}$-UNSAT. First suppose that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT. Let
+\item \sloppy For REFINE transition: \\ Denote ${\Pi' = \Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})}$. We will prove that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT $\implies \varphi$ is $\Pi_\mathbb{R}$-UNSAT. First suppose that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT. Let
 \item for IA\_UNSAT transition, 
 \end{itemize}
 \end{itemize}
@@ -337,7 +342,7 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 \item If the system output SAT, there are two possibles transition to SAT:
 \begin{itemize}
 \item In the case of IA\_VALID, we have $\varphi^V$ is $\Pi^c_{R}$-VALID (invariant 2) $\implies \varphi^V$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT (because $\varphi^V = \varphi$ is the condition of this transition). In addition, following invariant 1, we have $\Pi^c_\mathbb{R} \subseteq T^p_\mathbb{R}$, then $\varphi$ is $T^p_\mathbb{R}$-SAT (Lemma ~\ref{lemma:subtheory-SAT}).
-\item In the case of TEST\_SAT, $\varphi^U$ is $\Pi^c_\mathbb{R}$-SAT $\implies \exists M \in \Pi^c_\mathbb{R} \; \models_M \varphi^V$. Let $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$ such that $\models_{M^c_\mathbb{R}} \varphi^V$ which implies $(\varphi^V)^{M^c_\mathbb{R}} = true$. In addition, because $\varphi^V$ is $\Pi^c_\mathbb{R}$-VALID (invariant 2) and $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$, we have $\models_{M^c_\mathbb{R}} \varphi^U$ or $(\varphi^U)^{M^c_\mathbb{R}} = true$. Consider the evaluation of $\varphi$ under the model $M^c_\mathbb{R}$: $(\varphi)^{M^c_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^c_\mathbb{R}}$ (invariant 3) $= (\varphi^U)^{M^c_\mathbb{R}} \wedge (\varphi^V)^{M^c_\mathbb{R}} = true \wedge true = true \implies \models_{M^c_\mathbb{R}} \varphi \implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
+\item \sloppy In the case of TEST\_SAT, $\varphi^U$ is $\Pi^c_\mathbb{R}$-SAT $\implies \exists M \in \Pi^c_\mathbb{R} \; \models_M \varphi^V$. Let ${M^c_\mathbb{R} \in \Pi^c_\mathbb{R}}$ such that $\models_{M^c_\mathbb{R}} \varphi^V$ which implies $(\varphi^V)^{M^c_\mathbb{R}} = 1$. In addition, because $\varphi^V$ is $\Pi^c_\mathbb{R}$-VALID (invariant 2) and $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$, we have $\models_{M^c_\mathbb{R}} \varphi^U$ or $(\varphi^U)^{M^c_\mathbb{R}} = true$. Consider the evaluation of $\varphi$ under the model $M^c_\mathbb{R}$: ${(\varphi)^{M^c_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^c_\mathbb{R}}}$ (invariant 3) $= min((\varphi^U)^{M^c_\mathbb{R}}, (\varphi^V)^{M^c_\mathbb{R}}) = min(1, 1) = 1 \implies \models_{M^c_\mathbb{R}} \varphi \implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
 \end{itemize}
 \item  If the system output UNSAT, there is only one transition of rule $\Pi$\_UNSAT. Because $\Pi \models_{SAT} \bot$, $\Pi_\mathbb{R}$ is empty (Lemma ?). As a result, $\varphi$ is $\Pi_\mathbb{R}$-UNSAT which implies that $\varphi$ is $T^p_\mathbb{R}$-UNSAT (invariant 4).
 \end{enumerate}

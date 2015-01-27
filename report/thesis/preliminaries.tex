@@ -109,7 +109,7 @@ Similarly, the valuation $\varphi^M$ of $\varphi$ is defined as:
     \mathring{u} & \quad \text{otherwise }\\
   \end{array} \right.$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
 \item If $\varphi = \bot, \neg\varphi', \varphi_1 \circ \varphi_2$ for $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$ and $\varphi', \varphi_1, \varphi_2 \in FORM$, then $\varphi^M$ is defined similarly as in Definition~\ref{def:pro-val}.
-\item If $\varphi = \forall v \varphi'$, then $\varphi^M = \min\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$,  $\varphi' \in FORM$ and $I<v \mapsto v_i>$ denotes the map after updating the map from $v$ to $v_i$ into $I$.
+\item If $\varphi = \forall v \varphi'$, then $\varphi^M = \min\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$,  $\varphi' \in FORM$ and ${I<v \mapsto v_i>}$ denotes the map after updating the map from $v$ to $v_i$ into $I$.
 \item If $\varphi = \exists v \varphi'$, then $\varphi^M = \max\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$ and  $\varphi' \in FORM$.
 \end{enumerate}
 We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = 1$. If $\varphi^M = 0$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
@@ -149,7 +149,7 @@ If $T' \subseteq T$, then $\varphi$ is $T'$-SAT $\implies \varphi$ is $T$-SAT.
 $\varphi$ is $T'$-SAT $\implies \exists M \in T'; \; \models_M \varphi \implies \exists M \in T; \; \models_M \varphi$ (because $T' \subseteq T$) $\implies \varphi$ is $T$-SAT.
 \end{proof}
 
-\section{Polynomial constraints over real numbers}
+\section{Polynomial Constraints over Real Numbers}
 \subsection{Syntax}
 We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, V^p, \alpha^p)$ in Section ~\ref{subsection:smt-syntax} for polynomial constraints as following:
 \begin{enumerate}
@@ -176,7 +176,7 @@ A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers co
 \item $\forall v \in V$; $I^p_{\mathbb{R}}(v) \in \mathbb{R}$.
 \end{enumerate}
 The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$.
-By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Because a theory is a set of models, it can also be represented by a set of variables assignments. For example, a map from variables to intervals $\Pi = \{v \in [l, h] | v \in V\}$ is enough to represent a theory which is a subset of $T^p_\mathbb{R}$. We denote this theory as $\Pi^p_\mathbb{R}$.
+By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Given a map $\theta = \{v \mapsto r \in \mathbb{R}| v \in V \}$, $\theta^p_\mathbb{R}$ denotes the model represented by $\theta$.
 
 \subsubsection*{Representing (sub-)theory of real numbers as a constraint of intervals}
 The signature of the first order logic is instantiated as $\Sigma^I = (S^I, P^I, F^I, \alpha^I)$ for interval constraints:
@@ -185,10 +185,23 @@ The signature of the first order logic is instantiated as $\Sigma^I = (S^I, P^I,
 \item $P^I = \{\in\}$
 \item $F^I = \{c | c \text{ is a constant}\}$
 \item $\alpha^I(\in) = (Real, Interval)$ and $\forall c \in F^I; \; \alpha^I(c) = Interval$
-\item $\forall c \in F^I; \; \alpha^P(c) = Interval$.
+\item $\forall c \in F^I; \; \alpha^I(c) = Interval$.
 \item $\forall v \in V; \; \alpha^I(v) = Real$.
 \end{enumerate}
 We call $\Sigma^I$-formula is an interval constraint.
+A model $M^I_{\mathbb{R}} = (\mathbb{I} \cup \mathbb{R}, I^I)$ over intervals contains the set of real numbers and real intervals $\mathbb{I} \cup \mathbb{R}$ and a map $I^I$ that satisfies the following properties.
+\begin{enumerate}
+\item $I^I(Real) = \mathbb{R}$ and $I^I(Interval) = \mathbb{I}$. $\mathbb{I}$ is the set of all real intervals which is defined later in Definition~\ref{def:real_intervals}.
+\item $I^I(\in) = \mathbb{R} \times \mathbb{I} \mapsto \{1, 0\}$ such that $ I_\mathbb{R}^p(p)(r, \langle a, b \rangle) = \left\{ 
+  \begin{array}{c l}
+    1 & \quad \text{if } a \le r \le b\\
+    0 & \quad \text{otherwise }\\
+  \end{array} \right.$.
+\item $\forall c \in F^I$; $I^I(c) \in \mathbb{I}$.
+\item $\forall v \in V$; $I^I(v) \in \mathbb{R}$.
+\end{enumerate}
+The theory of real intervals is $T^I = \{M^I | M^I$ is a model of real intervals $\}$.
+By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^I$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Given a map $\theta = \{v \mapsto r \in \mathbb{R} | v \in V\}$, we denote $\theta^I$ as a model of real intervals. If $\Pi$ is an interval constraint, the notation $\Pi^p_\mathbb{R} = \{\theta^p_\mathbb{R} | \theta = \{v \mapsto r \in \mathbb{R} | v \in V\} \text{ and } \models_{\theta^I} \Pi \}$ represents the (sub-)theory of real numbers that each of its model (after converted into the model of intervals) satisfies the constraint $\Pi$.
 
 
 
