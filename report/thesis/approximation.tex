@@ -257,13 +257,15 @@ Given a theory $T^p$, we randomly select a number of its models to form a theory
 
 \section{raSAT Loop}
 In other word, each model can be represented by an assignment of one real number to each variable. 
-State of search procedure contains  $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ where 
+State of search procedure contains  $(\Pi, \varphi, \bar{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ where 
 \begin{itemize}
 \item $\Pi$ is the interval constraint.
 \item $\varphi$ represents the polynomial constraint.
-\item $\Pi^c = \bigwedge\limits_{v \in V} v \in i$ with $i \in \mathbb{I}$ is the result of DPLL procedure on $\Pi$.
+\item $\bar{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in i_i$ with $i_i \in \mathbb{I}$ is the result of DPLL procedure on $\Pi$.
 \item $\varphi^V$ contains the constraints that are valid under over-approximation.
 \item $\varphi^U$ is the set of constraints which are UNKNOWN under over-approximation.
+\item $\varepsilon$ indicates the threshold to stop decomposing intervals.
+\item $\tau$ is a flag to mark whether the threshold of intervals has been reached.
 \end{itemize}
 The transition rules are described in Table ~\ref{tab:transition-rules}. Figure ~\ref{fig:smt-design} illustrates the transition system. 
 
@@ -272,19 +274,23 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
   \begin{tabular}{ll}
   \hline\\
   \large 
-  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset) \to UNSAT}$ \tiny $\Pi$\_UNSAT \\\\
+  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \emptyset) \to UNSAT}$ \tiny $\Pi$\_UNSAT\_UNSAT \\\\
   \large 
-  $\frac{\Pi \models_{SAT} \Pi^c \quad \Pi^{c'} = flattern(\Pi^c)}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset) \to (\Pi, \varphi, \Pi^{c'}, \emptyset, \emptyset)}$ \tiny $\Pi$\_SAT\\\\
+  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \top) \to UNSAT}$ \tiny $\Pi$\_UNSAT\_UNKNOWN \\\\
+  \large 
+  $\frac{\Pi \models_{SAT} \bar{\Pi} \quad \Pi^{c'} = flattern(\bar{\Pi})}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau) \to (\Pi, \varphi, \Pi^{c'}, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny $\Pi$\_SAT\\\\
   \large
-  $\frac{\Pi^c \not= \emptyset \quad   \varphi^V \wedge \varphi^U = \varphi \quad \varphi^V \cup \varphi^U = \emptyset \quad \varphi^V \text{ is }  \Pi^c_{IA}\text{-VALID}}{(\Pi, \varphi, \Pi^c, \emptyset, \emptyset) \to (\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)}$ \tiny IA\_SAT \\\\  
+  $\frac{\bar{\Pi} \not= \emptyset \quad   \varphi^V \wedge \varphi^U = \varphi \quad \varphi^V \cup \varphi^U = \emptyset \quad \varphi^V \text{ is }  \bar{\Pi}_{IA}\text{-VALID}}{(\Pi, \varphi, \bar{\Pi}, \emptyset, \emptyset, \varepsilon, \tau) \to (\Pi, \varphi, \bar{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)}$ \tiny IA\_SAT \\\\  
   \large 
-  $\frac{\varphi^V = \varphi}{(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U) \to SAT}$ \tiny IA\_VALID \\\\
+  $\frac{\varphi^V = \varphi}{(\Pi, \varphi, \bar{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to SAT}$ \tiny IA\_VALID \\\\
   \large 
-  $\frac{\Pi^c \not= \emptyset \quad \varphi^U \not= \emptyset \quad \varphi^U \text{ is }  \Pi^c_T\text{-SAT}}{(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U) \to SAT}$ \tiny TEST\_SAT \\\\
+  $\frac{\bar{\Pi} \not= \emptyset \quad \varphi^U \not= \emptyset \quad \varphi^U \text{ is }  \bar{\Pi}_T\text{-SAT}}{(\Pi, \varphi, \bar{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to SAT}$ \tiny TEST\_SAT \\\\
+  \large     
+  $\frac{\varphi^U \text{ is }  \bar{\Pi}_T\text{-UNSAT} \quad \bar{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle \quad \forall i (h_i - l_i < \varepsilon)}{(\Pi, \varphi, \bar{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to (\Pi \wedge \neg \bar{\Pi}, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \top)}$ \tiny THRESHOLD \\\\
   \large 
-  $\frac{\varphi^U \text{ is }  \Pi^c_T\text{-UNSAT} \quad x_j \in var(\varphi^U) \quad (I_j = x_j \in [l_j, h_j]) \in \Pi^c \quad l_j < d \in \mathbb{R} < h_j \quad I_{j1} = x_j \in [l_j, d] \quad I_{j2} = x_j \in [d, h_j]}{(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \varphi, \emptyset, \emptyset, \emptyset)}$ \tiny REFINE \\\\
+  $\frac{\varphi^U \text{ is }  \bar{\Pi}_T\text{-UNSAT} \quad \bar{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle \quad \exists j(h_j - l_j > \varepsilon) \quad l_j < d \in \mathbb{R} < h_j \quad I_j = v_j \in \langle l_j, h_j \rangle \quad I_{j1} = x_j \in \langle l_j, d\rangle \quad I_{j2} = x_j \in \langle d, h_j \rangle}{(\Pi, \varphi, \bar{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny REFINE \\\\
   \large 
-  $\frac{\{\varphi_i| \varphi_i \wedge \varphi'_i = \varphi; \; \varphi_i \text{ is } \Pi^c_{IA}\text{-UNSAT}\} \quad var(\varphi_i) = \{x_{ij}|j=1,\cdots, m_i\} \quad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in \Pi^c}{(\Pi, \varphi, \Pi^c, \emptyset, \emptyset) \to (\Pi \wedge \bigwedge\limits_i \bigvee\limits_{j=1}^{m_i} \neg I_{ij}, \varphi, \emptyset, \emptyset, \emptyset)}$ \tiny IA\_UNSAT \\\\
+  $\frac{\{\varphi_i| \varphi_i \wedge \varphi'_i = \varphi; \; \varphi_i \text{ is } \bar{\Pi}_{IA}\text{-UNSAT}\} \quad var(\varphi_i) = \{x_{ij}|j=1,\cdots, m_i\} \quad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in \bar{\Pi}}{(\Pi, \varphi, \bar{\Pi}, \emptyset, \emptyset, \varepsilon, \tau) \to (\Pi \wedge \bigwedge\limits_i \bigvee\limits_{j=1}^{m_i} \neg I_{ij}, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny IA\_UNSAT \\\\
   \hline\\
   \end{tabular}
   \caption{Transition rules}\label{tab:transition-rules}
@@ -302,10 +308,10 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
 \section{Soundness - Completeness}
 \subsection{Soundness}
 \begin{theorem}
-Let $(\Pi, \varphi, \Pi^c, \varphi^V, \varphi^U)$ be any state of our system, then the following properties are invariants:
+Let $(\Pi, \varphi, \bar{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ be any state of our system, then the following properties are invariants:
 \begin{enumerate}
-\item $\Pi^c_\mathbb{R} \subseteq T^p_\mathbb{R}$
-\item $\varphi^V$ is $\Pi^c_{R}$-VALID.
+\item $\bar{\Pi}_\mathbb{R} \subseteq T^p_\mathbb{R}$
+\item $\varphi^V$ is $\bar{\Pi}_{R}$-VALID.
 \item $\varphi^U = \emptyset \vee (\varphi = \varphi^U \wedge \varphi^V)$
 \item $\varphi$ is $\Pi_\mathbb{R}$-UNSAT $\implies$ $\varphi$ is $T^p_\mathbb{R}$-UNSAT
 \end{enumerate}
@@ -341,8 +347,8 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 \begin{enumerate}
 \item If the system output SAT, there are two possibles transition to SAT:
 \begin{itemize}
-\item In the case of IA\_VALID, we have $\varphi^V$ is $\Pi^c_{R}$-VALID (invariant 2) $\implies \varphi^V$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT (because $\varphi^V = \varphi$ is the condition of this transition). In addition, following invariant 1, we have $\Pi^c_\mathbb{R} \subseteq T^p_\mathbb{R}$, then $\varphi$ is $T^p_\mathbb{R}$-SAT (Lemma ~\ref{lemma:subtheory-SAT}).
-\item \sloppy In the case of TEST\_SAT, $\varphi^U$ is $\Pi^c_\mathbb{R}$-SAT $\implies \exists M \in \Pi^c_\mathbb{R} \; \models_M \varphi^V$. Let ${M^c_\mathbb{R} \in \Pi^c_\mathbb{R}}$ such that $\models_{M^c_\mathbb{R}} \varphi^V$ which implies $(\varphi^V)^{M^c_\mathbb{R}} = 1$. In addition, because $\varphi^V$ is $\Pi^c_\mathbb{R}$-VALID (invariant 2) and $M^c_\mathbb{R} \in \Pi^c_\mathbb{R}$, we have $\models_{M^c_\mathbb{R}} \varphi^U$ or ${(\varphi^U)^{M^c_\mathbb{R}} = 1}$. Consider the evaluation of $\varphi$ under the model $M^c_\mathbb{R}$: ${(\varphi)^{M^c_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^c_\mathbb{R}}}$ (invariant 3) $= min((\varphi^U)^{M^c_\mathbb{R}}, (\varphi^V)^{M^c_\mathbb{R}}) = min(1, 1) = 1 \implies \models_{M^c_\mathbb{R}} \varphi \implies \varphi$ is $\Pi^c_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
+\item In the case of IA\_VALID, we have $\varphi^V$ is $\bar{\Pi}_{R}$-VALID (invariant 2) $\implies \varphi^V$ is $\bar{\Pi}_\mathbb{R}$-SAT $\implies \varphi$ is $\bar{\Pi}_\mathbb{R}$-SAT (because $\varphi^V = \varphi$ is the condition of this transition). In addition, following invariant 1, we have $\bar{\Pi}_\mathbb{R} \subseteq T^p_\mathbb{R}$, then $\varphi$ is $T^p_\mathbb{R}$-SAT (Lemma ~\ref{lemma:subtheory-SAT}).
+\item \sloppy In the case of TEST\_SAT, $\varphi^U$ is $\bar{\Pi}_\mathbb{R}$-SAT $\implies \exists M \in \bar{\Pi}_\mathbb{R} \; \models_M \varphi^V$. Let ${M^c_\mathbb{R} \in \bar{\Pi}_\mathbb{R}}$ such that $\models_{M^c_\mathbb{R}} \varphi^V$ which implies $(\varphi^V)^{M^c_\mathbb{R}} = 1$. In addition, because $\varphi^V$ is $\bar{\Pi}_\mathbb{R}$-VALID (invariant 2) and $M^c_\mathbb{R} \in \bar{\Pi}_\mathbb{R}$, we have $\models_{M^c_\mathbb{R}} \varphi^U$ or ${(\varphi^U)^{M^c_\mathbb{R}} = 1}$. Consider the evaluation of $\varphi$ under the model $M^c_\mathbb{R}$: ${(\varphi)^{M^c_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^c_\mathbb{R}}}$ (invariant 3) $= min((\varphi^U)^{M^c_\mathbb{R}}, (\varphi^V)^{M^c_\mathbb{R}}) = min(1, 1) = 1 \implies \models_{M^c_\mathbb{R}} \varphi \implies \varphi$ is $\bar{\Pi}_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
 \end{itemize}
 \item  If the system output UNSAT, there is only one transition of rule $\Pi$\_UNSAT. Because $\Pi \models_{SAT} \bot$, $\Pi_\mathbb{R}$ is empty (Lemma ?). As a result, $\varphi$ is $\Pi_\mathbb{R}$-UNSAT which implies that $\varphi$ is $T^p_\mathbb{R}$-UNSAT (invariant 4).
 \end{enumerate}
@@ -350,8 +356,17 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 
 \subsection{Completeness}
 \begin{definition}
+\sloppy
+Let $\Pi = \bigwedge\limits_{v \in V} v \in i$ with $i \in \mathbb{I}$, and ${\varphi = \bigwedge\limits_{i=1}^n f_i > 0}$. An over-approximation $T^p_O$ of $T^p_\mathbb{R}$ is complete if for each open set ${O \subset \{(r_1,r_2,\cdots) |  \models_{\theta^\mathbb{I}} \Pi; \theta = \{v_i \mapsto r_i \in \mathbb{R} | v_i  \in V\}\}}$, we have ${\forall c \in O; \; \forall \delta > 0; \; \exists \gamma > 0; \; (\langle c - \gamma, c + \gamma \rangle \in O \text{ and } \models_{\Pi'^p_\mathbb{R}} \bigwedge\limits_{i=1}^n(f_i(c)-\delta < f_i(x) < f_i(c) + \delta)}$ where ${\Pi' = \bigwedge\limits_{v_i \in V} v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}$, and ${c = (c_1, c_2, \cdots)}$
+\end{definition}
+
+\begin{definition}
 
 \end{definition}
+
+\begin{theorem}
+
+\end{theorem}
 
 
 \begin{comment}
