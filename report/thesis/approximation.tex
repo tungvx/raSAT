@@ -305,6 +305,14 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
 %\end{minipage}
 \end{figure}
 
+\begin{theorem} \label{theorem:terminating}
+Starting with state $\Pi, \varphi, \emptyset, \emptyset, \varepsilon, \tau$, if $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ and $\{(x_1, x_2, \cdots) | \models_{\theta^I} \Pi, \theta = \{v_1 \mapsto x_1, v_2 \mapsto x_2, \cdots\} \}$ is bounded, raSATloop terminates.
+\end{theorem}
+
+\begin{proof}
+In the worst case, all the interval will be decomposed into smallest boxes with size of $\varepsilon$ whose number are bounded to $\frac{h_1 - l_1}{\varepsilon}\frac{h_2 - l_2}{\varepsilon}\cdots$ (the number of variables in one polynomial constraint is also bounded). As a result, raSATloop terminates after checking all of these boxes.
+\end{proof}
+
 \section{Soundness - Completeness}
 \subsection{Soundness}
 \begin{theorem}
@@ -355,18 +363,44 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 \end{proof}
 
 \subsection{Completeness}
-\begin{definition}
+\begin{definition} \label{def:OT-complete}
 \sloppy
 Let $\Pi = \bigwedge\limits_{v \in V} v \in i$ with $i \in \mathbb{I}$, and ${\varphi = \bigwedge\limits_{i=1}^n f_i > 0}$. An over-approximation $T^p_O$ of $T^p_\mathbb{R}$ is complete if for each open set ${O \subset \{(r_1,r_2,\cdots) |  \models_{\theta^\mathbb{I}} \Pi; \theta = \{v_i \mapsto r_i \in \mathbb{R} | v_i  \in V\}\}}$, we have ${\forall c \in O; \; \forall \delta > 0; \; \exists \gamma > 0; \; (\langle c - \gamma, c + \gamma \rangle \in O \text{ and } \models_{\Pi'^p_\mathbb{R}} \bigwedge\limits_{i=1}^n(f_i(c)-\delta < f_i(x) < f_i(c) + \delta)}$ where ${\Pi' = \bigwedge\limits_{v_i \in V} v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}$, and ${c = (c_1, c_2, \cdots)}$
 \end{definition}
 
-\begin{definition}
+\begin{lemma} \label{lem:sat-complete}
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \}; \models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$. If $S \neq \emptyset$ and $\{(v_1, v_2, \cdots) | v_1 \in (l_1, h_1), v_2 \in (l_2, h_2) \cdots \}$ is open, then $S$ contain an open set.
+\end{lemma}
 
-\end{definition}
+\begin{proof}
+\sloppy
+Because $S \neq \emptyset$, there exist $c = (c_1, c_2, \cdots) \in S$. By definition of $S$, ${\forall j \in \{1, \cdots, n\} f_j(c) > 0}$. Take $\delta = \min\limits_{j=1\cdots n} f_j(c)$, then $\delta > 0$. Because the polynomials are continuous, there exists $\gamma > 0$ such that $\forall v \in \langle c - \gamma, c + \gamma \rangle; \; \bigwedge\limits_{j=1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ which implies ${\forall v \in \langle c - \gamma, c + \gamma \rangle; \; \bigwedge\limits_{j=1}^n f_j(v) > 0}$ (because $\delta = \min\limits_{j=1\cdots n}f_j(c) \le f_j(c)$) for any $j$.
+Now consider the open interval $O = \{(x_1, x_2, \cdots) | x_1 \in getIntv(c_1, l_1, h_2, \delta), \cdots \}$ where $getIntv(c, l, h, \delta)$ is defined as following:
+\begin{center}
+$getIntv(c, l, h, \delta) = $
+\end{center}
+\end{proof}
+
 
 \begin{theorem}
-Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in i_i$ where $i \in \mathbb{I}$ and $i$ is bounded; and $\varphi = \bigwedge\limits_{j = 1}^n f_j > 0$. Denote $S_j = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \}; \models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}f_j \}$
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \}; \models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$. If $S \neq \emptyset$ and $\{(v_1, v_2, \cdots) | v_1 \in (l_1, h_1), v_2 \in (l_2, h_2) \cdots \}$ is open, then raSATloop can detect the satisfiability of $\varphi$ with assumption that IA is complete.
 \end{theorem}
+
+
+\begin{proof}
+Based on Lemma~\ref{lem:sat-complete}, there exist an open box $(l, h)$ such that $\forall (x_1, x_2, ...) \in (l, h); \; \bigwedge\limits_{j=1}^n f_j > 0 $. Take any $c \in (l, h)$ and take $\delta = \min\limits_{j = 1\cdots n}(f_j(c))$. Because IA is complete by assumption, from Definition~\ref{def:OT-complete} there exists $\gamma > 0$ such that $\langle c - \gamma, c + \gamma \rangle \in (l, h)$ and $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is ${\bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}^p_{IA}$-VALID. By taking this $\gamma$ as the threshold in $(\Pi, \varphi, \emptyset, \emptyset, \varepsilon, \bot)$, raSATloop will terminate (Theorem~\ref{theorem:terminating}). Furthermore, $\langle c - \gamma, c + \gamma \rangle \in (l, h) \implies (c + \gamma) - (c - \gamma) < h - l \implies 2\gamma < h - l$. As a consequence, decomposition eventually creates a box of size $\gamma$ inside $(h, l)$ which can be used to conclude the validity of the constraint by IA.
+\end{proof}
+
+
+\begin{theorem}
+\sloppy
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S_j = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \};\models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}f_j \}$. If ${closure(\bigcup\limits_{j \in I_1}S_j) \cap closure(\bigcup\limits_{j \in I_2}S_j) = \emptyset}$, then raSATloop can prove the unsatisfiability of $\varphi$ with assumption that IA is complete. Here $I_1 \cup I_2 = \{1, 2, \cdots, n\}$ and $I_1 \cap I_2 = \emptyset$.
+\end{theorem}
+
+
+\begin{proof}
+
+\end{proof}
 
 
 \begin{comment}
@@ -523,7 +557,7 @@ a decomposition of $I_i$ for each $i$ eventually occurs in $(c_j - \gamma, c_j +
 (as long as neither SAT nor UNSAT is detected). 
 \end{definition}
 
-\begin{theorem} \label{th:RelComp}
+\begin{theorem} \label{theorem:RelComp}
 Let
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
 for $I_i = (a_i,b_i)$.
