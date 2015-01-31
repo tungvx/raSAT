@@ -274,9 +274,9 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
   \begin{tabular}{ll}
   \hline\\
   \large 
-  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \emptyset) \to UNSAT}$ \tiny $\Pi$\_UNSAT\_UNSAT \\\\
+  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \bot) \to UNSAT}$ \tiny $\Pi$\_UNSAT\_UNSAT \\\\
   \large 
-  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \top) \to UNSAT}$ \tiny $\Pi$\_UNSAT\_UNKNOWN \\\\
+  $\frac{\Pi \models_{SAT} \bot}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \top) \to UNKNOWN}$ \tiny $\Pi$\_UNSAT\_UNKNOWN \\\\
   \large 
   $\frac{\Pi \models_{SAT} \mathring{\Pi} \quad \mathring{\Pi}' = flattern(\mathring{\Pi})}{(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau) \to (\Pi, \varphi, \mathring{\Pi}', \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny $\Pi$\_SAT\\\\
   \large
@@ -288,7 +288,7 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
   \large     
   $\frac{\varphi^U \text{ is }  (\mathring{\Pi}^p_\mathbb{R})_T\text{-UNSAT} \quad \mathring{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle \quad \forall i (h_i - l_i < \varepsilon)}{(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to (\Pi \wedge \neg \mathring{\Pi}, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \top)}$ \tiny THRESHOLD \\\\
   \normalsize 
-  $\frac{\varphi^U \text{ is }  (\mathring{\Pi}^p_\mathbb{R})_T\text{-UNSAT} \quad \mathring{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle \quad \exists j(h_j - l_j > \varepsilon) \quad l_j < d \in \mathbb{R} < h_j \quad I_j = v_j \in \langle l_j, h_j \rangle \quad I_{j1} = x_j \in \langle l_j, d\rangle \quad I_{j2} = x_j \in \langle d, h_j \rangle}{(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny REFINE \\\\
+  $\frac{\varphi^U \text{ is }  (\mathring{\Pi}^p_\mathbb{R})_T\text{-UNSAT} \quad \mathring{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle \quad \exists j(h_j - l_j > \varepsilon) \quad l_j < d \in \mathbb{R} < h_j \quad I_j = v_j \in \langle l_j, h_j \rangle \quad I_{j1} = v_j \in \langle l_j, d\rangle \quad I_{j2} = v_j \in \langle d, h_j \rangle}{(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny REFINE \\\\
   \large 
   $\frac{\{\varphi_i| \varphi_i \wedge \varphi'_i = \varphi; \; \varphi_i \text{ is } \mathring{\Pi}_{IA}\text{-UNSAT}\} \quad var(\varphi_i) = \{x_{ij}|j=1,\cdots, m_i\} \quad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in \mathring{\Pi}}{(\Pi, \varphi, \mathring{\Pi}, \emptyset, \emptyset, \varepsilon, \tau) \to (\Pi \wedge \bigwedge\limits_i \bigvee\limits_{j=1}^{m_i} \neg I_{ij}, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny IA\_UNSAT \\\\
   \hline\\
@@ -382,7 +382,7 @@ $getIntv(c, l, h, \delta) = $
 \end{proof}
 
 
-\begin{theorem}
+\begin{theorem} \label{theorem:SAT-complete}
 Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \}; \models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$. If $S \neq \emptyset$ and $\{(v_1, v_2, \cdots) | v_1 \in (l_1, h_1), v_2 \in (l_2, h_2) \cdots \}$ is open, then raSATloop can detect the satisfiability of $\varphi$ with assumption that IA is complete.
 \end{theorem}
 
@@ -392,14 +392,17 @@ Based on Lemma~\ref{lem:sat-complete}, there exist an open box $(l, h)$ such tha
 \end{proof}
 
 
-\begin{theorem}
+\begin{theorem} \label{theorem:UNSAT-complete}
 \sloppy
-Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S_j = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \};\models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}f_j \}$. If ${closure(\bigcup\limits_{j \in I_1}S_j) \cap closure(\bigcup\limits_{j \in I_2}S_j) = \emptyset}$, then raSATloop can prove the unsatisfiability of $\varphi$ with assumption that IA is complete. Here $I_1 \cup I_2 = \{1, 2, \cdots, n\}$ and $I_1 \cap I_2 = \emptyset$.
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S_j = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \};\models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}f_j \}$. If $\bigcap\limits_{j = 1}^nclosure(S_j) = \emptyset$, then raSATloop can prove the unsatisfiability of $\varphi$ with assumption that IA is complete.
 \end{theorem}
 
 
 \begin{proof}
+\sloppy
+Let $f(v) = \min\limits_{j = 1}^nf_j(v)$, then $f(v)$ is continuous. Because ${D = \{(x_1, x_2, \cdots) | \theta = \{v_1 \mapsto x_1, v_2 \mapsto x_2, \cdots\}; \models_{\theta^I} \Pi\}}$ is compact, ${\delta = |\max\limits_{v \in D}f(v)}|$ exists. First we will prove that $\delta > 0$. In fact, suppose $\delta = 0 \implies \forall c \in D; \; f(c) = 0 \implies \forall c \in D \forall j \in \{1, \cdots, n\}f_j(c) \ge 0$. This contradicts with the assumption that $\bigcap\limits_{j = 1}^nclosure(S_j) = \emptyset$.
 
+Because IA is complete, by Definition~\ref{def:OT-complete}, for any point $c \in D$, there exists $\gamma > 0$ such that $\langle c - \gamma, c + \gamma \rangle \in D$ and $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is ${\bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}^p_{IA}$-VALID. Consider $f_k(c) = \min\limits_{j=1}^nf_j(c)$ then $f_k(c) < 0$ otherwise a contradiction with the assumption that $\bigcap\limits_{j = 1}^nclosure(S_j) = \emptyset$ exists. In addition by definition of $f(v)$ we have $f_k(c) = f(c) \le \max\limits_{v \in D}f(v) \implies f_k(c) + \delta < 0 \implies \bigwedge\limits_{j = 1}^n f_j(v) > 0$ is UNSAT over $\bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle$. For any point in $D$, we can find a small box so that the constraint is unsatisfiable. If $\varepsilon$ is small enough, the unsatisfiability can be detected by raSATloop.
 \end{proof}
 
 

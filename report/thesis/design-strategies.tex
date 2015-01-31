@@ -4,22 +4,32 @@ We implemented a number of strategies for improving efficiency of raSAT: increme
 {\bf raSAT} applies three incremental strategies, 
 (1) {\em incremental windening}, (2) {\em incremental deepening} and (3) {\em incremental testing}. 
 Let
-$F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$
-for $I_i = (a_i,b_i)$. %where $a_i, b_i$ would be $\pm \infty$. 
+$\varphi = \bigwedge \limits_{j=1}^m f_j > 0$ be the constraint to be solved.
 
-\subsection{Incremental Windening}
-Given $0 < \delta_0 < \delta_1 < \cdots$, 
-{\em incremental windening} starts with 
-$F_0 = \exists x_1 \in I_1 \cap (-\delta_0 , \delta_0) \cdots x_n \in I_n \cap (-\delta_0 , \delta_0). 
-\bigwedge \limits_{j=1}^m f_j > 0$, 
-and if it finishes with UNSAT, it runs with 
-$F_1 = \exists x_1 \in I_1 \cap (-\delta_1 , \delta_1) \cdots x_n \in I_n \cap (-\delta_1 , \delta_1). 
-\bigwedge \limits_{j=1}^m f_j > 0$, and so on (Fig.~\ref{fig:incwid} (a)). 
-
-Note that if $\delta_i < \infty$, {\bf raSAT} applies an Affine interval; otherwise, 
-it uses CI. 
-Experiments in Section~\ref{sec:experiment} are performed 
-with $\delta_0 = 10$ and $\delta_1 = \infty$.
+\subsection{Incremental Windening and Deepening}
+Given $0 < \gamma_0 < \gamma_1 < \cdots$ and $\varepsilon_0 > \varepsilon_1 > \cdots > 0$ raSAT's algorithm design with incremental widening and deepening is described in Algorithm~\ref{Al:incremental-widen-deepen}. The idea here is that raSAT starts searching within small interval and large value of threshold. If SAT is detected, the result can be safely returned. If the current intervals cannot satisfy the constraint, larger intervals are consider. In the case of UNKNOWN, the threshold is not small enough to detect either SAT or UNSAT. As the result, raSAT decrease it and restart the search. In Theorem~\ref{theorem:SAT-complete} and Theorem~\ref{theorem:UNSAT-complete}, the threshold $\gamma$ is not easy to calculate, but by incremental deepening, such threshold can be eventually reached because it exists.
+\begin{algorithm} \label{Al:incremental-widen-deepen}.
+\begin{algorithmic}
+\State $i\gets 0$
+\State $j\gets 0$
+\While{true}
+	\State $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle -\gamma_i, \gamma_i \rangle$ 
+	\If {$(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon_j, \bot) \to SAT$}
+		\State \Return SAT
+	\ElsIf {$(\Pi, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon_j, \bot) \to UNSAT$}
+		\If {$\gamma_i = +\infty$}
+			\State \Return UNSAT
+		\Else 
+			\State $i \gets i + 1$
+		\EndIf
+	\Else 
+		\State $j \gets j + 1$
+	\EndIf
+\EndWhile
+\end{algorithmic}
+\caption{Incremental Widening and Deepening}
+\end{algorithm}
+\begin{comment}
 \begin{figure}[ht]
 \begin{minipage}[b]{1.0\linewidth}
 \centering
@@ -31,24 +41,7 @@ with $\delta_0 = 10$ and $\delta_1 = \infty$.
 \caption{Incremental Widening and Deepening}
 \label{fig:incwid}
 \end{minipage}
-\end{figure}
-
-
-\subsection{Incremental Deepening}
-
-Starting with $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
-$I_1 \times \cdots \times I_n$ is decomposed into many boxes, 
-and $F$ becomes the disjunction of existential formulae corrsponding to these boxes. 
-{\bf raSAT} searches these boxes in depth-first manner. Figure \ref{fig:depth-first-search} illustrates the search procedure of raSAT. First, the initially box $I$ is examined (by IA and testing) and suppose raSAT detects neither SAT or UNSAT here. As a consequence, $I$ is decomposed into $2$ boxes $I_{11}$ and $I_{12}$ such that $\bar{x} \in I \leftrightarrow \bar{x} \in I_{11} \vee \bar{x} \in I_{12}$. raSAT will choose one of the two boxes to explore, for example $I_{11}$. If IA and testing cannot detect satisfiability of the given constraint in the box $I_{11}$, decomposition of this box takes place:  $\bar{x} \in I_{11} \leftrightarrow \bar{x} \in I_{21} \vee \bar{x} \in I_{22}$. Either $I_{21}$ or $I_{22}$ is selected next. The process continues until SAT/UNSAT is detected which may leads to exhaustive local search.
-To avoid it, {\bf raSAT} applies a threshold $\gamma$, such that no more decomposition will be 
-applied when a box becomes smaller than $\gamma$. 
-If neither SAT nor UNSAT is detected, {\bf raSAT} restarts with a smaller threshold. 
-
-Let $\gamma_0 > \gamma_1 > \cdots > 0$, and {\bf raSAT} incrementally deepens its search 
-with these thresholds, i.e., starting with $\delta_0$, and if it fails, restart with $\delta_1$, 
-and so on (Fig~\ref{fig:incwid} (b)). 
-
-\begin{comment}
+\end{figure
 
 \begin{figure}[ht]
 %\begin{minipage}[b]{1.0\linewidth}
@@ -60,7 +53,7 @@ and so on (Fig~\ref{fig:incwid} (b)).
 \end{figure} 
 \end{comment}
 \subsection{Incremental Testing}
-One obstacle in testing is the exponentially large number of test instances. If $2$ values are generated for each of $n$ variables, $2^n$ test cases (combinations of generated values) will present. 
+One obstacle in testing is the exponentially large number of test instances (number of selected models). If $2$ values are generated for each of $n$ variables, $2^n$ test cases (combinations of generated values) will present. 
 \begin{example}
 Suppose $\{x, y\}$ is the set of variables which appears in the input constraint and let $\{2, 9\}$ and $\{5, 8\}$ are generated values for $x$ and $y$ respectively. In total $4$ test cases arise: $(x, y) = (2, 5), (2, 8), (9, 5), (9, 8)$.
 \end{example}
@@ -69,13 +62,13 @@ In order to tackle the problem, the following strategies are proposed:
 \begin{enumerate}
 \item Restrict the number of test cases to $2^{10}$ by choosing most $10$ influential variables which are decided by the following procedures for generating multiple ($2$) test values.
 \begin{itemize}
-\item Select API by SAT-likelihood
+\item Select 10 inequalities by SAT-likelihood.
 \item Select $1$ variable of each selected API.
 \end{itemize}
-\item Incrementally generate test values for variables to prune test cases that do not satisfy an API. This was proposed by \citeauthor{khanhReport} in \cite{khanhReport}:
+\item Incrementally generate test values for variables to prune test cases that do not satisfy an inequality. This was proposed by \citeauthor{khanhReport} in \cite{khanhReport}:
 \begin{itemize}
-\item Dynamically sort the IA-SAT APIs.
-\item Generate the test values for variables of selected APIs.
+\item Dynamically sort the IA-SAT inequalities by SAT-likelihood such that the inequality which is less likely to be satisfiable will be prioritized.
+\item Generate the test values for variables of selected inequalities.
 \end{itemize}
 \begin{example}
 Let $x^2 > 4$ and $x*y > 0$ are two IA-VALID APIs to be tested and somehow they are sorted in that order, i.e. $x^2 > 4$ is selected before $x*y > 0$. Suppose $\{1, 3\}$ are generated as test values for $x$ which are is enough to test the first selected API, i.e. $x^2 > 4$. As a result of testing, $x = 1$ is excluded from the satisfiable test cases whilst $x = 3$ is not. Next, when $x*y > 0$ is considered, $y$ needs to be generated $2$ values, e.g. $\{-3, 4\}$ and two test cases $(x, y) = (3, -3), (3, 4)$ come out to be checked. In this example, $(x, y) = (1, -3)$ and  $(x, y) = (1, 4)$ are early pruned by only testing $x = 1$ against $x^2 > 4$ .
@@ -89,64 +82,24 @@ Let $x^2 > 4$ and $x*y > 0$ are two IA-VALID APIs to be tested and somehow they 
 \end{figure} 
 \end{enumerate}
 
-\section{SAT-directed Heuristics Measure} \label{sec:SATheuristics}
+\begin{definition}
+Given an assignment from variables to intervals $\theta = \{v \mapsto i | v \in V\}$ in which $i \in \mathbb{I}$ and an inequality $f > 0$. Let $\langle l, h \rangle = f^{\theta^I}$, then the SAT-likelihood of $f > 0$ is $|\langle l, h \rangle \cap \langle l, h \rangle| / (h - l)$ which is denoted as $\varpi(f>0, \theta)$.
+\end{definition}
 
-With several hundred variables, we observe that an SMT solver works 
-when either SAT, or UNSAT with small UNSAT core.
-%
-For the latter, we need an efficient heuristics to find an UNSAT core, which is left as future work. 
-For the former, the keys are how to choose variables to decompose, and 
-how to choose a box to explore. 
-{\bf raSAT} chooses such a variable in two steps; first it selects a {\em test-UNSAT API}, and
-then chooses a variable that appears in the API. 
-We design SAT-directed heuristic measures based on the interval arithemtic ($O.T$). 
+\begin{definition}
+Given an assignment from variables to intervals in the form of affine interval $\theta = \{v_i \mapsto a_{0i} + a_{1i}\epsilon_i | v_i \in V\}$ and a polynomial $f$. Let $a_0 + \sum\limits_{j = 1}^n a_j\epsilon_j = f^{\theta^I}$, then we define sensitivity of variable $v_i \in V$ by the value of $a_i$.
+\end{definition}
 
-Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$ 
-becomes $\vee~( \exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0)$ 
-after box decomposition. 
-For $\exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
-if some $f_j > 0$ is UNSAT, the box $I'_1 \times \cdots \times I'_n$ is UNSAT. 
-If every $f_j > 0$ is SAT, $F$ is SAT. 
-Thus, if the box $I'_1 \times \cdots \times I'_n$ needs to be explore, it must contain 
-a test-UNSAT API (thus IA-SAT). 
-
-We denote the estimated range of $f_j$ for $x_1 \in I'_1 \cdots x_n \in I'_n$ with IA ($O.T$)
-by $range(f_j, I'_1 \times \cdots \times I'_n)$. 
-If an IA is an affine interval, 
-it is in the form $[c_1,d_1]\epsilon_1 + \cdots + [c_n,d_n]\epsilon_n$, 
-and by instanciating $\epsilon_i$ with $[-1,1]$, 
-the resulting classical interval coincides with $range(f_j, I'_1 \times \cdots \times I'_n)$. 
-We define 
-\begin{itemize} 
-\item {\em Sensitivity} of a variable $x_i$ in a test-UNSAT API $f_j > 0$ is $max(|c_i|, |d_i|)$. 
-\item {\em SAT-likelyhood} of an API $f_j > 0$ is $| I \cap (0,\infty) | / |I|$, and 
-\item {\em SAT-likelyhood} of a box $I'_1 \times \cdots \times I'_n$ is 
-the least SAT-likelyhood of test-UNSAT APIs. 
-\end{itemize} 
-
-\begin{example} \label{examp:SATlikelyhood}
-In Example~\ref{examp:sensitivity}, 
+\section{Refinement Heuristics} \label{sec:SATheuristics}
+Suppose the number of variable is $nVar$ and initially the intervals assignment is represented by $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$. If the interval of each variable is decomposed into two smaller ones, the new interval constraint becomes $\Pi' = \bigwedge\limits_{v_i \in V} (v_i \in \langle l_i, c_i \rangle \vee v_i \in \langle c_i, h_i \rangle)$ where $c_i$ is the decomposed point such that $l_i < c_i < h_i$. The number of boxes becomes $2^{nVar}$. The exponentially increase in the number of boxes affect the scalability of raSAT. To this point, raSAT applies two strategies for boosting SAT detection:
+\begin{enumerate}
+\item In \tiny{REFINE} \normalsize transition, the interval of one variable is selected for decomposition, raSAT chooses such variables through the following steps:
 \begin{itemize}
-\item sensitivity is estimated $1$ for $x$ and $2$ for $y$ by $AF_2$, and $3\frac{1}{4}$ for $x$ and 
-$2$ for $y$. 
-\item SAT-likelyhood of $f$ is estimated $0.4= \frac{6}{9-(-6)}$ by $AF_2$ 
-and $0.36 = \frac{4.5}{4.5-(-8)}$ by $CAI$. 
+\item Choose the inequality $f > 0$ in $\varphi^U$ with the least value of SAT-likelihood.
+\item Within $f$, choose the variable $v_k$ with the largest value of sensitivity.
 \end{itemize}
-\end{example}
-
-
-{\em SAT-likelyhood} intends to estimate APIs how likely to be SAT. 
-For choosing variables, {\bf raSAT} first choose a test-UNSAT API by SAT-likelyhood. 
-There are two choices, either {\em the largest} or {\em the least}. 
-{\em Sensitivity} of a variable intends to estimate how a variable is influencial to the value of an API. 
-From a selected API by SAT-likelyhood, {\bf raSAT} selects a variable with the largest sensitivity. 
-This selection of variables are used for (1) {\em multiple test instances generation}, and 
-(2) {\em decomposition}. 
-For test generation, we will select multiple variables by repeating the selection. 
-
-For choosing a box to explore, {\bf raSAT} chooses more likely to be SAT. 
-There are two choice, (1) a box with the largest SAT-likelyhood, and 
-(2) a box with the largest number of SAT (either IA-valid or test-SAT) APIs.
-
-\section{Other}
-UNSAT core, test case generation, interval decomposition 
+\item \sloppy After the interval of $v_k$ is decomposed, basically the box represented by ${\mathring{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle}$ will become two boxes which are represented by ${\mathring{\Pi_1} = v_0 \in \langle l_0, h_0 \rangle \wedge \cdots \wedge v_k \in \langle l_k, c_k \rangle \wedge \cdots \wedge v_{nVar} \in \langle l_{nVar}, h_{nVar} \rangle}$ and ${\mathring{\Pi_2} = v_0 \in \langle l_0, h_0 \rangle \wedge \cdots \wedge v_k \in \langle c_k, h_k \rangle \wedge \cdots \wedge v_{nVar} \in \langle l_{nVar}, h_{nVar} \rangle}$. raSAT choose the box with higher value of SAT-likelihood to explore in the next iteration, i.e. the result of SAT operation in \tiny $\Pi$\_SAT \normalsize is controlled so that the desired box will be selected.
+\end{enumerate}
+\begin{definition}
+Given an assignment from variables to intervals $\theta = \{v \mapsto i | v \in V\}$ in which $i \in \mathbb{I}$ and a constraint $\bigwedge\limits_{i = 1}^nf_i > 0$. The SAT-likelihood of $\theta$ is defined as ${\min\limits_{i = 1}^n \varpi(f_i > 0, \theta)}$.
+\end{definition}
