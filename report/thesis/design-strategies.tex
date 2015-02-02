@@ -63,7 +63,7 @@ In order to tackle the problem, the following strategies are proposed:
 \item Restrict the number of test cases to $2^{10}$ by choosing most $10$ influential variables which are decided by the following procedures for generating multiple ($2$) test values.
 \begin{itemize}
 \item Select 10 inequalities by SAT-likelihood.
-\item Select $1$ variable of each selected API.
+\item Select $1$ variable of each selected API using sensitivity.
 \end{itemize}
 \item Incrementally generate test values for variables to prune test cases that do not satisfy an inequality. This was proposed by \citeauthor{khanhReport} in \cite{khanhReport}:
 \begin{itemize}
