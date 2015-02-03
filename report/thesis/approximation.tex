@@ -290,7 +290,7 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
   \normalsize 
   $\frac{\varphi^U \text{ is }  (\mathring{\Pi}^p_\mathbb{R})_T\text{-UNSAT} \quad \mathring{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle \quad \exists j(h_j - l_j > \varepsilon) \quad l_j < d \in \mathbb{R} < h_j \quad I_j = v_j \in \langle l_j, h_j \rangle \quad I_{j1} = v_j \in \langle l_j, d\rangle \quad I_{j2} = v_j \in \langle d, h_j \rangle}{(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau) \to (\Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2}), \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny REFINE \\\\
   \large 
-  $\frac{\{\varphi_i| \varphi_i \wedge \varphi'_i = \varphi; \; \varphi_i \text{ is } \mathring{\Pi}_{IA}\text{-UNSAT}\} \quad var(\varphi_i) = \{x_{ij}|j=1,\cdots, m_i\} \quad (I_{ij} = x_{ij} \in [l_{ij}, h_{ij}]) \in \mathring{\Pi}}{(\Pi, \varphi, \mathring{\Pi}, \emptyset, \emptyset, \varepsilon, \tau) \to (\Pi \wedge \bigwedge\limits_i \bigvee\limits_{j=1}^{m_i} \neg I_{ij}, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny IA\_UNSAT \\\\
+  $\frac{\mathring{\Pi} \not= \emptyset \quad \varphi \text{ is }  \{\mathring{\Pi}^p_{IA}\}\text{-UNSAT}}{(\Pi, \varphi, \mathring{\Pi}, \emptyset, \emptyset, \varepsilon, \tau) \to (\Pi \wedge \neg\mathring{\Pi}, \varphi, \emptyset, \emptyset, \emptyset, \varepsilon, \tau)}$ \tiny IA\_UNSAT \\\\
   \hline\\
   \end{tabular}
   \caption{Transition rules}\label{tab:transition-rules}
