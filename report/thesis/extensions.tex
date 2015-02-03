@@ -1,4 +1,4 @@
-\chapter{Equality handling}
+\chapter{Extension: Equality Handling and Polynomial Constraint over Integers}
 
 \section{SAT on Equality by Intermediate Value Theorem} \label{sec:eq}
 For solving polynomial constraints with single equality ($g=0$), we apply {\em Intermediate Value Theorem}. 
@@ -77,5 +77,43 @@ We also apply the same idea for multiple equalities $\bigwedge \limits_{i} g_i =
 
 \section{Equality Handling using Grobner Basis}
 Coming soon...
+
+\section{Polynomial Constraints over Integers} \label{sec:NIA}
+
+{\bf raSAT} loop is easily modified to NIA (nonlinear arithmetic over integers) from NRA, 
+by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch} 
+and restrcting testdata generation on intergers. 
+We also compare {\bf raSAT} (combination (1)-(5)-(8)) with {\bf Z3 4.3} on NIA/AProVE benchmark. 
+{\bf AProVE} contains 6850 inequalities among 8829. 
+Some has several hundred variables, but each API has few variables (mostly just 2 variables). 
+
+The results are, 
+\begin{itemize}
+\item {\bf raSAT} detects 6764 SAT in 1230.54s, and 0 UNSAT. 
+\item {\bf Z3 4.3} detects 6784 SAT in 103.70s, and 36 UNSAT in 36.08s. 
+\end{itemize}
+where the timeout is $60s$. 
+{\bf raSAT} does not successfully detect UNSAT, since UNSAT problems have quite large coefficients
+which lead exhaustive search on quite large area. 
+%%%%%%%%%%%%%%%%%
+\suppress{
+\begin{table*}[t]
+\centering
+\begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3)}\\
+\hline
+    & \multicolumn{3}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} 
+    & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
+\hline
+AProve (6850) & 6764 & 1230.54 & (s) & 0 & 0.00 & 6784 & 103.70 & 36 & 36.08 
+\\
+\hline
+\end{tabular}
+\medskip 
+\caption{Comparison on NIA/AProVE} \label{tab:aprove}
+\end{table*}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
