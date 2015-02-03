@@ -1,7 +1,15 @@
 \chapter{Further Strategies}
 \section{UNSAT Core}
-In \tiny IA\_UNSAT \normalsize rule, the negation of $\mathring\Pi$ is added into the interval constraint so that $\mathring\Pi$ will not be explore again later because it make the constraint unsatisfiable. As $\mathring\Pi$ always has the form $\mathring\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$
+In \tiny IA\_UNSAT \normalsize rule, the negation of $\mathring\Pi$ is added into the interval constraint so that $\mathring\Pi$ will not be explore again later because it make the constraint unsatisfiable. If we can find $\mathring\Pi'$ such that $\mathring\Pi = \mathring\Pi' \wedge \mathring\Pi''$ and $\varphi$ is $\{\mathring\Pi'\}$-UNSAT, we can add $\neg\mathring\Pi'$ into interval constraint instead of $\mathring\Pi$ to reduce the search space.
 
-We have two ideas of UNSAT core here.
+\begin{example}
+Consider the constraint $\varphi = x^2 + y^2 < 1$. Suppose in the \tiny IA\_UNSAT \normalsize rule, we have $\Pi = (x \in \langle 2, 3 \rangle \vee x \in \langle 0, 2 \rangle) \wedge (y \in \langle 0, 1 \rangle y \in \langle -1, 0 \rangle)$ and $\mathring\Pi = x \in \langle 2, 3 \rangle \wedge y \in \langle 0, 1 \rangle$. The conditions of \tiny IA\_UNSAT \normalsize are satisfied, $\neg \mathring\Pi$ is added into the interval constraint which becomes $\Pi \wedge \neg \mathring\Pi$. The new interval constraint contains $\{x \in \langle 2, 3 \rangle, y \in \langle -1, 0 \rangle\}$ as one of its solution. However, with $\mathring\Pi' = x \in \langle 2, 3 \rangle$, we have $\varphi$ is $\{\mathring\Pi'\}$-UNSAT and by adding $\neg\mathring\Pi'$ to the interval constraint, $\{x \in \langle 2, 3 \rangle, y \in \langle -1, 0 \rangle\}$ is also removed from the search space.
+\end{example}
+
+The constraint $\varphi = \bigwedge\limits_{j=1}^n f_j > 0$ is $\mathring\Pi$-UNSAT when $f_k > 0$ is $\mathring\Pi$-UNSAT with some $k \in \{1, 2, \cdots, n\}$. We have two ideas for computing UNSAT core.
+\begin{enumerate}
+\item A sub-polynomial $f_k'$ of $f_k$ such that $f_k'$ is $\mathring\Pi'$-UNSAT implies $f_k$ is $\mathring\Pi'$-UNSAT.
+\item Check all the possible cases if $\mathring\Pi'$. 
+\end{enumerate}
 \section{Test Case Generation}
 \section{Box Decomposition}
