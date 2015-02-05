@@ -26,6 +26,35 @@ Consider again the constraint $\varphi = x^2 + y^2 < 1$ or $1 - x^2 - y^2 > 0$. 
 \end{example}
 
 \subsection*{Preliminary Experiments}
+\begin{center}
+\begin{table}
+\begin{tabular}{| c | c | c | c | c |  c | c |}
+\hline
+\multirow{2}{*}{Problem} & \multicolumn{2}{ c }{No UNSAT core} & \multicolumn{2}{ |c }{UNSAT core 1} & \multicolumn{2}{ |c| }{UNSAT core 2}\\ \cline{2-7}& Time (s) & Result & Time (s) & Result& Time (s) & Result\\ \hline
+hong\_1 & 0 & UNSAT & 0 & UNSAT& 0.004 & UNSAT\\ \hline
+hong\_2 & 0.00838 & UNSAT & 0.016 & UNSAT & 0.016 & UNSAT\\ \hline
+hong\_3 & 0.007441 & UNSAT & 0.016 & UNSAT & 0.016 & UNSAT\\ \hline
+hong\_4 & 0.114857 & UNSAT & 0.124 & UNSAT & 0.016 & UNSAT\\ \hline
+hong\_5 & 0.27588 & UNSAT & 0.272 & UNSAT & 0.028 & UNSAT\\ \hline
+hong\_6 & 1.20687 & UNSAT & 1.288 & UNSAT & 0.052 & UNSAT\\ \hline
+hong\_7 & 9.29289 & UNSAT & 9.996 & UNSAT & 0.112 & UNSAT\\ \hline
+hong\_8 & 153.619 & UNSAT & 164.288 & UNSAT& 0.68 & UNSAT\\ \hline
+hong\_9 & 117.937 & UNSAT & 129.044 & UNSAT& 0.08 & UNSAT\\ \hline
+hong\_10 & 307.208 & UNSAT & 281.696 & UNSAT& 0.152 & UNSAT\\ \hline
+hong\_11 & 478.605 & UNSAT & 412.028 & UNSAT & 0.236 & UNSAT\\ \hline
+hong\_12 & 500 & Timeout & 500 & Timeout & 0.456 & UNSAT\\ \hline
+hong\_13 & 500 & Timeout & 500 & Timeout & 0.752 & UNSAT\\ \hline
+hong\_14 & 500 & Timeout & 500 & Timeout & 1.572 & UNSAT\\ \hline
+hong\_15 & 500 & Timeout & 500 & Timeout & 2.756 & UNSAT\\ \hline
+hong\_16 & 500 & Timeout & 500 & Timeout & 5.98 & UNSAT\\ \hline
+hong\_17 & 500 & Timeout & 500 & Timeout & 10.864 & UNSAT\\ \hline
+hong\_18 & 500 & Timeout & 500 & Timeout & 24.352 & UNSAT\\ \hline
+hong\_19 & 500 & Timeout & 500 & Timeout & 47.968 & UNSAT\\ \hline
+hong\_20 & 500 & Timeout & 500 & Timeout & 103.484 & UNSAT\\ \hline
+\end{tabular}
+\caption{Experiments on UNSAT core computations}
+\end{table}
+\end{center}
 
 \section{Test Case Generation}
 \section{Box Decomposition}
