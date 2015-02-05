@@ -62,13 +62,12 @@ The set $TERM$ of terms is the set that satisfies the properties
 \end{definition}
 
 \begin{definition}
-The set $FORM$ of formulas is the set that satisfies the properties:
+We only focus on quantifiers free formula, so the set $FORM$ of formulas is the set that satisfies the properties:
 \begin{enumerate}
 \item $\bot \in FORM$
 \item $t_1,\cdots,t_n \in TERM$; $p \in P \Rightarrow p(t_1,\cdots, t_n) \in FORM$
 \item $\varphi, \psi \in FORM \Rightarrow (\varphi \circ \psi) \in FORM$ where $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$
 \item $\varphi \in FORM \Rightarrow \neg\varphi \in FORM$
-\item $\varphi \in FORM; v \in V \Rightarrow (\forall v)\varphi, (\exists v)\varphi \in FORM$
 \end{enumerate}
 \end{definition}
 
@@ -161,6 +160,15 @@ We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, V^p, \alpha^p)$ in Sect
 \item $\forall v \in V; \; \alpha^P(v) = Real$
 \end{enumerate}
 A polynomial and a polynomial constraint are a $\Sigma^p$-term and a $\Sigma^p$-formula respectively. However, for simplicity, we currently focus on small portion of $\Sigma^p$-formulas
+
+\begin{definition}
+Given a polynomial $f$, the set of its variables which is denoted as $var(f)$ is defined recursively as following:
+\begin{enumerate}
+\item $var(v) = \{v\}$ for $v \in V$.
+\item $var(\mathbf{1}) = \emptyset$.
+\item $var(f_1 \circ f_2) = var(f_1) \cap var(f_2)$ with $\circ \in \{\oplus, \ominus, \otimes\}$.
+\end{enumerate}
+\end{definition}
 
 \subsection{Semantics}
 A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
