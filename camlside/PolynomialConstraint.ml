@@ -190,8 +190,8 @@ class polynomialConstraint boolExprInit variablesSetInit =
           )
           else []
       in
-      get_n_first varsSen n
-      (*get_n_random varsSen n*)
+      get_n_first varsSen n (*(8)*)
+      (*get_n_random varsSen n*) (*(9)*)
     
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
@@ -471,7 +471,7 @@ class polynomialConstraint boolExprInit variablesSetInit =
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
-          let isVarPositiveDirected = 0 in
+          (*let isVarPositiveDirected = 0 in*)
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
@@ -479,21 +479,21 @@ class polynomialConstraint boolExprInit variablesSetInit =
           print_endline ("priorityNum > 0: " ^ string_of_bool (priorityNum > 0));
           print_endline ("isVarPositiveDirected = 0 && priorityNum > 0: " ^ string_of_bool (isVarPositiveDirected = 0 && priorityNum > 0));
           flush stdout;*)
-          let (testcases, newPriorityNum) =
+          let (testcases, newPriorityNum, newIsFirst) =
             if isFirst && isVarPositiveDirected = 0 && priorityNum > 0 then (
               (*print_string (var ^ " ");
               flush stdout;*)
-              (generate_tc_var interval 2 true varSen 0, priorityNum - 1)
+              (generate_tc_var interval 2 true varSen isVarPositiveDirected, priorityNum - 1, false)
             )
             else 
-              (generate_tc_var interval 1 true varSen isVarPositiveDirected, priorityNum)
+              (generate_tc_var interval 1 true varSen isVarPositiveDirected, priorityNum, isFirst)
           in
-          generateTCs_extra_1VarChosen t ((var, testcases)::generatedTCs) newPriorityNum false
+          generateTCs_extra_1VarChosen t ((var, testcases)::generatedTCs) newPriorityNum newIsFirst
       in
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true
+      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)
       (*generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
