@@ -768,7 +768,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         false
       else if upperBound = infinity && lowerBound > max_float -. esl then
         false
-      else if upperBound < esl +. lowerBound then 
+      else if upperBound <= esl +. lowerBound then 
         false
       else
         true
@@ -806,10 +806,10 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             else upperBound -. 10.
           else 
             if upperBound = infinity then lowerBound +. 10. 
-            else 0.5 *. lowerBound +. 0.5 *. upperBound
-              (*if varSen = 0. then 0.5 *. lowerBound +. 0.5 *. upperBound
+            else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
+              if varSen = 0. || upperBound /. 2. -. lowerBound /. 2. <  esl then 0.5 *. lowerBound +. 0.5 *. upperBound
               else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl 
-              else lowerBound +. esl*)
+              else lowerBound +. esl
         in
         (*let newPoint =
           if polyCons#get_logic = "QF_NIA" then (
@@ -821,9 +821,9 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
           )
           else newPoint
         in*)
-        (*print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
+        print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
         print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " - easiness: " ^ string_of_float polyCons#get_easiness ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;*)
+        flush stdout;
         let lowerIntv = 
           if polyCons#get_logic = "QF_NIA" && ceil lowerBound = floor newPoint then
             let tmpNewPoint = floor newPoint in
