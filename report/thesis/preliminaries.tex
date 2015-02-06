@@ -4,8 +4,8 @@
 \begin{definition}
 The signature of propositional logic has an alphabet consisting of
 \begin{enumerate}
-\item proposition symbols: $p_0, p_1, \cdots$,
-\item logical connective: $\wedge, \vee, \rightarrow, \leftrightarrow, \neg, \bot$.
+\item a set of proposition symbols P and
+\item logical connectives: $\wedge, \vee, \rightarrow, \leftrightarrow, \neg, \bot$.
 \end{enumerate}
 \end{definition}
 
@@ -40,6 +40,8 @@ Given a model $M$ and a proposition $\varphi \in PROP$, the valuation of $\varph
 \end{enumerate}
 \end{definition}
 
+
+Given two propositions $\varphi_1$ and $\varphi_2$, we denote $\varphi_1 \models_{SAT} \varphi_2$ if and only if for all models M, $\varphi_1^M = 1$ implies $\varphi_2^M = 1$.
 \section{Satisfiability Modulo Theories - SMT}
 \subsection{Syntax} \label{subsection:smt-syntax}
 \begin{definition}
@@ -108,8 +110,6 @@ Similarly, the valuation $\varphi^M$ of $\varphi$ is defined as:
     \mathring{u} & \quad \text{otherwise }\\
   \end{array} \right.$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
 \item If $\varphi = \bot, \neg\varphi', \varphi_1 \circ \varphi_2$ for $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$ and $\varphi', \varphi_1, \varphi_2 \in FORM$, then $\varphi^M$ is defined similarly as in Definition~\ref{def:pro-val}.
-\item If $\varphi = \forall v \varphi'$, then $\varphi^M = \min\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$,  $\varphi' \in FORM$ and ${I<v \mapsto v_i>}$ denotes the map after updating the map from $v$ to $v_i$ into $I$.
-\item If $\varphi = \exists v \varphi'$, then $\varphi^M = \max\limits_{v_i \in I(\alpha(v))}\varphi'^{(U, I<v \mapsto v_i>)}$ for $v \in V$ and  $\varphi' \in FORM$.
 \end{enumerate}
 We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = 1$. If $\varphi^M = 0$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
 \end{definition}
