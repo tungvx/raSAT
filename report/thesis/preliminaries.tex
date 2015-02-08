@@ -1,47 +1,98 @@
 \chapter{Preliminaries}
 \section{Abstract DPLL}
-\subsection{Syntax}
-\begin{definition}
-The signature of propositional logic has an alphabet consisting of
-\begin{enumerate}
-\item a set of proposition symbols P and
-\item logical connectives: $\wedge, \vee, \rightarrow, \leftrightarrow, \neg, \bot$.
-\end{enumerate}
-\end{definition}
+In propositional logic, we have a set of \emph{propositional symbols} $P$ and every $p \in P$ is called an \emph{atom}. A \emph{literal} $l$ is either $p$ or $\neg p$ with $p \in P$. The \emph{negation} $\neg l$ of a literal $l$ is $\neg p$ if $l$ is $p$, or $p$ if $l$ is $\neg p$. A disjunction $l_1 \vee \cdots \vee l_n$ of literals is said to be a \emph{clause}. A \emph{Conjuctive Normal Form (CNF) formula} is a conjunction of clauses $C_1 \wedge \cdots \wedge C_n$. If $C = l_1 \vee \cdots \vee l_n$ is a clause, $\neg C$ is used to denote the CNF formula $\neg l_1 \wedge \cdots \wedge \neg l_n$
 
-\begin{definition}
-The set PROP of propositions is the set that satisfies the following properties
+An (partial) \emph{assignment} $M$ is a set of literals such that $l \in M$ and $\neg l \in M$ for no literal $l$. A literal $l$ is undefined in $M$ if neither $l \in M$ nor $\neg l \in M$. If $l \in M$, $l$ is said to be true in M. On the other hand if $\neg l \in M$, we say that $l$ is false in $M$. A clause is true in $M$ if at least one of its literals is in $M$. An assignment $M$ satisfies a CNF formula $F$ (or $F$ is satisfied by $M$) if all clauses of $F$ is true in $M$ which is denoted as $M \models F$. Given two CNF formula $F$ and $F'$, we write $F \models F'$ if for any assignment $M$, $M \models F$ implies $M \models F'$. The formula $F$ is unsatisfiable if there is no assignment $M$ such that $M \models F$.
+
+Abstract Davis–Putnam–Logemann–Loveland (DPLL) Procedure \cite{Nieuwenhuis05abstractdpll} searches for an assignment that satisfies a CNF formula. Each state of the procedure is either \emph{FailState} or a pair $M \parallel  F$ of an assignment $M$ and a CNF formula $F$. For the purpose of the procedure, $M$ is represented as a sequence of literals where each literal is optionally attached an \emph{annotation}, e.g. $l^d$ which basically means that the literal $l$ is selected to be included in the assignment by making a decision ($l$ is called a decision literal). An empty sequence is denoted by $\emptyset$. Each DPLL procedure is modeled by a collection of states and a binary relation $\Longrightarrow$ between states. Basic DPLL procedure is a transition system which contains the following four rules.
 \begin{enumerate}
-\item $\forall i \in \mathbb{N} \; p_i \in PROP$,
-\item $\bot \in PROP$,
-\item $\varphi, \psi \in PROP \implies \varphi \circ \psi \in PROP$ where $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$,
-\item $\varphi \in PROP \implies \neg\varphi \in PROP$.
-\end{enumerate}
-\end{definition}
-\subsection{Semantics}
-\begin{definition}
-A model $M$ is a map $M : \{p_i | i \in \mathbb{N}\} \mapsto \{0, 1\}$
-\end{definition}
-\begin{definition} \label{def:pro-val}
-Given a model $M$ and a proposition $\varphi \in PROP$, the valuation of $\varphi$ which is denoted by $\varphi^M$ is defined recursively as:
-\begin{enumerate}
-\item If $\varphi = p_i$ for some $i$, then $\varphi^M = M(p_i)$.
-\item If $\varphi = \bot$, then $\varphi^M = 0$.
-\item If $\varphi = \varphi_1 \wedge \varphi_2$, then $\varphi^M = min(\varphi_1^M,
- \varphi_2^M)$.
-\item If $\varphi = \varphi_1 \vee \varphi_2$, then $\varphi^M = max(\varphi_1^M, \varphi_2^M)$.
-\item If $\varphi = \varphi_1 \rightarrow \varphi_2$, then $\varphi^M = max(1 - \varphi_1^M, \varphi_2^M)$. 
-\item If $\varphi = \varphi_1 \leftrightarrow \varphi_2$, then $\varphi^M = \left\{ 
-  \begin{array}{c l}
-    1 & \quad \text{if } \varphi_1^M = \varphi_2^M\\
-    0 & \quad \text{otherwise }\\
+\item $\mathbf{UnitPropagate}$
+
+$M \parallel F \wedge (C \vee l) \Longrightarrow Ml \parallel F \wedge (C \vee l)$ if $\left\{ 
+  \begin{array}{l}
+    M \models \neg C \\
+    l\text{ is undefined in }M.
   \end{array} \right.$
-\item If $\varphi = \neg \varphi'$, then $\varphi^M = 1 - \varphi'^M$.
+  
+\item $\mathbf{Decide}$
+
+$M \parallel F \Longrightarrow Ml^d \parallel F$ if $\left\{ 
+  \begin{array}{l}
+    l \text{ or } \neg l \text{ occur in a clause of F} \\
+    l\text{ is undefined in }M.
+  \end{array} \right.$
+
+\item $\mathbf{Fail}$
+
+$M \parallel F \wedge C \Longrightarrow FailState$ if $\left\{ 
+  \begin{array}{l}
+    M \models \neg C \\
+    l^d \in M \text{ for no literal }l.
+  \end{array} \right.$  
+  
+\item $\mathbf{Backjump}$
+
+$Ml^dM' \parallel F \wedge C \Longrightarrow Ml' \parallel F \wedge C$ if $\left\{ 
+  \begin{array}{l}
+    Ml^dM' \models \neg C,\text{ and there is some clause } C' \vee l'\\ 
+    \text{such that }
+    F \wedge C \models C' \vee l'
+    \text{ and }M \models \neg C', l' \text{ is }\\
+    \text{undefined in } M, \text{ and } l' \text{ or } \neg l' \text{ occurs in } F \text{ or in } \\Ml^dM'.
+  \end{array} \right.$  
 \end{enumerate}
-\end{definition}
 
+Let $F$ be a given CNF formula. Starting with the state $\emptyset \parallel F$, basic DPLL procedure terminates with either $FailState$ when $F$ is unsatisfiable, or a state $M \parallel F$ where $M$ satisfies $F$. Intuitively, the above four rules can be explained as following.
 
-Given two propositions $\varphi_1$ and $\varphi_2$, we denote $\varphi_1 \models_{SAT} \varphi_2$ if and only if for all models M, $\varphi_1^M = 1$ implies $\varphi_2^M = 1$.
+\begin{itemize}
+\item $\mathbf{UnitPropagate}$: In order to satisfy $F \wedge (C \vee l)$, $C \vee l$ needs to be satisfied. Because all the literals in $C$ is false in current assignment $M$ ($M \models \neg C$), $l$ must be made true when extending $M$.
+\item $\mathbf{Decide}$: This rule is applied when no more $\mathbf{UnitPropagation}$ can be applied. The annotation $d$ in $l^d$ denotes that if $Ml$ cannot be extended to satisfy $f$, $M\neg l$ needs to be explored further.
+\item $\mathbf{Fail}$: When a clause is false in $M$ (conflict) and $M$ has no literal which is decided by making a decision (there is no more options to explored), the formula $F$ is unsatisfiable.
+\item $\mathbf{Backjump}$: As same as in $\mathbf{Fail}$ rule, a conflict is detected. However, in $\mathbf{Backjump}$, because there exists some decision literal in the assignment, new possible assignments can be explored. The clause $C' \vee l'$ is called the backjump clause.
+\end{itemize}
+
+\begin{example}
+For the formula $(\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2)$, the basic DPLL procedure proceeds as following:
+
+\begin{align*}
+\emptyset &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2) \Longrightarrow (\mathbf{Decide}) \\
+\l_1^d &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2) \Longrightarrow (\mathbf{UnitPropagate}) \\
+\l_1^dl_2 &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2) \Longrightarrow (\mathbf{Decide}) \\
+\l_1^dl_2l_3^d &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2) \Longrightarrow (\mathbf{UnitPropagate}) \\
+\l_1^dl_2l_3^dl_4 &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2) \Longrightarrow (\mathbf{Decide})\\
+\l_1^dl_2l_3^dl_4l_5^d &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2) \Longrightarrow (\mathbf{UnitPropagate})\\
+\l_1^dl_2l_3^dl_4l_5^dl_6 &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2) \Longrightarrow (\mathbf{Backjump})\\
+\l_1^dl_2l_3^dl_4\neg l_5 &\parallel (\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6) \wedge (l_6 \vee \neg l_5 \vee \neg l_2)
+\end{align*}
+\sloppy
+In the $\mathbf{Bacjump}$ step of this example: $M$ is $l_1^dl_2l_3^dl_4$, $l^d$ is $l_5^d$, 
+$M'$ is $l_6$,
+$F$ is ${(\neg l_1 \vee l_2) \wedge (\neg l_3 \vee l_4) \wedge (\neg l_5 \vee \neg l_6)}$,
+$C$ is $l_6 \vee \neg l_5 \vee \neg l_2$,
+$C'$ is $\neg l_1$, and $l'$ is $\neg l_5$.
+\end{example}
+
+Additionally DPLL implementation can add the backjump clauses into the CNF formula as learnt clause (or lemmas), which is usually referred as \emph{conflict-driven learning}. Lemmas aim at preventing similar conflicts to occur in the future. When the conflicts are not likely to happen, the lemmas can be removed. The following two rules are prepared for DPLL.
+
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item $\mathbf{Learn}$
+
+$M \parallel F \Longrightarrow M \parallel F \wedge C$ if $\left\{ 
+  \begin{array}{l}
+    \text{each atom in C appears in F} \\
+    F \models C.
+  \end{array} \right.$ 
+  
+\item $\mathbf{Forget}$
+
+$M \parallel F \wedge C \Longrightarrow M \parallel F$ if $\left\{ 
+  \begin{array}{l}
+    \text{each atom in C appears in F} \\
+    F \models C.
+  \end{array} \right.$   
+\end{enumerate}
+
 \section{Satisfiability Modulo Theories - SMT}
 \subsection{Syntax} \label{subsection:smt-syntax}
 \begin{definition}

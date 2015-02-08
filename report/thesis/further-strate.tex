@@ -56,5 +56,38 @@ hong\_20 & 500 & Timeout & 500 & Timeout & 103.484 & UNSAT\\ \hline
 \end{table}
 \end{center}
 
-\section{Test Case Generation}
+\section{Test Case Generation} \label{sec:testGen}
+\sloppy
+The value of variable's sensitivity can also be used to approximate how likely the value of a polynomial increases when the value of that variable increases. Consider the constraint $f = -x_{15}*x_8+x_{15}*x_2-x_{10}*x_{16}>0$. With ${x_2 \in [9.9, 10]}, {x_8 \in [0, 0.1]}, {x_{10} \in [0, 0.1]}, {x_{15} \in [0, 10]},$ and $ x_{16} \in [0, 10]$. The result of AF2 for $f$ is: $0.25 \epsilon_2 - 0.25 \epsilon_8 - 0.25 \epsilon_{10} + 49.5\epsilon_{15} - 0.25\epsilon_{16} + 0.75\epsilon_{+-} + 49.25$. The coefficient of $\epsilon_2$ is positive ($0.25$), then we expect that if $x_2$ increases, the value of $f$ also increase.  As the result, the test case of $x_2$ is as high as possible in order to satisfy $f>0$. We will thus take the upper bound value of $x_2$, i.e. $10$. Similarly, we take the test cases for other variables: $x_8=0, x_{10}=0, x_{15}=10, x_{16}=0$. With these test cases, we will have $f=100 > 0$.
+\subsection*{Preliminary Experiments}
+Table~\ref{tab:senInTest} illustrates the experiments of this strategy together with (1)-(5)-(8). In comparison with (1)-(5)-(8), this strategy solves more satisfiable constraints and the solving time is generally smaller for the same constraint.
+\begin{table} \label{tab:senInTest}
+\begin{center}
+\begin{tabular}{| c | c | c | c | c |}
+\hline
+Benchmark & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{c|}{UNSAT}\\ \hline
+Zankl/matrix-1 (53) & 24 & 511.07 (s) & 2 & 0.009(s) \\ \hline
+Zankl/matrix-2,3,4,5 (98) & 13 & 477.62 (s) & 8 & 0.39(s) \\ \hline
+\end{tabular}
+\end{center}
+\caption{raSAT with sensitivity in testing}
+\end{table}
 \section{Box Decomposition}
+Currently raSAT applies balanced decomposition in \tiny REFINE \normalsize rule, e.g. ${x \in \langle 0, 10 \rangle}$ will be decomposed into ${x \in \langle 0, 5 \rangle}$ and ${x \in \langle 5, 10 \rangle}$. We intend to use the same approximation as in Section~\ref{sec:testGen} to guide the decomposition. Take the same example in Section~\ref{sec:testGen} and suppose $x_{15}$ is selected for decomposition. Because the coefficient of $\epsilon_{15}$ is 49.5 which is positive, we expect the high values for $x_{15}$ so that $f > 0$ will be satisfied. As the result, the interval ${x_{15} \in \langle 0, 10 \rangle}$ can be decomposed into ${x_{15} \in \langle 0, 10 - \epsilon \rangle}$ and ${x_{15} \in \langle 10 - \epsilon, 10 \rangle}$ where $\epsilon$ is the threshold for decomposition.
+
+\subsection*{Preliminary Experiments}
+Table~\ref{tab:senInDec} shows the result when this strategy is used together with (1)-(5)-(8) and the strategy in Section~\ref{sec:testGen}. Basically the result has not been improved in comparison with the result in Section~\ref{sec:testGen}, we need further investigation.
+\begin{table} \label{tab:senInDec}
+\begin{center}
+\begin{tabular}{| c | c | c | c | c |}
+\hline
+Benchmark & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{c|}{UNSAT}\\ \hline
+Zankl/matrix-1 (53) & 24 & 510.55 (s) & 2 & 0.01(s) \\ \hline
+Zankl/matrix-2,3,4,5 (98) & 9 & 1030.35 (s) & 8 & 0.38(s) \\ \hline
+\end{tabular}
+\end{center}
+\caption{raSAT with sensitivity in decomposition}
+\end{table}
+
+
+% % % % % % % % % % % % % %

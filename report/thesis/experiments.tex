@@ -193,4 +193,25 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 \caption{Comparison among SMT solvers} \label{tab:comparison}
 \end{table*}
 
+
+\section{Experiments with QE-CAD Benchmark}
+We also did experiments on QE-CAD problems provided by Mohab Safey El Din\footnote{\url{http://www-polsys.lip6.fr/~safey/}} - LIP6 who is working on QE-CAD simplification (checking SAT/UNSAT only and the complexity is from DEXP to EXP) and the QEPCAD problems collected by Hidenao Iwane\footnote{\url{https://github.com/hiwane/qepcad/}}. Table~\ref{exp:lip6}
+
+
+\begin{table} \label{exp:lip6}
+\begin{center}
+\begin{tabular}{| c | c | c | c | c |}
+\hline
+\multirow{2}{*}{Problem} & \multicolumn{2}{ c }{raSAT} & \multicolumn{2}{ |c| }{Z3}\\ \cline{2-5}& Time (s) & Result & Time (s) & Result\\ \hline
+f23 & 3600 & Timeout & 3599.55 & Timeout\\ \hline
+f22 & 3600 & Timeout & 3599.51 & Timeout\\ \hline
+pol & 3600 & Timeout & 0.02499 & UNSAT\\ \hline
+f13 & 3600 & Timeout & 3599.17 & Timeout\\ \hline
+pol1 & 3600 & Timeout & 3601.61 & Timeout\\ \hline
+f12 & 3600 & Timeout & 3599.27 & Timeout\\ \hline
+\end{tabular}
+\caption{Experiments on problems from LIP6}
+\end{center}
+\end{table}
+
 %%%%%%%%%%%%%%%%%
