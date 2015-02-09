@@ -96,63 +96,89 @@ $M \parallel F \wedge C \Longrightarrow M \parallel F$ if $\left\{
 \section{Satisfiability Modulo Theories - SMT}
 \subsection{Syntax} \label{subsection:smt-syntax}
 \begin{definition}
-A signature $\Sigma$ is a 4-tuple $(S, P, F, V, \alpha)$ containing a set $S$ of sorts, a set $P$ of predicate symbols, a set $F$ of function symbols, a set of variables, and a map $\alpha$ which associates symbols to their sorts.
+A \emph{signature} $\Sigma$ is a 4-tuple $(S, P, F, V, \alpha)$ consisting of a set $S$ of \emph{sorts}, a set $P$ of \emph{predicate symbols}, a set $F$ of \emph{function symbols}, a set $V$ of \emph{variables}, and a \emph{sorts map} $\alpha$ which associates symbols to their sorts such that
 \begin{itemize}
-\item For all $p \in P, \, \alpha(p)$ is a $n$-tuple argument sorts of $p$.
-\item For all $f \in F, \, \alpha(f)$ is a $n$-tuple of argument and returned sorts of $f$.
-\item For all $v \in V, \, \alpha(v)$ represents the sort of variable $v$.
+\item for all $p \in P, \, \alpha(p)$ is a $n$-tuple argument sorts of $p$,
+\item for all $f \in F, \, \alpha(f)$ is a $n$-tuple of argument and returned sorts of $f$, and
+\item for all $v \in V, \, \alpha(v)$ represents the sort of variable $v$.
 \end{itemize}
 \end{definition}
-A \emph{term} $t$ is defined as
-\[t ::= v \mid f(t_1, \cdots, t_n)\]
-where $v \in V$ is a variable, $f \in F$ is a function symbol which receives $n$ terms $t_1, \cdots, t_n$ as its arguments.
+A $\Sigma$-\emph{term} $t$ over the signature $\Sigma$ is defined as
+\begin{center}
+\begin{tabular}{l r l l}
+$t$ &::=& $v$ & where $v \in V$\\ 
+&$\mid$ & $f(t_1, \cdots, t_n)$ &where $f \in F$ with arity $n$
+\end{tabular}
+\end{center}
 
-A formula $\varphi$ is defined recursively as (we only focus on quantifier-free formulas):
 
+
+A $\Sigma$-\emph{formula} $\varphi$ over the signature $\Sigma$ is defined recursively as (we only focus on equantifier-free formulas):
+
+\begin{center}
+\begin{tabular}{l r l l}
+$\varphi$ &::=& $p(t_1, \cdots, t_n)$ &where $p \in P$ with arity $n$ \\ 
+&$\mid$ & $\bot \mid \neg \varphi_1$ &\\
+&$\mid$ & $\varphi_1 \wedge \varphi_2 \mid \varphi_1 \vee \varphi_2$ & \\
+&$\mid$ & $\varphi_1 \rightarrow \varphi_2 \mid \varphi_1 \leftrightarrow \varphi_2$ & \\
+\end{tabular}
+\end{center}
 
 \subsection{Semantics}
 
 \begin{definition}
-Let $\Sigma$ is a signature. A model $M$ of $\Sigma$ is a pair $(U, I)$ in which $U$ is the universe and $I$ is the interpretation of symbols.
+Let $\Sigma = (S, P, F, V, \alpha)$ is a signature. A $\Sigma$-\emph{model} $M$ of $\Sigma$ is a pair $(U, I)$ in which $U$ is the \emph{universe} and $I$ is the \emph{interpretation} of symbols such that
 \begin{itemize}
-\item $\forall s \in S$; $I(s) \subseteq U$ specifies the possible values of sort $s$.
-\item $\forall f \in F$; $I(f) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_{n-1})\} \mapsto I(s_n)$ with $, \alpha(f) = (s_1,\cdots, s_n)$
-\item $\forall p \in P$; $I(p) = \{(t_1,\cdots, t_n)| t_1 \in I(s_1),\cdots, t_n \in I(s_n)\} \mapsto \{0, 1\}$ with $\alpha(p) = (s_1,\cdots, s_n)$
-\item $\forall v \in V$; $I(v) \in I(\alpha(v))$
+\sloppy
+\item for all $s \in S$, $I(s) \subseteq U$ specifies the possible values of sort $s$,
+\item for all $f \in F$, $I(f)$ is a function from $I(s_1) \times \cdots \times I(s_{n-1})$ to $I(s_n)$ with ${\alpha(f) = (s_1,\cdots, s_n)}$,
+\item for all $p \in P$, $I(p)$ is a function from $I(s_1) \times \cdots \times I(s_n)$ to $\{0, 1\}$ where ${\alpha(p) = (s_1,\cdots, s_n)}$, and
+\item for all $v \in V$, $I(v) \in I(\alpha(v))$
 \end{itemize}
+A $\Sigma$-\emph{theory} T is a (infinite) set of $\Sigma$-models. A theory $T'$ is a subset of theory $T$ iff $T' \subseteq T$.
 \end{definition}
 
-The interpretation of one predicate symbol is allowed to be not total and the symbol $\mathring{u}$ (unknown) is used to indicate the result of undefined operations. For further convenience, we also define the following relations: $\mathring{u} < 0, 1$ and $\mathring{u} > 0, 1$ and the following arithmetic $1 - \mathring{u} = \mathring{u}$ which are useful when we evaluate the values of logical connectives, i.e. $\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$, or $\neg$. 
+The interpretation of each predicate or function symbol is allowed to be not total, i.e. $I(p)$ or $I(f)$ are not necessarily total. We extend the universe of each model to include the symbol $\mathring{u}$ (unknown) which is prepared to indicate the result of undefined operations. For further convenience, we also define the following relations: $\mathring{u} < 0, 1$ and $\mathring{u} > 0, 1$ and the following arithmetic $1 - \mathring{u} = \mathring{u}$ which are useful when we evaluate the values of formulas containing logical connectives ($\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$, or $\neg$). 
 
-\begin{definition}
-Let $\Sigma$ is a signature. A $\Sigma$-theory T is a (infinite) set of $\Sigma$-models.
-\end{definition}
-A theory $T'$ is a subset of theory $T$ iff $T' \subseteq T$.
-
-\begin{definition}
-Let $\Sigma = (S, P, F, \alpha)$, $t$, $\varphi$ and $M=(U, I)$ are a signature, a $\Sigma-$term, a $\Sigma-$formula and a $\Sigma-$model respectively. The valuations of $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
-\begin{enumerate}
-\item If $t = v \in V$, then $t^M = I(v)$.
-\item If $t = f(t_1, \cdots, t_n)$, then $t^M = \left\{ 
+\begin{definition} \label{def:smt-valuation}
+Let $\Sigma = (S, P, F, V, \alpha)$ and $M=(U, I)$ are a signature and a $\Sigma-$model respectively. The \emph{valuation} of a $\Sigma$-term $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
+\begin{center}
+\begin{tabular}{r c l l}
+$v^M$ &=& $I(v)$ & where $v \in V$, and \\
+$f^M(t_1, \cdots, t_n)$ &=& $\left\{ 
   \begin{array}{c l}
     I(f)(t_1^M, \cdots, t_n^M) & \quad \text{if } (t_1^M, \cdots, t_n^M) \in Dom(I(f))\\
     \mathring{u} & \quad \text{otherwise }\\
-  \end{array} \right.$ for $f \in F$ and $t_1,\cdots, t_n \in TERM$
-\end{enumerate}
+  \end{array} \right.$ & where $f \in F$. \\
+\end{tabular}
+\end{center}
 Similarly, the valuation $\varphi^M$ of $\varphi$ is defined as:
-\begin{enumerate}
-\item If $\varphi = p(t_1,\cdots,t_n)$, then $\varphi^M = \left\{ 
+\begin{center}
+\begin{tabular}{r c l l}
+$p^M(t_1,\cdots,t_n)$ &=& $\left\{ 
   \begin{array}{c l}
     I(p)(t_1^M,\cdots,t_n^M) & \quad \text{if } (t_1^M, \cdots, t_n^M) \in Dom(I(p))\\
     \mathring{u} & \quad \text{otherwise }\\
-  \end{array} \right.$ for $p \in P$ and $t_1,\cdots, t_n \in TERM$
-\item If $\varphi = \bot, \neg\varphi', \varphi_1 \circ \varphi_2$ for $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$ and $\varphi', \varphi_1, \varphi_2 \in FORM$, then $\varphi^M$ is defined similarly as in Definition~\ref{def:pro-val}.
-\end{enumerate}
+  \end{array} \right.$ & where $p \in P$, \\
+$\bot^M$ &=& $0$ ,& \\
+$(\neg \varphi_1)^M$ &=& $1 - \varphi_1^M$ ,& \\
+$(\varphi_1 \wedge \varphi_2)^M$ &=& $\min(\varphi_1^M, \varphi_2^M)$, & \\
+$(\varphi_1 \vee \varphi_2)^M$ &=& $\max(\varphi_1^M, \varphi_2^M)$, & \\
+$(\varphi_1 \rightarrow \varphi_2)^M$ &=& $\max(1-\varphi_1^M, \varphi_2^M)$, and & \\
+$(\varphi_1 \rightarrow \varphi_2)^M$ &=& $\left\{ 
+  \begin{array}{c l}
+    1 & \quad \text{if } \varphi_1^M = \varphi_2^M \\
+    0 & \quad \text{otherwise }\\
+  \end{array} \right.$. &
+\end{tabular}
+\end{center}
 We say that $M$ satisfies $\varphi$ which is denoted by $\models_M \varphi$ iff $\varphi^M = 1$. If $\varphi^M = 0$, $\not\models_M \varphi$ is used to denote that $M$ does not satisfy $\varphi$.
 \end{definition}
 
+Given a signature $\Sigma$, a $\Sigma$-theory $T$ and a $\Sigma$-formula $\varphi$, a Satisfiability Modulo Theories(SMT) problem is the task of finding a model $M \in T$ such that $\models_M \varphi$.
+
 \begin{lemma}\label{lemma:model-sat-unsat}
-Given any $\Sigma$-model $M$ and $\Sigma$-formula $\varphi$, we have $\models_M \varphi \iff \not\models_M \neg \varphi$
+Given any $\Sigma$-model $M$ and $\Sigma$-formula $\varphi$, we have $\models_M \varphi $ if and only if $ \not\models_M \neg \varphi$
 \end{lemma}
 
 \begin{proof}
@@ -162,15 +188,15 @@ $\models_M \varphi \iff \varphi^M = 1 \iff 1 - \varphi^M = 0 \iff (\neg \varphi)
 \begin{definition}
 Let $T$ be a $\Sigma$-theory. A $\Sigma$-formula $\varphi$ is:
 \begin{itemize}
-\item satisfiable in $T$ or T-SAT iff $\exists M \in T$; $\models_{M} \varphi$
-\item valid in $T$ or T-VALID iff $\forall M \in T$; $\models_{M} \varphi$
-\item unsatisfiable in $T$ or T-UNSAT iff $\forall M \in T$; $\not\models_{M} \varphi$
-\item unknown in $T$ or T-UNKNOWN iff $\forall M \in T$; $\varphi^M = \mathring{u}$
+\item satisfiable in $T$ or T-SAT if and only if for all $M \in T$ we have $\models_{M} \varphi$,
+\item valid in $T$ or T-VALID if and only if for all $M \in T$ we have $\models_{M} \varphi$,
+\item unsatisfiable in $T$ or T-UNSAT if and only if for all $M \in T$ we have $\not\models_{M} \varphi$, and
+\item unknown in $T$ or T-UNKNOWN if and only if for all $M \in T$, $\varphi^M = \mathring{u}$.
 \end{itemize}
 \end{definition}
 
 \begin{lemma} \label{lemma:theory-valid-unsat}
-If $T$ be a $\Sigma$-theory, then $\varphi$ is T-VALID $\iff$ $\neg\varphi$ is T-UNSAT
+If $T$ be a $\Sigma$-theory, then $\varphi$ is T-VALID if and only if $\neg\varphi$ is T-UNSAT
 \end{lemma}
 
 \begin{proof}
@@ -178,7 +204,7 @@ $\varphi$ is T-VALID $\iff \forall M \in T; \; \models_{M} \varphi \iff \forall 
 \end{proof}
 
 \begin{lemma} \label{lemma:subtheory-SAT}
-If $T' \subseteq T$, then $\varphi$ is $T'$-SAT $\implies \varphi$ is $T$-SAT.
+If $T' \subseteq T$, then $\varphi$ is $T'$-SAT implies that $\varphi$ is $T$-SAT.
 \end{lemma}
 
 \begin{proof}
@@ -192,11 +218,12 @@ We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, V^p, \alpha^p)$ in Sect
 \item $S^p = \{Real\}$
 \item $P^p = \{\succ, \prec, \succeq, \preceq, \approx, \not\approx\}$
 \item $F^p = \{\oplus, \ominus, \otimes, \mathbf{1}\}$
-\item $\forall p \in P^p$; $\alpha^p(p) = (Real, Real)$
-\item $\forall f \in F^p\setminus \{\mathbf{1}\}$; $\alpha^p(f) = (Real, Real, Real)$ and $\alpha^p(\mathbf{1})=Real$
-\item $\forall v \in V; \; \alpha^P(v) = Real$
+\item for all $p \in P^p$, $\alpha^p(p) = (Real, Real)$
+\item for all $f \in F^p\setminus \{\mathbf{1}\}$, $\alpha^p(f) = (Real, Real, Real)$ and $\alpha^p(\mathbf{1})=Real$
+\item for all $v \in V, \; \alpha^p(v) = Real$
 \end{enumerate}
-A polynomial and a polynomial constraint are a $\Sigma^p$-term and a $\Sigma^p$-formula respectively. However, for simplicity, we currently focus on small portion of $\Sigma^p$-formulas
+A polynomial and a polynomial constraint are a $\Sigma^p$-term (we referred as letters $f$ or $g$) and a $\Sigma^p$-formula respectively. 
+
 
 \begin{definition}
 Given a polynomial $f$, the set of its variables which is denoted as $var(f)$ is defined recursively as following:
@@ -211,42 +238,68 @@ Given a polynomial $f$, the set of its variables which is denoted as $var(f)$ is
 A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
 \begin{enumerate}
 \item $I^p_{\mathbb{R}}(Real) = \mathbb{R}$.
-\item $\forall p \in P^p$; $I_{\mathbb{R}}(p) = \mathbb{R} \times \mathbb{R} \mapsto \{1, 0\}$ such that $ I_\mathbb{R}^p(p)(r_1, r_2) = \left\{ 
+\item $\forall p \in P$; $I^p_{\mathbb{R}}(p)$ is a function from $\mathbb{R} \times \mathbb{R}$ to $\{1, 0\}$ such that \[I^p_\mathbb{R}(p)(r_1, r_2) = \left\{ 
   \begin{array}{c l}
     1 & \quad \text{if } r1 \; p_{\mathbb{R}} \; r2\\
     0 & \quad \text{otherwise }\\
-  \end{array} \right.$ where $(\succ_\mathbb{R}, \prec_{\mathbb{R}},\succeq_\mathbb{R},\preceq_{\mathbb{R}}, \approx_\mathbb{R}, \not\approx_\mathbb{R}) = (>, <, \ge, \le, =, \neq)$.
-\item $\forall f \in F^p \setminus \{\mathbf{1}\}$; $I^p_{\mathbb{R}}(f) = \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}$ such that $I^p_{\mathbb{R}}(f)(r_1, r_2)  = r_1 \; f_{\mathbb{R}} \; r_2$ where $(\oplus_{\mathbb{R}}, \ominus_{\mathbb{R}}, \otimes_{\mathbb{R}}) = (+, -, *)$.
+  \end{array} \right.\] where $(\succ_\mathbb{R}, \prec_{\mathbb{R}},\succeq_\mathbb{R},\preceq_{\mathbb{R}}, \approx_\mathbb{R}, \not\approx_\mathbb{R}) = (>, <, \ge, \le, =, \neq)$.
+\item $\forall f \in F \setminus \{\mathbf{1}\}$; $I^p_{\mathbb{R}}(f)$ is a function from $\mathbb{R} \times \mathbb{R}$ to $\mathbb{R}$ such that \[I^p_{\mathbb{R}}(f)(r_1, r_2)  = r_1 \; f_{\mathbb{R}} \; r_2\] where $(\oplus_{\mathbb{R}}, \ominus_{\mathbb{R}}, \otimes_{\mathbb{R}}) = (+, -, *)$.
 \item $I^p_\mathbb{R}(\mathbf{1}) = 1$
 \item $\forall v \in V$; $I^p_{\mathbb{R}}(v) \in \mathbb{R}$.
 \end{enumerate}
-The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$.
-By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^p_{\mathbb{R}}$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Given a map $\theta = \{v \mapsto r \in \mathbb{R}| v \in V \}$, $\theta^p_\mathbb{R}$ denotes the model represented by $\theta$.
+The valuation of polynomials ($\Sigma^p$-terms) and polynomial constraints ($\Sigma^p$-formulas) against a model $M^p_\mathbb{R}$ follows Definition~\ref{def:smt-valuation}. 
 
-\subsubsection*{Representing (sub-)theory of real numbers as a constraint of intervals}
-The signature of the first order logic is instantiated as $\Sigma^I = (S^I, P^I, F^I, \alpha^I)$ for interval constraints:
+The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$.
+By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables, e.g. $\{v \mapsto r \in \mathbb{R} | v \in V\}$, can be used to represent a model. Given a map $\theta = \{v \mapsto r \in \mathbb{R}| v \in V \}$, $\theta^p_\mathbb{R}$ denotes the model represented by $\theta$.
+
+From now on, we focus on $\Sigma^p$-formulas $\varphi$ of the forms:
+\begin{center}
+\begin{tabular}{l r l l}
+$\varphi$ &::=& $p(f_1, f_2)$ & where $p \in P$\\ 
+&$\mid$ & $\varphi_1 \wedge \varphi_2$& \\
+\end{tabular}
+\end{center}
+because this does not lose the generality. Given a general polynomial constraint $\varphi$ that is formed by the syntax in Section~\ref{subsection:smt-syntax}:
+\begin{itemize}
+\item If we consider each formula $p(f_1, f_2)$ as an propositional symbols, we can first convert $\varphi$ into an CNF formula and then use DPLL procedure to infer a sequence of literals that satisfies $\varphi$ (in terms of propositional logic).  
+\item The sequence of literals may contains some literals of the form $\neg p(f_1, f_2)$. However, from the semantics of polynomial constraints, we can change:
+\begin{center}
+\begin{tabular}{r c l}
+$\neg(\succ (f_1, f_2))$ & to & $\preceq (f_1, f_2)$ \\
+$\neg(\prec (f_1, f_2))$ & to & $\succeq (f_1, f_2)$ \\
+$\neg(\succeq (f_1, f_2))$ & to & $\prec (f_1, f_2)$ \\
+$\neg(\preceq (f_1, f_2))$ & to & $\succ (f_1, f_2)$ \\
+$\neg(\approx (f_1, f_2))$ & to & $\not\approx (f_1, f_2)$ \\
+$\neg(\not\approx (f_1, f_2))$ & to & $\approx (f_1, f_2)$ \\
+\end{tabular}
+\end{center}
+\item The remaining task is solving the SMT problem with the constraint is the conjunction of literals in the sequence.
+\end{itemize}
+
+\subsubsection*{Representing (sub-)theory of real numbers as a constraint of real intervals}
+The signature of the first order logic is instantiated as $\Sigma^I = (S^I, P^I, F^I, \alpha^I)$ for real interval constraints such that
 \begin{enumerate}
-\item $S^I = \{Real, Interval\}$
-\item $P^I = \{\in\}$
-\item $F^I = \{c | c \text{ is a constant}\}$
-\item $\alpha^I(\in) = (Real, Interval)$ and $\forall c \in F^I; \; \alpha^I(c) = Interval$
-\item $\forall c \in F^I; \; \alpha^I(c) = Interval$.
+\item $S^I = \{Real, Interval\}$,
+\item $P^I = \{\in\}$,
+\item $F^I = \{c | c \text{ is a constant}\}$,
+\item $\alpha^I(\in) = (Real, Interval)$,
+\item for all $c \in F^I, \; \alpha^I(c) = Interval$, and 
 \item $\forall v \in V; \; \alpha^I(v) = Real$.
 \end{enumerate}
-We call $\Sigma^I$-formula is an interval constraint.
-A model $M^I_{\mathbb{R}} = (\mathbb{I} \cup \mathbb{R}, I^I)$ over intervals contains the set of real numbers and real intervals $\mathbb{I} \cup \mathbb{R}$ and a map $I^I$ that satisfies the following properties.
+We call $\Sigma^I$-formula is an interval constraint. The interval constraints in this thesis is represented by symbol $\Pi$.
+A model $M^I_{\mathbb{R}} = (\mathbb{I} \cup \mathbb{R}, I^I_\mathbb{R})$ of real intervals consists of the union of real intervals $\mathbb{I}$ which is defined later in Definition~\ref{def:real_intervals} and real numbers $\mathbb{R}$ and a map $I^I_\mathbb{R}$ that satisfies the following properties.
 \begin{enumerate}
-\item $I^I(Real) = \mathbb{R}$ and $I^I(Interval) = \mathbb{I}$. $\mathbb{I}$ is the set of all real intervals which is defined later in Definition~\ref{def:real_intervals}.
-\item $I^I(\in) = \mathbb{R} \times \mathbb{I} \mapsto \{1, 0\}$ such that $ I_\mathbb{R}^p(p)(r, \langle a, b \rangle) = \left\{ 
+\item $I^I_\mathbb{R}(Real) = \mathbb{R}$ and $I^I_\mathbb{R}(Interval) = \mathbb{I}$.
+\item $I^I_\mathbb{R}(\in) = \mathbb{R} \times \mathbb{I} \mapsto \{1, 0\}$ such that \[I_\mathbb{R}^I(\in)(r, \langle a, b \rangle) = \left\{ 
   \begin{array}{c l}
     1 & \quad \text{if } a \le r \le b\\
     0 & \quad \text{otherwise }\\
-  \end{array} \right.$.
-\item $\forall c \in F^I$; $I^I(c) \in \mathbb{I}$.
-\item $\forall v \in V$; $I^I(v) \in \mathbb{R}$.
+  \end{array} \right.\]
+\item For all $c \in F^I$, $I^I_\mathbb{R}(c) \in \mathbb{I}$.
+\item For all $v \in V$, $I^I_\mathbb{R}(v) \in \mathbb{R}$.
 \end{enumerate}
-The theory of real intervals is $T^I = \{M^I | M^I$ is a model of real intervals $\}$.
-By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables can be used to represent a model $M^I$; i.e. $\{v \mapsto r \in \mathbb{R} | v \in V\}$ represents a model. Given a map $\theta = \{v \mapsto r \in \mathbb{R} | v \in V\}$, we denote $\theta^I$ as a model of real intervals. If $\Pi$ is an interval constraint, the notation $\Pi^p_\mathbb{R} = \{\theta^p_\mathbb{R} | \theta = \{v \mapsto r \in \mathbb{R} | v \in V\} \text{ and } \models_{\theta^I} \Pi \}$ represents the (sub-)theory of real numbers that each of its model (after converted into the model of intervals) satisfies the constraint $\Pi$.
+The valuation of $\Sigma^\mathbb{I}$-terms and $\Sigma^\mathbb{I}$-terms follows Definition~\ref{def:smt-valuation}. The theory of real intervals is $T^I_\mathbb{R} = \{M^I_\mathbb{R} | M^I_\mathbb{R}$ is a model of real intervals$\}$.
+By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables, e.g. $\{v \mapsto r \in \mathbb{R} | v \in V\}$, can be used to represent a model. Given an assignment $\theta = \{v \mapsto r \in \mathbb{R} | v \in V\}$, we denote $\theta^I_\mathbb{R}$ as a model of real intervals represented by $\theta$. If $\Pi$ is a $\Sigma^\mathbb{I}$-formula, the notation ${\Pi^p_\mathbb{R} = \{\theta^p_\mathbb{R} \mid \theta = \{v \mapsto r \in \mathbb{R} \mid v \in V\} \text{ and } \models_{\theta^I_\mathbb{R}} \Pi \}}$ represents the (sub-)theory of real numbers that each of its model contain the assignment from real numbers to variables that (intuitively) satisfies $\Pi$.
 
 
 

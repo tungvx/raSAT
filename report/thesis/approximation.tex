@@ -72,27 +72,23 @@ Then, Fig. \ref{fig:T_result} illustrates Definition~\ref{def:app}.
 \begin{definition} \label{def:ApproxTheory}
 Let $T, T'$ be $\Sigma$-theories and $\varphi$ be any $\Sigma$-formula. 
 \begin{itemize}
-\item $T'$ is an {\em over-approximation theory} (of $T$) 
+\item $T'$ is an {\em over-approximation theory} of $T$ 
 iff $T'$-UNSAT of $\varphi$ implies $T$-UNSAT of $\varphi$.
-\item $T'$ is an {\em under-approximation theory} (of $T$)
+\item $T'$ is an {\em under-approximation theory} of $T$
 iff $T'$-SAT of $\varphi$ implies $T$-SAT of $\varphi$. 
 \end{itemize}
 \end{definition}
 
 \begin{theorem}
-If $T_O$ be an over-approximation theory of $T$, then for any $\Sigma$-formula $\varphi$: $\varphi$ is $T_O$-VALID $\implies \varphi$ is $T$-VALID.
+If $T_O$ be an over-approximation theory of $T$, then for any $\Sigma$-formula $\varphi$: $\varphi$ is $T_O$-VALID implies $\varphi$ is $T$-VALID.
 \end{theorem}
 
 \begin{proof}
 $\varphi$ is $T_O$-VALID $\implies$ $\neg\varphi$ is $T_O$-UNSAT (Lemma \ref{lemma:theory-valid-unsat}) $\implies \neg\varphi$ is $T$-UNSAT (Definition \ref{def:ApproxTheory}) $\implies \varphi$ is T-VALID (Lemma \ref{lemma:theory-valid-unsat})
 \end{proof}
 
-%Note that $O.T$-valid can be regarded as $U.T$, since $O.T$-valid implies $T$-valid, thus $T$-SAT. 
-A typical ICP applies $O.T$ only as an interval arithmetic. 
-Later in Section~\ref{sec:approximation}, we will instantiate interval arithmetic as $O.T$. 
-Adding to $O.T$-valid, {\bf raSAT} introduce testing as $U.T$ to accelerate SAT detection. 
 
-\section{Interval Arithmetic as an Over-Approximation Theory}\label{sec:IA}
+\section{Interval Arithmetic as an Over-Approximation Theory of Sub-Theory of Real Numbers}\label{sec:IA}
 \subsection{Real Intervals}
 We adopt the definition of real intervals from \cite{Hickey:2001:IAP:502102.502106}:
 \begin{definition}\cite{Hickey:2001:IAP:502102.502106}
@@ -106,8 +102,9 @@ Let $a$ and $b$ be reals such that $a \le b$.
 \end{tabular}
 \end{center}
 \end{definition}
-All intervals in this definition can be summarized by $\langle a, b \rangle$ where $a, b \in \mathbb{R} \cup \{-\infty, +\infty\}$ and $a \le b$ with the assumption that $\forall c \in \mathbb{R}-\infty < c < \infty$. Furthermore,\citet{Hickey:2001:IAP:502102.502106} also defined arithmetic operations for $\mathbb{R} \cup \{-\infty, +\infty\}$ which is summarized in Table ~.
+All \emph{intervals} in this definition can be summarized by $\langle a, b \rangle$ where $a, b \in \mathbb{R} \cup \{-\infty, +\infty\}$ and $a \le b$ with the assumption that $\forall c \in \mathbb{R}-\infty < c < \infty$. Furthermore,\citet{Hickey:2001:IAP:502102.502106} also defined arithmetic operations for $\mathbb{R} \cup \{-\infty, +\infty\}$ which is summarized in Table~\ref{tab:arithOp}.
 
+\begin{table} \label{tab:arithOp}
 \begin{tabular}{c||*{5}{c|}}
 $x + y$
 &$-\infty$&NR&0
@@ -132,6 +129,7 @@ $+\infty$ &$-\infty$&$-\infty$&$-\infty$&$-\infty$&$\bot$\\\hline
 \newline
 \vspace*{1 cm}
 \newline
+\begin{center}
 \begin{tabular}{c||*{5}{c|}}
 $x \times y$
 &$-\infty$&NR&0
@@ -142,12 +140,15 @@ $0$&&&0&0&$\bot$\\\hline
 $PR$ &&&&PR&$+\infty$\\\hline
 $+\infty$ &&&&&$+\infty$\\\hline
 \end{tabular}
+\end{center}
+\caption{Arithmetics Operations for $\mathbb{R} \cup \{-\infty, +\infty\}$}
+\end{table}
 
 \begin{definition} \label{def:real_intervals}
-The set of all real intervals $\mathbb{I}$ is defined as $\mathbb{I} = \{\langle a, b \rangle | a, b \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } a \le b \}$.
+The set of all \emph{real intervals} $\mathbb{I}$ is defined as: \[\mathbb{I} = \{\langle a, b \rangle | a, b \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } a \le b \}\].
 \end{definition}
 
-\subsection{Interval Arithmetic as an Over-Approximation Theory}
+\subsection{Interval Arithmetic as an Over-Approximation Theory of Sub-Theory of Real Numbers}
 A model $M^p_{IA} = (U^p_{IA}, I^p_{IA})$ over intervals contains a set of all intervals $U^p_{IA} = \{\langle l, h\rangle | l, h \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } l \le h\}$ and a map $I^p_{IA}$ that satisfies the following conditions.
 \begin{enumerate}
 \item $I^p_{IA}(Real) = U^p_{IA}$
@@ -240,7 +241,7 @@ On the other hand, $\varphi^p$ is $\{\Pi^p_{IA}\}$-UNSAT $\implies (\varphi^p)^{
 \end{enumerate}
 \end{proof}
 
-\section{Testing as an Under-Approximation Theory}
+\section{Testing as an Under-Approximation Theory of Sub-Theory of Real Numbers}
 \begin{definition}
 Let $T^p \subseteq T^p_\mathbb{R}$ be a sub-theory of real numbers. Any sub-theory $T^p_T$ of $T^p$, i.e. $T^p_T \subseteq T^p$ is call a theory of testing with respect to $T^p$.
 \end{definition}
