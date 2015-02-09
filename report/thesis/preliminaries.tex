@@ -42,7 +42,7 @@ $Ml^dM' \parallel F \wedge C \Longrightarrow Ml' \parallel F \wedge C$ if $\left
   \end{array} \right.$  
 \end{enumerate}
 
-Let $F$ be a given CNF formula. Starting with the state $\emptyset \parallel F$, basic DPLL procedure terminates with either $FailState$ when $F$ is unsatisfiable, or a state $M \parallel F$ where $M$ satisfies $F$. Intuitively, the above four rules can be explained as following.
+Let $F$ be a given CNF formula. Starting with the state $\emptyset \parallel F$, basic DPLL procedure terminates with either $FailState$ (which is denoted as $\emptyset \parallel F \Longrightarrow^! FailState$) when $F$ is unsatisfiable, or a state $M \parallel F$ (which is denoted as $\emptyset \parallel F \Longrightarrow^! M \parallel F$) where $M$ satisfies $F$. Intuitively, the above four rules can be explained as following.
 
 \begin{itemize}
 \item $\mathbf{UnitPropagate}$: In order to satisfy $F \wedge (C \vee l)$, $C \vee l$ needs to be satisfied. Because all the literals in $C$ is false in current assignment $M$ ($M \models \neg C$), $l$ must be made true when extending $M$.
@@ -143,7 +143,7 @@ The interpretation of each predicate or function symbol is allowed to be not tot
 \begin{definition} \label{def:smt-valuation}
 Let $\Sigma = (S, P, F, V, \alpha)$ and $M=(U, I)$ are a signature and a $\Sigma-$model respectively. The \emph{valuation} of a $\Sigma$-term $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
 \begin{center}
-\begin{tabular}{r c l l}
+\begin{tabular}{l c l l}
 $v^M$ &=& $I(v)$ & where $v \in V$, and \\
 $f^M(t_1, \cdots, t_n)$ &=& $\left\{ 
   \begin{array}{c l}
@@ -154,7 +154,7 @@ $f^M(t_1, \cdots, t_n)$ &=& $\left\{
 \end{center}
 Similarly, the valuation $\varphi^M$ of $\varphi$ is defined as:
 \begin{center}
-\begin{tabular}{r c l l}
+\begin{tabular}{l c l l}
 $p^M(t_1,\cdots,t_n)$ &=& $\left\{ 
   \begin{array}{c l}
     I(p)(t_1^M,\cdots,t_n^M) & \quad \text{if } (t_1^M, \cdots, t_n^M) \in Dom(I(p))\\
@@ -188,10 +188,10 @@ $\models_M \varphi \iff \varphi^M = 1 \iff 1 - \varphi^M = 0 \iff (\neg \varphi)
 \begin{definition}
 Let $T$ be a $\Sigma$-theory. A $\Sigma$-formula $\varphi$ is:
 \begin{itemize}
-\item satisfiable in $T$ or T-SAT if and only if for all $M \in T$ we have $\models_{M} \varphi$,
-\item valid in $T$ or T-VALID if and only if for all $M \in T$ we have $\models_{M} \varphi$,
-\item unsatisfiable in $T$ or T-UNSAT if and only if for all $M \in T$ we have $\not\models_{M} \varphi$, and
-\item unknown in $T$ or T-UNKNOWN if and only if for all $M \in T$, $\varphi^M = \mathring{u}$.
+\item[$\bullet$] \emph{satisfiable} in $T$ or T-SAT if and only if for all $M \in T$ we have $\models_{M} \varphi$,
+\item[$\bullet$] \emph{valid} in $T$ or T-VALID if and only if for all $M \in T$ we have $\models_{M} \varphi$,
+\item[$\bullet$] \emph{unsatisfiable} in $T$ or T-UNSAT if and only if for all $M \in T$ we have $\not\models_{M} \varphi$, and
+\item[$\bullet$] \emph{unknown} in $T$ or T-UNKNOWN if and only if for all $M \in T$, $\varphi^M = \mathring{u}$.
 \end{itemize}
 \end{definition}
 
@@ -235,7 +235,7 @@ Given a polynomial $f$, the set of its variables which is denoted as $var(f)$ is
 \end{definition}
 
 \subsection{Semantics}
-A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
+A model $M^p_{\mathbb{R}} = (\mathbb{R}, I^p_{\mathbb{R}})$ over real numbers for polynomial constraints contains the set of reals number $\mathbb{R}$ and a map $I$ that satisfies the following properties.
 \begin{enumerate}
 \item $I^p_{\mathbb{R}}(Real) = \mathbb{R}$.
 \item $\forall p \in P$; $I^p_{\mathbb{R}}(p)$ is a function from $\mathbb{R} \times \mathbb{R}$ to $\{1, 0\}$ such that \[I^p_\mathbb{R}(p)(r_1, r_2) = \left\{ 
@@ -251,6 +251,8 @@ The valuation of polynomials ($\Sigma^p$-terms) and polynomial constraints ($\Si
 
 The theory of real numbers is $T^p_{\mathbb{R}} = \{M^p_{\mathbb{R}} | M^p_{\mathbb{R}}$ is a model of real numbers $\}$.
 By this instantiation, each model differs to another by the mapping from variables to real numbers. As a result, an assignment of real numbers to variables, e.g. $\{v \mapsto r \in \mathbb{R} | v \in V\}$, can be used to represent a model. Given a map $\theta = \{v \mapsto r \in \mathbb{R}| v \in V \}$, $\theta^p_\mathbb{R}$ denotes the model represented by $\theta$.
+
+Moreover, because all the predicate and function symbols' interpretations are total functions, so a given polynomial constraint $\varphi$ cannot be $T^p_\mathbb{R}$-UNKNOWN. In the other words, $\varphi$ can only be $T^p_\mathbb{R}$-SAT, $T^p_\mathbb{R}$-VALID, or $T^p_\mathbb{R}$-UNSAT.
 
 From now on, we focus on $\Sigma^p$-formulas $\varphi$ of the forms:
 \begin{center}
