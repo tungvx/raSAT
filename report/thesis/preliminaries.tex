@@ -98,31 +98,17 @@ $M \parallel F \wedge C \Longrightarrow M \parallel F$ if $\left\{
 \begin{definition}
 A signature $\Sigma$ is a 4-tuple $(S, P, F, V, \alpha)$ containing a set $S$ of sorts, a set $P$ of predicate symbols, a set $F$ of function symbols, a set of variables, and a map $\alpha$ which associates symbols to their sorts.
 \begin{itemize}
-\item $\forall p \in P; \alpha(p)$ is a $n$-tuple argument sorts of $p$.
-\item $\forall f \in F; \alpha(f)$ is a $n$-tuple of argument and returned sorts of $f$.
-\item $\forall v \in V; \; \alpha(v)$ represents the sort of variable $v$.
+\item For all $p \in P, \, \alpha(p)$ is a $n$-tuple argument sorts of $p$.
+\item For all $f \in F, \, \alpha(f)$ is a $n$-tuple of argument and returned sorts of $f$.
+\item For all $v \in V, \, \alpha(v)$ represents the sort of variable $v$.
 \end{itemize}
 \end{definition}
- 
-Followings are the definitions of terms and formulas.
+A \emph{term} $t$ is defined as
+\[t ::= v \mid f(t_1, \cdots, t_n)\]
+where $v \in V$ is a variable, $f \in F$ is a function symbol which receives $n$ terms $t_1, \cdots, t_n$ as its arguments.
 
-\begin{definition}
-The set $TERM$ of terms is the set that satisfies the properties
-\begin{enumerate}
-\item $v \in V \Rightarrow v \in TERM$
-\item $t_1,\cdots,t_n \in TERM$; $f \in F \Rightarrow f(t_1,\cdots, t_n) \in TERM$
-\end{enumerate}
-\end{definition}
+A formula $\varphi$ is defined recursively as (we only focus on quantifier-free formulas):
 
-\begin{definition}
-We only focus on quantifiers free formula, so the set $FORM$ of formulas is the set that satisfies the properties:
-\begin{enumerate}
-\item $\bot \in FORM$
-\item $t_1,\cdots,t_n \in TERM$; $p \in P \Rightarrow p(t_1,\cdots, t_n) \in FORM$
-\item $\varphi, \psi \in FORM \Rightarrow (\varphi \circ \psi) \in FORM$ where $\circ \in \{\wedge, \vee, \rightarrow, \leftrightarrow\}$
-\item $\varphi \in FORM \Rightarrow \neg\varphi \in FORM$
-\end{enumerate}
-\end{definition}
 
 \subsection{Semantics}
 
