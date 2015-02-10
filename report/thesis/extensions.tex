@@ -23,7 +23,7 @@ Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we c
 \end{example}
 \begin{figure}[ht]
 \centering
-\includegraphics{singleEquation.png} 
+\includegraphics[scale=0.5]{singleEquation.png} 
 \caption{Example on solving single equation using the Intermediate Value Theorem} 
 \label{fig:single-equation} 
 %\end{minipage}
@@ -41,8 +41,18 @@ The idea of using the Intermediate Value Theorem can also be used for solving mu
 By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
 
 \begin{example}
-
+Consider two equations $g_1(x, y)=0$ and $g_2(x, y) = 0$ (Figure~\ref{fig:multiple-equations}) which satisfy the above restriction on the number of variables, and the variable intervals is $\Pi = x \in \langle c_1, d_1 \rangle \wedge y \in \langle d_2, c_2 \rangle$. Let $V_1 = \{x\}$ and $V_2 = \{y\}$, we have:
+\[g_1(c_1, y)*g_1(d_1, y) < 0 \text{ for all } y \in \langle d_2, c_2 \rangle, \text{ and }\]
+\[g_2(x, d_2)*g_2(x, c_2) < 0 \text{ for all } x \in \langle c_1, d_1 \rangle\]
+Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y=0)$ has a solution inside the box represented by $\Pi$.
 \end{example}
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.5]{multipleEquations.png} 
+\caption{Example on solving single equation using the Intermediate Value Theorem} 
+\label{fig:multiple-equations} 
+%\end{minipage}
+\end{figure}
 
 \section{Polynomial Constraints over Integers} \label{sec:NIA}
 
