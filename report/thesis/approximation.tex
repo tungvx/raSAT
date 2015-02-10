@@ -72,9 +72,9 @@ Then, Fig. \ref{fig:T_result} illustrates Definition~\ref{def:app}.
 \begin{definition} \label{def:ApproxTheory}
 Let $T, T'$ be $\Sigma$-theories and $\varphi$ be any $\Sigma$-formula. 
 \begin{itemize}
-\item $T'$ is an {\em over-approximation theory} of $T$ 
+\item[$\bullet$] $T'$ is an {\em over-approximation theory} of $T$ 
 iff $T'$-UNSAT of $\varphi$ implies $T$-UNSAT of $\varphi$.
-\item $T'$ is an {\em under-approximation theory} of $T$
+\item[$\bullet$] $T'$ is an {\em under-approximation theory} of $T$
 iff $T'$-SAT of $\varphi$ implies $T$-SAT of $\varphi$. 
 \end{itemize}
 \end{definition}
@@ -178,9 +178,9 @@ $i_1 \not\approx_{IA} i_2 $ &=& $ 1 - (i_1 \approx_{IA} i_2)$
 
 \item For all $f \in F^p \setminus \{\mathbf{1}\}$, $I^p_{IA}(f)$ is a function from $\mathbb{I} \times \mathbb{I} \mapsto \mathbb{I}$ such that \[I^p_{IA}(f)(i_1, i_2)= i_1 \; f_{IA} \; i_2\] where $f_{IA}$ satisfies the following properties:
 \begin{itemize}
-\item $i_1 \oplus_{IA} i_2 \supseteq \{r_1 + r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
-\item $i_1 \ominus_{IA} i_2 \supseteq \{r_1 - r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
-\item $i_1 \otimes_{IA} i_2 \supseteq \{r_1 * r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
+\item[$\bullet$] $i_1 \oplus_{IA} i_2 \supseteq \{r_1 + r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
+\item[$\bullet$] $i_1 \ominus_{IA} i_2 \supseteq \{r_1 - r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
+\item[$\bullet$] $i_1 \otimes_{IA} i_2 \supseteq \{r_1 * r_2| r_1 \in i_1 \text{ and } r_2 \in i_2\}$.
 \end{itemize}
 \item $I^p_{IA}(\mathbf{1}) = \langle 1,1\rangle $
 \item For all $v \in V$; $I^p_{IA} \in U^p_{IA}$
@@ -387,8 +387,8 @@ Let $(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ be
 \item Easy from the transitions.
 \item The proof is done inductively:
 \begin{itemize}
-\item \sloppy Initial state: $(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty), \varphi, \emptyset, \emptyset, \emptyset)$ and by definition, ${(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty))_\mathbb{R} = T^p_R}$. Then, the invariant trivially holds.
-\item Each transition is considered:
+\item[$\bullet$] \sloppy Initial state: $(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty), \varphi, \emptyset, \emptyset, \emptyset)$ and by definition, ${(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty))_\mathbb{R} = T^p_R}$. Then, the invariant trivially holds.
+\item[$\bullet$] Each transition is considered:
 \begin{itemize}
 \item For rules $\Pi$\_SAT, IA\_SAT the interval constraint $\Pi$ does not changed, so if the properties holds for the former state, it also does for the later one.
 \item \sloppy For REFINE transition: \\ Denote ${\Pi' = \Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})}$. We will prove that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT $\implies \varphi$ is $\Pi_\mathbb{R}$-UNSAT. First suppose that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT. Let
@@ -401,12 +401,12 @@ Let $(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ be
 \begin{theorem}
 Let $\varphi$ be the polynomial constraint to be solved. Starting with the state $(\Pi, \varphi, \emptyset, \emptyset, \emptyset)$, if our transitional system terminates and output:
 \begin{itemize}
-\item SAT then $\varphi$ is $T^p_\mathbb{R}$-SAT.
-\item UNSAT then $\varphi$ is $T^p_\mathbb{R}$-UNSAT.
+\item[$\bullet$] SAT then $\varphi$ is $T^p_\mathbb{R}$-SAT.
+\item[$\bullet$] UNSAT then $\varphi$ is $T^p_\mathbb{R}$-UNSAT.
 \end{itemize}
 \end{theorem}
 
-\begin{proof}
+\begin{proof} We consider the SAT and UNSAT case.
 \begin{enumerate}
 \item If the system output SAT, there are two possibles transition to SAT:
 \begin{itemize}

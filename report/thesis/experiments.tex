@@ -6,7 +6,7 @@ This chapter is going to present the experiments results which reflect how effec
 We perform experiments only on Zankl, and Meti-Tarski families. 
 
 
-Our combinations of strategies mentioned in Section~\ref{sec:strategy} are, 
+Our combinations of strategies mentioned in Section~\ref{sec:SATheuristics} are, 
 
 \medskip
 {\centering
@@ -16,11 +16,11 @@ Selcting a variable: \\  % (for testing and decomposition)
 \hline
 
 (1) Least SAT-likelyhood. & 
-(3) Largest number of SAT APIs.~~ & 
+(3) Largest number of SAT inequalities.~~ & 
 (8) Largest sensitibity. \\
 
 (2) Largest SAT-likelyhood. & 
-(4) Least number of SAT APIs. & \\
+(4) Least number of SAT inequalities. & \\
 
 & (5) Largest SAT-likelyhood. & \\
 
@@ -36,7 +36,7 @@ The timeout is set to 500s, and each time is the total of successful cases
 (either SAT or UNSAT). 
 
 Note that (10)-(7)-(9) means all random selection. 
-Generally speaking, the combination of (5) and (8) show the best results, 
+Generally, the combination of (5) and (8) show the best results, 
 though the choice of (1),(2), and (10) shows different behavior on benchmarks. 
 We tentatively prefer (1) or (10), but it needs to be investigated further. 
 
@@ -124,20 +124,6 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 \label{tab:rasat-experiments}
 \end{table*}
 
-Other than heuristics mentioned in Section~\ref{sec:strategy}, 
-there are lots of heuristic choices. 
-For instance, 
-\begin{itemize}
-\item how to generate test instances (in $U.T$), 
-\item how to decompose an interval, 
-\end{itemize} 
-and so on. 
-
-Experiments in Table~\ref{tab:rasat-experiments} are performed 
-with randome generation ($k$-random tick) for the former and the blanced decomposition 
-(dividing at the exact middle) for the latter. 
-Further investigation is left for future. 
-
 
 \section{Comparison with other SMT Solvers}
 
@@ -159,10 +145,10 @@ and sometimes outforms for SAT detection on vary long constraints
 Such examples appear in Zankl/matrix-3-all-*, matrix-4-all-*, and matrix-5-all-* 
 (total 74 problems), and {\bf raSAT} solely solves 
 \begin{itemize}
-\item {\em matrix-3-all-2} (47 variables, 87 APIs, and max length of an API is 27), 
-\item {\em matrix-3-all-5} (81 variables, 142 APIs, and max length of an API is 20), 
-\item {\em matrix-4-all-3} (139 variables, 244 APIs, and max length of an API is 73), and 
-\item {\em matrix-5-all-01} (132 variables, 276 APIs, and max length of an API is 47). 
+\item[$\bullet$] {\em matrix-3-all-2} (47 variables, 87 APIs, and max length of an API is 27), 
+\item[$\bullet$] {\em matrix-3-all-5} (81 variables, 142 APIs, and max length of an API is 20), 
+\item[$\bullet$] {\em matrix-4-all-3} (139 variables, 244 APIs, and max length of an API is 73), and 
+\item[$\bullet$] {\em matrix-5-all-01} (132 variables, 276 APIs, and max length of an API is 47). 
 \end{itemize}
 Note that, for Zankl, when UNSAT is detected, it is detected very quickly. 
 This is because SMT solvers detects UNSAT only when they find small UNSAT cores, 
@@ -195,9 +181,23 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 
 
 \section{Experiments with QE-CAD Benchmark}
-We also did experiments on QE-CAD problems provided by Mohab Safey El Din\footnote{\url{http://www-polsys.lip6.fr/~safey/}} - LIP6 who is working on QE-CAD simplification (checking SAT/UNSAT only and the complexity is from DEXP to EXP) and the QEPCAD problems collected by Hidenao Iwane\footnote{\url{https://github.com/hiwane/qepcad/}}. Table~\ref{exp:lip6}
+We also did experiments on QE-CAD problems provided by Mohab Safey El Din\footnote{\url{http://www-polsys.lip6.fr/~safey/}} - LIP6 who is working on QE-CAD simplification (checking SAT/UNSAT only and the complexity is from DEXP to EXP) and the QEPCAD problems collected by Hidenao Iwane\footnote{\url{https://github.com/hiwane/qepcad/}}. 
 
+The benchmarks from LIP6 are all unsatisfiable and contain long polynomials (in terms of monomials number). From the experiments with raSAT and Z3, these benchmarks show that they are very difficult to be solved (Table~\ref{exp:lip6}). These benchmarks may be suitable targets for our UNSAT core strategies in the future. 
 
+\begin{table} \label{exp:hiwane}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+\multicolumn{4}{|c|}{raSAT} & \multicolumn{4}{c|}{Z3}\\ \hline
+\multicolumn{2}{|c|}{SAT}  & \multicolumn{2}{c|}{UNSAT} & \multicolumn{2}{c|}{SAT} & \multicolumn{2}{c|}{UNSAT} \\ \hline
+156 & 244.6(s) & 2 & 0.03 (s) & 205 & 1.12 (s) & 22 & 0.05 (s) \\ \hline
+\end{tabular}
+\end{center}
+\caption{Experiments on 217 QEPCAD problems from Hidenao Iwane}
+\end{table}
+
+In terms of QEPCAD benchmarks, while Z3 solves all $217$ problems, raSAT solves $156/205$ satisfiable and $2/22$ unsatisfiable benchmarks. Apart from a number of problems which raSAT has errors in parsing, the unsolved ones are mostly unsatisfiable. This can be tackled by strategies on UNSAT core which is left for our future works. 
 \begin{table} \label{exp:lip6}
 \begin{center}
 \begin{tabular}{| c | c | c | c | c |}
@@ -213,5 +213,6 @@ f12 & 3600 & Timeout & 3599.27 & Timeout\\ \hline
 \caption{Experiments on problems from LIP6}
 \end{center}
 \end{table}
+
 
 %%%%%%%%%%%%%%%%%

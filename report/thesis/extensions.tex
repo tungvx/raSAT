@@ -1,4 +1,4 @@
-\chapter{Extension: Equality Handling and Polynomial Constraint over Integers}
+\chapter{Extensions: Equality Handling and Polynomial Constraint over Integers}
 
 \section{SAT on Equality by Intermediate Value Theorem} \label{sec:eq}
 \subsection*{Single Equation}
@@ -34,9 +34,9 @@ Note that this method does not find an exact SAT instance.
 \subsection*{Multiple Equations}
 The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. Consider $n$ equations ($n \ge 1$): $\bigwedge \limits_{i=1}^n g_i = 0$ and an interval constraint ${\bigwedge\limits_{v_i \in V}v_i \in \langle l_i, h_i \rangle}$. If we can find a set ${\{V_1, \cdots, V_n\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{i=1}^n g_i = 0$ is satisfiable in ${\bigwedge\limits_{v_i \in V}v_i \in \langle l_i, h_i \rangle}$.
 \begin{itemize}
-\item For all $i = 1, \cdots, n$; we have ${V_i \subset var(g_i)}$.
-\item For all $i \neq j$, we have $V_i \neq V_j$.
-\item For all $i = 1, \cdots, n$; let $k_i = |V_i|$ and $V_i = \{v_{ij} \; | \; 1 \le j \le k_i \}$. Then, there exist two values ${(v_{i1}, \cdots, v_{ik_I}) = (x_{i1}, \cdots, x_{ik_i})}$ and ${(v_{i1}, \cdots, v_{ik_I}) = (x'_{i1}, \cdots, x'_{ik_i})}$ such that $g_i(x_{i1}, \cdots, x_{ik_i}, \cdots, v_{ik}, \cdots) * g_i(x'_{i1}, \cdots, x'_{ik_i}, \cdots, v_{ik}, \cdots) < 0$ for all values of $v_{ik}$ in $\langle l_{ik}, h_{ik} \rangle$ where $v_{ik} \in var(g_i) \setminus V_i$.
+\item[$\bullet$] For all $i = 1, \cdots, n$; we have ${V_i \subset var(g_i)}$.
+\item[$\bullet$] For all $i \neq j$, we have $V_i \neq V_j$.
+\item[$\bullet$] For all $i = 1, \cdots, n$; let $k_i = |V_i|$ and $V_i = \{v_{ij} \; | \; 1 \le j \le k_i \}$. Then, there exist two values ${(v_{i1}, \cdots, v_{ik_I}) = (x_{i1}, \cdots, x_{ik_i})}$ and ${(v_{i1}, \cdots, v_{ik_I}) = (x'_{i1}, \cdots, x'_{ik_i})}$ such that \[g_i(x_{i1}, \cdots, x_{ik_i}, \cdots, v_{ik}, \cdots) * g_i(x'_{i1}, \cdots, x'_{ik_i}, \cdots, v_{ik}, \cdots) < 0\] for all values of $v_{ik}$ in $\langle l_{ik}, h_{ik} \rangle$ where $v_{ik} \in var(g_i) \setminus V_i$. We denote $ivt(g_i, V_i, \Pi)$ to represent that the polynomial $g_i$ enjoy this property with respect to $V_i$ and $\Pi$.
 \end{itemize}
 By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
 
@@ -53,47 +53,31 @@ Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y=0)$ has a solution inside t
 \label{fig:multiple-equations} 
 %\end{minipage}
 \end{figure}
-
-\section{Polynomial Constraints over Integers} \label{sec:NIA}
-
-{\bf raSAT} loop is easily modified to NIA (nonlinear arithmetic over integers) from NRA, 
-by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch} 
-and restricting tes tdata generation on integers. 
-We also compare {\bf raSAT} (combination (1)-(5)-(8)) with {\bf Z3 4.3} on NIA/AProVE benchmark. 
-{\bf AProVE} contains 6850 inequalities among 8829. 
-Some has several hundred variables, but each API has few variables (mostly just 2 variables). 
-
-The results are, 
-\begin{itemize}
-\item {\bf raSAT} detects 6764 SAT in 1230.54s, and 0 UNSAT. 
-\item {\bf Z3 4.3} detects 6784 SAT in 103.70s, and 36 UNSAT in 36.08s. 
-\end{itemize}
-where the timeout is $60s$. 
-{\bf raSAT} does not successfully detect UNSAT, since UNSAT problems have quite large coefficients
-which lead exhaustive search on quite large area. 
-%%%%%%%%%%%%%%%%%
-\suppress{
-\begin{table*}[t]
-\centering
-\begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r |}
-\hline
-    \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3)}\\
-\hline
-    & \multicolumn{3}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} 
-    & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
-\hline
-AProve (6850) & 6764 & 1230.54 & (s) & 0 & 0.00 & 6784 & 103.70 & 36 & 36.08 
-\\
-\hline
-\end{tabular}
-\medskip 
-\caption{Comparison on NIA/AProVE} \label{tab:aprove}
-\end{table*}
-}
+Our current implementation of handling multiple equations is very naive which is described in Algorithm~\ref{Al:multiple-equations} because for each polynomial, \textbf{raSAT} checks every possible subsets of its variables. As the result, given the constraint $\bigwedge\limits_{i=1}^ng_i=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_n)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
+\begin{algorithm}
+\begin{algorithmic}
+\Function{equationsProver}{$\bigwedge\limits_{i=j}^ng_i = 0, \Pi, V_0$}
+\If {$j > n$} \Comment{All equations are checked}
+	\State \Return SAT
+\EndIf
+\For {$V_j \in P(var(g_j))$} \Comment{$P(var(g_j))$ is the powerset of $var(g_j)$}
+	\If {$V_j \cap V = \emptyset$ and $ivt(V', g_j, \Pi)$}
+		\State $V_0 \gets V_0 \cup V'$
+		\If {\Call{equationsProver}{$\bigwedge\limits_{i=j+1}^ng_i = 0, \Pi, V_0$} = SAT}
+			\State \Return SAT
+		\EndIf
+	\EndIf
+\EndFor
+\State \Return UNSAT
+\EndFunction
+\State \Call{equationsProver}{$\bigwedge\limits_{i=1}^ng_i = 0, \Pi, \emptyset$}
+\end{algorithmic}
+\caption{Solving multiple equations $\bigwedge\limits_{i=1}^n g_i = 0$ with interval constraint ${\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle}$}
+\label{Al:multiple-equations}
+\end{algorithm}
 
 \subsection*{Experiments on Benchmarks}
-In Table \ref{tab:eqexp} we show preliminary experiment for 15 problems that contain polynomial equalities in Zankl family. \textbf{raSAT} works well for these SAT problems and it can detect all SAT problems (11 among 15). At the current implementation, raSAT reports \emph{unknown} for UNSAT problems. The first 4 columns indicate \emph{name of problems}, \emph{the number of variables}, \emph{the number of polynomial equalities} and \emph{the number of inequalities}  in each problem, respectively. The last 2 columns show comparison results of \textbf{Z3 4.3} and \textbf{raSAT}.
+In Table \ref{tab:eqexp} we show preliminary experiment for 15 problems that contain polynomial equations in Zankl family. The first 4 columns indicate \emph{name of problems}, \emph{the number of variables}, \emph{the number of polynomial equalities} and \emph{the number of inequalities}  in each problem, respectively. The last 2 columns show comparison results of \textbf{Z3 4.3} and \textbf{raSAT}.
 \begin{table}
 \centering
 \scalebox{1.0}{
@@ -140,5 +124,43 @@ gen-19 & 2 & 2 & 1& SAT &0.05 & SAT &0.046\\
 \caption{Experimental results for 15 equality problems of Zankl family}
 \label{tab:eqexp}
 \end{table}
+
+\section{Polynomial Constraints over Integers} \label{sec:NIA}
+
+{\bf raSAT} loop can be slightly modified to handle NIA (nonlinear arithmetic over integers) constraints from NRA, 
+by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch} 
+and restricting test data generation on integers. 
+We also compare {\bf raSAT} (combination ${(1)-(5)-(8)}$) with {\bf Z3 4.3} on NIA/AProVE benchmark. 
+{\bf AProVE} contains 6850 inequalities among 8829. 
+Some has several hundred variables, but each API has few variables (mostly just 2 variables). 
+
+The results are, 
+\begin{itemize}
+\item {\bf raSAT} detects 6764 SAT in 1230.54s, and 0 UNSAT. 
+\item {\bf Z3 4.3} detects 6784 SAT in 103.70s, and 36 UNSAT in 36.08s. 
+\end{itemize}
+where the timeout is $60s$. 
+{\bf raSAT} does not successfully solve any unsatisfiable problem, since they have large coefficients
+which lead exhaustive search on large area. 
+%%%%%%%%%%%%%%%%%
+\suppress{
+\begin{table*}[t]
+\centering
+\begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3)}\\
+\hline
+    & \multicolumn{3}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} 
+    & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
+\hline
+AProve (6850) & 6764 & 1230.54 & (s) & 0 & 0.00 & 6784 & 103.70 & 36 & 36.08 
+\\
+\hline
+\end{tabular}
+\medskip 
+\caption{Comparison on NIA/AProVE} \label{tab:aprove}
+\end{table*}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%

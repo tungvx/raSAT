@@ -135,7 +135,7 @@ Let $\Sigma = (S, P, F, V, \alpha)$ is a signature. A $\Sigma$-\emph{model} $M$ 
 \item for all $p \in P$, $I(p)$ is a function from $I(s_1) \times \cdots \times I(s_n)$ to $\{0, 1\}$ where ${\alpha(p) = (s_1,\cdots, s_n)}$, and
 \item for all $v \in V$, $I(v) \in I(\alpha(v))$
 \end{itemize}
-A $\Sigma$-\emph{theory} T is a (infinite) set of $\Sigma$-models. A theory $T'$ is a subset of theory $T$ iff $T' \subseteq T$.
+A $\Sigma$-\emph{theory} T is a (infinite) set of $\Sigma$-models. A theory $T'$ is a subset of theory $T$ if and only if $T' \subseteq T$.
 \end{definition}
 
 The interpretation of each predicate or function symbol is allowed to be not total, i.e. $I(p)$ or $I(f)$ are not necessarily total. We extend the universe of each model to include the symbol $\mathring{u}$ (unknown) which is prepared to indicate the result of undefined operations. For further convenience, we also define the following relations: $\mathring{u} < 0, 1$ and $\mathring{u} > 0, 1$ and the following arithmetic $1 - \mathring{u} = \mathring{u}$ which are useful when we evaluate the values of formulas containing logical connectives ($\wedge$, $\vee$, $\rightarrow$, $\leftrightarrow$, or $\neg$). 
@@ -144,7 +144,7 @@ The interpretation of each predicate or function symbol is allowed to be not tot
 Let $\Sigma = (S, P, F, V, \alpha)$ and $M=(U, I)$ are a signature and a $\Sigma-$model respectively. The \emph{valuation} of a $\Sigma$-term $t$ against $M$ which is denoted by $t^M$ is defined recursively as:
 \begin{center}
 \begin{tabular}{l c l l}
-$v^M$ &=& $I(v)$ & where $v \in V$, and \\
+$v^M$ &=& $I(v)$ & where $v \in V$, and\\
 $f^M(t_1, \cdots, t_n)$ &=& $\left\{ 
   \begin{array}{c l}
     I(f)(t_1^M, \cdots, t_n^M) & \quad \text{if } (t_1^M, \cdots, t_n^M) \in Dom(I(f))\\
@@ -263,8 +263,8 @@ $\varphi$ &::=& $p(f_1, f_2)$ & where $p \in P$\\
 \end{center}
 because this does not lose the generality. Given a general polynomial constraint $\varphi$ that is formed by the syntax in Section~\ref{subsection:smt-syntax}:
 \begin{itemize}
-\item If we consider each formula $p(f_1, f_2)$ as an propositional symbols, we can first convert $\varphi$ into an CNF formula and then use DPLL procedure to infer a sequence of literals that satisfies $\varphi$ (in terms of propositional logic).  
-\item The sequence of literals may contains some literals of the form $\neg p(f_1, f_2)$. However, from the semantics of polynomial constraints, we can change:
+\item[$\bullet$] If we consider each formula $p(f_1, f_2)$ as an propositional symbols, we can first convert $\varphi$ into an CNF formula and then use DPLL procedure to infer a sequence of literals that satisfies $\varphi$ (in terms of propositional logic).  
+\item[$\bullet$] The sequence of literals may contains some literals of the form $\neg p(f_1, f_2)$. However, from the semantics of polynomial constraints, we can change:
 \begin{center}
 \begin{tabular}{r c l}
 $\neg(\succ (f_1, f_2))$ & to & $\preceq (f_1, f_2)$ \\

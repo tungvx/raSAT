@@ -3,26 +3,26 @@
 {\em Polynomial constraint solving over real numbers} aims at computing an assignment of real values to variables
 that satisfies given polynomial inequalities/equations. If such an assignment exists, the constraint is said to be satisfiable (SAT) and the assignment is called SAT instance; otherwise we mention it as unsatisfiable (UNSAT). 
 \begin{example} \label{examp:unsat-example}
-The formula $x^2 + y^2 < 1 \wedge xy > 1$ is an example of an unsatisfiable one. While the set of satisfiable points for the first inequality ($x^2 + y^2 < 1$) is the read circle in Figure \ref{fig:unsat-example}, the set for the second one is the blue area. Because these two areas do not intersect, the conjunction of two equalities is UNSAT.
+The constraint $x^2 + y^2 < 1 \wedge xy > 1$ is an example of an unsatisfiable one. While the set of satisfiable points for the first inequality ($x^2 + y^2 < 1$) forms the read circle in Figure \ref{fig:unsat-example}, that for the second forms the blue area. Because these two areas do not intersect, the conjunction of two inequalities is unsatisfiable.
 \end{example}
 
 \begin{figure}[ht]
 %\begin{minipage}[b]{1.0\linewidth}
 \centering
-\includegraphics{UNSAT-example.png} 
+\includegraphics[scale = 0.5]{UNSAT-example.png} 
 \caption{Example of UNSAT constraint} 
 \label{fig:unsat-example} 
 %\end{minipage}
 \end{figure} 
 
-\begin{example} \label{examp:sat-example}
-Figure~\ref{fig:sat-example} illustrates the satisfiability of the constraint: $x^2 + y^2 < 4 \wedge xy > 1$. Any point in the purple area is a SAT instance of the constraint, e.g. $(1.5, 1)$.
+\begin{example} \label{examp:sat-example} \sloppy
+Figure~\ref{fig:sat-example} illustrates the satisfiability of the constraint: ${x^2 + y^2 < 4 \wedge xy > 1}$. Any point in the purple area is a SAT instance of the constraint, e.g. $(1.5, 1)$.
 \end{example}
 
 \begin{figure}[ht]
 %\begin{minipage}[b]{1.0\linewidth}
 \centering
-\includegraphics{SAT-example.png} 
+\includegraphics[scale=0.5]{SAT-example.png} 
 \caption{Example of SAT constraint} 
 \label{fig:sat-example} 
 %\end{minipage}
@@ -36,8 +36,8 @@ Figure~\ref{fig:sat-example} illustrates the satisfiability of the constraint: $
 %
 Solving polynomial constraints has many application in Software Verification, such as 
 \begin{itemize}
-\item {\bf Locating roundoff and overflow errors}, 
-which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:1858996.1859056}
+\item[$\bullet$] {\bf Locating roundoff and overflow errors}
+which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:1858996.1859056}.
 %DSP decorders in practice are defined by reference algorithms in C using floating point arithmetic. 
 %In embedded systems, often it is replaced with fixed point arithmetic, 
 %which may cause visible noises. 
@@ -47,32 +47,32 @@ which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:185899
 %In an embedded system, it is tempting to replace floating 
 %point into fixed point numbers. However, naive replacement would cause 
 
-\item {\bf Automatic termination proving}, 
+\item[$\bullet$] {\bf Automatic termination proving} 
 which reduces termination detection to finding a suitable ordering~\cite{Lucas:2008:CCS:1361735.1361760}, 
 e.g., \TTTT\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
-AProVE\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
+AProVE\footnote{\url{http://aprove.informatik.rwth-aachen.de}}, that leads to polynomial constraints. 
 %as a solution of polynomial constraints. 
 
-\item {\bf Loop invariant generation}. 
-Farkas's lemma is a popular approach in linear loop invariant generation~\cite{Colon}, 
-and is reduced to degree $2$ polynomials. 
+\item[$\bullet$] {\bf Loop invariant generation}~\cite{Colon,Sankaranarayanan:2004:NLI:982962.964028} is reduced to solving polynomial constraints over coefficients of invariant template. 
 %matrix multiplications. 
 %degree $2$ polynomial constraints. 
 %Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
-Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
+%Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
 
+\begin{comment}
 \item {\bf Hybrid system}. Solving polynomial constraints over real numbers is often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
 
 \item {\bf Mechanical contrnol design}. 
 PID control is simple but widely used, and designing parameters is 
 reduced to polynomial constraints~\cite{control}. 
 %Fujitsu used polynomial constraints solving to design PID control of HDD head movement
+\end{comment}
 \end{itemize}	
 
 \section{Existing Approaches}
 Although solving polynomial constraints on real numbers is decidable~\cite{tarski}, current methodologies have their own pros and cos. They can be classified into the following categories: 
 \begin{enumerate}
-\item \textbf{Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)}~\cite{qecad} 
+\item \textbf{Quantifier Elimination by Cylindrical Algebraic Decomposition (QE-CAD)}~\cite{qecad} 
 is a complete technique, and 
 is implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
 in
@@ -81,7 +81,7 @@ Although QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions),
 scalability is still challenging, since its complexity is doubly-exponential with respect to the number of variables. 
 %Since QE-CAD is DEXPTIME wrt the number of variables, 
 
-\item \textbf{Virtual substitution } eliminates an existential quantifier by substituting the corresponding quantified variable with a very small value ($-\infty$), and either each root (with respect to that variable) of polynomials appearing in the constraint or each root plus an infinitesimal $\epsilon$. Disjunction of constraints after substitutions is equivalent to the original constraint. Because VS needs the formula for roots of polynomials, its application is restricted to polynomials of degree up to 4. SMT-RAT and  
+\item \textbf{Virtual Substitution } eliminates an existential quantifier by substituting the corresponding quantified variable with a very small value ($-\infty$), and either each root (with respect to that variable) of polynomials appearing in the constraint or each root plus an infinitesimal $\epsilon$. Disjunction of constraints after substitutions is equivalent to the original constraint. Because VS needs the formula for roots of polynomials, its application is restricted to polynomials of degree up to 4. SMT-RAT and  
 Z3 \cite{PBM12} applies VS.
 
 \item \textbf{Bit-blasting}. 
@@ -104,54 +104,54 @@ ICP which is capable of solving "multiple thousand arithmetic constraints over s
 Our aim is an SMT solver for solving polynomial constraint. We first focus on strict inequalities because of the following reasons.
 \begin{enumerate}
 \item
-Satisfiable inequalities allow over-approximation. An over-approximation estimates the range of a polynomial $f$ as $range^O(f)$ that covers all the possible values of $f$, i.e. $range(f) \subseteq range^O(f)$. For an inequality $f>0$, if $range^O(f)$ stays in the positive side, it can be concluded as SAT. On the other hand, over-approximation cannot prove the satisfiability of SAT equations.
+Satisfiable inequalities allow over-approximation. An over-approximation estimates the range of a polynomial $f$ as $range_O(f)$ that covers all the possible values of $f$, i.e. $range(f) \subseteq range_O(f)$. For an inequality $f>0$, if $range_O(f)$ stays in the positive side, it can be concluded as SAT. On the other hand, over-approximation cannot prove the satisfiability of SAT equations.
 \item
-Satisfiable inequalities allow under-approximation. An under-approximation computes the range of the polynomial $f$ as  $range^U(f)$ such that $range(f) \supseteq range^U(f)$. If $range^U(f)$ is on the positive side, $f > 0$ can be said to be SAT. Due to the continuity of $f$, finding such an under-approximation for solving $f > 0$ is more feasible than that for $f = 0$.
+Satisfiable inequalities allow under-approximation. An under-approximation computes the range of the polynomial $f$ as  $range_U(f)$ such that $range(f) \supseteq range_U(f)$. If $range_U(f)$ is on the positive side, $f > 0$ can be said to be SAT. Due to the continuity of $f$, finding such an under-approximation for solving $f > 0$ is more feasible than that for $f = 0$.
 \begin{itemize}
-\item If $f(\bar{x}) > 0$ has a real solution $\bar{x_0}$, there exist rational points near $\bar{x_0}$ which also satisfy the inequality. Solving inequalities over real numbers thus can be reduced to that over rational numbers.
-\item The real solution of $f(\bar{x}) = 0$ cannot be approximated to any rational number.
+\item[$\bullet$] If $f(\bar{x}) > 0$ has a real solution $\bar{x}_0$, there exist rational points near $\bar{x}_0$ which also satisfy the inequality. Solving inequalities over real numbers thus can be reduced to that over rational numbers.
+\item[$\bullet$] The real solution of $f(\bar{x}) = 0$ cannot be approximated to any rational number.
 \end{itemize}
 \end{enumerate}
-For UNSAT constraint (both inequalities and equations) can be solved by over-approximation. Suppose $range^O(f)$ is the result of an over-approximation for a polynomial $f$.
+For UNSAT constraint (both inequalities and equations) can be solved by over-approximation. Suppose $range_O(f)$ is the result of an over-approximation for a polynomial $f$.
 \begin{enumerate}
-\item If $range^O(f)$ resides on the negative side, $f > 0$ is UNSAT.
-\item If $range^O(f)$ stays on either negative or positive side, $f = 0$ is UNSAT.
+\item If $range_O(f)$ resides on the negative side, $f > 0$ is UNSAT.
+\item If $range_O(f)$ stays on either negative or positive side, $f = 0$ is UNSAT.
 \end{enumerate}
 
-Our approach of "iterative approximation refinement" - \textbf{raSAT} loop for solving polynomial constraint was proposed and implemented as an SMT solver named raSAT in \cite{VanKhanh201227}. This work improves the efficiency of the tool and extend it to handle equations. The summary of the proposed method in \cite{VanKhanh201227} is:
+Our approach of "iterative approximation refinement" - \textbf{raSAT} loop for solving polynomial constraint was proposed and implemented as an SMT solver named raSAT in \cite{VanKhanh201227}. This work improves the efficiency of the tool and extend it to handle equations and constraints over integer numbers. The summary of the proposed method in \cite{VanKhanh201227} is:
 \begin{enumerate}
-\item Over-approximation is used for both disproving and proving polynomial inequalities. In addition, under-approximation is used for boosting SAT detection. When both of these methods cannot conclude the satisfiability, the input formula is refined so that the result of approximation become more precise. 
-\item Interval Arithmetic (IA) and Testing are instantiated as an over-approximation and an under-approximation respectively. While IA defines the computations over the intervals, e.g. $[1, 3] +_{IA} [3, 6] = [2, 9]$, Testing attempts to propose a number of assignments from variables to real numbers and check each assignment against the given constraint to find a SAT instance.
-\item In refinement phase, intervals of variables are decomposed into smaller ones. For example, $x \in [0, 10]$ becomes $x \in [0, 4] \vee x \in [4, 10]$.
-\item \citet{VanKhanh201227} also proposed a method for detecting satisfiability of equations using the Intermediate Value Theorem.
+\item \emph{Over-approximation} is used for both disproving and proving polynomial inequalities. In addition, \emph{under-approximation} is used for boosting SAT detection. When both of these methods cannot conclude the satisfiability, the input formula is \emph{refined} so that the result of approximation become more precise. 
+\item \emph{Interval Arithmetic} (IA) and \emph{Testing} are instantiated as an over-approximation and an under-approximation respectively. While IA defines the computations over the intervals, e.g. $[1, 3] +_{IA} [3, 6] = [2, 9]$, Testing attempts to propose a number of assignments of real numbers to variables and check each assignment against the given constraint to find a SAT instance.
+\item In \emph{refinement} phase, intervals of variables are decomposed into smaller ones. For example, $x \in [0, 10]$ becomes $x \in [0, 4] \vee x \in [4, 10]$.
+\item \citet{VanKhanh201227} also proposed a method for detecting \emph{satisfiability of equations} using the Intermediate Value Theorem.
 \end{enumerate}
 
 The contributions of this work are as follows:
 \begin{enumerate}
-\item Although the method of using IA is robust for large degrees of polynomial, the number of boxes (products of intervals) grows exponentially with respect to the number of variables during refinement (interval decomposition). As a result, strategies for selecting variables to decomposed and boxes to explore play a crucial role in efficiency. We introduce the following strategies:
+\item Although the method of using IA is robust for large degrees of polynomial, the number of boxes (products of intervals) grows exponentially with respect to the number of variables during refinement (interval decomposition). As a result, strategies for \emph{selectin gone variable} to decomposed and \emph{selecting one box} to explore play a crucial role in efficiency. We introduce the following strategies:
 \begin{itemize}
-\item A box with more possiblity to be SAT is selected to explore, which is estimated by 
+\item[$\bullet$] \textbf{Selecting one box.} The box with more possiblity to satisfy the constraint is selected to explore, which is estimated by 
 several heuristic measures, called {\em SAT likelyhood}, 
-and the number of unsolved atomic polynomial constraints.
-\item A more influential variable is selected for multiple test cases and decomposition. 
+and \emph{the number of unsolved polynomial inequalities}.
+\item[$\bullet$] \textbf{Selecting one variable.} The most influential variable is selected for multiple test cases and decomposition. 
 This is estimated by {\em sensitivity} which is determined during the computation of IA.
 \end{itemize}
-\item Two schemes of incremental search are proposed for enhancing solving process: 
+\item Two schemes of \emph{incremental search} are proposed for enhancing solving process: 
 \begin{itemize} 
-\item {\bf Incremental deepening}. 
+\item[$\bullet$] {\bf Incremental deepening}. 
 raSAT follows the depth-first-search manner. In order to escape local optimums, it starts searching with a threshold that each interval will be decomposed no smaller than it. 
 If neither SAT nor UNSAT is detected, a smaller threshold is taken and raSAT restarts. 
-\item {\bf Incremental widening}. 
-Starting with a small interval, if raSAT detects UNSAT, input intervals are enlarged
-and raSAT restarts. For SAT constraint, small (finite) interval allows sensitivity to be computed because Affine Interval \cite{VanKhanh201227} requires finite range of variables. As a consequence, our above strategies will take effects on finding SAT instance. For the UNSAT case, combination of small intervals and incremental deepening helps raSAT quickly determines the threshold in which unsatisfiability may be proved by IA. 
+\item[$\bullet$] {\bf Incremental widening}. 
+Starting with a small interval, if \textbf{raSAT} detects UNSAT, input intervals are enlarged
+and raSAT restarts. For SAT constraint, small (finite) interval allows sensitivity to be computed because Affine Interval \cite{VanKhanh201227} requires finite range of variables. As a consequence, our above strategies will take effects on finding SAT instance. For the UNSAT case, combination of small intervals and incremental deepening helps \textbf{raSAT} quickly determines the threshold in which unsatisfiability may be proved by IA. 
 \end{itemize} 
 \begin{comment}
 SAT-likelihood is introduced to measure the possibility of an inequality to be satisfiable. Sensitivity is proposed to estimate the influence of a variable to the value of a polynomial.
 \end{comment}
-\item SAT confirmation step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
+\item \emph{SAT confirmation} step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
 \tt http://irram.uni-trier.de}, to avoid soundess bugs caused by roundoff errors.
-\item This work also implement the idea of using Intermediate Value Theorem to show the satisfiability of equations which was suggested in \cite{VanKhanh201227}.
-\item We also extend raSAT to handle constraint over integer numbers. For this extension, we only generate the integer values for variables in testing phase. In addition, the threshold used for stopping decomposition is set to $1$.
+\item This work also implemented the idea of using Intermediate Value Theorem to show \emph{the satisfiability of multiple equations} which was suggested in \cite{VanKhanh201227}.
+\item We also extend raSAT to \emph{handle constraints over integer numbers}. For this extension, we only generate the integer values for variables in testing phase. In addition, the threshold used for stopping decomposition is set to $1$.
 \end{enumerate}
 \begin{comment}
 \subsection{Inequalities}

@@ -1,17 +1,9 @@
 \chapter{Conclusion}
 
 
-This paper presented {\bf raSAT} loop, which mutually refines over and under--approximation 
-theories. For polynomial inequlaity, we adopted interval arithemtic and testing for 
-over and under-approximation theories, respectively. 
-{\bf raSAT} loop is implemented as an SMT {\bf raSAT}. 
-The result of Experiments on QF\_NRA in SMT-lib is encouraging, and 
-{\bf raSAT} shows comparable and sometimes outperforming to existing SMTs, e.g., 
-Z3 4.3, HySAT, and dReal. For instance, ****** which has ** variables and degree ** 
-was solved by {\bf raSAT}, whereas none of above mentioned SMTS can. 
-%
+This thesis presented improvement and extensions for an SMT solved {\bf raSAT} including heuristics to deal with exponential exploration of boxes, extensions for handling equations and handling constraints over integer numbers.
 
-\section{Observation and Discussion} 
+\section*{Observation and Discussion} 
 
 From experimental results in Section~\ref{sec:experiments} and~\ref{sec:expsmtlib}, 
 we observe the followings. 
@@ -39,7 +31,7 @@ with sensitivity (Example~\ref{examp:sensitivity}) and would work in practice.
 Note that sensitivity can be used only with noise symbols in Affine intervals. 
 Thus, iSAT and RSOLVER cannot use this strategy, though they are based on IA, too. 
 
-\section{Future Work}
+\section*{Future Work}
 
 \medskip \noindent 
 {\bf UNSAT core}

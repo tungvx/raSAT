@@ -10,8 +10,8 @@ The constraint $\varphi = \bigwedge\limits_{j=1}^n f_j > 0$ is $\mathring\Pi$-UN
 \begin{enumerate}
 \item \emph{UNSAT core 1:} A sub-polynomial $f_k'$ of $f_k$ such that
 \begin{itemize}
-\item $f_k' > 0$ is $\mathring\Pi$-UNSAT implies that $f_k$ is $\mathring\Pi$-UNSAT, and
-\item $f_k'$ is in fact $\mathring\Pi$-UNSAT.
+\item[$\bullet$] $f_k' > 0$ is $\mathring\Pi$-UNSAT implies that $f_k$ is $\mathring\Pi$-UNSAT, and
+\item[$\bullet$] $f_k'$ is in fact $\mathring\Pi$-UNSAT.
 \end{itemize} 
 In this case, we just take $\mathring\Pi' = \bigwedge\limits_{v_i \in var(f_k)}v_i \in \langle l_i, h_j \rangle$.
 \item \emph{UNSAT core 2:} Check all the possible cases if $\mathring\Pi'$.
@@ -20,14 +20,18 @@ In this case, we just take $\mathring\Pi' = \bigwedge\limits_{v_i \in var(f_k)}v
 \begin{example}
 Consider again the constraint $\varphi = x^2 + y^2 < 1$ or $1 - x^2 - y^2 > 0$. In the \tiny IA\_UNSAT \normalsize rule, we also have $\Pi = (x \in \langle 2, 3 \rangle \vee x \in \langle 0, 2 \rangle) \wedge (y \in \langle 0, 1 \rangle y \in \langle -1, 0 \rangle)$ and $\mathring\Pi = x \in \langle 2, 3 \rangle \wedge y \in \langle 0, 1 \rangle$. Here, $\varphi$ is $\Pi$-UNSAT. In addition, $1 - x^2$ is the UNSAT core of $1 - x^2 - y^2$ because 
 \begin{itemize}
-\item $1 - x^2$ is $\Pi^p_{IA}$-UNSAT implies that $1 - x^2 - y^2$ is $\Pi^p_{IA}$-UNSAT, and 
-\item The constraint $1 - x^2 > 0$ is in fact $\Pi^p_{IA}$-UNSAT.
+\item[$\bullet$] $1 - x^2$ is $\Pi^p_{IA}$-UNSAT implies that $1 - x^2 - y^2$ is $\Pi^p_{IA}$-UNSAT, and 
+\item[$\bullet$] the constraint $1 - x^2 > 0$ is in fact $\Pi^p_{IA}$-UNSAT.
 \end{itemize} 
 \end{example}
 
 \subsection*{Preliminary Experiments}
-\begin{center}
+Strategy \emph{UNSAT core 1} was already implemented in \cite{VanKhanh201227} and the other strategy was implemented in this work. We did the experiments on the SMT-LIB family Hong where each problem is unsatisfiable and of the following form:
+\[\sum_{i=1}^{n}x_i^2 < 1 \wedge \prod_{i=1}^{n}x_i > 1\]
+where $n$ ranges from $1$ to $20$. Table~\ref{tab:hong} shows the experiments for raSAT with/without UNSAT core strategies where we fixed the initial intervals to be $\langle 0, 10 \rangle$ and the threshold $0.1$ (i.e. no incremental deepening and widening). \emph{UNSAT core 2} works fine because problems in Hong family contain polynomials with lots of UNSAT cores which this strategy tends to calculate. On the other hand, \emph{UNSAT core 1} has not been well implemented in the way raSAT search for a sub-polynomial. Experiments for these strategies on other benchmarks of SMT-LIB did not show improvements in the result, we need further investigations.
+
 \begin{table}
+\begin{center}
 \begin{tabular}{| c | c | c | c | c |  c | c |}
 \hline
 \multirow{2}{*}{Problem} & \multicolumn{2}{ c }{No UNSAT core} & \multicolumn{2}{ |c }{UNSAT core 1} & \multicolumn{2}{ |c| }{UNSAT core 2}\\ \cline{2-7}& Time (s) & Result & Time (s) & Result& Time (s) & Result\\ \hline
@@ -53,8 +57,10 @@ hong\_19 & 500 & Timeout & 500 & Timeout & 47.968 & UNSAT\\ \hline
 hong\_20 & 500 & Timeout & 500 & Timeout & 103.484 & UNSAT\\ \hline
 \end{tabular}
 \caption{Experiments on UNSAT core computations}
-\end{table}
+\label{tab:hong}
 \end{center}
+\end{table}
+
 
 \section{Test Case Generation} \label{sec:testGen}
 \sloppy
