@@ -88,7 +88,7 @@ $\varphi$ is $T_O$-VALID $\implies$ $\neg\varphi$ is $T_O$-UNSAT (Lemma \ref{lem
 \end{proof}
 
 
-\section{Interval Arithmetic as an Over-Approximation Theory of Sub-Theory of Real Numbers}\label{sec:IA}
+\section{Interval Arithmetic as an Over-Approximation Theory}\label{sec:IA}
 \subsection{Real Intervals}
 We adopt the definition of real intervals from \cite{Hickey:2001:IAP:502102.502106}:
 \begin{definition}\cite{Hickey:2001:IAP:502102.502106}
@@ -131,7 +131,7 @@ $+\infty$ &$-\infty$&$-\infty$&$-\infty$&$-\infty$&$\bot$\\\hline
 \newline
 \begin{center}
 \begin{tabular}{c||*{5}{c|}}
-$x \times y$
+$x * y$
 &$-\infty$&NR&0
 &PR&$+\infty$\\\hline
 $-\infty$ &$+\infty$&$+\infty$&$\bot$&$-\infty$&$-\infty$\\\hline
@@ -283,7 +283,7 @@ Thus, by induction hypothesis, $\varphi_1$ and $\varphi_2$ are $\Pi^p_\mathbb{R}
 \end{enumerate}
 \end{proof}
 
-\section{Testing as an Under-Approximation Theory of Sub-Theory of Real Numbers}
+\section{Testing as an Under-Approximation Theory}
 \begin{definition}
 Let $T \subseteq T^p_\mathbb{R}$ be a sub-theory of real numbers. Any sub-theory $T_T$ of $T$, i.e. $T_T \subseteq T$ is call a theory of testing with respect to $T$.
 \end{definition}
@@ -320,7 +320,7 @@ Our algorithm is described using a transition system. Each state of the search p
 \item[$\bullet$] $\varphi^V$ contains the constraints that are valid under over-approximation.
 \item[$\bullet$] $\varphi^U$ is the set of constraints which are UNKNOWN under over-approximation.
 \item[$\bullet$] $\varepsilon$ indicates the threshold to stop decomposing intervals.
-\item[$\bullet$] $\tau$ is a flag to mark whether the threshold of intervals has been reached.
+\item[$\bullet$] $\tau$ is a flag to mark whether the threshold of intervals has been reached. It can be one of two values $\bot$ and $\top$. In the initial state, $\tau$ is always $\bot$.
 \end{itemize}
 The transition rules are described in Table ~\ref{tab:transition-rules}. Figure ~\ref{fig:smt-design} illustrates the transition system. 
 
@@ -361,37 +361,41 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
 \end{figure}
 
 \begin{theorem} \label{theorem:terminating}
-Starting with state $\Pi, \varphi, \emptyset, \emptyset, \varepsilon, \tau$, if $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ and $\{(x_1, x_2, \cdots) | \models_{\theta^I} \Pi, \theta = \{v_1 \mapsto x_1, v_2 \mapsto x_2, \cdots\} \}$ is bounded, raSATloop terminates.
+Starting with state ${(\Pi, \varphi, \emptyset, \emptyset, \varepsilon, \tau)}$, if $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ and ${\langle l_1, h_1 \rangle \times \langle l_2, h_2 \rangle \times \cdots}$ is bounded, raSATloop terminates.
 \end{theorem}
 
 \begin{proof}
-In the worst case, all the interval will be decomposed into smallest boxes with size of $\varepsilon$ whose number are bounded to $\frac{h_1 - l_1}{\varepsilon}\frac{h_2 - l_2}{\varepsilon}\cdots$ (the number of variables in one polynomial constraint is also bounded). As a result, raSATloop terminates after checking all of these boxes.
+In the worst case, all the interval will be decomposed into smallest boxes with size of $\varepsilon$ whose number are bounded to $\frac{h_1 - l_1}{\varepsilon}*\frac{h_2 - l_2}{\varepsilon}*\cdots$ (the number of variables in one polynomial constraint is also bounded). As a result, raSATloop terminates after checking all of these boxes.
 \end{proof}
+
+\begin{example}
+In Theorem~\ref{theorem:terminating}, if $\Pi= x \in \langle 1, 5 \rangle \wedge y \in \langle -3, 8 \rangle$ and $\epsilon = 0.1$, then decomposition will create maximally \[\frac{5 - 1}{0.1}*\frac{8 - (-3)}{0.1} = 150\] boxes.
+\end{example}
 
 \section{Soundness - Completeness}
 \subsection{Soundness}
 \begin{theorem}
-Let $(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ be any state of our system, then the following properties are invariants:
+Let $(\Pi_0, \varphi_0, \mathring{\Pi}_0, \varphi^V_0, \varphi^U_0, \varepsilon, \bot)$ be the starting state and $(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ be any state of our system, then the following properties are invariants:
 \begin{enumerate}
-\item $\mathring{\Pi}_\mathbb{R} \subseteq T^p_\mathbb{R}$
-\item $\varphi^V$ is $\mathring{\Pi}_{R}$-VALID.
+\item $\mathring{\Pi}^p_\mathbb{R} \subseteq T^p_\mathbb{R}$
+\item $\varphi^V$ is $\mathring{\Pi}^p_{R}$-VALID.
 \item $\varphi^U = \emptyset \vee (\varphi = \varphi^U \wedge \varphi^V)$
-\item $\varphi$ is $\Pi_\mathbb{R}$-UNSAT $\implies$ $\varphi$ is $T^p_\mathbb{R}$-UNSAT
+\item $\varphi$ is $\Pi^p_\mathbb{R}$-UNSAT implies $\varphi$ is $(\Pi_0)^p_\mathbb{R}$-UNSAT
 \end{enumerate}
 \end{theorem}
 
-\begin{proof}
+\begin{proof}   
 \begin{enumerate}
 \item Easy from the definition.
-\item Easy to see.
 \item Easy from the transitions.
-\item The proof is done inductively:
+\item Easy from the transitions.
+\item The proof is done inductively on transitions of the system:
 \begin{itemize}
-\item[$\bullet$] \sloppy Initial state: $(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty), \varphi, \emptyset, \emptyset, \emptyset)$ and by definition, ${(\bigwedge\limits_{v \in V}v \in (-\infty, +\infty))_\mathbb{R} = T^p_R}$. Then, the invariant trivially holds.
-\item[$\bullet$] Each transition is considered:
+\item[$\bullet$] \sloppy \textbf{Initial state:} It is obvious because $\Pi = \Pi_0$.
+\item[$\bullet$] \textbf{Transitions}:
 \begin{itemize}
 \item For rules $\Pi$\_SAT, IA\_SAT the interval constraint $\Pi$ does not changed, so if the properties holds for the former state, it also does for the later one.
-\item \sloppy For REFINE transition: \\ Denote ${\Pi' = \Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})}$. We will prove that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT $\implies \varphi$ is $\Pi_\mathbb{R}$-UNSAT. First suppose that $\varphi$ is $\Pi'_\mathbb{R}$-UNSAT. Let
+\item \sloppy For REFINE transition: \\ Denote ${\Pi' = \Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})}$. We have $(\Pi')^p_\mathbb{R} = \Pi^p_\mathbb{R}$ because $\Pi$ and $\Pi'$ represents the same set of variables assignments. 
 \item for IA\_UNSAT transition, 
 \end{itemize}
 \end{itemize}

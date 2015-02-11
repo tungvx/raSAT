@@ -1,123 +1,35 @@
 \chapter{Conclusion}
 
 
-This thesis presented improvement and extensions for an SMT solved {\bf raSAT} including heuristics to deal with exponential exploration of boxes, extensions for handling equations and handling constraints over integer numbers.
-
-\section*{Observation and Discussion} 
-
-From experimental results in Section~\ref{sec:experiments} and~\ref{sec:expsmtlib}, 
-we observe the followings. 
+This thesis presented improvement and extensions for an SMT solved {\bf raSAT} including heuristics to deal with exponential exploration of boxes, extensions for handling equations and handling constraints over integer numbers. From the experiments on standard SMT-LIB benchmarks, \textbf{raSAT} is able to solve large constraints (in terms of the number of variables) which are difficult for other tools.
+The contributions of this work are as follows:
+\begin{enumerate}
+\item To deal with exponential growth of the number of boxes during refinement (interval decomposition), two strategies for \emph{selecting one variable} to decomposed and \emph{selecting one box} were proposed:
 \begin{itemize}
-\item The degree of polynomials will not affect much. 
-\item The number of variables are matters, but also for Z3 4.3. 
-The experimental results do not show exponential growth, and we expect 
-the strategy of selection of an API in which related intervals are decomposed
-seems effective in practice. By observing Zankl examples, we think the maximum 
-number of variables of each API seems a dominant factor. 
-\item Effects of the number of APIs are not clear at the moment. In simple benchmarks, 
-{\bf raSAT} is faster than Z3 4.3, however we admit that we have set small degree $n=6$
-for each API. 
+\item[$\bullet$] \textbf{Selecting one box.} The box with more possiblity to satisfy the constraint is selected to explore, which is estimated by 
+several heuristic measures, called {\em SAT likelyhood}, 
+and \emph{the number of unsolved polynomial inequalities}.
+\item[$\bullet$] \textbf{Selecting one variable.} The most influential variable is selected for multiple test cases and decomposition. 
+This is estimated by {\em sensitivity} which is determined during the approximation process.
 \end{itemize}
-
-For instance, {\em matrix-2-all-5,8,11,12} in Zankl 
-contain a long monomial (e.g., $60$) with the max degree $6$, and 
-relatively many variables (e.g., $14$), which cannot be solved by Z3 4.3, but 
-{\bf raSAT} does. 
-As a general feeling, if an API contains more than $30 \sim 40$ variables, 
-{\bf raSAT} seems saturating. 
-We expect that, adding to a strategy to select an API (Section~\ref{sec:intervaldecomp}), 
-we need a strategy to select variables in the focus. We expect this can be designed 
-with sensitivity (Example~\ref{examp:sensitivity}) and would work in practice. 
-Note that sensitivity can be used only with noise symbols in Affine intervals. 
-Thus, iSAT and RSOLVER cannot use this strategy, though they are based on IA, too. 
-
-\section*{Future Work}
-
-\medskip \noindent 
-{\bf UNSAT core}
-
-\medskip \noindent 
-{\bf Exact confirmation}.
-Currently, {\bf raSAT} uses iRRAM to verify SAT instances only. 
-We are planning to implement confirmation phase to UNSAT cases. 
-
-\medskip \noindent 
-{\bf Further strategy refinement}. 
-Test data generation, blanced box decomposition
-
-
-%%%
-\suppress{
-\subsubsection{Extension of {\bf raSAT} loop}
-\begin{itemize}
-\item {\bf Equality handling}: currently, {\bf raSAT} loop can handle only inequalities. 
-Before applying ideal based technique, such as {\em Gr{\"o}bner basis}, 
-we are planning to implement a non-constructive detection of equality 
-by {\em intermediate value theorem}. 
-
-\suppress{
-\item{\textbf{Polynomial equality by Intermediate value theorem}:} 
-Consider 
-\begin{center}
-$(x_1 \in (a_1,b_1) \wedge \cdots \wedge x_n \in (a_n,b_n))~\bigwedge 
-\limits_{j}^m f_j(x_1,\cdots,x_n) > 0~\wedge~g(x_1,\cdots, x_n) = 0.$
-\end{center}
-SAT can be proved by two steps. First, find a box of the product of 
-$(l_{ik},h_{ik}) \subseteq (l_i,h_i)$ (by interval arithmetic) such that 
-\begin{center}
-$\forall x_1 \in (l_{1k},h_{1k}) \cdots x_n \in (l_{nk},h_{nk}).~\bigwedge 
- \limits_{j}^m f_j(x_1,\cdots,x_n) > 0$~~~~(IA-VALID) 
-\end{center}
-and find two instances (by testing) in the box with $g(a_1,\cdots,a_n) > 0$ 
-and $g(b_1,\cdots,b_n) < 0$. By Intermediate value theorem, we can conclude 
-$\exists x_1 \in (l_1,h_1) \cdots x_n \in (l_n,h_n).~g(x_1,\cdots, x_n) = 0$. 
-}
-
-\item \textbf{Solving polynomial constraints on integers}: 
-In integer domain, the number of test data is finite if interval constraints are bounded. 
-Then, Test-UNSAT implies UNSAT if all possible test data are generated. 
-A tight interaction between testing and interval decomposition could be investigated.
-Mixed integers are also challenging. 
+\item Two schemes of \emph{incremental search} are proposed for enhancing solving process: 
+\begin{itemize} 
+\item[$\bullet$] {\bf Incremental deepening}. 
+raSAT follows the depth-first-search manner. In order to escape local exhaustive search, it starts searching with a threshold that each interval will be decomposed no smaller than it. 
+If neither satisfiability nor unsatisfiability is detected, a smaller threshold is taken and raSAT restarts. 
+\item[$\bullet$] {\bf Incremental widening}. 
+Starting with a small intervals, if \textbf{raSAT} detects UNSAT, it enlarges input intervals and restarts. This strategy is effective in detecting satisfiability of constraints because small intervals reduce the number of boxes after decomposition.
 \end{itemize}
+\item \emph{Satisfiability confirmation} step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
+\tt http://irram.uni-trier.de}, to avoid soundess bugs caused by roundoff errors.
+\item This work also implemented the idea of using Intermediate Value Theorem to show \emph{the satisfiability of multiple equations} which was suggested in \cite{VanKhanh201227}.
+\item \textbf{raSAT} is also extended to \emph{handle constraints over integer numbers} by simple extension in the approximation process.
+\end{enumerate}
 
-
-\subsubsection{\textbf{raSAT} Development}
-
-\begin{itemize}
-\item \textbf{Avoiding local optimal}: 
-we borrow an idea of \emph{restart} in MiniSAT for escaping from hopeless local search 
-(i.e., solution set is not dense or empty). 
-\emph{Heuristics} would be, after a deep interval decomposition of 
-a box and Test-UNSAT are reported, backtrack occurs to choose a randomly selected box. 
-
-\item \textbf{Separation of linear constraints}: 
-Many benchmarks contain linear constraints. Current implementation does not have 
-any tuning, but {\bf raSAT} loop only. 
-Practically, separating linear and non-linear constraints and solving them 
-in a coordinated way between Presbuger arithmetic and {\bf raSAT} would improve. 
-During this separation, variables of intersecting linear constraints would be candidates 
-for interval decompositions. 
-
-\item \textbf{Incremental DPLL}: For interactions with the SAT solver, 
-we currently apply the very lazy theory learning. Combination with 
-\emph{eager} theory propagation would improve, in which we can propagate 
-a conflict from a partial truth assignment instead of waiting 
-for a full truth assignment obtained by SAT solver.
-\end{itemize}
-}
-%%
-
-%%
-\suppress{
-\subsection{Applications}
-\begin{itemize}
-\item \textbf{Checking overflow and roundoff error}: In the computers, the real numbers are represented by finite numbers (i.e., floating point numbers, fixed point numbers). Due to finite representation, the over-flow and roundoff errors (OREs) \cite{ngocsefm, ngocase} may occur. The OREs will be propagated through computations of the program. Further, the computations themselves also cause OREs because the arithmetic needs to round the result to fit the number format. Besides, OREs are also affected by types of statements, i.e., branch, loop, assignment statements.
-By symbolic execution, ORE constraints are propagated from a program and ORE problems are reduced to problems of solving ORE constraints for verifying whether OREs occur. 
-%For solving ORE constraint, combination of the new form of affine arithmetic ($CAI_1$) and \emph{sensitivity} (i.e., high degrees, )
-
-\item \textbf{Loop invariant generation}: The problem of linear invariant generation is often reduced to the problem of non-linear constraint solving. 
-Since Farkas's Lemma \cite{Colon03} uses the product of matrices with polynomial constraint solving, we can extend the target for non-linear invariant generation.
-%Based on Farkas' Lemma \cite{Colon03}, non-linear constraints on coefficients of the target linear invariant are generated and a satisfiable instance of these constraints is a candidate of the linear invariant. 
-\end{itemize}
-}
-%%
+\section*{Future Directions}
+A number of ideas for the future works are:
+\begin{enumerate}
+\item \textbf{UNSAT core}: Two strategies \emph{SAT likelihood} and \emph{the number of unsolved inequalities} aim at boosting satisfiability detection. For unsatisfiable constraints, \emph{UNSAT core} is the key in expeditious detection. Although we have some ideas for this but they did not show much improvement in experiments. As a future work, more investigation is needed for \emph{UNSAT core}.
+\item \textbf{Test case generation:} Currently \textbf{raSAT} randomly generates test cases in testing phase. We had the idea of using sensitivity to guide testing but this needs to be investigated in detail.
+\item \textbf{Box Decomposition:} The key in UNSAT detection is also how to early isolate unsatisfiable intervals that is done through decomposition. Note that at the moment the decomposition strategy of \emph{raSAT} is taking its middle point.
+\end{enumerate}
