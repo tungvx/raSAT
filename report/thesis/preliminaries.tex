@@ -1,10 +1,10 @@
-\chapter{Preliminaries}
+\chapter{Preliminaries} \label{chap:preliminaries}
 \section{Abstract DPLL}
 In propositional logic, we have a set of \emph{propositional symbols} $P$ and every $p \in P$ is called an \emph{atom}. A \emph{literal} $l$ is either $p$ or $\neg p$ with $p \in P$. The \emph{negation} $\neg l$ of a literal $l$ is $\neg p$ if $l$ is $p$, or $p$ if $l$ is $\neg p$. A disjunction $l_1 \vee \cdots \vee l_n$ of literals is said to be a \emph{clause}. A \emph{Conjuctive Normal Form (CNF) formula} is a conjunction of clauses $C_1 \wedge \cdots \wedge C_n$. If $C = l_1 \vee \cdots \vee l_n$ is a clause, $\neg C$ is used to denote the CNF formula $\neg l_1 \wedge \cdots \wedge \neg l_n$
 
 An (partial) \emph{assignment} $M$ is a set of literals such that $l \in M$ and $\neg l \in M$ for no literal $l$. A literal $l$ is undefined in $M$ if neither $l \in M$ nor $\neg l \in M$. If $l \in M$, $l$ is said to be true in M. On the other hand if $\neg l \in M$, we say that $l$ is false in $M$. A clause is true in $M$ if at least one of its literals is in $M$. An assignment $M$ satisfies a CNF formula $F$ (or $F$ is satisfied by $M$) if all clauses of $F$ is true in $M$ which is denoted as $M \models F$. Given two CNF formula $F$ and $F'$, we write $F \models F'$ if for any assignment $M$, $M \models F$ implies $M \models F'$. The formula $F$ is unsatisfiable if there is no assignment $M$ such that $M \models F$.
 
-Abstract Davis–Putnam–Logemann–Loveland (DPLL) Procedure \cite{Nieuwenhuis05abstractdpll} searches for an assignment that satisfies a CNF formula. Each state of the procedure is either \emph{FailState} or a pair $M \parallel  F$ of an assignment $M$ and a CNF formula $F$. For the purpose of the procedure, $M$ is represented as a sequence of literals where each literal is optionally attached an \emph{annotation}, e.g. $l^d$ which basically means that the literal $l$ is selected to be included in the assignment by making a decision ($l$ is called a decision literal). An empty sequence is denoted by $\emptyset$. Each DPLL procedure is modeled by a collection of states and a binary relation $\Longrightarrow$ between states. Basic DPLL procedure is a transition system which contains the following four rules.
+Abstract Davis-Putnam-Logemann-Loveland (DPLL) Procedure \cite{Nieuwenhuis05abstractdpll} searches for an assignment that satisfies a CNF formula. Each state of the procedure is either \emph{FailState} or a pair $M \parallel  F$ of an assignment $M$ and a CNF formula $F$. For the purpose of the procedure, $M$ is represented as a sequence of literals where each literal is optionally attached an \emph{annotation}, e.g. $l^d$ which basically means that the literal $l$ is selected to be included in the assignment by making a decision ($l$ is called a decision literal). An empty sequence is denoted by $\emptyset$. Each DPLL procedure is modeled by a collection of states and a binary relation $\Longrightarrow$ between states. Basic DPLL procedure is a transition system which contains the following four rules.
 \begin{enumerate}
 \item $\mathbf{UnitPropagate}$
 
@@ -45,10 +45,10 @@ $Ml^dM' \parallel F \wedge C \Longrightarrow Ml' \parallel F \wedge C$ if $\left
 Let $F$ be a given CNF formula. Starting with the state $\emptyset \parallel F$, basic DPLL procedure terminates with either $FailState$ (which is denoted as $\emptyset \parallel F \Longrightarrow^! FailState$) when $F$ is unsatisfiable, or a state $M \parallel F$ (which is denoted as $\emptyset \parallel F \Longrightarrow^! M \parallel F$) where $M$ satisfies $F$. Intuitively, the above four rules can be explained as following.
 
 \begin{itemize}
-\item $\mathbf{UnitPropagate}$: In order to satisfy $F \wedge (C \vee l)$, $C \vee l$ needs to be satisfied. Because all the literals in $C$ is false in current assignment $M$ ($M \models \neg C$), $l$ must be made true when extending $M$.
-\item $\mathbf{Decide}$: This rule is applied when no more $\mathbf{UnitPropagation}$ can be applied. The annotation $d$ in $l^d$ denotes that if $Ml$ cannot be extended to satisfy $f$, $M\neg l$ needs to be explored further.
-\item $\mathbf{Fail}$: When a clause is false in $M$ (conflict) and $M$ has no literal which is decided by making a decision (there is no more options to explored), the formula $F$ is unsatisfiable.
-\item $\mathbf{Backjump}$: As same as in $\mathbf{Fail}$ rule, a conflict is detected. However, in $\mathbf{Backjump}$, because there exists some decision literal in the assignment, new possible assignments can be explored. The clause $C' \vee l'$ is called the backjump clause.
+\item[$\bullet$] $\mathbf{UnitPropagate}$: In order to satisfy $F \wedge (C \vee l)$, $C \vee l$ needs to be satisfied. Because all the literals in $C$ is false in current assignment $M$ ($M \models \neg C$), $l$ must be made true when extending $M$.
+\item[$\bullet$] $\mathbf{Decide}$: This rule is applied when no more $\mathbf{UnitPropagation}$ can be applied. The annotation $d$ in $l^d$ denotes that if $Ml$ cannot be extended to satisfy $f$, $M\neg l$ needs to be explored further.
+\item[$\bullet$] $\mathbf{Fail}$: When a clause is false in $M$ (conflict) and $M$ has no literal which is decided by making a decision (there is no more options to explored), the formula $F$ is unsatisfiable.
+\item[$\bullet$] $\mathbf{Backjump}$: As same as in $\mathbf{Fail}$ rule, a conflict is detected. However, in $\mathbf{Backjump}$, because there exists some decision literal in the assignment, new possible assignments can be explored. The clause $C' \vee l'$ is called the backjump clause.
 \end{itemize}
 
 \begin{example}
@@ -98,9 +98,9 @@ $M \parallel F \wedge C \Longrightarrow M \parallel F$ if $\left\{
 \begin{definition}
 A \emph{signature} $\Sigma$ is a 4-tuple $(S, P, F, V, \alpha)$ consisting of a set $S$ of \emph{sorts}, a set $P$ of \emph{predicate symbols}, a set $F$ of \emph{function symbols}, a set $V$ of \emph{variables}, and a \emph{sorts map} $\alpha$ which associates symbols to their sorts such that
 \begin{itemize}
-\item for all $p \in P, \, \alpha(p)$ is a $n$-tuple argument sorts of $p$,
-\item for all $f \in F, \, \alpha(f)$ is a $n$-tuple of argument and returned sorts of $f$, and
-\item for all $v \in V, \, \alpha(v)$ represents the sort of variable $v$.
+\item[$\bullet$] for all $p \in P, \, \alpha(p)$ is a $n$-tuple argument sorts of $p$,
+\item[$\bullet$] for all $f \in F, \, \alpha(f)$ is a $n$-tuple of argument and returned sorts of $f$, and
+\item[$\bullet$] for all $v \in V, \, \alpha(v)$ represents the sort of variable $v$.
 \end{itemize}
 \end{definition}
 A $\Sigma$-\emph{term} $t$ over the signature $\Sigma$ is defined as
@@ -130,10 +130,10 @@ $\varphi$ &::=& $p(t_1, \cdots, t_n)$ &where $p \in P$ with arity $n$ \\
 Let $\Sigma = (S, P, F, V, \alpha)$ is a signature. A $\Sigma$-\emph{model} $M$ of $\Sigma$ is a pair $(U, I)$ in which $U$ is the \emph{universe} and $I$ is the \emph{interpretation} of symbols such that
 \begin{itemize}
 \sloppy
-\item for all $s \in S$, $I(s) \subseteq U$ specifies the possible values of sort $s$,
-\item for all $f \in F$, $I(f)$ is a function from $I(s_1) \times \cdots \times I(s_{n-1})$ to $I(s_n)$ with ${\alpha(f) = (s_1,\cdots, s_n)}$,
-\item for all $p \in P$, $I(p)$ is a function from $I(s_1) \times \cdots \times I(s_n)$ to $\{0, 1\}$ where ${\alpha(p) = (s_1,\cdots, s_n)}$, and
-\item for all $v \in V$, $I(v) \in I(\alpha(v))$
+\item[$\bullet$] for all $s \in S$, $I(s) \subseteq U$ specifies the possible values of sort $s$,
+\item[$\bullet$] for all $f \in F$, $I(f)$ is a function from $I(s_1) \times \cdots \times I(s_{n-1})$ to $I(s_n)$ with ${\alpha(f) = (s_1,\cdots, s_n)}$,
+\item[$\bullet$] for all $p \in P$, $I(p)$ is a function from $I(s_1) \times \cdots \times I(s_n)$ to $\{0, 1\}$ where ${\alpha(p) = (s_1,\cdots, s_n)}$, and
+\item[$\bullet$] for all $v \in V$, $I(v) \in I(\alpha(v))$
 \end{itemize}
 A $\Sigma$-\emph{theory} T is a (infinite) set of $\Sigma$-models. A theory $T'$ is a subset of theory $T$ if and only if $T' \subseteq T$.
 \end{definition}
@@ -213,15 +213,15 @@ $\varphi$ is $T'$-SAT $\implies \exists M \in T'; \; \models_M \varphi \implies 
 
 \section{Polynomial Constraints over Real Numbers}
 \subsection{Syntax}
-We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, V^p, \alpha^p)$ in Section ~\ref{subsection:smt-syntax} for polynomial constraints as following:
-\begin{enumerate}
-\item $S^p = \{Real\}$
-\item $P^p = \{\succ, \prec, \succeq, \preceq, \approx, \not\approx\}$
-\item $F^p = \{\oplus, \ominus, \otimes, \mathbf{1}\}$
-\item for all $p \in P^p$, $\alpha^p(p) = (Real, Real)$
-\item for all $f \in F^p\setminus \{\mathbf{1}\}$, $\alpha^p(f) = (Real, Real, Real)$ and $\alpha^p(\mathbf{1})=Real$
-\item for all $v \in V, \; \alpha^p(v) = Real$
-\end{enumerate}
+We instantiate the signature $\Sigma^p = (S^p, P^p, F^p, V, \alpha^p)$ in Section ~\ref{subsection:smt-syntax} for polynomial constraints as following:
+\begin{itemize}
+\item[$\bullet$] $S^p = \{Real\}$
+\item[$\bullet$] $P^p = \{\succ, \prec, \succeq, \preceq, \approx, \not\approx\}$
+\item[$\bullet$] $F^p = \{\oplus, \ominus, \otimes, \mathbf{1}\}$
+\item[$\bullet$] for all $p \in P^p$, $\alpha^p(p) = (Real, Real)$
+\item[$\bullet$] for all $f \in F^p\setminus \{\mathbf{1}\}$, $\alpha^p(f) = (Real, Real, Real)$ and $\alpha^p(\mathbf{1})=Real$
+\item[$\bullet$] for all $v \in V, \; \alpha^p(v) = Real$
+\end{itemize}
 A polynomial and a polynomial constraint are a $\Sigma^p$-term (we referred as letters $f$ or $g$) and a $\Sigma^p$-formula respectively. 
 
 

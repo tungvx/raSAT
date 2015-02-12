@@ -1,4 +1,39 @@
 \chapter{Introduction}
+This chapter is going to introduce about polynomial constraints and present the overview of our approach to handle them. Solving polynomial constraints has many application in Software Verification, such as 
+\begin{itemize}
+\item[$\bullet$] {\bf Locating roundoff and overflow errors}
+which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:1858996.1859056}.
+%DSP decorders in practice are defined by reference algorithms in C using floating point arithmetic. 
+%In embedded systems, often it is replaced with fixed point arithmetic, 
+%which may cause visible noises. 
+%and locating such roundoff error source is not easy. 
+%For instance, consider DSP decoder like mpeg4. Usually, the decoder definition is given by a reference 
+%algorithm in C, which uses floating point number. 
+%In an embedded system, it is tempting to replace floating 
+%point into fixed point numbers. However, naive replacement would cause 
+
+\item[$\bullet$] {\bf Automatic termination proving} 
+which reduces termination detection to finding a suitable ordering~\cite{Lucas:2008:CCS:1361735.1361760}, 
+e.g., \TTTT\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
+AProVE\footnote{\url{http://aprove.informatik.rwth-aachen.de}}, that leads to polynomial constraints. 
+%as a solution of polynomial constraints. 
+
+\item[$\bullet$] {\bf Loop invariant generation}~\cite{Colon,Sankaranarayanan:2004:NLI:982962.964028} is reduced to solving polynomial constraints over coefficients of invariant template. 
+%matrix multiplications. 
+%degree $2$ polynomial constraints. 
+%Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
+%Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
+
+
+\begin{comment}
+\item {\bf Hybrid system}. Solving polynomial constraints over real numbers is often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
+
+\item {\bf Mechanical contrnol design}. 
+PID control is simple but widely used, and designing parameters is 
+reduced to polynomial constraints~\cite{control}. 
+%Fujitsu used polynomial constraints solving to design PID control of HDD head movement
+\end{comment}
+\end{itemize}
 \section{Polynomial Constraint Solving}
 {\em Polynomial constraint solving over real numbers} aims at computing an assignment of real values to variables
 that satisfies given polynomial inequalities/equations. If such an assignment exists, the constraint is said to be satisfiable (SAT) and the assignment is called SAT instance; otherwise we mention it as unsatisfiable (UNSAT). 
@@ -33,72 +68,7 @@ Figure~\ref{fig:sat-example} illustrates the satisfiability of the constraint: $
 %showing a satisfiable instance (e.g., $x = 1.8$, $y=0.9$) are not so easy.  
 %its satisfiability and a satisfiable instance 
 %(e.g., $x = 1.8$, $y=0.9$) are not so easy.  		
-%
-Solving polynomial constraints has many application in Software Verification, such as 
-\begin{itemize}
-\item[$\bullet$] {\bf Locating roundoff and overflow errors}
-which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:1858996.1859056}.
-%DSP decorders in practice are defined by reference algorithms in C using floating point arithmetic. 
-%In embedded systems, often it is replaced with fixed point arithmetic, 
-%which may cause visible noises. 
-%and locating such roundoff error source is not easy. 
-%For instance, consider DSP decoder like mpeg4. Usually, the decoder definition is given by a reference 
-%algorithm in C, which uses floating point number. 
-%In an embedded system, it is tempting to replace floating 
-%point into fixed point numbers. However, naive replacement would cause 
-
-\item[$\bullet$] {\bf Automatic termination proving} 
-which reduces termination detection to finding a suitable ordering~\cite{Lucas:2008:CCS:1361735.1361760}, 
-e.g., \TTTT\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
-AProVE\footnote{\url{http://aprove.informatik.rwth-aachen.de}}, that leads to polynomial constraints. 
-%as a solution of polynomial constraints. 
-
-\item[$\bullet$] {\bf Loop invariant generation}~\cite{Colon,Sankaranarayanan:2004:NLI:982962.964028} is reduced to solving polynomial constraints over coefficients of invariant template. 
-%matrix multiplications. 
-%degree $2$ polynomial constraints. 
-%Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
-%Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
-
-\begin{comment}
-\item {\bf Hybrid system}. Solving polynomial constraints over real numbers is often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
-
-\item {\bf Mechanical contrnol design}. 
-PID control is simple but widely used, and designing parameters is 
-reduced to polynomial constraints~\cite{control}. 
-%Fujitsu used polynomial constraints solving to design PID control of HDD head movement
-\end{comment}
-\end{itemize}	
-
-\section{Existing Approaches}
-Although solving polynomial constraints on real numbers is decidable~\cite{tarski}, current methodologies have their own pros and cos. They can be classified into the following categories: 
-\begin{enumerate}
-\item \textbf{Quantifier Elimination by Cylindrical Algebraic Decomposition (QE-CAD)}~\cite{qecad} 
-is a complete technique, and 
-is implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
-in
-Z3 4.3 (which is referred as nlsat in~\cite{Jovanovic13}).
-Although QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions), 
-scalability is still challenging, since its complexity is doubly-exponential with respect to the number of variables. 
-%Since QE-CAD is DEXPTIME wrt the number of variables, 
-
-\item \textbf{Virtual Substitution } eliminates an existential quantifier by substituting the corresponding quantified variable with a very small value ($-\infty$), and either each root (with respect to that variable) of polynomials appearing in the constraint or each root plus an infinitesimal $\epsilon$. Disjunction of constraints after substitutions is equivalent to the original constraint. Because VS needs the formula for roots of polynomials, its application is restricted to polynomials of degree up to 4. SMT-RAT and  
-Z3 \cite{PBM12} applies VS.
-
-\item \textbf{Bit-blasting}. 
-In this category of methodology, numerical variables are represented by a sequence of binary variables. The given constraint is converted into another constraint over the boolean variables. SAT solver is then used to find a satisfiable instance of binary variables which can be used to calculate the values of numerical variables.  MiniSmt~\cite{Zankl:2010:SNR:1939141.1939168}, the winner of QF\_NRA in SMT competition 2010, 
-applies it for (ir)-rational numbers.
-It can show SAT quickly, but due to the bounded bit encoding, 
-it cannot conclude UNSAT. In addition, high degree of polynomial results in large SAT formula which is an obstacle of bit-blasting.
-
-\item \textbf{Linearization}. ~
-CORD \cite{cordic} uses COrdinate Rotation DIgital Computer (CORDIC) for real numbers to linearizes multiplications into a sequence of linear constraints. Each time one multiplication is linearized, a number of new constraints and new variables are introduced. As a consequence, high degree polynomials in the original constraint lead to large number of linear constraints. 
-
-\item \textbf{Interval Constraint Propagation (ICP)} 
-which are used in SMT solver community, e.g., iSAT3~\cite{isat}, 
-dReal~\cite{dRealCADE13}, and RSOLVER~\cite{rsolver}. 
-ICP combines over-approximation by interval arithmetics and constraint propagation to prune out the set of unsatisfiable points. When pruning does not work, decomposition (branching) on intervals is applied. 
-ICP which is capable of solving "multiple thousand arithmetic constraints over some thousands of variables" \cite{isat} is practically often more efficient than algebraic computation.
-\end{enumerate}
+%	
 
 \section{Proposed Approach and Contributions}
 Our aim is an SMT solver for solving polynomial constraint. We first focus on strict inequalities because of the following reasons.
@@ -128,10 +98,10 @@ Our approach of "iterative approximation refinement" - \textbf{raSAT} loop for s
 
 The contributions of this work are as follows:
 \begin{enumerate}
-\item Although the method of using IA is robust for large degrees of polynomial, the number of boxes (products of intervals) grows exponentially with respect to the number of variables during refinement (interval decomposition). As a result, strategies for \emph{selectin gone variable} to decomposed and \emph{selecting one box} to explore play a crucial role in efficiency. We introduce the following strategies:
+\item Although the method of using IA is robust for large degrees of polynomial, the number of boxes (products of intervals) grows exponentially with respect to the number of variables during refinement (interval decomposition). As a result, strategies for \emph{selecting one variable} to decomposed and \emph{selecting one box} to explore play a crucial role in efficiency. We introduce the following strategies:
 \begin{itemize}
-\item[$\bullet$] \textbf{Selecting one box.} The box with more possiblity to satisfy the constraint is selected to explore, which is estimated by 
-several heuristic measures, called {\em SAT likelyhood}, 
+\item[$\bullet$] \textbf{Selecting one box.} The box with more possibility to satisfy the given constraint is selected to explore, which is estimated by 
+several heuristic measures, called {\em SAT likelihood}, 
 and \emph{the number of unsolved polynomial inequalities}.
 \item[$\bullet$] \textbf{Selecting one variable.} The most influential variable is selected for multiple test cases and decomposition. 
 This is estimated by {\em sensitivity} which is determined during the computation of IA.
@@ -143,7 +113,7 @@ raSAT follows the depth-first-search manner. In order to escape local optimums, 
 If neither SAT nor UNSAT is detected, a smaller threshold is taken and raSAT restarts. 
 \item[$\bullet$] {\bf Incremental widening}. 
 Starting with a small interval, if \textbf{raSAT} detects UNSAT, input intervals are enlarged
-and raSAT restarts. For SAT constraint, small (finite) interval allows sensitivity to be computed because Affine Interval \cite{VanKhanh201227} requires finite range of variables. As a consequence, our above strategies will take effects on finding SAT instance. For the UNSAT case, combination of small intervals and incremental deepening helps \textbf{raSAT} quickly determines the threshold in which unsatisfiability may be proved by IA. 
+and raSAT restarts. For SAT constraint, small (finite) interval allows sensitivity to be computed because Affine Interval \cite{VanKhanh201227} requires finite range of variables. As a consequence, our above strategy will take effects on finding SAT instance. For the UNSAT case, combination of small intervals and incremental deepening helps \textbf{raSAT} quickly determines the threshold in which unsatisfiability may be proved by IA. 
 \end{itemize} 
 \begin{comment}
 SAT-likelihood is introduced to measure the possibility of an inequality to be satisfiable. Sensitivity is proposed to estimate the influence of a variable to the value of a polynomial.
@@ -274,4 +244,13 @@ Another static analysis based approach is found in~\cite{SilvaTACAS12}.
 \end{comment}
 
 \section{Thesis Outline}
-Coming soon...
+The rest of this thesis is organized as following.
+\begin{itemize}
+\item [$\bullet$] Chapter~\ref{chap:preliminaries} presents the basics about abstract Davis-Putnam-Logemann-Loveland (DPLL) procedure for solving propositional formulas, basics about Satisfiability Module Theories (SMT) and SMT for polynomial constraints over real numbers.
+\item [$\bullet$] Chapter~\ref{chap:OT-UT} introduces proposed approximation schemes and their instances, \textbf{raSAT} loop algorithm and its soundness, completeness.
+\item[$\bullet$] Variants of Interval Arithmetic which is an instance of over-approximation are presented in Chapter~\ref{chap:ia}.
+\item[$\bullet$] Chapter~\ref{chap:strate} illustrates strategies for improving efficiency of \textbf{raSAT} loop.
+\item[$\bullet$] Experiments to show how efficient are proposed strategies and comparison with other SMT solvers are presented in Chapter~\ref{chap:experiments}.
+\item[$\bullet$] Chapter~\ref{chap:extension} proposes extensions for handling equations and constraints over integer numbers.
+\item[$\bullet$] Before summarizing the thesis and suggesting future works in Chapter~\ref{chap:conclusion}, we present related works in Chapter~\ref{chap:related}.
+\end{itemize}

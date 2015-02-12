@@ -2,46 +2,41 @@
 \documentclass[12pt]{article}
 \usepackage{jaist-e-master-abstract}
 
-\title{How to Use Style File for Master Thesis Abstract} % title
-\author{Katsuhiko Gondow}{110123}       %% your name, student number
+\title{Equality handling and efficiency improvement of SMT for non-linear constraints over reals} % title
+\author{Vu Xuan Tung}{1310007}       %% your name, student number
 \school{Information Science}            %% your school
-\date{February 14, 2003}                %% submitted date 
-\keywords{jaist-e-master-abstract.sty, title, author, school, keywords}
+\date{February 12, 2015}                %% submitted date 
+\keywords{Polynomial Constraints, Interval Arithemic, Testing, abstract DPLL}
     	    	    	    	        %% keywords (2 through 5 is good)
 \begin{document}
 \maketitle
+Solving polynomial constraints is raised from many applications of Software Verification such as roundoff/overflow error analysis, automatic termination proving or loop invariant generation. Although in 1948, Tarski proved the decidability of polynomial constraints over real numbers, the current complete method named Quantifier Elimination by Cylindrical Algebraic Decomposition has the complexity of doubly-exponential with respect to the number of variables which remains as an impediment. Interval Constraint Propagation (ICP) which uses the inequalities/equations to contract the interval of variables by removing the unsatisfiable intervals is an efficient methodology because it uses floating point arithmetic. However the number of boxes (combination of intervals of variables) may grow exponentially.
 
-The file \verb+jaist-e-master-abstract.sty+ is a \LaTeX style file
-for JAIST-specific master thesis abstract.
-Using the style file is recommended, but not limited.
-
-If you do not use the style file, make sure that your abstract
-includes the following:
-\begin{list}{$\bullet$}{\leftmargin30pt\itemsep0pt\parsep0pt}
-\item {\bf title}
-\item {\bf author's name}
-\item {\bf school, student number}
-\item {\bf submitted date}
-\item {\bf keywords} (2 through 5 is good)
-\item {\bf copyright notice} 
-	(Write ``Copyright \copyright\ \textit{date} by \textit{name}
-    	 at the left bottom in the first page.)
-\end{list}
-
-If you do use the style file, which is in the following directory,
-\begin{quote}
-\texttt{/usr/local/share/jaist.texmf/tex/jaist/master/}
-\end{quote}
-make sure to define the following in the preamble:
-\begin{verbatim}
-     \title{title}
-     \author{author's name}{student number}
-     \school{your school}
-     \date{submitted date}
-     \keywords{keywords}
-\end{verbatim}
-
-Of course, you also need to describe \verb+\maketitle+ right after
-\verb+\begin{document}+.
+This thesis presents strategies for efficiency improvement and extensions of an SMT solver named {\bf raSAT} for polynomial constraints. {\bf raSAT} which initially focuses on polynomial inequalities over real numbers follows ICP methodology and adds testing to boost satisfiability detection. In this work, in order to deal with exponential exploration of boxes, several heuristic measures, namely {\em SAT likelyhood}, {\em sensitivity}, and \emph{the number of 
+unsolved polynomial inequalities}, are proposed. From the experiments on standard SMT-LIB benchmarks, \textbf{raSAT} is able to solve large constraints (in terms of the number of variables) which are difficult for other tools. 
+In addition to those heuristics, extensions for handling equations using the Intermediate Value Theorem and handling constraints over integer number are also presented in this thesis.
+The contributions of this work are as follows:
+\begin{enumerate}
+\item Because the number of boxes (products of intervals) grows exponentially with respect to the number of variables during refinement (interval decomposition), strategies for \emph{selecting one variable} to decomposed and \emph{selecting one box} to explore play a crucial role in efficiency. We introduce the following strategies:
+\begin{itemize}
+\item[$\bullet$] \textbf{Selecting one box.} The box with more possiblity to satisfy the constraint is selected to explore, which is estimated by 
+several heuristic measures, called {\em SAT likelyhood}, 
+and \emph{the number of unsolved polynomial inequalities}.
+\item[$\bullet$] \textbf{Selecting one variable.} The most influential variable is selected as priority in approximation and refinement process. 
+This is estimated by {\em sensitivity} which is determined during the approximation process.
+\end{itemize}
+\item Two schemes of \emph{incremental search} are proposed for enhancing solving process: 
+\begin{itemize} 
+\item[$\bullet$] {\bf Incremental deepening}. 
+raSAT follows the depth-first-search manner. In order to escape local exhaustive search, it starts searching with a threshold that each interval will be decomposed no smaller than it. 
+If neither satisfiability nor unsatisfiability is detected, a smaller threshold is taken and raSAT restarts. 
+\item[$\bullet$] {\bf Incremental widening}. 
+Starting with a small intervals, if \textbf{raSAT} detects UNSAT, it enlarges input intervals and restarts. This strategy is effective in detecting satisfiability of constraints because small intervals reduce the number of boxes after decomposition.
+\end{itemize} 
+\item \emph{Satisfiability confirmation} step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
+\tt http://irram.uni-trier.de}, to avoid soundess bugs caused by roundoff errors.
+\item This work also implemented the idea of using Intermediate Value Theorem to show \emph{the satisfiability of multiple equations} which was suggested in our previous work.
+\item \textbf{raSAT} is also extended to \emph{handle constraints over integer numbers} by simple extension in the approximation process.
+\end{enumerate}
 \end{document}
 

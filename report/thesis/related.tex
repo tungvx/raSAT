@@ -1,0 +1,34 @@
+\chapter{Related Works} \label{chap:related}
+%\section{Methodologies for Polynomial Constraints over Real Numbers}
+Although solving polynomial constraints on real numbers is decidable~\cite{tarski}, current methodologies have their own pros and cos. They can be classified into the following categories: 
+\begin{enumerate}
+\item \textbf{Quantifier Elimination by Cylindrical Algebraic Decomposition (QE-CAD)}~\cite{qecad} 
+is a complete technique, and 
+is implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
+in
+Z3 4.3 (which is referred as nlsat in~\cite{Jovanovic13}).
+Although QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions), 
+scalability is still challenging, since its complexity is doubly-exponential with respect to the number of variables. 
+%Since QE-CAD is DEXPTIME wrt the number of variables, 
+
+\item \textbf{Virtual Substitution } eliminates an existential quantifier by substituting the corresponding quantified variable with a very small value ($-\infty$), and either each root (with respect to that variable) of polynomials appearing in the constraint or each root plus an infinitesimal $\epsilon$. Disjunction of constraints after substitutions is equivalent to the original constraint. Because VS needs the formula for roots of polynomials, its application is restricted to polynomials of degree up to 4. SMT-RAT and  
+Z3 \cite{PBM12} applies VS.
+
+\item \textbf{Bit-blasting}. 
+In this category of methodology, numerical variables are represented by a sequence of binary variables. The given constraint is converted into another constraint over the boolean variables. SAT solver is then used to find a satisfiable instance of binary variables which can be used to calculate the values of numerical variables.  MiniSmt~\cite{Zankl:2010:SNR:1939141.1939168}, the winner of QF\_NRA in SMT competition 2010, 
+applies it for (ir)-rational numbers.
+It can show SAT quickly, but due to the bounded bit encoding, 
+it cannot conclude UNSAT. In addition, high degree of polynomial results in large SAT formula which is an obstacle of bit-blasting.
+
+\item \textbf{Linearization}. ~
+CORD \cite{cordic} uses COrdinate Rotation DIgital Computer (CORDIC) for real numbers to linearizes multiplications into a sequence of linear constraints. Each time one multiplication is linearized, a number of new constraints and new variables are introduced. As a consequence, high degree polynomials in the original constraint lead to large number of linear constraints. 
+
+\item \textbf{Interval Constraint Propagation (ICP)} 
+which are used in SMT solver community, e.g., iSAT3~\cite{isat}, 
+dReal~\cite{dRealCADE13}, and RSOLVER~\cite{rsolver}. 
+ICP combines over-approximation by interval arithmetics and constraint propagation to prune out the set of unsatisfiable points. When pruning does not work, decomposition (branching) on intervals is applied. 
+ICP which is capable of solving "multiple thousand arithmetic constraints over some thousands of variables" \cite{isat} is practically often more efficient than algebraic computation.
+\end{enumerate}
+
+%Because \textbf{raSAT} in the same category with \text{iSAT3} and \text{dReal}, next section is going to take a look at details of methodologies used in these solvers.
+% % % % % % % % % % % % % %

@@ -1,8 +1,8 @@
-\chapter{Experiments}
+\chapter{Experiments} \label{chap:experiments}
 This chapter is going to present the experiments results which reflect how effective our designed strategies are. In addition, comparison between raSAT, Z3 and iSAT3 will be also shown. The experiments were done on a system with  Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. In the experiments, we exclude the problems which contain equalities because currently raSAT focuses on inequalities only.
 
 \section{Experiments on Strategy Combinations} \label{sec:expstrategy}
-
+\subsection*{Experiments on incremental testing and refinements heuristics}
 We perform experiments only on Zankl, and Meti-Tarski families. 
 
 
@@ -124,6 +124,71 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 \label{tab:rasat-experiments}
 \end{table*}
 
+\subsection*{Preliminary Experiments on UNSAT core}
+Strategy \emph{UNSAT core 1} was already implemented in \cite{VanKhanh201227} and the other strategy was implemented in this work. We did the experiments on the SMT-LIB family Hong where each problem is unsatisfiable and of the following form:
+\[\sum_{i=1}^{n}x_i^2 < 1 \wedge \prod_{i=1}^{n}x_i > 1\]
+where $n$ ranges from $1$ to $20$. Table~\ref{tab:hong} shows the experiments for raSAT with/without UNSAT core strategies where we fixed the initial intervals to be $\langle 0, 10 \rangle$ and the threshold $0.1$ (i.e. no incremental deepening and widening). \emph{UNSAT core 2} works fine because problems in Hong family contain polynomials with lots of UNSAT cores which this strategy tends to calculate. On the other hand, \emph{UNSAT core 1} has not been well implemented in the way raSAT search for a sub-polynomial. Experiments for these strategies on other benchmarks of SMT-LIB did not show improvements in the result, we need further investigations.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{| c | c | c | c | c |  c | c |}
+\hline
+\multirow{2}{*}{Problem} & \multicolumn{2}{ c }{No UNSAT core} & \multicolumn{2}{ |c }{UNSAT core 1} & \multicolumn{2}{ |c| }{UNSAT core 2}\\ \cline{2-7}& Time (s) & Result & Time (s) & Result& Time (s) & Result\\ \hline
+hong\_1 & 0 & UNSAT & 0 & UNSAT& 0.004 & UNSAT\\ \hline
+hong\_2 & 0.00838 & UNSAT & 0.016 & UNSAT & 0.016 & UNSAT\\ \hline
+hong\_3 & 0.007441 & UNSAT & 0.016 & UNSAT & 0.016 & UNSAT\\ \hline
+hong\_4 & 0.114857 & UNSAT & 0.124 & UNSAT & 0.016 & UNSAT\\ \hline
+hong\_5 & 0.27588 & UNSAT & 0.272 & UNSAT & 0.028 & UNSAT\\ \hline
+hong\_6 & 1.20687 & UNSAT & 1.288 & UNSAT & 0.052 & UNSAT\\ \hline
+hong\_7 & 9.29289 & UNSAT & 9.996 & UNSAT & 0.112 & UNSAT\\ \hline
+hong\_8 & 153.619 & UNSAT & 164.288 & UNSAT& 0.68 & UNSAT\\ \hline
+hong\_9 & 117.937 & UNSAT & 129.044 & UNSAT& 0.08 & UNSAT\\ \hline
+hong\_10 & 307.208 & UNSAT & 281.696 & UNSAT& 0.152 & UNSAT\\ \hline
+hong\_11 & 478.605 & UNSAT & 412.028 & UNSAT & 0.236 & UNSAT\\ \hline
+hong\_12 & 500 & Timeout & 500 & Timeout & 0.456 & UNSAT\\ \hline
+hong\_13 & 500 & Timeout & 500 & Timeout & 0.752 & UNSAT\\ \hline
+hong\_14 & 500 & Timeout & 500 & Timeout & 1.572 & UNSAT\\ \hline
+hong\_15 & 500 & Timeout & 500 & Timeout & 2.756 & UNSAT\\ \hline
+hong\_16 & 500 & Timeout & 500 & Timeout & 5.98 & UNSAT\\ \hline
+hong\_17 & 500 & Timeout & 500 & Timeout & 10.864 & UNSAT\\ \hline
+hong\_18 & 500 & Timeout & 500 & Timeout & 24.352 & UNSAT\\ \hline
+hong\_19 & 500 & Timeout & 500 & Timeout & 47.968 & UNSAT\\ \hline
+hong\_20 & 500 & Timeout & 500 & Timeout & 103.484 & UNSAT\\ \hline
+\end{tabular}
+\caption{Experiments on UNSAT core computations}
+\label{tab:hong}
+\end{center}
+\end{table}
+
+\subsection*{Preliminary Experiments on Test Case Generation and Box Decomposition Strategies}
+
+Table~\ref{tab:senInTest} illustrates the experiments of this strategy together with (1)-(5)-(8). In comparison with (1)-(5)-(8), this strategy solves more satisfiable constraints and the solving time is generally smaller for the same constraint.
+\begin{table}
+\begin{center}
+\begin{tabular}{| c | c | c | c | c |}
+\hline
+Benchmark & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{c|}{UNSAT}\\ \hline
+Zankl/matrix-1 (53) & 24 & 511.07 (s) & 2 & 0.009(s) \\ \hline
+Zankl/matrix-2,3,4,5 (98) & 13 & 477.62 (s) & 8 & 0.39(s) \\ \hline
+\end{tabular}
+\end{center}
+\caption{raSAT with sensitivity in testing}
+\label{tab:senInTest}
+\end{table}
+
+The experiments on box decomposition strategy is shown in Table~\ref{tab:senInDec} shows when it is used together with (1)-(5)-(8) and the strategy in Section~\ref{sec:testGen}. Basically the result has not been improved in comparison with the result in Section~\ref{sec:testGen}, we need further investigation.
+\begin{table}
+\begin{center}
+\begin{tabular}{| c | c | c | c | c |}
+\hline
+Benchmark & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{c|}{UNSAT}\\ \hline
+Zankl/matrix-1 (53) & 24 & 510.55 (s) & 2 & 0.01(s) \\ \hline
+Zankl/matrix-2,3,4,5 (98) & 9 & 1030.35 (s) & 8 & 0.38(s) \\ \hline
+\end{tabular}
+\end{center}
+\caption{raSAT with sensitivity in decomposition} 
+\label{tab:senInDec}
+\end{table}
 
 \section{Comparison with other SMT Solvers}
 
