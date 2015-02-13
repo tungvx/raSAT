@@ -395,9 +395,19 @@ Let $(\Pi_0, \varphi_0, \mathring{\Pi}_0, \varphi^V_0, \varphi^U_0, \varepsilon,
 \item[$\bullet$] \textbf{Transitions}:
 \begin{itemize}
 \item \textbf{$\pmb\Pi$\_SAT} and \textbf{IA\_SAT}: The interval constraint $\Pi$ does not changed, so if the properties holds for the former state, it also does for the later one.
-\item \sloppy \textbf{REFINE}: \\ Denote ${\Pi' = \Pi \wedge (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})}$. We will prove $(\Pi')^p_\mathbb{R} = \Pi^p_\mathbb{R}$ by showing $(\Pi')^p_\mathbb{R} \in \Pi^p_\mathbb{R}$ and $(\Pi')^p_\mathbb{R} \ni \Pi^p_\mathbb{R}$.
+\item \sloppy \textbf{REFINE}: \\ Denote ${\Pi' = \Pi \wedge \Pi''}$ where: \[\Pi'' = (\neg I_j \vee I_{j1} \vee I_{j2}) \wedge (I_j \vee \neg I_{j1}) \wedge (I_j \vee \neg I_{j2}) \wedge (\neg I_{j1} \vee \neg I_{j2})\] We will prove $(\Pi')^p_\mathbb{R} = \Pi^p_\mathbb{R}$ by showing $(\Pi')^p_\mathbb{R} \in \Pi^p_\mathbb{R}$ and $(\Pi')^p_\mathbb{R} \ni \Pi^p_\mathbb{R}$.
 
-$\pmb{(\Pi')^p_\mathbb{R} \in \Pi^p_\mathbb{R}}$: Let $M^p_\mathbb{R}=(\mathbb{R}, I^p_\mathbb{R})$ be any model in $(\Pi')^p_\mathbb{R}$ and ${\theta = \{v \mapsto I^p_\mathbb{R}(v) \mid v \in V\}}$. By definition, we have $\theta^p_\mathbb{R}=M^p_\mathbb{R}$. Because $M^p_\mathbb{R} \in (\Pi')^p_\mathbb{R}$, 
+$\pmb{(\Pi')^p_\mathbb{R} \in \Pi^p_\mathbb{R}}$: Let $M^p_\mathbb{R}=(\mathbb{R}, I^p_\mathbb{R})$ be any model in $(\Pi')^p_\mathbb{R}$ and ${\theta = \{v \mapsto I^p_\mathbb{R}(v) \mid v \in V\}}$. By definition, we have $\theta^p_\mathbb{R}=M^p_\mathbb{R}$. Because $M^p_\mathbb{R} \in (\Pi')^p_\mathbb{R}$, it is the case that $\models_{\theta^I_\mathbb{R}} \Pi'$, which implies
+\begin{tabular} {l l}
+$(\Pi')^{\theta^I_\mathbb{R}} = 1$ &$\implies$ $(\Pi \wedge \Pi'' )^{\theta^I_\mathbb{R}} = 1 \implies \min((\Pi)^{\theta^I_\mathbb{R}}, (\Pi'')^{\theta^I_\mathbb{R}}) = 1$ \\
+&$\implies (\Pi)^{\theta^I_\mathbb{R}} \text{ and } (\Pi'')^{\theta^I_\mathbb{R}} \implies \models_{\theta^I_\mathbb{R}} \Pi \implies \theta^p_\mathbb{R} \in \Pi^p_\mathbb{R}$
+\end{tabular}
+
+or $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$. As the result, $(\Pi')^p_\mathbb{R} \in \Pi^p_\mathbb{R}$.
+
+$\pmb{\Pi^p_\mathbb{R} \in (\Pi')^p_\mathbb{R}}$: Let $M^p_\mathbb{R}=(\mathbb{R}, I^p_\mathbb{R})$ be any model in $\Pi^p_\mathbb{R}$ and ${\theta = \{v \mapsto I^p_\mathbb{R}(v) \mid v \in V\}}$. By definition, we have $\theta^p_\mathbb{R}=M^p_\mathbb{R}$. Because $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$, it is the case that $\models_{\theta^I_\mathbb{R}} \Pi$. There are two possible cases: $\models_{\theta^I_\mathbb{R}} I_j$ or $\not\models_{\theta^I_\mathbb{R}} I_j$. In the first case, by the construction of $I_{j1}$ and $I_{j2}$ we can imply that $\models_{\theta^I_\mathbb{R}} I_{j1}$ or $\models_{\theta^I_\mathbb{R}} I_{j2}$. These imply $\models_{\theta^I_\mathbb{R}} \Pi''$ and thus $\models_{\theta^I_\mathbb{R}} \Pi'$ or $M^p_\mathbb{R} \in (\Pi')^p_\mathbb{R}$. In the second case, i.e. $\not\models_{\theta^I_\mathbb{R}} I_j$, again by the construction of $I_{j1}$ and $I_{j2}$, $\not\models_{\theta^I_\mathbb{R}} I_j$ implies $\not\models_{\theta^I_\mathbb{R}} I_{j1}$ and $\not\models_{\theta^I_\mathbb{R}} I_{j2}$. These imply that $\not\models_{\theta^I_\mathbb{R}} \Pi''$ (by some simple calculation we can prove that $(\Pi'')^{\theta^p_\mathbb{R}} = 1$). As a result, $\models_{\theta^I_\mathbb{R}} \Pi'$ or $M^p_\mathbb{R} \in (\Pi')^p_\mathbb{R}$. 
+
+In either case, we have $M^p_\mathbb{R} \in (\Pi')^p_\mathbb{R}$ for any $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$. Then, $\Pi^p_\mathbb{R} \in (\Pi')^p_\mathbb{R}$.
 
 \item \textbf{IA\_UNSAT}: suppose $\varphi$ is $(\Pi \wedge \neg\mathring{\Pi})^p_\mathbb{R}$-UNSAT. We need to prove that $\varphi$ is $\Pi^p_\mathbb{R}$-UNSAT. Let $M^p_\mathbb{R} = (\mathbb{R}, I^p_\mathbb{R})$ be any model in $\Pi^p_\mathbb{R}$ and ${\theta = \{v \mapsto I^p_\mathbb{R}(v) \mid v \in V\}}$. The later is the assignment from real numbers to variables that are included in the former and by definition $M^p_\mathbb{R} = \theta^p_\mathbb{R}$. Because $M^p_\mathbb{R} \in \Pi^p_\mathbb{R}$, be definition of $\Pi^p_\mathbb{R}$ we have $\models_{\theta^I_\mathbb{R}}\Pi$.
 There are two possible cases: either $\models_{\theta^I_\mathbb{R}} \mathring{\Pi}$ or $\not\models_{\theta^I_\mathbb{R}} \mathring{\Pi}$.
@@ -421,24 +431,34 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 \end{theorem}
 
 \begin{proof} Because the starting state is $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle -\infty, +\infty \rangle$, by definition we have $\Pi^p_\mathbb{R} = T^p_\mathbb{R}$.
-\begin{enumerate}
-\item If the system output SAT, there are two possibles transition to SAT:
 \begin{itemize}
-\item In the case of IA\_VALID, we have $\varphi^V$ is $\mathring{\Pi}_{R}^p$-VALID (invariant 2) $\implies \varphi^V$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT $\implies \varphi$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT (because $\varphi^V = \varphi$ is the condition of this transition). In addition, following invariant 1, we have $\mathring{\Pi}^p_\mathbb{R} \subseteq T^p_\mathbb{R}$, then $\varphi$ is $T^p_\mathbb{R}$-SAT (Lemma ~\ref{lemma:subtheory-SAT}).
-\item \sloppy In the case of TEST\_SAT, $\varphi^U$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT $\implies$ there exist $M^p_\mathbb{R} \in \mathring{\Pi}^p_\mathbb{R}$ such that $\models_{M^p_\mathbb{R}} \varphi^V \implies (\varphi^V)^{M^c_\mathbb{R}} = 1$. In addition, because $\varphi^V$ is $\mathring{\Pi}^p_\mathbb{R}$-VALID (invariant 2) and $M^p_\mathbb{R} \in \mathring{\Pi}_\mathbb{R}$, we have $\models_{M^p_\mathbb{R}} \varphi^U$ or ${(\varphi^U)^{M^p_\mathbb{R}} = 1}$. Consider the evaluation of $\varphi$ under the model $M^p_\mathbb{R}$: ${(\varphi)^{M^p_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^p_\mathbb{R}}}$ (invariant 3) $= min((\varphi^U)^{M^p_\mathbb{R}}, (\varphi^V)^{M^p_\mathbb{R}}) = min(1, 1) = 1 \implies \models_{M^p_\mathbb{R}} \varphi \implies \varphi$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant 1 and Lemma ~\ref{lemma:IA-R-OP})
+\item[$\bullet$] If the system output SAT, there are two possibles transition to SAT:
+\begin{itemize}
+\item In the case of IA\_VALID, we have $\varphi^V$ is $\mathring{\Pi}_{R}^p$-VALID (invariant 2) $\implies \varphi^V$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT $\implies \varphi$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT (because $\varphi^V = \varphi$ is the condition of this transition). In addition, following invariant 1, we have $\mathring{\Pi}^p_\mathbb{R} \subseteq T^p_\mathbb{R}$, then $\varphi$ is $T^p_\mathbb{R}$-SAT (Lemma~\ref{lemma:subtheory-SAT}).
+\item \sloppy In the case of TEST\_SAT, $\varphi^U$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT $\implies$ there exist $M^p_\mathbb{R} \in \mathring{\Pi}^p_\mathbb{R}$ such that $\models_{M^p_\mathbb{R}} \varphi^V \implies (\varphi^V)^{M^c_\mathbb{R}} = 1$. In addition, because $\varphi^V$ is $\mathring{\Pi}^p_\mathbb{R}$-VALID (invariant 2) and $M^p_\mathbb{R} \in \mathring{\Pi}_\mathbb{R}$, we have $\models_{M^p_\mathbb{R}} \varphi^U$ or ${(\varphi^U)^{M^p_\mathbb{R}} = 1}$. Consider the evaluation of $\varphi$ under the model $M^p_\mathbb{R}$: ${(\varphi)^{M^p_\mathbb{R}} = (\varphi^U \wedge \varphi^V)^{M^p_\mathbb{R}}}$ (invariant 3) $= min((\varphi^U)^{M^p_\mathbb{R}}, (\varphi^V)^{M^p_\mathbb{R}}) = min(1, 1) = 1 \implies \models_{M^p_\mathbb{R}} \varphi \implies \varphi$ is $\mathring{\Pi}^p_\mathbb{R}$-SAT $\implies \varphi$ is $T^p_\mathbb{R}$-SAT (because of invariant~1 and Lemma~\ref{lemma:IA-R-OP})
 \end{itemize}
-\item  If the system output UNSAT, there is only one transition of rule $\Pi$\_UNSAT. Because $\emptyset \parallel \Pi \Longrightarrow FailState$, $\Pi$ is unsatisfiable in the sense of propositional logic, and thus it cannot be satisfiable in terms of first order logic. As the result, by definition $\Pi^p_\mathbb{R}$ is empty which implies that $\varphi$ is $\Pi^p_\mathbb{R}$-UNSAT. By invariant 4, $\varphi$ is $T^p_\mathbb{R}$-UNSAT.
-\end{enumerate}
+\item[$\bullet$]  If the system output UNSAT, there is only one transition of rule $\Pi$\_UNSAT. Because $\emptyset \parallel \Pi \Longrightarrow^! FailState$, $\Pi$ is unsatisfiable in the sense of propositional logic, and thus it cannot be satisfiable in terms of first order logic. As the result, by definition $\Pi^p_\mathbb{R}$ is empty which implies that $\varphi$ is $\Pi^p_\mathbb{R}$-UNSAT. By invariant 4, $\varphi$ is $T^p_\mathbb{R}$-UNSAT.
+\end{itemize}
 \end{proof}
 
 \subsection{Completeness}
 \begin{definition} \label{def:OT-complete}
 \sloppy
-Let $\Pi = \bigwedge\limits_{v \in V} v \in i$ with $i \in \mathbb{I}$, and ${\varphi = \bigwedge\limits_{i=1}^n f_i > 0}$. An over-approximation $T^p_O$ of $T^p_\mathbb{R}$ is complete if for each open set ${O \subset \{(r_1,r_2,\cdots) |  \models_{\theta^\mathbb{I}} \Pi; \theta = \{v_i \mapsto r_i \in \mathbb{R} | v_i  \in V\}\}}$, we have ${\forall c \in O; \; \forall \delta > 0; \; \exists \gamma > 0; \; (\langle c - \gamma, c + \gamma \rangle \in O \text{ and } \models_{\Pi'^p_\mathbb{R}} \bigwedge\limits_{i=1}^n(f_i(c)-\delta < f_i(x) < f_i(c) + \delta)}$ where ${\Pi' = \bigwedge\limits_{v_i \in V} v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}$, and ${c = (c_1, c_2, \cdots)}$
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$, and ${\varphi = \bigwedge\limits_{i=1}^n f_i > 0}$. An theory $T$ is complete with respect to the theory real numbers over polynomial constraint $T^p_\mathbb{R}$ if for each ${O \subset \langle l_1, h_1 \rangle \times \langle l_2, h_2 \rangle \times \cdots}$, ${c = (c_1, c_2, \cdots) \in O}$, and $\delta > 0$, there exists $\gamma > 0$, $T' \subset T$, such that:
+\begin{itemize}
+\item[$\bullet$]$\bigwedge\limits_{i=1}^n(f_i(c)-\delta < f_i(x)) \wedge (f_i(x) < f_i(c) + \delta)$ is $T'$-VALID and
+\item[$\bullet$] $T'$ is an over-approximation of $(\Pi')^p_\mathbb{R}$
+\end{itemize} 
+where ${\Pi' = \bigwedge\limits_{v_i \in V} v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}$.
 \end{definition}
 
 \begin{lemma} \label{lem:sat-complete}
-Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S = \{(x_1, x_2, \cdots) \mid \theta = \{v_i \mapsto x_i \mid v_i \in V \}, x_i \in \langle l_i, h_i \rangle, \models_{\theta^I_\mathbb{R}} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$. If $S \neq \emptyset$ and $\{(v_1, v_2, \cdots) \mid v_1 \in (l_1, h_1), v_2 \in (l_2, h_2) \cdots \}$ is open, then $S$ contain an open set.
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote 
+\begin{itemize}
+\item [$\bullet$] $S_\varphi = \{(r_1, r_2, \cdots) \mid \theta = \{v_i \mapsto r_i \mid v_i \in V \} \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$ is the set of points that satisfy the constraint $\varphi$, and
+\item [$\bullet$] $S = (\langle l_1, h_1 \rangle \times \langle l_1, h_1 \rangle \times \cdots) \cap S_\varphi$.
+\end{itemize}
+If $S \neq \emptyset$ and $(l_1, h_1) \times (l_2, h_2) \times \cdots$ is open, then $S$ contain an open set.
 \end{lemma}
 
 \begin{proof}
@@ -451,6 +471,9 @@ $getIntv(c, l, h, \delta) = (\max(l, c -\gamma), \min(h, c + \gamma)$
 It is easy to see that $O \in \langle c - \gamma, c + \gamma$ and $O \in \Pi$ that implies $O \in S$; and $O$ is open.
 \end{proof}
 
+\begin{example}
+
+\end{example}
 
 \begin{theorem} \label{theorem:SAT-complete}
 Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \}; \models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$. If $S \neq \emptyset$ and $\{(v_1, v_2, \cdots) | v_1 \in (l_1, h_1), v_2 \in (l_2, h_2) \cdots \}$ is open, then raSATloop can detect the satisfiability of $\varphi$ with assumption that IA is complete.

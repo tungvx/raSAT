@@ -48,11 +48,11 @@ CI is an IA.
 Easy.
 \end{proof}
 \section{Affine Interval}
-Affine Interval use the formula $a_0 + \sum\limits_{i=1}^{n} a_i\epsilon_i$ to represent the interval $\langle a_0 - \sum\limits_{i=1}^{n}|a_i|, a_0 + \sum\limits_{i=1}^{n}|a_i| \rangle$ with $a_i \in \mathbb{R}$ for $i = 0, 1, \cdots$. For example, the affine interval form of $(x \in) \langle 2, 4 \rangle$ and $(y \in) \langle 0, 2 \rangle$ is $3 + \epsilon_1$ and $1 + \epsilon_2$ respectively, thus:
+Affine Interval use the formula $a_0 + \sum\limits_{i=1}^{n} a_i\epsilon_i$ to represent the interval $\langle a_0 - \sum\limits_{i=1}^{n}|a_i|, a_0 + \sum\limits_{i=1}^{n}|a_i| \rangle$ with $a_i \in \mathbb{R}$ for $i = 0, 1, \cdots$. For example, the affine interval form of $(x \in) \langle 2, 4 \rangle$ and $(y \in) \langle 0, 2 \rangle$ is $3 + \epsilon_1$ and $1 + \epsilon_2$ respectively, thus the interpretation of $x^2 - x \times y$ is
 
 \begin{center}
 $\begin{aligned}[t]
-    x^2 - x \times y  &= (3 + \epsilon_1)^2 - (3 + \epsilon_1) \times (1 + \epsilon_2)\\
+(3 + \epsilon_1)^2 - (3 + \epsilon_1) \times (1 + \epsilon_2)
      &= 9 + 6\epsilon_1 + \epsilon_1^2- (3 + 3\epsilon_2 + \epsilon_1 + \epsilon_1\epsilon_2) \\
      &= 6 + 5\epsilon_1 - 3\epsilon_2 + \epsilon_1^2 + \epsilon_1\epsilon_2
 \end{aligned}$
