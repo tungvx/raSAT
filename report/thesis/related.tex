@@ -1,5 +1,5 @@
 \chapter{Related Works} \label{chap:related}
-%\section{Methodologies for Polynomial Constraints over Real Numbers}
+\section{Methodologies for Polynomial Constraints over Real Numbers}
 Although solving polynomial constraints on real numbers is decidable~\cite{tarski}, current methodologies have their own pros and cos. They can be classified into the following categories: 
 \begin{enumerate}
 \item \textbf{Quantifier Elimination by Cylindrical Algebraic Decomposition (QE-CAD)}~\cite{qecad} 
@@ -30,5 +30,46 @@ ICP combines over-approximation by interval arithmetics and constraint propagati
 ICP which is capable of solving "multiple thousand arithmetic constraints over some thousands of variables" \cite{isat} is practically often more efficient than algebraic computation.
 \end{enumerate}
 
-%Because \textbf{raSAT} in the same category with \text{iSAT3} and \text{dReal}, next section is going to take a look at details of methodologies used in these solvers.
+Because \textbf{raSAT} in the same category with \text{iSAT3} and \text{dReal}, next section is going to take a look at details of methodologies used in these solvers.
+
+\section{Solvers using Interval Constraint Propagation}
+\subsection*{iSAT3}
+Although \textbf{iSAT3} also uses Interval Arithmetic, its algorithm integrates IA with DPLL procedure tighter than one of \textbf{raSAT}. During DPLL procedure, in addition to an assignment of literals, \textbf{iSAT3} also prepares a data structure to store interval boxes where each box corresponds to one decision level of DPLL procedure's assignment. In \textbf{UnitPropagation} rule, intead of using standard rule, \textbf{iSAT3} searches for clauses that have all but one atoms being inconsistence with the current interval box. When some atom are selected for the literals assignment, this tool tries to use the selected atoms to contract the corresponding box to make it smaller. In order to do this, \textbf{iSAT3} convert each inequality/equation in the given constraints into the conjunction of the atoms of the following form by introducing additional variables:
+\begin{center}
+\begin{tabular}{l c l}
+atom &::=& bound $\mid$ equation \\
+bound &::=& variable relation rational\_constant \\
+relation &::=& $< \mid \le \mid = \mid \ge \mid >$ \\
+equation &::=& variable = variable bop variable \\
+bop &::=& $+ \mid - \mid \times$
+\end{tabular}
+\end{center}
+In other words, the resulting atoms are of the form, e.g., either $x > 10$ or $x = y + z$. For example, the constraint \[x^2 + y^2 < 1\]
+is converted into:
+\[\left\{ 
+  \begin{array}{l}
+    x_1 = x^2\\
+    x_2 = y^2\\
+    x_3 = x_1 + x_2\\
+    x_3 < 1
+   \end{array}
+    \right.\]
+From the atoms of these form, the contraction can be easily done for interval boxes:
+\begin{itemize}
+\item[$\bullet$] For the bound atom of the form, e.g., $x > 10$, if the bound is $x \in \langle 0, 100 \rangle$, then the contracted box contain $x \in \langle 10, 100 \rangle$.
+\item[$\bullet$] For the equations of three variables $x = y \text{ bop } z$, from bounds of any two variables, we can infer the bound for the remaining one. For example, from
+\[\left\{ 
+  \begin{array}{l}
+    x = y.z\\
+    x \in \langle 1, 10 \rangle \\
+    y \in \langle 3, 7 \rangle\\
+   \end{array}
+    \right.\]
+we can infer that \[z \in \langle \frac{1}{7}, \frac{10}{3} \rangle \]
+\end{itemize}
+When the \textbf{UnitPropagation} and contraction can not be done, \textbf{iSAT3} split one interval (decomposition) in the current box and select one decomposed interval to explore which corresponds to \textbf{decide} step. If the contraction yields an empty box, a conflict is detected and the complement of the bound selection in the last split needs to be asserted. This is done via \textbf{learn} the causes of the conflict and \textbf{backjump} to the previous bound selection of the last bound selection. In order to reason about causes of a conflict, \textbf{iSAT3} maintains an implication graph to represents which atoms lead to the asserting of one atom. 
+\subsection*{dReal}
+In stead of showing satisfiability/unsatisfiability of the polynomial constraints $\varphi$ over the real, \textbf{dReal} solves the follow problem given $\varphi$:
+
+
 % % % % % % % % % % % % % %
