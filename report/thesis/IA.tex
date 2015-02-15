@@ -1,4 +1,4 @@
-\chapter{Variation of Interval Arithmetic}\label{chap:ia}
+\chapter{Variations of Interval Arithmetic}\label{chap:ia}
 Interval Arithmetic is defined formally in Section ~\ref{sec:IA} of Chapter ~\ref{chap:OT-UT}. This chapter is going to present two instances of Interval Arithmetic which are used in raSAT: Classical Interval and Affine Interval. These two kinds differ to each other in the way they represent intervals and interpret function symbols.
 
 \section{Classical Interval}
@@ -16,7 +16,13 @@ A model $M^p_{CI} = (U^p_{CI}, I^p_{CI})$ over intervals contains a set of all i
 \item $N = \{\langle a, b \rangle | b \le 0 \wedge a < 0 \}$
 \item $M = \{\langle a, b \rangle | a < 0 < b \}$
 \item $Z = \{\langle a, b \rangle\}$
-The definition of $\otimes_{CI}$ is given in Table ~
+\end{itemize}
+The definition of $\otimes_{CI}$ is given in Table~\ref{tab:otimes}.
+\end{itemize}
+\item $I^p_{CI}(\mathbf{1}) = \langle 1,1\rangle $
+\item $\forall v \in V$; $I^p_{CI} \in U^p_{CI}$
+\end{enumerate}
+\begin{table}
 \begin{center}
 \begin{tabular}{ | c | c | c |}
 \hline
@@ -34,12 +40,9 @@ Z & P, N, M, Z & $\langle 0, 0 \rangle $ \\ \hline
 P, N, M & Z & $\langle 0, 0 \rangle $ \\ \hline
 \end{tabular}
 \end{center}
-\end{itemize}
-
-\end{itemize}
-\item $I^p_{CI}(\mathbf{1}) = \langle 1,1\rangle $
-\item $\forall v \in V$; $I^p_{CI} \in U^p_{CI}$
-\end{enumerate}
+\caption{Definition of $\otimes_{CI}$}
+\label{tab:otimes}
+\end{table}
 Theory $T^p_{CI} = \{M^p_{CI}| M^p_{CI} \text{ is a model over intervals}\}$. Each model differs to another by the mapping from variables to intervals. As a consequence, one assignment from variables to intervals can be used to describe an model. We denote $\Pi^p_{CI}$ as the model represented by $\Pi = \{x \in \langle l, h\rangle  | v \in V\}$. 
 \begin{theorem}
 CI is an IA.
@@ -47,6 +50,7 @@ CI is an IA.
 \begin{proof}
 Easy.
 \end{proof}
+
 \section{Affine Interval}
 Affine Interval use the formula $a_0 + \sum\limits_{i=1}^{n} a_i\epsilon_i$ to represent the interval $\langle a_0 - \sum\limits_{i=1}^{n}|a_i|, a_0 + \sum\limits_{i=1}^{n}|a_i| \rangle$ with $a_i \in \mathbb{R}$ for $i = 0, 1, \cdots$. For example, the affine interval form of $(x \in) \langle 2, 4 \rangle$ and $(y \in) \langle 0, 2 \rangle$ is $3 + \epsilon_1$ and $1 + \epsilon_2$ respectively, thus the interpretation of $x^2 - x \times y$ is
 
@@ -57,13 +61,16 @@ $\begin{aligned}[t]
      &= 6 + 5\epsilon_1 - 3\epsilon_2 + \epsilon_1^2 + \epsilon_1\epsilon_2
 \end{aligned}$
 \end{center}
-Types of affine interval vary by choices of estimating multiplications $\epsilon_1^2$ and $\epsilon_1\epsilon_2$:
+Types of Affine Interval vary by choices of estimating multiplications $\epsilon_1^2$ and $\epsilon_1\epsilon_2$:
 \begin{enumerate}
 \item AA \cite{Comba93affinearithmetic, Stolfi97self-validatednumerical} replaces $\epsilon_1\epsilon_2$ by a fresh noise symbol. 
 \item AF1 and AF2 \cite{Messine_extensionsof} prepares a fixed noise symbol for any $\epsilon_1\epsilon_2$.
 \item EAI \cite{Ngoc:2009:ORE:1685167.1685421} replaces $\epsilon_1\epsilon_2$ by $\langle -1, 1 \rangle\epsilon_1$ or $\langle -1, 1 \rangle\epsilon_2$.
 \item AF2 \cite{Messine_extensionsof} replaces $\epsilon_1^2$ by the fixed noise symbols $\epsilon_+$ or $\epsilon_-$.
 \end{enumerate}
+These variations of Affine Interval are discussed in details in \cite{khanhReport}. This thesis focuses on AF2 because currently it is used in \textbf{raSAT}.
+
+\subsection*{AF2}
 A model $M^p_{AF2} = (U^p_{AF2}, I^p_{AF2})$ over intervals contains a set of all intervals $U^p_{AF2} = \{a_0 + \sum\limits_{i=1}^{n}a_i\epsilon_i + a_{n+1}\epsilon_+ + a_{n+2}\epsilon_- + a_{n+3}\epsilon_{\pm} | \forall i \in \{0, 1, \cdots, n+3\}; a_i \in \mathbb{R}\}$ and a map $I^p_{AF2}$ that satisfies the following conditions.
 \begin{enumerate}
 \item $I^p_{AF2}(Real) = U^p_{AF2}$

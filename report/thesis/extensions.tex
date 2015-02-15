@@ -36,15 +36,15 @@ The idea of using the Intermediate Value Theorem can also be used for solving mu
 \begin{itemize}
 \item[$\bullet$] For all $i = 1, \cdots, n$; we have ${V_i \subset var(g_i)}$.
 \item[$\bullet$] For all $i \neq j$, we have $V_i \neq V_j$.
-\item[$\bullet$] For all $i = 1, \cdots, n$; let $k_i = |V_i|$ and $V_i = \{v_{ij} \; | \; 1 \le j \le k_i \}$. Then, there exist two values ${(v_{i1}, \cdots, v_{ik_I}) = (x_{i1}, \cdots, x_{ik_i})}$ and ${(v_{i1}, \cdots, v_{ik_I}) = (x'_{i1}, \cdots, x'_{ik_i})}$ such that \[g_i(x_{i1}, \cdots, x_{ik_i}, \cdots, v_{ik}, \cdots) * g_i(x'_{i1}, \cdots, x'_{ik_i}, \cdots, v_{ik}, \cdots) < 0\] for all values of $v_{ik}$ in $\langle l_{ik}, h_{ik} \rangle$ where $v_{ik} \in var(g_i) \setminus V_i$. We denote $ivt(g_i, V_i, \Pi)$ to represent that the polynomial $g_i$ enjoy this property with respect to $V_i$ and $\Pi$.
+\item[$\bullet$] For all $i = 1, \cdots, n$; let $k_i = |V_i|$ and $V_i = \{v_{ij} \; | \; 1 \le j \le k_i \}$. Then, there exist two values ${(v_{i1}, \cdots, v_{ik_I}) = (x_{i1}, \cdots, x_{ik_i})}$ and ${(v_{i1}, \cdots, v_{ik_I}) = (x'_{i1}, \cdots, x'_{ik_i})}$ such that \[g_i(x_{i1}, \cdots, x_{ik_i}, \cdots, v_{ik}, \cdots) > 0\] and \[g_i(x'_{i1}, \cdots, x'_{ik_i}, \cdots, v_{ik}, \cdots) < 0\] for all values of $v_{ik}$ in $\langle l_{ik}, h_{ik} \rangle$ where $v_{ik} \in var(g_i) \setminus V_i$. We denote $ivt(g_i, V_i, \Pi)$ to represent that the polynomial $g_i$ enjoy this property with respect to $V_i$ and $\Pi$.
 \end{itemize}
 By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
 
 \begin{example}
 Consider two equations $g_1(x, y)=0$ and $g_2(x, y) = 0$ (Figure~\ref{fig:multiple-equations}) which satisfy the above restriction on the number of variables, and the variable intervals is $\Pi = x \in \langle c_1, d_1 \rangle \wedge y \in \langle d_2, c_2 \rangle$. Let $V_1 = \{x\}$ and $V_2 = \{y\}$, we have:
-\[g_1(c_1, y)*g_1(d_1, y) < 0 \text{ for all } y \in \langle d_2, c_2 \rangle, \text{ and }\]
-\[g_2(x, d_2)*g_2(x, c_2) < 0 \text{ for all } x \in \langle c_1, d_1 \rangle\]
-Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y=0)$ has a solution inside the box represented by $\Pi$.
+\[g_1(c_1, y) < 0\text{ and }g_1(d_1, y) < 0 \text{ for all } y \in \langle d_2, c_2 \rangle \text{; and }\]
+\[g_2(x, d_2) > 0 \text{ and }g_2(x, c_2) < 0 \text{ for all } x \in \langle c_1, d_1 \rangle\]
+Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside the box represented by $\Pi$.
 \end{example}
 \begin{figure}[ht]
 \centering
@@ -55,7 +55,7 @@ Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y=0)$ has a solution inside t
 \end{figure}
 Our current implementation of handling multiple equations is very naive which is described in Algorithm~\ref{Al:multiple-equations} because for each polynomial, \textbf{raSAT} checks every possible subsets of its variables. As the result, given the constraint $\bigwedge\limits_{i=1}^ng_i=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_n)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
 \begin{algorithm}
-\begin{algorithmic}
+\begin{algorithmic}[1]
 \Function{equationsProver}{$\bigwedge\limits_{i=j}^ng_i = 0, \Pi, V_0$}
 \If {$j > n$} \Comment{All equations are checked}
 	\State \Return SAT

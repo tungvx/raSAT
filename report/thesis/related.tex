@@ -69,7 +69,7 @@ we can infer that \[z \in \langle \frac{1}{7}, \frac{10}{3} \rangle \]
 \end{itemize}
 When the \textbf{UnitPropagation} and contraction can not be done, \textbf{iSAT3} split one interval (decomposition) in the current box and select one decomposed interval to explore which corresponds to \textbf{decide} step. If the contraction yields an empty box, a conflict is detected and the complement of the bound selection in the last split needs to be asserted. This is done via \textbf{learn} the causes of the conflict and \textbf{backjump} to the previous bound selection of the last bound selection. In order to reason about causes of a conflict, \textbf{iSAT3} maintains an implication graph to represents which atoms lead to the asserting of one atom. 
 \subsection*{dReal}
-In stead of showing satisfiability/unsatisfiability of the polynomial constraints $\varphi$ over the real, \textbf{dReal} proves that either
+In stead of showing satisfiability/unsatisfiability of the polynomial constraints $\varphi$ over the real numbers, \textbf{dReal} proves that either
 \begin{itemize}
 \item [$\bullet$] $\varphi$ is unsatisfiable, or 
 \item [$\bullet$] $\varphi^\delta$ is satisfiable. 
@@ -81,5 +81,5 @@ Here, $\varphi^\delta$ is the $\delta$-weakening of $\varphi$. For instance, the
 \item [$\bullet$] \textbf{Removing $>$ and $\ge$}: Each formula of the form $f > 0$ or $f \ge 0$ is transformed into $f - x = 0$ by introducing an auxiliary variable $x$ that has bound $[0, m]$ or $(0, m]$ respectively. Here, $m$ is any rational number which is greater than the maximum of $f$ over intervals of variables. As the result, \textbf{dReal} requires the input that ranges of variables must be compact.
 \end{itemize}
 
-\textbf{dReal} also cooperates DPLL with ICP
+Note that the satisfiability of $\varphi^\delta$ does not imply that of $\varphi$. \textbf{dReal}'s methodology~\cite{Gao:2012:9DP:2352896.2352921} also cooperates DPLL with ICP in the lazy manner as in \textbf{raSAT}.
 % % % % % % % % % % % % % %

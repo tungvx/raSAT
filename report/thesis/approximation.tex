@@ -79,7 +79,7 @@ iff $T'$-SAT of $\varphi$ implies $T$-SAT of $\varphi$.
 \end{itemize}
 \end{definition}
 
-\begin{theorem}
+\begin{theorem} \label{theorem:OT_VALID}
 If $T_O$ be an over-approximation theory of $T$, then for any $\Sigma$-formula $\varphi$: $\varphi$ is $T_O$-VALID implies $\varphi$ is $T$-VALID.
 \end{theorem}
 
@@ -102,9 +102,9 @@ Let $a$ and $b$ be reals such that $a \le b$.
 \end{tabular}
 \end{center}
 \end{definition}
-The \emph{intervals} in this definition can be summarized by $\langle a, b \rangle$ where $a, b \in \mathbb{R} \cup \{-\infty, +\infty\}$ and $a \le b$ with the assumption that $\forall c \in \mathbb{R}-\infty < c < \infty$. Furthermore,\citet{Hickey:2001:IAP:502102.502106} also defined arithmetic operations for $\mathbb{R} \cup \{-\infty, +\infty\}$ which is summarized in Table~\ref{tab:arithOp}.
+The \emph{intervals} in this definition can be summarized by $\langle a, b \rangle$ where $a, b \in \mathbb{R} \cup \{-\infty, +\infty\}$ and $a \le b$ with the assumption that $\forall c \in \mathbb{R}-\infty < c < \infty$. Furthermore, \citet{Hickey:2001:IAP:502102.502106} also defined arithmetic operations for $\mathbb{R} \cup \{-\infty, +\infty\}$ which is summarized in Table~\ref{tab:arithOp}.
 
-\begin{table} \label{tab:arithOp}
+\begin{table} 
 \begin{tabular}{c||*{5}{c|}}
 $x + y$
 &$-\infty$&NR&0
@@ -142,13 +142,14 @@ $+\infty$ &&&&&$+\infty$\\\hline
 \end{tabular}
 \end{center}
 \caption{Arithmetics Operations for $\mathbb{R} \cup \{-\infty, +\infty\}$}
+\label{tab:arithOp}
 \end{table}
 
 \begin{definition} \label{def:real_intervals}
-The set of all \emph{real intervals} $\mathbb{I}$ is defined as: \[\mathbb{I} = \{\langle a, b \rangle | a, b \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } a \le b \}\].
+The set of all \emph{real intervals} $\mathbb{I}$ is defined as: \[\mathbb{I} = \{\langle a, b \rangle \mid a, b \in \mathbb{R} \cup \{-\infty, +\infty\} \text{ and } a \le b \}\].
 \end{definition}
 
-\subsection{Interval Arithmetic as an Over-Approximation Theory of Sub-Theory of Real Numbers} \label{sec:Gen-IA}
+\subsection{Interval Arithmetic as an Over-Approximation Theory} \label{sec:Gen-IA}
 \sloppy
 A model $M^p_{IA} = (\mathbb{I}, I^p_{IA})$ over intervals for polynomial constraints consists a set of all real intervals $\mathbb{I}$ and a map $I^p_{IA}$ that satisfies the following conditions.
 \begin{enumerate}
@@ -312,18 +313,33 @@ Thus, the testing theory $(\Pi^p_\mathbb{R})_T$ of $\Pi^p_\mathbb{R}$ is
 \end{example}
 
 \section{raSAT Loop} 
-Our algorithm is described using a transition system. Each state of the search procedure is represented by $(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ where 
+Our algorithm \textbf{raSAT} loop is described using a transition system. Each state of the search procedure is represented by $(\Pi, \varphi, \mathring{\Pi}, \varphi^V, \varphi^U, \varepsilon, \tau)$ where 
 \begin{itemize}
-\item[$\bullet$] $\Pi$ is a CNF interval constraint. If we consider each $v \in \langle l , h \rangle$ in $\Pi$ is a propositional symbols, we can apply DPLL procedure to $\Pi$.
+\item[$\bullet$] $\Pi$ is a CNF interval constraint.
 \item[$\bullet$] $\varphi$ represents the polynomial constraint.
-\item[$\bullet$] $\mathring{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in i_i$ with $i_i \in \mathbb{I}$ is the result of DPLL procedure on $\Pi$.
-\item[$\bullet$] $\varphi^V$ contains the constraints that are valid under over-approximation.
-\item[$\bullet$] $\varphi^U$ is the set of constraints which are UNKNOWN under over-approximation.
+\item[$\bullet$] $\mathring{\Pi} = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ with $\langle l_i, h_i \rangle \in \mathbb{I}$. We use $\emptyset$ to denote the empty conjunction.
+\item[$\bullet$] $\varphi^V$ consists of conjunction of inequalities that are VALID under over-approximation. We use $\emptyset$ to denote the empty conjunction.
+\item[$\bullet$] $\varphi^U$ is the set of inequalities which are UNKNOWN under over-approximation. We use $\emptyset$ to denote the empty conjunction.
 \item[$\bullet$] $\varepsilon$ indicates the threshold to stop decomposing intervals.
 \item[$\bullet$] $\tau$ is a flag to mark whether the threshold of intervals has been reached. It can be one of two values $\bot$ and $\top$. In the initial state, $\tau$ is always $\bot$.
 \end{itemize}
-The transition rules are described in Table ~\ref{tab:transition-rules}. Figure ~\ref{fig:smt-design} illustrates the transition system. 
-
+The transition rules are described in Table ~\ref{tab:transition-rules}. Figure ~\ref{fig:smt-design} illustrates the transition system. Given one box (product of variables' intervals), e.g. $(x, y) \in \langle 1, 5 \rangle \times \langle -3, 8 \rangle$, IA and Testing attempt to show the satisfiability/unsatisfiability of the constraint. If neither does, the interval of some variable is decomposed in to smaller intervals, e.g. $\langle 1, 5 \rangle$ of x is decomposed into $\langle 1, 2 \rangle$ and $\langle 2, 5 \rangle$; creating two boxes, e.g. $\langle 1, 2 \rangle \times \langle -3, 8 \rangle$ and $\langle 2, 5 \rangle \times \langle -3, 8 \rangle$. Each of these box will be examined in next iterations. We use a SAT solver which implements DPLL procedure to 
+handle the combinations(boxes) of variables intervals by considering each interval, e.g $x \in \langle 1, 5 \rangle$, as a propositional atom. The boxes is represented by interval constraint $\Pi$ and $\mathring{\Pi}$ represents the output of DPLL procedure on $\Pi$. We use threshold $\epsilon$ to prevent some interval to be decomposed deeply. When a box has the size smaller that $\epsilon$, it is pruned by being removed from the considering boxes represented by $\Pi$. The transition rules can be understood as following.
+\begin{itemize}
+\item[$\bullet$]\textbf{$\pmb\Pi$\_UNSAT}: The DPLL procedure fails to find an assignment that satisfy $\Pi$ (in terms of propositional logic), then there are no more boxes that possibly make the constraint satisfiable. Because no intervals were pruned by threshold ($\tau = \bot$), the given constraint is unsatisfiable with respect to the initial box.
+\item[$\bullet$]\textbf{$\pmb\Pi$\_UNKNOWN}: The DPLL procedure fails and some intervals were pruned by threshold ($\tau = \top$), we can conclude neither SAT nor UNSAT.
+\item[$\bullet$]\textbf{$\pmb\Pi$\_SAT}: DPLL procedure outputs one assignment representing a box which is stored in $\mathring{\Pi}$. We call this box is \emph{the current box}. The box is sent to Interval Arithmetic modules to check against the constraint.
+\item[$\bullet$]\textbf{IA\_UNSAT}: If IA can prove that the constraint is unsatisfiable in the current box, the box will be removed from the considering boxes simply by adding $\neg\mathring{\Pi}$ into $\Pi$.
+\item[$\bullet$]\textbf{IA\_SAT}: If IA does not disprove the constraint with respect to the current box, the inequalities in the given constraint is divided into two set: 
+\begin{itemize}
+\item $\varphi^V$ consisting of inequalities that are proved to be VALID in the current box by IA and
+\item $\varphi^U$ (possibly empty) consisting of remaining inequalities. 
+\end{itemize}
+\item[$\bullet$]\textbf{IA\_VALID}: If IA showed that all the inequalities are VALID in the current box ($\varphi^U = \emptyset$), we can conclude the satisfiability of the constraint. 
+\item[$\bullet$]\textbf{TEST\_SAT}: Inequalities $\varphi^U \not= \emptyset$ that can not be verified by IA are passed to the Testing module. If some instances in the current box of variables are found that make $\varphi^U$ satisfiable, we can conclude that $\varphi$ is satisfiable because $\varphi^V$ is satisfiable for all instances in the current box (proved by IA).
+\item[$\bullet$]\textbf{THRESHOLD}: Neither IA nor Testing concludes the constraint and the current box has the size smaller than threshold $\epsilon$, the box will be also removed from the considering boxes and $\tau$ is set to $\top$ to mark this pruning.
+\item[$\bullet$]\textbf{REFINE}: Neither IA nor Testing concludes the constraint and the some interval of the current box has the size larger than threshold $\epsilon$, decomposition is implemented on that interval.
+\end{itemize}
 \begin{table*}[t]
   \centering
   \begin{tabular}{ll}
@@ -361,7 +377,7 @@ The transition rules are described in Table ~\ref{tab:transition-rules}. Figure 
 \end{figure}
 
 \begin{theorem} \label{theorem:terminating}
-Starting with state ${(\Pi, \varphi, \emptyset, \emptyset, \varepsilon, \tau)}$, if $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ and ${\langle l_1, h_1 \rangle \times \langle l_2, h_2 \rangle \times \cdots}$ is bounded, raSATloop terminates.
+Starting with state ${(\Pi, \varphi, \emptyset, \emptyset, \varepsilon, \bot)}$, if $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ and ${\langle l_1, h_1 \rangle \times \langle l_2, h_2 \rangle \times \cdots}$ is bounded, raSATloop terminates.
 \end{theorem}
 
 \begin{proof}
@@ -387,7 +403,7 @@ Let $(\Pi_0, \varphi_0, \mathring{\Pi}_0, \varphi^V_0, \varphi^U_0, \varepsilon,
 \begin{proof}   
 \begin{enumerate}
 \item Easy from the definition.
-\item Easy from the transitions.
+\item Easy from the transitions and the fact that $\{\mathring{\Pi}^p_{IA}\}$ is an over-approximation of $\mathring{\Pi}^p_\mathbb{R}$ (Theorem~\ref{theorem:IA-OverAprox}).
 \item Easy from the transitions.
 \item The proof is done inductively on transitions of the system:
 \begin{itemize}
@@ -446,59 +462,112 @@ Let $\varphi$ be the polynomial constraint to be solved. Starting with the state
 \sloppy
 Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$, and ${\varphi = \bigwedge\limits_{i=1}^n f_i > 0}$. An theory $T$ is complete with respect to the theory real numbers over polynomial constraint $T^p_\mathbb{R}$ if for each ${O \subset \langle l_1, h_1 \rangle \times \langle l_2, h_2 \rangle \times \cdots}$, ${c = (c_1, c_2, \cdots) \in O}$, and $\delta > 0$, there exists $\gamma > 0$, $T' \subset T$, such that:
 \begin{itemize}
-\item[$\bullet$]$\bigwedge\limits_{i=1}^n(f_i(c)-\delta < f_i(x)) \wedge (f_i(x) < f_i(c) + \delta)$ is $T'$-VALID and
-\item[$\bullet$] $T'$ is an over-approximation of $(\Pi')^p_\mathbb{R}$
+\item[$\bullet$] $\langle c_1 - \gamma, c_1 + \gamma \rangle \times \langle c_2 - \gamma, c_2 + \gamma \rangle \times \cdots \subset O$,
+\item[$\bullet$]$\bigwedge\limits_{i=1}^n(f_i(c)-\delta < f_i(x)) \wedge (f_i(x) < f_i(c) + \delta)$ is $T'$-VALID, and
+\item[$\bullet$] $T'$ is an over-approximation of $(\Pi')^p_\mathbb{R}$ where ${\Pi' = \bigwedge\limits_{v_i \in V} v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}$.
 \end{itemize} 
-where ${\Pi' = \bigwedge\limits_{v_i \in V} v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}$.
 \end{definition}
 
 \begin{lemma} \label{lem:sat-complete}
-Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote 
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is open, and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote 
 \begin{itemize}
-\item [$\bullet$] $S_\varphi = \{(r_1, r_2, \cdots) \mid \theta = \{v_i \mapsto r_i \mid v_i \in V \} \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$ is the set of points that satisfy the constraint $\varphi$, and
-\item [$\bullet$] $S = (\langle l_1, h_1 \rangle \times \langle l_1, h_1 \rangle \times \cdots) \cap S_\varphi$.
+\item [$\bullet$] $S_\varphi = \{(r_1, r_2, \cdots) \mid \theta = \{v_i \mapsto r_i \mid v_i \in V \} \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$ be the set of points that satisfy the constraint $\varphi$, and
+\item [$\bullet$] $S = (\langle l_1, h_1 \rangle \times \langle l_1, h_1 \rangle \times \cdots) \cap S_\varphi$ be the set of points that
+\begin{itemize}
+\item  are inside the box represented by $\Pi$.
+\item satisfy the constraint $\varphi$.
 \end{itemize}
-If $S \neq \emptyset$ and $(l_1, h_1) \times (l_2, h_2) \times \cdots$ is open, then $S$ contain an open set.
+
+\end{itemize}
+If $S \neq \emptyset$, then $S$ contain an open set.
 \end{lemma}
 
 \begin{proof}
 \sloppy
 Because $S \neq \emptyset$, there exist $c = (c_1, c_2, \cdots) \in S$. By definition of $S$, for all ${j \in \{1, \cdots, n\}, \, f_j(c) > 0}$. Take $\delta = \min\limits_{j=1\cdots n} f_j(c)$, then $\delta > 0$. Because the polynomials are continuous, there exists $\gamma > 0$ such that for all $v \in \langle c - \gamma, {c + \gamma \rangle, \; \bigwedge\limits_{j=1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta}$ which implies for all ${v \in \langle c - \gamma, c + \gamma \rangle, \; \bigwedge\limits_{j=1}^n f_j(v) > 0}$ (because $\delta = \min\limits_{j=1\cdots n}f_j(c) \le f_j(c)$ for any $j$).
-Now consider the open interval $O = \{(x_1, x_2, \cdots) \mid x_1 \in getIntv(c_1, l_1, h_1, \gamma), \cdots \}$ where $getIntv(c, l, h, \gamma$ is defined as following:
-\begin{center}
-$getIntv(c, l, h, \delta) = (\max(l, c -\gamma), \min(h, c + \gamma)$
-\end{center}
-It is easy to see that $O \in \langle c - \gamma, c + \gamma$ and $O \in \Pi$ that implies $O \in S$; and $O$ is open.
+Now consider the open interval \[O = (\max(l_1, c_1 -\gamma), \min(h_1, c_1 + \gamma) \times (\max(l_2, c_2 -\gamma), \min(h_2, c_2 + \gamma) \times \cdots\]
+It is easy to see that $O \subset \langle c - \gamma, c + \gamma \rangle \subset S_\varphi$ and ${O \subset \langle l_1, h_1 \rangle \times \langle l_1, h_1 \rangle \times \cdots}$ that implies $O \in S$. In addition because $\langle l_i, h_i \rangle$ is open for each $i=1,2,\cdots$, $O$ is open by its construction.
 \end{proof}
 
-\begin{example}
-
-\end{example}
-
 \begin{theorem} \label{theorem:SAT-complete}
-Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \}; \models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$. If $S \neq \emptyset$ and $\{(v_1, v_2, \cdots) | v_1 \in (l_1, h_1), v_2 \in (l_2, h_2) \cdots \}$ is open, then raSATloop can detect the satisfiability of $\varphi$ with assumption that IA is complete.
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is open, and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. \begin{itemize}
+\item [$\bullet$] $S_\varphi = \{(r_1, r_2, \cdots) \mid \theta = \{v_i \mapsto r_i \mid v_i \in V \} \text{ and } \models_{\theta^p_\mathbb{R}}\varphi \}$ be the set of points that satisfy the constraint $\varphi$, and
+\item [$\bullet$] $S = (\langle l_1, h_1 \rangle \times \langle l_1, h_1 \rangle \times \cdots) \cap S_\varphi$ be the set of points that are inside the box represented by $\Pi$ and also satisfy the constraint $\varphi$.
+\end{itemize}
+
+
+If $S \neq \emptyset$, $(l_1, h_1) \times (l_2, h_2) \times \cdots$ is bounded, and the threshold $\epsilon$ is small enough; then raSATloop can detect the satisfiability of $\varphi$ with assumption that the theory of interval arithmetic $T^p_{IA}$ is complete.
 \end{theorem}
 
 
 \begin{proof}
-Based on Lemma~\ref{lem:sat-complete}, there exist an open box $(l, h)$ such that $\forall (x_1, x_2, ...) \in (l, h); \; \bigwedge\limits_{j=1}^n f_j > 0 $. Take any $c \in (l, h)$ and take $\delta = \min\limits_{j = 1\cdots n}(f_j(c))$. Because IA is complete by assumption, from Definition~\ref{def:OT-complete} there exists $\gamma > 0$ such that $\langle c - \gamma, c + \gamma \rangle \in (l, h)$ and $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is ${\bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}^p_{IA}$-VALID. By taking this $\gamma$ as the threshold in $(\Pi, \varphi, \emptyset, \emptyset, \varepsilon, \bot)$, raSATloop will terminate (Theorem~\ref{theorem:terminating}). Furthermore, $\langle c - \gamma, c + \gamma \rangle \in (l, h) \implies (c + \gamma) - (c - \gamma) < h - l \implies 2\gamma < h - l$. As a consequence, decomposition eventually creates a box of size $\gamma$ inside $(h, l)$ which can be used to conclude the validity of the constraint by IA.
+Based on Lemma~\ref{lem:sat-complete}, there exist an open box $(l, h) \in S$ such that for all $(r_1, r_2, ...) \in (l, h)$, $\bigwedge\limits_{j=1}^n f_j > 0 $. Take any $c \in (l, h)$ and take $\delta = \min\limits_{j = 1\cdots n}(f_j(c))$. Because IA is complete by assumption, from Definition~\ref{def:OT-complete} there exists $\gamma > 0$ and $T \subset T^p_{IA}$ such that
+\begin{itemize}
+\item[$\bullet$] ${\langle c - \gamma, c + \gamma \rangle \in (l, h)}$,
+\item[$\bullet$] $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is $T$-VALID, and
+\item [$\bullet$] $T$ is an over-approximation of $(\Pi')^p_\mathbb{R}$ where $\Pi' = \bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle$.
+\end{itemize}
+From above second and third conditions, IA can be used to prove that $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is $(\Pi')^p_\mathbb{R}$-VALID (Theorem~\ref{theorem:OT_VALID}) which implies that ${\bigwedge\limits_{j = 1}^n 0 < f_j(v)}$ is $(\Pi')^p_\mathbb{R}$-VALID (because ${\delta = \min\limits_{j = 1\cdots n}(f_j(c)) \implies f_j(c) \ge \delta}$ for all $j = 1, 2, \cdots, n$) or $\varphi$ is $(\Pi')^p_\mathbb{R}$-VALID $\implies$ $\varphi$ is $(\Pi')^p_\mathbb{R}$-SAT $\implies$ $\varphi$ is $T^p_\mathbb{R}$-SAT.
+
+By taking $\gamma$ as the threshold in $(\Pi, \varphi, \emptyset, \emptyset, \gamma, \bot)$, raSATloop will terminate (Theorem~\ref{theorem:terminating}). Furthermore, $\langle c - \gamma, c + \gamma \rangle \in (l, h) \implies (c + \gamma) - (c - \gamma) < h - l \implies 2\gamma < h - l$. As a consequence, decomposition eventually creates a box of size $\gamma$ inside $(h, l)$ which can be used to conclude the satisfiability of the constraint by IA.
 \end{proof}
 
+Figure~\ref{fig:complete-sat} illustrates a simple case for this theorem where we have two inequalities and the initial box is represented by $\Pi = x \in \langle a, b \rangle \wedge y \in \langle c, d \rangle$. Here $a < b$ and $c < d$ make the box open. This box intersects with set of points that satisfy both inequalities. As a consequence, decomposition will create a box (the blue one) that can be used by IA to prove the satisfiability of two inequalities.
+
+\begin{figure}[ht]
+\centering
+\begin{subfigure}[b]{0.4\textwidth}
+\includegraphics[width=\textwidth]{complete-sat.png} 
+\caption{Example of SAT completeness}
+\label{fig:complete-sat}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\textwidth}
+\includegraphics[width=\textwidth]{complete-unsat.png} 
+\caption{Example of UNSAT completeness}
+\label{fig:complete-unsat}
+\end{subfigure}
+\caption{Examples on complete cases of \textbf{raSAT}} 
+\label{fig:complete-ex}
+\end{figure}
 
 \begin{theorem} \label{theorem:UNSAT-complete}
 \sloppy
-Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is bounded; and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S_j = \{(x_1, x_2, \cdots) | \theta = \{v_i \mapsto x_i | v_i \in V \};\models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}f_j \}$. If $\bigcap\limits_{j = 1}^nclosure(S_j) = \emptyset$, then raSATloop can prove the unsatisfiability of $\varphi$ with assumption that IA is complete.
+Let $\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle$ where $\langle l_i, h_i \rangle \in \mathbb{I}$ is open, and ${\varphi = \bigwedge\limits_{j = 1}^n f_j > 0}$. Denote $S = \{(r_1, r_2, \cdots) \mid \theta = \{v_i \mapsto r_i \mid v_i \in V \}, \models_{\theta^I} \Pi \text{ and } \models_{\theta^p_\mathbb{R}}\bigwedge\limits_{j = 1}^n f_j \ge 0 \}$ be the set of all points which are inside the box represented by $\Pi$ and also satisfy $\bigwedge\limits_{j = 1}^n f_j \ge 0$. If $S = \emptyset$, $(l_1, h_1) \times (l_2, h_2) \times \cdots$ is bounded, and the threshold $\epsilon$ is small enough; then raSATloop can prove the unsatisfiability of $\varphi$ with assumption that the theory of Interval Arithmetic $T^p_{IA}$ is complete.
 \end{theorem}
 
 
 \begin{proof}
 \sloppy
-Let $f(v) = \min\limits_{j = 1}^nf_j(v)$, then $f(v)$ is continuous. Because ${D = \{(x_1, x_2, \cdots) | \theta = \{v_1 \mapsto x_1, v_2 \mapsto x_2, \cdots\}; \models_{\theta^I} \Pi\}}$ is compact, ${\delta = |\max\limits_{v \in D}f(v)}|$ exists. First we will prove that $\delta > 0$. In fact, suppose $\delta = 0 \implies \forall c \in D; \; f(c) = 0 \implies \forall c \in D \forall j \in \{1, \cdots, n\}f_j(c) \ge 0$. This contradicts with the assumption that $\bigcap\limits_{j = 1}^nclosure(S_j) = \emptyset$.
+Let $f(v) = \min\limits_{j = 1}^nf_j(v)$, then $f(v)$ is continuous. Because $D = \langle l_1, h_1 \rangle \times \langle l_2, h_2 \rangle \times \cdots$ is compact, ${\delta = |\max\limits_{v \in D}f(v)}|$ exists. 
 
-Because IA is complete, by Definition~\ref{def:OT-complete}, for any point $c \in D$, there exists $\gamma > 0$ such that $\langle c - \gamma, c + \gamma \rangle \in D$ and $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is ${\bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle}^p_{IA}$-VALID. Consider $f_k(c) = \min\limits_{j=1}^nf_j(c)$ then $f_k(c) < 0$ otherwise a contradiction with the assumption that $\bigcap\limits_{j = 1}^nclosure(S_j) = \emptyset$ exists. In addition by definition of $f(v)$ we have $f_k(c) = f(c) \le \max\limits_{v \in D}f(v) \implies f_k(c) + \delta < 0 \implies \bigwedge\limits_{j = 1}^n f_j(v) > 0$ is UNSAT over $\bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle$. For any point in $D$, we can find a small box so that the constraint is unsatisfiable. If $\varepsilon$ is small enough, the unsatisfiability can be detected by raSATloop.
+First we will prove that $\delta > 0$. In fact, suppose $\delta = 0 \implies |\max\limits_{v \in D}f(v)| = 0 \implies$ for all $c \in D, \; f(c) = 0 \implies$ for all $c \in D, \; \min\limits_{j = 1}^nf_j(c) = 0 \implies$ for all $c \in D$, for all $j \in \{1, \cdots, n\}, f_j(c) \ge 0$. This contradicts with the assumption that $S = \emptyset$.
+
+Because $T^p_{IA}$ is complete, by Definition~\ref{def:OT-complete}, for any point $c \in D$, there exists $\gamma > 0$ and $T \subset T^p_{IA}$ such that 
+\begin{itemize}
+\item[$\bullet$] $\langle c - \gamma, c + \gamma \rangle \in D$,
+\item[$\bullet$] $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is $T$-VALID, and
+\item[$\bullet$] $T$ is an over-approximation of $(\Pi')^p_\mathbb{R}$ where $\Pi' = \bigwedge\limits_{v_i \in V}v_i \in \langle c_i - \gamma, c_i + \gamma \rangle$.
+\end{itemize} 
+From above second and third conditions, IA can be used to prove $\bigwedge\limits_{j = 1}^n f_j(c) - \delta < f_j(v) < f_j(c) + \delta$ is $(\Pi')^p_\mathbb{R}$-VALID (Theorem~\ref{theorem:OT_VALID}).
+
+Let $f_k(c) = \min\limits_{j=1}^nf_j(c)$ for $k \in \{1, 2, \cdots, n\}$ then $f_k(c) < 0$ otherwise a contradiction with the assumption that $S = \emptyset$ exists. In addition, by definition of $f(v)$ we have $f_k(c) = f(c)$ which implies $|f_k(c)| \le |\max\limits_{v \in D}f(v)| \implies f_k(c) + \delta \le 0$. Moreover, IA can prove that $f_k(v) < f_k(c) + \delta$ is $(\Pi')^p_\mathbb{R}$-VALID. We have $f_k(v) < f_k(c) + \delta$ is $(\Pi')^p_\mathbb{R}$-VALID $\implies$ $f_k(v) < 0$ is $(\Pi')^p_\mathbb{R}$-VALID $\implies$ $\neg(f_k(v) < 0) = f_k(v) \ge 0$ is $(\Pi')^p_\mathbb{R}$-UNSAT (Lemma~\ref{lemma:theory-valid-unsat}) $\implies$ $f_k(v) > 0$ is $(\Pi')^p_\mathbb{R}$-UNSAT  $\implies \bigwedge\limits_{j = 1}^n f_j(v) > 0$ is $(\Pi')^p_\mathbb{R}$-UNSAT. 
+
+In conclusion, for any point in $D$, we can find a small box containing that point in which the constraint can be proved to be unsatisfiable by IA. As a result, if $\varepsilon$ is small enough, \textbf{raSAT} loop will terminate (Theorem~\ref{theorem:terminating}) and proves the unsatisfiability of the constraint after checking all the small decomposed boxes.
 \end{proof}
 
+Figure~\ref{fig:complete-unsat} illustrates a simple example for this theorem where we have two inequalities and the initial box is represented by $\Pi = x \in \langle a, b \rangle \wedge y \in \langle c, d \rangle$. Here $a < b$ and $c < d$ make the box open. The constraint is unsatisfiable inside the box and decomposition will eventually separate two satisfiable areas of two inequalities.
 
+The limitation of UNSAT detection comes from the case of kissing situation. Figure~\ref{fig:kissing} presents an example of this with the constraint \[x^2 + y^2 < 4 \wedge (x-4)^2 + (y-3)^2 < 9\]
+which is UNSAT but Interval Arithmetic can not uses boxes to separate the satisfiable areas around the touching points of two inequalities. The condition $S = \emptyset$ in the above Theorem avoids such a kissing situation.  
+
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.5]{UNSAT-touching.png} 
+\caption{Kissing situation}
+\label{fig:kissing}
+\end{figure}
+
+Note that is Theorem~\ref{theorem:SAT-complete}~and~\ref{theorem:SAT-complete} requires that the threshold $\epsilon$ is small enough. Although computing this enough small $\epsilon$ is not easy, \textbf{raSAT} achieves this by incremental deepening (Chapter~\ref{chap:strate}) strategy in which the value of threshold is made to be smaller if \textbf{raSAT} fails to conclude the constraint.
 \begin{comment}
 \section{Over-Approximation Theory Refinement}
 \label{sec:soundness}

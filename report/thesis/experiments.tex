@@ -1,6 +1,8 @@
 \chapter{Experiments} \label{chap:experiments}
 This chapter is going to present the experiments results which reflect how effective our designed strategies are. In addition, comparison between raSAT, Z3 and iSAT3 will be also shown. The experiments were done on a system with  Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. In the experiments, we exclude the problems which contain equalities because currently raSAT focuses on inequalities only.
 
+In order to avoid soundness bugs from round-off/over-flow errors, we integrated {\bf iRRAM}\footnote{% 
+\tt http://irram.uni-trier.de} to check the SAT instances provided by Testing module. If a bug is detected, raSAT continues searching other boxes instead of concluding satisfiability of the constraint.
 \section{Experiments on Strategy Combinations} \label{sec:expstrategy}
 \subsection*{Experiments on incremental testing and refinements heuristics}
 We perform experiments only on Zankl, and Meti-Tarski families. 
