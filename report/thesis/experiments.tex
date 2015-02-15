@@ -252,7 +252,7 @@ We also did experiments on QE-CAD problems provided by Mohab Safey El Din\footno
 
 The benchmarks from LIP6 are all unsatisfiable and contain long polynomials (in terms of monomials number). From the experiments with raSAT and Z3, these benchmarks show that they are very difficult to be solved (Table~\ref{exp:lip6}). These benchmarks may be suitable targets for our UNSAT core strategies in the future. 
 
-\begin{table} \label{exp:hiwane}
+\begin{table} 
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|c|}
 \hline
@@ -262,10 +262,11 @@ The benchmarks from LIP6 are all unsatisfiable and contain long polynomials (in 
 \end{tabular}
 \end{center}
 \caption{Experiments on 217 QEPCAD problems from Hidenao Iwane}
+\label{exp:hiwane}
 \end{table}
 
 In terms of QEPCAD benchmarks, while Z3 solves all $217$ problems, raSAT solves $156/205$ satisfiable and $2/22$ unsatisfiable benchmarks. Apart from a number of problems which raSAT has errors in parsing, the unsolved ones are mostly unsatisfiable. This can be tackled by strategies on UNSAT core which is left for our future works. 
-\begin{table} \label{exp:lip6}
+\begin{table}
 \begin{center}
 \begin{tabular}{| c | c | c | c | c |}
 \hline
@@ -278,6 +279,7 @@ pol1 & 3600 & Timeout & 3601.61 & Timeout\\ \hline
 f12 & 3600 & Timeout & 3599.27 & Timeout\\ \hline
 \end{tabular}
 \caption{Experiments on problems from LIP6}
+\label{exp:lip6}
 \end{center}
 \end{table}
 
