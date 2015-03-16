@@ -9,7 +9,7 @@ Vu Xuan Tung <tungvx@jaist.ac.jp>
 (set-info :status sat)
 (declare-fun a () Real)
 (declare-fun b () Real)
-(assert (= (+ (* a a) (* b b)) 2))
+(assert (= (+ (* a a) (* b b)) 3))
 (assert (= (* a b) 1))
 (check-sat)
 (exit)

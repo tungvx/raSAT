@@ -12,16 +12,14 @@ let check_equality polyCons varsSet varsIntvsMiniSATCodesMap =
     StringMap.add var (new IA.interval intv#l intv#l, miniSATCode) varsIntvsMiniSATCodesMap
   in
   let firstPoint = VariablesSet.fold getFirstPoint varsSet varsIntvsMiniSATCodesMap in
-  let sat = polyCons#check_sat_varsSen_setIsInfinite_setBounds_setEasiness firstPoint in
-  let firstBound = polyCons#get_iaValue in
+  let firstBound = polyCons#get_bound firstPoint in
   
   let getSecondPoint var varsIntvsMiniSATCodesMap = 
     let (intv, miniSATCode) = StringMap.find var varsIntvsMiniSATCodesMap in
     StringMap.add var (new IA.interval intv#h intv#h, miniSATCode) varsIntvsMiniSATCodesMap
   in
   let secondPoint = VariablesSet.fold getSecondPoint varsSet varsIntvsMiniSATCodesMap in
-  let sat = polyCons#check_sat_varsSen_setIsInfinite_setBounds_setEasiness secondPoint in
-  let secondBound = polyCons#get_iaValue in
+  let secondBound = polyCons#get_bound secondPoint in
  
   (* Intermediate theorem f(a) . f(b) < 0 ==> f(x) has a root between a and b *)
   (firstBound#h < 0. && secondBound#l > 0.) || (firstBound#l > 0. && secondBound#h < 0.)

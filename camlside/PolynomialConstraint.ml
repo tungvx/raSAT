@@ -121,6 +121,20 @@ class polynomialConstraint boolExprInit variablesSetInit =
       iaValue <- bound;
       sat
     
+    method get_bound (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) =
+      let add_intv (isInfinite, varsIntvsMap) var =
+        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
+      in
+      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+      let (_, bound, _) =
+        if isInfinite then 
+          self#check_sat_getBound_ici varsIntvsMap
+        else 
+          self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
+      in
+      bound
+    
     (* get length of SAT by af2 and ci *)
     method check_sat_get_satLength (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = 
       (*print_endline ("Start get length: " ^ self#to_string_infix);
