@@ -806,10 +806,10 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             else upperBound -. 10.
           else 
             if upperBound = infinity then lowerBound +. 10. 
-            else (*0.5 *. lowerBound +. 0.5 *. upperBound*)
-              if varSen = 0. || upperBound /. 2. -. lowerBound /. 2. <  esl then 0.5 *. lowerBound +. 0.5 *. upperBound
+            else 0.5 *. lowerBound +. 0.5 *. upperBound
+              (*if varSen = 0. || upperBound /. 2. -. lowerBound /. 2. <  esl then 0.5 *. lowerBound +. 0.5 *. upperBound
               else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl 
-              else lowerBound +. esl
+              else lowerBound +. esl*)
         in
         (*let newPoint =
           if polyCons#get_logic = "QF_NIA" then (
@@ -996,6 +996,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             (*(* (3) (4) box selection using number of unsat apis *)
             unsatCore ^ newLearntClauses*)
         in
+
         let miniSATCodesVarsIntvsMap = IntMap.add nextMiniSATCode (var, lowerIntv) miniSATCodesVarsIntvsMap in
         let miniSATCodesVarsIntvsMap = IntMap.add (nextMiniSATCode + 1) (var, upperIntv) miniSATCodesVarsIntvsMap in
         let newBumpedVars = 
@@ -1084,8 +1085,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     let (polyConstraints, varsIntvsMiniSATCodesMap) = getConsAndIntv solution nextMiniSATCode clausesNum miniSATCodesConstraintsMap miniSATCodesVarsIntvsMap [] StringMap.empty in
 
     (*let polyConstraints = List.rev polyConstraints in*)
-    (*print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
-    flush stdout;*)
+    print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
+    flush stdout;
     (*print_endline ("\nIntervals: " ^ string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout;*)
     let parsingTime = parsingTime +. Sys.time() -. startTime in
@@ -1144,7 +1145,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                else (false, uk_cl)
              in
                if isEqualitiesSAT then 
-                  (1, "", "", (*(allLog polyConstraints ia varsIntvsMiniSATCodesMap)*) "", (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), 
+                  (1, "", "", get_allLogs uk_cl, (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), 
                        "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
                else (
                   (*Applied for Dynamic interval decomposition*)

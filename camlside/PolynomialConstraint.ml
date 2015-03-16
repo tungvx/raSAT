@@ -32,6 +32,10 @@ class polynomialConstraint boolExprInit variablesSetInit =
     val mutable iaValue = new IA.interval 0. 0.
     val mutable logic = ""
     val mutable easiness = 0.
+    val mutable log = ""
+    
+    method get_log = log
+    method set_log setLog = log <- setLog
     
     method get_constraint = boolExpr
     
@@ -580,6 +584,13 @@ let rec string_postfix_of_constraints  = function
   | And(e1, e2) -> (string_postfix_of_constraints e1) ^ (string_postfix_of_constraints e2) ^ "and "
   | BOr(e1, e2) -> (string_postfix_of_constraints e1) ^ (string_postfix_of_constraints e2) ^ "or "
 (*==================== START string_postfix_of_constraints ==============================*)
+
+(*=== Function for getting logs of all constraints ===*)   
+let rec get_allLogs polyConstraints = match polyConstraints with
+  |[] -> ""
+  |polyCons::t->
+    polyCons#get_log ^ "\n" ^ (get_allLogs t)
+(*===== end of get_allLogs ======*)    
 
 
 (*=== Function for converting list of contraints to string of postfix form ===*)      

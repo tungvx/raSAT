@@ -566,6 +566,7 @@ int main(int argc, char* argv[]) {
 				cout << "please wait....\n";
 			//cout << "Run39" << endl;
 			while (check) {
+			  if (!isEquation) break;
 				//cout << "Run40" << endl;	
 				miniSATCalls++;
 				if (maxClauses < S.nClauses())

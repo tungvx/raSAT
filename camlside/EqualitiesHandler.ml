@@ -22,7 +22,22 @@ let check_equality polyCons varsSet varsIntvsMiniSATCodesMap =
   let secondBound = polyCons#get_bound secondPoint in
  
   (* Intermediate theorem f(a) . f(b) < 0 ==> f(x) has a root between a and b *)
-  (firstBound#h < 0. && secondBound#l > 0.) || (firstBound#l > 0. && secondBound#h < 0.)
+  if (firstBound#h < 0. && secondBound#l > 0.) || (firstBound#l > 0. && secondBound#h < 0.) then (
+    let get_log var (intv, miniSATCode) currentString =
+      if VariablesSet.mem var polyCons#get_varsSet then
+        if VariablesSet.mem var varsSet then 
+          var ^ " = " ^ (string_of_float intv#l) ^ " " ^ currentString
+        else
+          currentString ^ " " ^ var ^ " = " ^ intv#to_string
+      else currentString
+    in
+    let firstLog = StringMap.fold get_log firstPoint "" in
+    let secondLog = StringMap.fold get_log secondPoint "" in
+    let log = polyCons#to_string_infix ^ ":\n" ^ firstLog ^ ": " ^ firstBound#to_string ^ "\n" ^ secondLog ^ ": " ^ secondBound#to_string ^ "\n" in
+    polyCons#set_log log;
+    true
+  )
+  else false
 
 
 let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMiniSATCodesMap consideredVarsSet = 
