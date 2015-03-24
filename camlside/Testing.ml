@@ -232,6 +232,8 @@ let test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
   test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime)
   
   
-  
-  
-
+(*  
+(* incremental test *)  
+let rec test_incrementally polyConstraints varsIntvsMiniSATCodesMap remainingTime = match polyConstraints with
+  | [] -> ([], 1, [], varsTCsMap, 0)
+  | h::t -> *)

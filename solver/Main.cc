@@ -330,6 +330,7 @@ int main(int argc, char* argv[]) {
 
 	//get information for polynomial constraints: number of variables, constraints
 
+  double parsingStart = cpuTime();
 	//ebg -> form of minisat in string 
 	CAMLlocal3(satInfo, intvInfo, miniSATCodesConstraintsMap);
 	caml_register_global_root (&satInfo);
@@ -351,6 +352,7 @@ int main(int argc, char* argv[]) {
 //	cout << "isNotEquation: " << isNotEquation << endl;
 	caml_remove_global_root(&satInfo);
 
+  parsingTime = cpuTime() - parsingStart;
 //	cout << "Run8" << endl;
 	sfile = toFilein(argv[1]);
 	char * inFile = new char[sfile.size() + 1];
@@ -580,7 +582,7 @@ int main(int argc, char* argv[]) {
 				if (ret != l_True) {
 					check = false;
 				}
-
+        
 				miniSATTime += cpuTime() - miniSATStart;
 
 				if (ret == l_True) {
@@ -656,6 +658,7 @@ int main(int argc, char* argv[]) {
 					dummy.clear(true);
 //					cout << "Searched \n\n";
 					ocamlTime += cpuTime() - startCheck;
+					double miniSATStart = cpuTime();
 //					cout << "Check: " << cpuTime() - startCheck << endl;
 					//cout << "Run51" << endl;
 					int sat = Int_val(Field(theoCheck, 0));
@@ -762,6 +765,7 @@ int main(int argc, char* argv[]) {
 					fprintf(res, "INDET\n");
 					fclose(res);
 				}
+				miniSATTime += cpuTime() - miniSATStart;
 				//break; // force the loop to be executed once only
 			}							 // End while loop
 
@@ -780,6 +784,8 @@ int main(int argc, char* argv[]) {
 
 				// For theory result
 				double totalTime = cpuTime() - initial_time;
+				//if (totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime > 0)
+				  //miniSATTime += totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime;
 				char *sta = new char[1024];
 				if (debug)
 					printf(

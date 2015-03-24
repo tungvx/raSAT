@@ -121,7 +121,11 @@ class polynomialConstraint boolExprInit variablesSetInit =
         else 
           self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
       in
-      easiness <- satLength /. (bound#h -. bound#l);
+      let setEasiness = 
+        if satLength = infinity then 1.
+        else satLength /. (bound#h -. bound#l)
+      in
+      easiness <- setEasiness;
       iaValue <- bound;
       sat
     

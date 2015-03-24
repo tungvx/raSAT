@@ -698,14 +698,14 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
    |[] -> (res, us, uk_cl, validPolyConstraints, iaTime, usTime)
    |h::t -> 
       let startTime = Sys.time() in
-      (*print_endline ("\nStart check sat: " ^ h#to_string_infix);
-      flush stdout;*)
+      print_endline ("\nStart check sat: " ^ h#to_string_infix);
+      flush stdout;
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
       let res1 = h#check_sat_varsSen_setIsInfinite_setBounds_setEasiness varsIntvsMiniSATCodesMap in
-      (*print_endline ("Bounds: " ^ h#get_iaValue#to_string);
+      print_endline ("Bounds: " ^ h#get_iaValue#to_string);
       print_endline ("Easiness: " ^ string_of_float h#get_easiness);
-      flush stdout;*)
+      flush stdout;
       (*print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
 
       flush stdout;*)
@@ -757,8 +757,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
 
   (*Binary balance decomposition on intervals*)
   let dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap nextMiniSATCode polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
-    (*print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
-    flush stdout;*)
+    print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
+    flush stdout;
     let startTime = Sys.time() in
     let varsSet = polyCons#get_varsSet in
     let not_smallIntv intv =
@@ -821,9 +821,9 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
           )
           else newPoint
         in*)
-        (*print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
+        print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
         print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " - easiness: " ^ string_of_float polyCons#get_easiness ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;*)
+        flush stdout;
         let lowerIntv = 
           if polyCons#get_logic = "QF_NIA" && ceil lowerBound = floor newPoint then
             let tmpNewPoint = floor newPoint in
@@ -1154,12 +1154,12 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                   (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
 
                   let decomposedExpr = 
-                    if (is_boolExpr_equation (List.hd clTest_US)#get_constraint) then
+                    (*if (is_boolExpr_equation (List.hd clTest_US)#get_constraint) then
                       let firstInequation = first_inequation uk_cl in
                       match firstInequation with
                       |[] -> [List.hd unsatPolyConstraints]
                       | _ -> firstInequation
-                    else clTest_US
+                    else*) clTest_US
                   in
                   (*print_endline "decomposing";
                   print_endline(bool_expr_list_to_infix_string decomposedExpr);
