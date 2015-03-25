@@ -568,7 +568,7 @@ int main(int argc, char* argv[]) {
 				cout << "please wait....\n";
 			//cout << "Run39" << endl;
 			while (check) {
-			  if (!isEquation) break;
+			  //if (!isEquation) break;
 				//cout << "Run40" << endl;	
 				miniSATCalls++;
 				if (maxClauses < S.nClauses())
@@ -658,7 +658,7 @@ int main(int argc, char* argv[]) {
 					dummy.clear(true);
 //					cout << "Searched \n\n";
 					ocamlTime += cpuTime() - startCheck;
-					double miniSATStart = cpuTime();
+
 //					cout << "Check: " << cpuTime() - startCheck << endl;
 					//cout << "Run51" << endl;
 					int sat = Int_val(Field(theoCheck, 0));
@@ -765,7 +765,7 @@ int main(int argc, char* argv[]) {
 					fprintf(res, "INDET\n");
 					fclose(res);
 				}
-				miniSATTime += cpuTime() - miniSATStart;
+
 				//break; // force the loop to be executed once only
 			}							 // End while loop
 
@@ -784,8 +784,8 @@ int main(int argc, char* argv[]) {
 
 				// For theory result
 				double totalTime = cpuTime() - initial_time;
-				//if (totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime > 0)
-				  //miniSATTime += totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime;
+				if (totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime > 0)
+				  miniSATTime += totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime;
 				char *sta = new char[1024];
 				if (debug)
 					printf(
