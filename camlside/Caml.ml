@@ -9,6 +9,7 @@ open UnsatCore
 open Testing
 open Variable
 open PolynomialConstraint
+open Interval
 
 module Caml = struct
 
@@ -1071,6 +1072,14 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
   let dynTest (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode) miniSATCodesConstraintsMap clausesNum strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
+    let a = {low=0.1e+0309;high=0.1e+0309} in
+  let b = {low=0.;high=infinity} +$ a in
+  printf_I "%f" a;
+  print_newline();
+  printf_I "%f" b;
+  print_newline ();
+  Printf.printf "%e\n" (a.high -. a.low);
+  Printf.printf "%e\n" (b.high -. b.low);
     Random.self_init();
 		let startTime = Sys.time() in
 		(*print_endline ("Solution: " ^ strCheck);
