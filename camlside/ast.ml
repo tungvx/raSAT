@@ -3,6 +3,7 @@ open Util
 open IA
 open Assignments
 open Variable
+open Interval
 
 (* miniSAT expressions *)
 type miniSAT_expr =
@@ -259,13 +260,28 @@ let rec infIntervals_of_intervals intervals = match intervals with
 
   
 (* evalCI compute the bound of a polynomial function from an assignment ass by CI form*)
-let rec evalCI varsIntvsMap = function
+(*let rec evalCI varsIntvsMap = function
   | Real c -> new IA.interval c c
   | Var var -> StringMap.find var varsIntvsMap
   | Add ((u,_),(v,_)) -> IA.CI.(evalCI varsIntvsMap u + evalCI varsIntvsMap v)
   | Sub ((u,_),(v,_)) -> IA.CI.(evalCI varsIntvsMap u - evalCI varsIntvsMap v)
   | Mul ((u,_),(v,_)) -> IA.CI.(evalCI varsIntvsMap u * evalCI varsIntvsMap v)
   | Pow ((u,_),c) -> IA.CI.(evalCI varsIntvsMap u ^ c)
+*)  
+let rec evalCI_extra varsIntvsMap = function
+  | Real c -> {low = c; high = c}
+  | Var var -> 
+    let intv = StringMap.find var varsIntvsMap in
+    {low = intv#l; high = intv#h}
+  | Add ((u,_),(v,_)) -> evalCI_extra varsIntvsMap u +$ evalCI_extra varsIntvsMap v
+  | Sub ((u,_),(v,_)) -> evalCI_extra varsIntvsMap u -$ evalCI_extra varsIntvsMap v
+  | Mul ((u,_),(v,_)) -> evalCI_extra varsIntvsMap u *$ evalCI_extra varsIntvsMap v
+  | Pow ((u,_),c) -> pow_I_i (evalCI_extra varsIntvsMap u) c  
+  
+let rec evalCI varsIntvsMap polyExpr =
+  let computedIntv = evalCI_extra varsIntvsMap polyExpr in
+  new IA.interval (computedIntv.low) (computedIntv.high)
+  
 
 (* evalICI compute the bound of a polynomial function from an assignment ass by ICI form*)
 let rec evalICI varsIntvsMap = function

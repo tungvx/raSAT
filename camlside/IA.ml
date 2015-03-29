@@ -1,4 +1,6 @@
 (*Infinite float domains*)
+open Interval
+
 type bound = Float of float | Neg_inf | Pos_inf
 let eq a b = match a with
   |Float f1 -> (match b with
@@ -530,6 +532,225 @@ end
 (*---------------------------------------*)   
 (*The second affine form class denoted af2*)
 class af2 size = object (self)
+    val mutable a = {low = 0.; high = 0.}   (*coeff of free var*)
+    val mutable kp = 0.  (*coeff of epsilon+*)
+    val mutable kn = 0.  (*coeff of epsilon-*)
+    val mutable k = 0.   (*coeff of epsilon+-*)
+    val mutable ar = (Array.create size {low = 0.; high = 0.})  (*array of coeff of epsilon i*)
+
+    (*Get interface*)
+    method a = a
+    method kp = kp
+    method kn = kn
+    method k = k
+    method ar = ar
+
+    (*Set interface*)
+    method set_a a1 = a<-a1
+    method set_kp kp1 = kp<- abs_float (kp1) 
+    method set_kn kn1 = kn<- abs_float (kn1) 
+    method set_k k1 = k<- abs_float (k1) 
+    method set_ar ar1 = ar<-ar1
+
+    (*addition operator*)
+    method add (other: af2) = 
+      let size1 = Array.length self#ar in
+      let result = new af2 size1 in
+      result#set_a (self#a +$ other#a);
+      
+      let newKp = self#kp +.$ {low=0.;high=other#kp} in
+      result#set_kp newKp.high;
+      
+      let newKn = self#kn +.$ {low=0.;high=other#kn} in
+      result#set_kn newKn.high;
+      
+      let newK = self#k +.$ {low=0.;high=other#k} in
+      result#set_k newK.high;
+      
+      let nar = Array.create size1 {low=0.;high=0.} in
+      for i = 0 to size1 - 1 do
+        Array.set nar i (self#ar.(i) +$ other#ar.(i));
+
+      done;
+      result#set_ar nar;
+      
+      result;
+
+    (*subtraction operator*)
+    method sub (other: af2) = 
+      let size1 = Array.length self#ar in
+      let result = new af2 size1 in
+      
+      result#set_a (self#a -$ other#a);
+      
+      let newKp = self#kp +.$ {low=0.;high=other#kn} in
+      result#set_kp newKp.high;
+      
+      let newKn = self#kn +.$ {low=0.; high=other#kp} in
+      result#set_kn newKn.high;
+      
+      let newK = self#k +.$ {low=0.; high=other#k} in
+      result#set_k newK.high;
+      
+      let nar = Array.create size1 {low=0.;high=0.} in
+      for i = 0 to size1 - 1 do
+        Array.set nar i (self#ar.(i) -$ other#ar.(i));
+      done;
+      result#set_ar nar;
+      
+      result;
+
+    (*multiplication operator*)
+    method mul (other: af2) = 
+      let size1 = Array.length self#ar in
+      let result = new af2 size1 in
+      result#set_a (self#a *$ other#a);
+
+      let nar = Array.create size1 {low=0.;high=0.} in
+      for i = 0 to size1 - 1 do
+        Array.set nar i (self#ar.(i) *$ other#a +$ other#ar.(i) *$ self#a);
+      done;
+      result#set_ar nar;
+
+      let k1 = ref 0.0 in 
+      let k2 = ref 0.0 in
+      let k3 = ref 0.0 in
+
+      let tmpK2 = (self#kp *.$ {low=0.; high=other#kp}) +$ (self#kn *.$ {low=0.;high=other#kn}) in
+      k2 := tmpK2.high;
+      
+      let tmpK3 = (self#kp *.$ {low=0.;high=other#kn}) +$ (self#kn *.$ {low=0.;high=other#kp}) in
+      k3 := tmpK3.high;
+
+      let tmpK1 = (abs_I (self#a) *$. other#k) +$ (abs_I (other#a) *$. self#k) +$ (self#k *.$ {low=0.;high=other#k}) in
+      k1 := tmpK1.high;
+
+      if self#a.low > 0.0 then
+         (k2 := self#a*.other#kp;
+         k3 := self#a*.other#kn)
+      else if self#a.high < 0.0 then
+         (k2 := self#a*.other#kn;
+         k3 := self#a*.other#kp);
+      else 
+      ./raSAT Test/smtlib-20140121/QF_NRA/meti-tarski/Chua/1/VC1/L/Chua-1-VC1-L-chunk-0088.smt2 lb="-inf inf" sbox=0.0000000000000001
+         
+      if other#a > 0.0 then
+         (k2 := !k2+.other#a*.self#kp;
+         k3 := !k3+.other#a*.self#kn)
+      else
+         (k2 := !k2+.other#a*.self#kn;
+         k3 := !k3+.other#a*.self#kp);        
+
+for i = 0 to size1 - 1 do
+  k1 := !k1 +. abs_float(other#ar.(i))*.(self#k+.self#kp+.self#kn);
+  k1 := !k1 +. abs_float(self#ar.(i))*.(other#k+.other#kp+.other#kn);
+  for j = 0 to size1 -1 do
+    let tmp = self#ar.(i)*.other#ar.(j) in
+    if i<>j then
+             k1 := !k1 +.  abs_float tmp	    
+    else if tmp > 0.0 then
+       k2 := !k2 +. tmp
+          else 
+             k3 := !k3 -. tmp
+  done;
+done;
+result#set_kp !k2;
+
+result#set_kn !k3;
+result#set_k !k1;
+
+result;
+
+   (*multiplication with a coeff*)
+   method mul2 (c: float)=
+     let size1 = Array.length self#ar in
+     let result = new af2 size1 in
+     result#set_a (c*.self#a);
+     result#set_kp (abs_float(c)*.self#kp);
+     result#set_kn (abs_float(c)*.self#kn);
+     result#set_k (abs_float(c)*.self#k);
+     let ar1 = Array.create size1 0.0 in
+     for i = 0 to Array.length ar1 - 1 do
+      Array.set ar1 i (c*.ar.(i));
+     done;
+     result#set_ar ar1;
+     result;        
+   
+   (*Evaluate the bound*)
+    method evaluate =        
+     let lo = ref (self#a-.self#k-.self#kn) in
+     let hi = ref (self#a+.self#k+.self#kp) in
+
+     for i = 0 to Array.length self#ar - 1 do
+        lo := !lo -. abs_float(ar.(i));
+        hi := !hi +. abs_float(ar.(i));
+     done;
+
+     let result = new interval !lo !hi in
+     result;
+    
+    method extract_sortedVarsSens varsIndicesList = 
+      let rec insert_sort_varSen sortedVarsSensList (var, sen, isPositiveSen) =
+        match sortedVarsSensList with 
+          | [] -> [(var, sen, isPositiveSen)]
+          | (otherVar, otherSen, otherIsPositiveSen) :: remainings -> 
+            if sen > otherSen then (var, sen, isPositiveSen) :: sortedVarsSensList
+            else if sen < otherSen then (otherVar, otherSen, otherIsPositiveSen) :: (insert_sort_varSen remainings (var, sen, isPositiveSen))
+            else (* randomly sort them *)
+              if Random.bool () then (var, sen, isPositiveSen) :: sortedVarsSensList
+              else (otherVar, otherSen, otherIsPositiveSen) :: (insert_sort_varSen remainings (var, sen, isPositiveSen))
+      in
+      let rec rec_extract_varsSen varsIndicesList sortedSensVarsList = 
+        match varsIndicesList with
+          | [] -> sortedSensVarsList
+          | ((var:string), index)::remaining ->
+            (*print_endline ("Start getting sen at: " ^ string_of_int index);
+
+            flush stdout;*)
+            let varSen = Array.get ar index in
+            (*print_string (var ^ ": " ^ string_of_float varSen ^ " ");
+            flush stdout;*)
+            let positiveVarSen = abs_float varSen in
+            let isPositiveSen = varSen > 0. in
+            (*print_string (string_of_bool isPositiveSen);
+            flush stdout;*)
+            let newSortedVarsSensList = insert_sort_varSen sortedSensVarsList (var, positiveVarSen, isPositiveSen) in
+            rec_extract_varsSen remaining newSortedVarsSensList
+      in
+      (*let add_string_of_varSen oldString (var, sen) = 
+        oldString ^ " " ^ var ^ ": " ^ string_of_float sen
+
+      in
+      print_endline ("VarsSens: " ^ List.fold_left add_string_of_varSen "" (rec_extract_varsSen varsIndicesList []));
+      flush stdout;*)
+      rec_extract_varsSen varsIndicesList []
+             
+    
+    method printForm = 
+      Printf.printf "%f " a;
+for i = 1 to Array.length ar do
+ 	    Printf.printf "%fe%d " ar.(i-1) i
+done;
+Printf.printf "%fe+\n" kp;
+Printf.printf "%fe-\n" kn;
+Printf.printf "%fe+-\n" k;
+
+end 
+module AF2 = struct
+ let rec pow (t: af2) (n: int)= 
+    match n with
+    | 1 -> t
+    | _ -> t#mul (pow t (n-1))
+
+  let ( * ) (t1: af2) (t2: af2) = t1 #mul t2
+  let ( *@) (c: float)(t: af2)  = t #mul2 c
+  let ( + ) (t1: af2) (t2: af2) = t1 #add t2
+  let ( +@) (t: af2)  (c: float)= t #add2 c
+  let ( - ) (t1: af2) (t2: af2) = t1 #sub t2
+  let ( -@) (t: af2)  (c: float)= t #sub2 c
+  let ( ^ ) (t: af2)  (n: int)  = pow t n
+end
+(*class af2 size = object (self)
     val mutable a = (0.0: float)   (*coeff of free var*)
     val mutable kp = (0.0: float)  (*coeff of epsilon+*)
     val mutable kn = (0.0: float)  (*coeff of epsilon-*)
@@ -749,6 +970,8 @@ module AF2 = struct
   let ( -@) (t: af2)  (c: float)= t #sub2 c
   let ( ^ ) (t: af2)  (n: int)  = pow t n
 end
+*)
+
 
 (*---------------------------------------*)   
 (*The Chebyshev Approximation Form class denoted CAI1*)
@@ -1973,6 +2196,7 @@ result := !result#add (self#mul_k other#k);
      let result = ref (new interval 0.0 0.0) in
      
      result := self#a;
+
 
      for i = 0 to size - 1 do
   let idx = i + size in

@@ -766,7 +766,7 @@ int main(int argc, char* argv[]) {
 					fclose(res);
 				}
 
-				break; // force the loop to be executed once only
+				//break; // force the loop to be executed once only
 			}							 // End while loop
 
 			//cout << "finish while" << endl;
