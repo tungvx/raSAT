@@ -617,67 +617,74 @@ class af2 size = object (self)
       let k3 = ref 0.0 in
 
       let tmpK2 = (self#kp *.$ {low=0.; high=other#kp}) +$ (self#kn *.$ {low=0.;high=other#kn}) in
-      k2 := tmpK2.high;
+      k2 := (!k2 +.$ tmpK2).high;
       
       let tmpK3 = (self#kp *.$ {low=0.;high=other#kn}) +$ (self#kn *.$ {low=0.;high=other#kp}) in
-      k3 := tmpK3.high;
+      k3 := (!k3 +.$ tmpK3).high;
 
       let tmpK1 = (abs_I (self#a) *$. other#k) +$ (abs_I (other#a) *$. self#k) +$ (self#k *.$ {low=0.;high=other#k}) in
-      k1 := tmpK1.high;
+      k1 := (!k1 +.$ tmpK1).high;
 
-      if self#a.low > 0.0 then
-         (k2 := self#a*.other#kp;
-         k3 := self#a*.other#kn)
+      let tmpK2 = self#a *$. other#kp in
+      let tmpK3 = self#a *$. other#kn in
+      (if self#a.low > 0.0 then
+         (k2 := (!k2 +.$ tmpK2).high;
+         k3 := (!k3 +.$ tmpK3).high)
       else if self#a.high < 0.0 then
-         (k2 := self#a*.other#kn;
-         k3 := self#a*.other#kp);
-      else 
-      ./raSAT Test/smtlib-20140121/QF_NRA/meti-tarski/Chua/1/VC1/L/Chua-1-VC1-L-chunk-0088.smt2 lb="-inf inf" sbox=0.0000000000000001
-         
-      if other#a > 0.0 then
-         (k2 := !k2+.other#a*.self#kp;
-         k3 := !k3+.other#a*.self#kn)
+         (k2 := abs_float (tmpK3 -$. !k2).low;
+         k3 := abs_float (tmpK2 -$. !k3).low)
       else
-         (k2 := !k2+.other#a*.self#kn;
-         k3 := !k3+.other#a*.self#kp);        
+         (k2 := (!k2 +.$ tmpK2).high;
+         k2 := abs_float (tmpK3 -$. !k2).low;
+         
+         k3 := abs_float (tmpK2 -$. !k3).low;
+         k3 := (!k3 +.$ tmpK3).high)
+      );
+         
+      let tmpK2 = other#a *$. self#kp in
+      let tmpK3 = other#a *$. self#kn in   
+      (if other#a.low > 0. then
+        (k2 := (!k2 +.$ tmpK2).high;
+         k3 := (!k3 +.$ tmpK3).high)
+      else if other#a.high < 0. then
+         (k2 := abs_float (tmpK3 -$. !k2).low;
+         k3 := abs_float (tmpK2 -$. !k3).low)
+      else 
+        (k2 := (!k2 +.$ tmpK2).high;
+         k2 := abs_float (tmpK3 -$. !k2).low;
+         
+         k3 := abs_float (tmpK2 -$. !k3).low;
+         k3 := (!k3 +.$ tmpK3).high)
+      );
 
-for i = 0 to size1 - 1 do
-  k1 := !k1 +. abs_float(other#ar.(i))*.(self#k+.self#kp+.self#kn);
-  k1 := !k1 +. abs_float(self#ar.(i))*.(other#k+.other#kp+.other#kn);
-  for j = 0 to size1 -1 do
-    let tmp = self#ar.(i)*.other#ar.(j) in
-    if i<>j then
-             k1 := !k1 +.  abs_float tmp	    
-    else if tmp > 0.0 then
-       k2 := !k2 +. tmp
-          else 
-             k3 := !k3 -. tmp
-  done;
-done;
-result#set_kp !k2;
+    for i = 0 to size1 - 1 do
+      k1 := (!k1 +.$ (abs_I(other#ar.(i)) *$. self#k) +$ (abs_I(other#ar.(i)) *$. self#kp) +$ (abs_I(other#ar.(i)) *$. self#kn)).high;
+      k1 := (!k1 +.$ (abs_I(self#ar.(i)) *$. other#k ) +$ (abs_I(self#ar.(i)) *$. other#kp) +$ (abs_I(self#ar.(i)) *$. other#kn)).high;
+      for j = 0 to size1 -1 do
+        let tmp = self#ar.(i) *$ other#ar.(j) in
+        if i<>j then
+          k1 := (!k1 +.$  abs_I tmp).high
+        else if tmp.low > 0. then
+          k2 := (!k2 +.$ tmp).high
+        else if tmp.high < 0. then
+          k3 := abs_float (tmp -$. !k3).low
+        else
+          (
+          k2 := (!k2 +.$ tmp).high;
+          k3 := abs_float (tmp -$. !k3).low
+          )
+      done;
+    done;
+    result#set_kp !k2;
 
-result#set_kn !k3;
-result#set_k !k1;
+    result#set_kn !k3;
+    result#set_k !k1;
 
-result;
-
-   (*multiplication with a coeff*)
-   method mul2 (c: float)=
-     let size1 = Array.length self#ar in
-     let result = new af2 size1 in
-     result#set_a (c*.self#a);
-     result#set_kp (abs_float(c)*.self#kp);
-     result#set_kn (abs_float(c)*.self#kn);
-     result#set_k (abs_float(c)*.self#k);
-     let ar1 = Array.create size1 0.0 in
-     for i = 0 to Array.length ar1 - 1 do
-      Array.set ar1 i (c*.ar.(i));
-     done;
-     result#set_ar ar1;
-     result;        
+    result;       
    
    (*Evaluate the bound*)
-    method evaluate =        
+    method evaluate =    
+      let intv = ref (self#a +$ {low= ~-.self#k;high=self#k} +$ {low= ~-.self#kn;high=self#kp}) in    
      let lo = ref (self#a-.self#k-.self#kn) in
      let hi = ref (self#a+.self#k+.self#kp) in
 
