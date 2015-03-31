@@ -382,6 +382,10 @@ let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap =
   let add_varAf2Index var (varsAf2sMap, varsIndicesList, nextIndex) =
     let intv = StringMap.find var varsIntvsMap in
     let af2 = Util.toAf2 intv nextIndex varsNum in
+    (*print_string ("Af2 of " ^ var ^ " in " ^ intv#to_string ^ "is ");
+    af2#print_form;
+    print_string "\n";
+    flush stdout;*)
     (StringMap.add var af2 varsAf2sMap, (var, nextIndex-1)::varsIndicesList, nextIndex + 1)
   in
   let (varsAf2Map, varsIndicesList, _) = VariablesSet.fold add_varAf2Index varsSet (StringMap.empty, [], 1) in
@@ -391,6 +395,7 @@ let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap =
   in
   List.iter print_var_index varsIndicesList;*)
   let res = evalAf2 varsAf2Map varsNum polyExpr in
+  res#print_form;
   let varsSensitivity = res#extract_sortedVarsSens varsIndicesList in
   (res#evaluate, varsSensitivity)
 

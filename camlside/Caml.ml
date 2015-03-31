@@ -699,8 +699,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
    |[] -> (res, us, uk_cl, validPolyConstraints, iaTime, usTime)
    |h::t -> 
       let startTime = Sys.time() in
-      (*print_endline ("\nStart check sat: " ^ h#to_string_infix);
-      flush stdout;*)
+      print_endline ("\nStart check sat: " ^ h#to_string_infix);
+      flush stdout;
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
       let res1 = h#check_sat_varsSen_setIsInfinite_setBounds_setEasiness varsIntvsMiniSATCodesMap in

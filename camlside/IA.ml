@@ -554,6 +554,11 @@ class af2 size = object (self)
 
     (*addition operator*)
     method add (other: af2) = 
+      (*print_endline "\nAdding: ";
+      self#print_form;
+      print_endline "\nwith";
+      other#print_form;*)
+      
       let size1 = Array.length self#ar in
       let result = new af2 size1 in
       result#set_a (self#a +$ other#a);
@@ -574,10 +579,18 @@ class af2 size = object (self)
       done;
       result#set_ar nar;
       
+      (*print_endline "\nresult:";
+      result#print_form;*)
+      
       result;
 
     (*subtraction operator*)
     method sub (other: af2) = 
+      (*print_endline "\nSubtracting: ";
+      self#print_form;
+      print_endline "\nwith";
+      other#print_form;*)
+      
       let size1 = Array.length self#ar in
       let result = new af2 size1 in
       
@@ -598,10 +611,18 @@ class af2 size = object (self)
       done;
       result#set_ar nar;
       
+      (*print_endline "\nresult:";
+      result#print_form;*)
+      
       result;
 
     (*multiplication operator*)
     method mul (other: af2) = 
+      (*print_endline "\nMultiplying: ";
+      self#print_form;
+      print_endline "\nwith";
+      other#print_form;*)
+      
       let size1 = Array.length self#ar in
       let result = new af2 size1 in
       result#set_a (self#a *$ other#a);
@@ -679,22 +700,34 @@ class af2 size = object (self)
 
     result#set_kn !k3;
     result#set_k !k1;
-
+    
+    (*print_endline "\nresult:";
+    result#print_form;
+    flush stdout;*)
+    
     result;       
    
    (*Evaluate the bound*)
     method evaluate =    
-      let intv = ref (self#a +$ {low= ~-.self#k;high=self#k} +$ {low= ~-.self#kn;high=self#kp}) in    
-     let lo = ref (self#a-.self#k-.self#kn) in
-     let hi = ref (self#a+.self#k+.self#kp) in
+      let intv = ref (self#a +$ {low = (~-.) self#k;high=self#k} +$ {low= (~-.) self#kn;high=self#kp}) in
+      
+      for i = 0 to Array.length self#ar - 1 do
+        intv := !intv +$ {low= (~-.) (abs_I ar.(i)).high; high = (abs_I ar.(i)).high};
+      done;
 
-     for i = 0 to Array.length self#ar - 1 do
-        lo := !lo -. abs_float(ar.(i));
-        hi := !hi +. abs_float(ar.(i));
-     done;
-
-     let result = new interval !lo !hi in
+     let result = new interval !intv.low !intv.high in
      result;
+    
+    method print_form = 
+      print_string "a: ";
+      print_I self#a;
+      for i = 0 to Array.length self#ar - 1 do
+        print_I ar.(i)
+      done;
+      print_string ("kp: " ^ string_of_float kp ^ ", kn: " ^ string_of_float kn ^ ", k: " ^ string_of_float k ^ " ");
+      print_string "output: ";
+      print_endline self#evaluate#to_string;
+      flush stdout;
     
     method extract_sortedVarsSens varsIndicesList = 
       let rec insert_sort_varSen sortedVarsSensList (var, sen, isPositiveSen) =
@@ -714,9 +747,11 @@ class af2 size = object (self)
             (*print_endline ("Start getting sen at: " ^ string_of_int index);
 
             flush stdout;*)
-            let varSen = Array.get ar index in
-            (*print_string (var ^ ": " ^ string_of_float varSen ^ " ");
-            flush stdout;*)
+            let intv = Array.get ar index in
+            let varSen = (intv.low +. intv.high) /. 2. in
+            print_string (var ^ ": ");
+            print_I intv;
+            flush stdout;
             let positiveVarSen = abs_float varSen in
             let isPositiveSen = varSen > 0. in
             (*print_string (string_of_bool isPositiveSen);
@@ -731,18 +766,8 @@ class af2 size = object (self)
       print_endline ("VarsSens: " ^ List.fold_left add_string_of_varSen "" (rec_extract_varsSen varsIndicesList []));
       flush stdout;*)
       rec_extract_varsSen varsIndicesList []
-             
-    
-    method printForm = 
-      Printf.printf "%f " a;
-for i = 1 to Array.length ar do
- 	    Printf.printf "%fe%d " ar.(i-1) i
-done;
-Printf.printf "%fe+\n" kp;
-Printf.printf "%fe-\n" kn;
-Printf.printf "%fe+-\n" k;
-
 end 
+
 module AF2 = struct
  let rec pow (t: af2) (n: int)= 
     match n with
@@ -750,11 +775,8 @@ module AF2 = struct
     | _ -> t#mul (pow t (n-1))
 
   let ( * ) (t1: af2) (t2: af2) = t1 #mul t2
-  let ( *@) (c: float)(t: af2)  = t #mul2 c
   let ( + ) (t1: af2) (t2: af2) = t1 #add t2
-  let ( +@) (t: af2)  (c: float)= t #add2 c
   let ( - ) (t1: af2) (t2: af2) = t1 #sub t2
-  let ( -@) (t: af2)  (c: float)= t #sub2 c
   let ( ^ ) (t: af2)  (n: int)  = pow t n
 end
 (*class af2 size = object (self)
