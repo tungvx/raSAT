@@ -212,8 +212,8 @@ class polynomialConstraint boolExprInit variablesSetInit =
           )
           else []
       in
-      get_n_first varsSen n (*(8)*)
-      (*get_n_random varsSen n*) (*(9)*)
+      (*get_n_first varsSen n (*(8)*)*)
+      get_n_random varsSen n (*(9)*)
     
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
@@ -515,8 +515,8 @@ class polynomialConstraint boolExprInit variablesSetInit =
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)
-      (*generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true*)
+      (*generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)*)
+      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
 

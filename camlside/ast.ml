@@ -395,7 +395,7 @@ let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap =
   in
   List.iter print_var_index varsIndicesList;*)
   let res = evalAf2 varsAf2Map varsNum polyExpr in
-  res#print_form;
+  (*res#print_form;*)
   let varsSensitivity = res#extract_sortedVarsSens varsIndicesList in
   (res#evaluate, varsSensitivity)
 
