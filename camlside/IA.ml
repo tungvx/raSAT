@@ -639,60 +639,117 @@ class af2 size = object (self)
 
       let tmpK2 = (self#kp *.$ {low=0.; high=other#kp}) +$ (self#kn *.$ {low=0.;high=other#kn}) in
       k2 := (!k2 +.$ tmpK2).high;
+      (*Printf.printf "K2: %f\n" !k2;*)
       
       let tmpK3 = (self#kp *.$ {low=0.;high=other#kn}) +$ (self#kn *.$ {low=0.;high=other#kp}) in
       k3 := (!k3 +.$ tmpK3).high;
+      (*Printf.printf "K3: %f\n" !k3;*)
 
-      let tmpK1 = (abs_I (self#a) *$. other#k) +$ (abs_I (other#a) *$. self#k) +$ (self#k *.$ {low=0.;high=other#k}) in
+      let tmpK1 = 
+        (abs_I (self#a) *$. other#k) +$ (abs_I (other#a) *$. self#k) +$ (self#k *.$ {low=0.;high=other#k}) +$ (self#kp *.$ {low=other#k;high=other#k})
+        +$ (self#kn *.$ {low=other#k;high=other#k}) +$ (self#k *.$ {low=other#kp;high=other#kp}) +$ (self#k *.$ {low=other#kn;high=other#kn})
+      in
       k1 := (!k1 +.$ tmpK1).high;
+      (*Printf.printf "K1: %f\n" !k1;*)
 
       let tmpK2 = self#a *$. other#kp in
       let tmpK3 = self#a *$. other#kn in
+      (*k2 := 2.;
+      k3 := 2.;*)
       (if self#a.low > 0.0 then
          (k2 := (!k2 +.$ tmpK2).high;
-         k3 := (!k3 +.$ tmpK3).high)
+         (*Printf.printf "K2: %f\n" !k2;*)
+         k3 := (!k3 +.$ tmpK3).high(*;
+         Printf.printf "K3: %f\n" !k3;*))
       else if self#a.high < 0.0 then
          (k2 := abs_float (tmpK3 -$. !k2).low;
-         k3 := abs_float (tmpK2 -$. !k3).low)
+         (*Printf.printf "K2: %f\n" !k2;*)
+         k3 := abs_float (tmpK2 -$. !k3).low(*;
+         Printf.printf "K3: %f\n" !k3;*))
       else
          (k2 := (!k2 +.$ tmpK2).high;
+         (*Printf.printf "K2: %f\n" !k2;*)
+         (*k2 := 2.;*)
          k2 := abs_float (tmpK3 -$. !k2).low;
+         (*Printf.printf "K2: %f\n" !k2;*)
          
          k3 := abs_float (tmpK2 -$. !k3).low;
-         k3 := (!k3 +.$ tmpK3).high)
+         (*Printf.printf "K3: %f\n" !k3;
+         k3 := 2.;*)
+         k3 := (!k3 +.$ tmpK3).high(*;
+         Printf.printf "K3: %f\n" !k3*))
       );
          
       let tmpK2 = other#a *$. self#kp in
       let tmpK3 = other#a *$. self#kn in   
+      (*k2 := 2.;
+      k3 := 2.;*)
       (if other#a.low > 0. then
         (k2 := (!k2 +.$ tmpK2).high;
-         k3 := (!k3 +.$ tmpK3).high)
+        (*Printf.printf "K2: %f\n" !k2;*)
+         k3 := (!k3 +.$ tmpK3).high(*;
+         Printf.printf "K3: %f\n" !k3;*))
       else if other#a.high < 0. then
          (k2 := abs_float (tmpK3 -$. !k2).low;
-         k3 := abs_float (tmpK2 -$. !k3).low)
+         (*Printf.printf "K2: %f\n" !k2;*)
+         k3 := abs_float (tmpK2 -$. !k3).low(*;
+         Printf.printf "K3: %f\n" !k3*))
       else 
         (k2 := (!k2 +.$ tmpK2).high;
+         (*Printf.printf "K2: %f\n" !k2;
+         k2 := 2.;*)
          k2 := abs_float (tmpK3 -$. !k2).low;
+         (*Printf.printf "K2: %f\n" !k2;*)
          
          k3 := abs_float (tmpK2 -$. !k3).low;
-         k3 := (!k3 +.$ tmpK3).high)
+         (*Printf.printf "K3: %f\n" !k3;
+         k3 := 2.;*)
+         k3 := (!k3 +.$ tmpK3).high(*;
+         Printf.printf "K3: %f\n" !k3*))
       );
 
     for i = 0 to size1 - 1 do
+      (*k1 := 2.;*)
       k1 := (!k1 +.$ (abs_I(other#ar.(i)) *$. self#k) +$ (abs_I(other#ar.(i)) *$. self#kp) +$ (abs_I(other#ar.(i)) *$. self#kn)).high;
-      k1 := (!k1 +.$ (abs_I(self#ar.(i)) *$. other#k ) +$ (abs_I(self#ar.(i)) *$. other#kp) +$ (abs_I(self#ar.(i)) *$. other#kn)).high;
+      (*print_I (abs_I(other#ar.(i)));
+      Printf.printf "K: %f\n" self#k;
+      print_I (abs_I(other#ar.(i)) *$. self#k);
+      print_I (abs_I(other#ar.(i)) *$. self#kp);
+      print_I (abs_I(other#ar.(i)) *$. self#kn);*)
+      (*Printf.printf "K1: %f\n" !k1;*)
+      
+      (*k1 := 2.;*)
+      k1 := (!k1 +.$ (abs_I(self#ar.(i)) *$. other#k) +$ (abs_I(self#ar.(i)) *$. other#kp) +$ (abs_I(self#ar.(i)) *$. other#kn)).high;
+      (*print_I (abs_I(self#ar.(i)) *$. other#k);
+      print_I (abs_I(self#ar.(i)) *$. other#kp);
+      print_I (abs_I(self#ar.(i)) *$. other#kn);*)
+      (*Printf.printf "K1: %f\n" !k1;*)
       for j = 0 to size1 -1 do
         let tmp = self#ar.(i) *$ other#ar.(j) in
         if i<>j then
-          k1 := (!k1 +.$  abs_I tmp).high
+          ((*k1 := 2.;*)
+          (*print_I tmp;*)
+          k1 := (!k1 +.$  abs_I tmp).high;
+          (*Printf.printf "K1: %f\n" !k1;*)
+          )
         else if tmp.low > 0. then
-          k2 := (!k2 +.$ tmp).high
+          (*
+          k2 := 2.;*)
+          k2 := (!k2 +.$ tmp).high(*;
+          Printf.printf "K2: %f\n" !k2;
+          *)
         else if tmp.high < 0. then
-          k3 := abs_float (tmp -$. !k3).low
+          (*k3 := 2.;*)
+          k3 := abs_float (tmp -$. !k3).low(*;
+          Printf.printf "K3: %f\n" !k3*)
         else
           (
+          (*k2 := 2.;
+          k3 := 2.;*)
           k2 := (!k2 +.$ tmp).high;
-          k3 := abs_float (tmp -$. !k3).low
+          (*Printf.printf "K2: %f\n" !k2;*)
+          k3 := abs_float (tmp -$. !k3).low;
+          (*Printf.printf "K3: %f\n" !k3*)
           )
       done;
     done;
@@ -724,9 +781,9 @@ class af2 size = object (self)
       for i = 0 to Array.length self#ar - 1 do
         print_I ar.(i)
       done;
-      print_string ("kp: " ^ string_of_float kp ^ ", kn: " ^ string_of_float kn ^ ", k: " ^ string_of_float k ^ " ");
+      Printf.printf "kp: %f, kn: %f, k: %f, " kp kn k;
       print_string "output: ";
-      print_endline self#evaluate#to_string;
+      self#evaluate#printForm;
       flush stdout;
     
     method extract_sortedVarsSens varsIndicesList = 
@@ -749,9 +806,9 @@ class af2 size = object (self)
             flush stdout;*)
             let intv = Array.get ar index in
             let varSen = (intv.low +. intv.high) /. 2. in
-            print_string (var ^ ": ");
+            (*print_string (var ^ ": ");
             print_I intv;
-            flush stdout;
+            flush stdout;*)
             let positiveVarSen = abs_float varSen in
             let isPositiveSen = varSen > 0. in
             (*print_string (string_of_bool isPositiveSen);
@@ -772,7 +829,8 @@ module AF2 = struct
  let rec pow (t: af2) (n: int)= 
     match n with
     | 1 -> t
-    | _ -> t#mul (pow t (n-1))
+    | 2 -> t#mul t
+    | _ -> (t#mul t)#mul (pow t (n-2))
 
   let ( * ) (t1: af2) (t2: af2) = t1 #mul t2
   let ( + ) (t1: af2) (t2: af2) = t1 #add t2
@@ -1586,6 +1644,7 @@ done;
 result#set_m2 ma2;
 
 let ma3 = (Array.make_matrix size size (new interval 0.0 0.0)) in
+
 for i=0 to size-2 do
   for j=i+1 to size-1 do
     ma3.(i).(j) <- CI.(self#m3.(i).(j) * c)

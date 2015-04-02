@@ -9,7 +9,7 @@ open UnsatCore
 open Testing
 open Variable
 open PolynomialConstraint
-
+open Interval
 
 module Caml = struct
 
@@ -1072,6 +1072,29 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
   let dynTest (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode) miniSATCodesConstraintsMap clausesNum strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
+    (*let tmp1 = new af2 2 in
+    tmp1#set_a {low= (~-.) 75.;high= (~-.) 75.};
+    let nar = Array.create 2 {low=0.;high=0.} in
+    Array.set nar 0 {low=(~-.)200.;high=(~-.)200.};
+    Array.set nar 1 {low=(~-.)75.;high=(~-.)75.};
+    tmp1#set_ar nar;
+    tmp1#set_kp 50.;
+    tmp1#set_kn 125.;
+    tmp1#set_k 375.;
+    
+    let tmp2 = new af2 2 in
+    tmp2#set_a {low=(~-.)3.e20;high=1.e20};
+    let nar = Array.create 2 {low=0.;high=0.} in
+    Array.set nar 0 {low=5.e20	;high=6.e20};
+    Array.set nar 1 {low=2.e20;high=3.e20};
+    tmp2#set_ar nar;
+    tmp2#set_kp 3.e20;
+    tmp2#set_kn 1.e20;
+    tmp2#set_k 3.;
+    
+    let tmp = tmp1#mul tmp1 in
+    tmp#print_form;*)
+    
     Random.self_init();
 		let startTime = Sys.time() in
 		(*print_endline ("Solution: " ^ strCheck);
