@@ -46,6 +46,14 @@ and get_varsSet_polyExpr = function
   | Real f -> VariablesSet.empty
   | Var var -> VariablesSet.singleton var
 
+and not_of_polyConstraint = function 
+  | Eq polyExpr -> Neq polyExpr
+  | Neq polyExpr -> Eq polyExpr
+  | Geq polyExpr -> Le polyExpr
+  | Leq polyExpr -> Gr polyExpr
+  | Gr polyExpr -> Leq polyExpr
+  | Le polyExpr -> Geq polyExpr
+
 (* This function convert the cnf miniSAT expression into string under the format of miniSAT input *)
 let rec string_of_cnf_miniSATExpr cnfMiniSATExpr isFinal = match cnfMiniSATExpr with
   | Lit i -> 

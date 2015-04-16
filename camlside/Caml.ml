@@ -180,6 +180,18 @@ and get_add_poly = function
   | [poly] -> poly
   | [poly1; poly2] -> Add(poly1, poly2)
   | poly1::poly2::remainingPolys -> Add(Add(poly1, poly2), get_mul_poly remainingPolys)
+  
+and get_div_poly = function
+  | [] -> raise (Failure "Need arguments for addition") 
+  | [poly] -> poly
+  | [poly1; poly2] -> Div(poly1, poly2)
+  | poly1::poly2::remainingPolys -> Div(Div(poly1, poly2), get_mul_poly remainingPolys)
+
+and get_minus_poly = function
+  | [] -> raise (Failure "Need arguments for addition") 
+  | [poly] -> poly
+  | [poly1; poly2] -> Sub(poly1, poly2)
+  | poly1::poly2::remainingPolys -> Sub(Sub(poly1, poly2), get_mul_poly remainingPolys)     
 
 and get_poly_term varBindings = function 
   |TermSpecConst (_ , specReal1) ->  
@@ -194,8 +206,14 @@ and get_poly_term varBindings = function
     else if qualidentifier_string = "+" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       get_add_poly polys  
-    else Real ((~-.) 1.)
-  | _ -> Real ((~-.) 1.)
+    else if qualidentifier_string = "/" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      get_div_poly polys
+    else if qualidentifier_string = "-" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      get_minus_poly polys
+    else raise (Failure "Undefined Function Symbols")
+  | _ -> raise (Failure "Undefined Suported Function Symbols")
    (*|TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  print_string "(";print_string " "; print_string "let";print_string " "; print_string "(";print_string " "; pp_termletterm_term_varbinding58 termletterm_term_varbinding584;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
    |TermForAllTerm (_ , termforallterm_term_sortedvar604 , term6) ->  print_string "(";print_string " "; print_string "forall";print_string " "; print_string "(";print_string " "; pp_termforallterm_term_sortedvar60 termforallterm_term_sortedvar604;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
    |TermExistsTerm (_ , termexiststerm_term_sortedvar624 , term6) ->  print_string "(";print_string " "; print_string "exists";print_string " "; print_string "(";print_string " "; pp_termexiststerm_term_sortedvar62 termexiststerm_term_sortedvar624;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
@@ -255,7 +273,15 @@ and get_constraint_term varBindings = function
       let constraints = get_constraints_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       let andConstraint = get_and_constraint constraints in
       [andConstraint]
-    else []
+    else if qualidentifier_string = "or" then
+      let constraints = get_constraints_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let orConstraint = get_or_constraint constraints in
+      [orConstraint]
+    else if qualidentifier_string = "not" then
+      let constraints = get_constraints_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let notConstraint = get_not_constraint constraints in
+      [notConstraint]
+    else raise (Failure "Undefined predicate symbols")
   |TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  
     let varBindings = get_let_termletterm_term_varbinding58 varBindings termletterm_term_varbinding584 in
     get_constraint_term varBindings term6
@@ -266,6 +292,17 @@ and get_and_constraint = function
   | [constraint1] -> constraint1
   | [constraint1; constraint2] -> And(constraint1, constraint2)
   | constraint1 :: constraint2 :: remainingConstraints -> And(And(constraint1, constraint2), get_and_constraint remainingConstraints)
+  
+and get_or_constraint = function 
+  | [] -> raise (Failure "Need arguments for or") 
+  | [constraint1] -> constraint1
+  | [constraint1; constraint2] -> Or(constraint1, constraint2)
+  | constraint1 :: constraint2 :: remainingConstraints -> Or(Or(constraint1, constraint2), get_and_constraint remainingConstraints)  
+
+and get_not_constraint = function 
+  | [] -> raise (Failure "Need arguments for not") 
+  | [constraint1] -> not_of_boolCons constraint1
+  | _ -> raise (Failure "Extra arguments for not") 
 
 and get_let_termletterm_term_varbinding58 varBindings = function
   |(_,[]) -> varBindings
