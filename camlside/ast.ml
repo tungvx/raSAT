@@ -14,20 +14,37 @@ type miniSAT_expr =
 
 (*raSAT expression*)
 type poly_expr = 
-  | Add of (poly_expr * VariablesSet.t) * (poly_expr * VariablesSet.t)
-  | Sub of (poly_expr * VariablesSet.t) * (poly_expr * VariablesSet.t)
-  | Mul of (poly_expr * VariablesSet.t) * (poly_expr * VariablesSet.t)
-  | Pow of (poly_expr * VariablesSet.t) * int
+  | Add of poly_expr * poly_expr
+  | Sub of poly_expr * poly_expr
+  | Mul of poly_expr * poly_expr
+  | Div of poly_expr * poly_expr
   | Real of float
   | Var of string
 
-type bool_expr = 
+type poly_constraint = 
   | Eq of poly_expr
   | Neq of poly_expr
   | Geq of poly_expr
   | Leq of poly_expr
   | Gr of poly_expr
   | Le of poly_expr
+
+
+(* get varsSet of a polynomial constraint*)
+let rec get_varsSet_polyCons = function 
+  | Eq polyExpr -> get_varsSet_polyExpr polyExpr
+  | Neq polyExpr -> get_varsSet_polyExpr polyExpr
+  | Geq polyExpr -> get_varsSet_polyExpr polyExpr
+  | Leq polyExpr -> get_varsSet_polyExpr polyExpr
+  | Gr polyExpr -> get_varsSet_polyExpr polyExpr
+  | Le polyExpr -> get_varsSet_polyExpr polyExpr
+and get_varsSet_polyExpr = function
+  | Add (polyExpr1, polyExpr2) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Sub (polyExpr1, polyExpr2) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Mul (polyExpr1, polyExpr2) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Div (polyExpr1, polyExpr2) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Real f -> VariablesSet.empty
+  | Var var -> VariablesSet.singleton var
 
 (* This function convert the cnf miniSAT expression into string under the format of miniSAT input *)
 let rec string_of_cnf_miniSATExpr cnfMiniSATExpr isFinal = match cnfMiniSATExpr with
@@ -70,10 +87,9 @@ let rec cnf_of_miniSATExpr miniSATExpr = match miniSATExpr with
 	match  smtPolynomial with
 	| Real c -> Real 0.
 	| Var x -> if x = var then Real 1. else Real 0.
-	| Add((e1,_), (e2,_)) -> Add(getDerivative e1 var, getDerivative e2 var)
-	| Sub((e1,_), (e2,_)) -> Sub(getDerivative e1 var, getDerivative e2 var)
-	| Mul((e1,_), (e2,_)) -> Add(Mul(getDerivative e1 var, e2), Mul(e1, getDerivative e2 var))
-	| Pow(e, n)  -> Mul(getDerivative e var, Mul(Real (float n), Pow(e, n - 1)))
+	| Add(e1, e2) -> Add(getDerivative e1 var, getDerivative e2 var)
+	| Sub(e1, e2) -> Sub(getDerivative e1 var, getDerivative e2 var)
+	| Mul(e1, e2) -> Add(Mul(getDerivative e1 var, e2), Mul(e1, getDerivative e2 var))
 *)
 
 (* get the left expression of comparision operators*)
@@ -90,11 +106,9 @@ let get_exp = function
 let rec evalFloat varsTCMap = function
 	| Real c -> c
 	| Var v -> StringMap.find v varsTCMap
-	| Pow ((u,_),1) -> evalFloat varsTCMap u 
-	| Add ((u,_),(v,_)) -> evalFloat varsTCMap u +. evalFloat varsTCMap v
-	| Sub ((u,_),(v,_)) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
-	| Mul ((u,_),(v,_)) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
-	| Pow ((u,varsSet),c) -> evalFloat varsTCMap u *. evalFloat varsTCMap (Pow ((u,varsSet), c-1))
+	| Add (u,v) -> evalFloat varsTCMap u +. evalFloat varsTCMap v
+	| Sub (u,v) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
+	| Mul (u,v) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
@@ -126,10 +140,9 @@ let checkSAT_computeValues boolExp varsTCsMap =
 (* This function converts a polynomial expression into infix string form *)
 let rec string_infix_of_polyExpr = function
   | Var x -> x
-	| Add((e1,_), (e2,_)) -> (string_infix_of_polyExpr e1) ^ "+" ^ (string_infix_of_polyExpr e2)
-	| Sub((e1,_), (e2,_)) -> (string_infix_of_polyExpr e1) ^ "-" ^ (string_infix_of_polyExpr e2)
-	| Mul((e1,_), (e2,_)) -> (string_infix_of_polyExpr e1) ^ "*" ^ (string_infix_of_polyExpr e2)
-	| Pow((e1,_), n)  -> (string_infix_of_polyExpr e1) ^ "^" ^ (string_of_int n)
+	| Add(e1, e2) -> (string_infix_of_polyExpr e1) ^ "+" ^ (string_infix_of_polyExpr e2)
+	| Sub(e1, e2) -> (string_infix_of_polyExpr e1) ^ "-" ^ (string_infix_of_polyExpr e2)
+	| Mul(e1, e2) -> (string_infix_of_polyExpr e1) ^ "*" ^ (string_infix_of_polyExpr e2)
 	| Real r -> string_of_float r
 (*==================== END string_infix_of_polyExpr ==============================*)	
 
@@ -166,10 +179,9 @@ let rec string_infix_of_boolExp boolExpr =
 let rec string_prefix_of_polyExp = function
   | Real c -> string_of_float c
   | Var x -> x
-  | Add ((e1,_), (e2,_)) -> "(+ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
-  | Sub ((e1,_), (e2,_)) -> "(- " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
-  | Mul ((e1,_), (e2,_)) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
-  | Pow ((e1,_), n)  -> "(^ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_of_int n)  ^ ")"
+  | Add (e1, e2) -> "(+ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Sub (e1, e2) -> "(- " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Mul (e1, e2) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
 (*==================== END string_prefix_of_polyExp ==============================*)
 
 
@@ -190,10 +202,9 @@ let rec string_prefix_of_boolExpr  = function
 let rec string_postfix_of_polyExpr = function
   | Real c -> " real " ^ string_of_float c ^ " "
   | Var x -> " var " ^ x ^ " "
-  | Add ((e1,_), (e2,_)) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "+ " 
-  | Sub ((e1,_), (e2,_)) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "- "
-  | Mul ((e1,_), (e2,_)) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
-  | Pow ((e1,_), n)  -> (string_postfix_of_polyExpr e1) ^ (string_of_int n) ^ "^ "
+  | Add (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "+ " 
+  | Sub (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "- "
+  | Mul (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
 (*==================== END string_postfix_of_polyExpr ==============================*)
 
 
@@ -263,20 +274,18 @@ let rec infIntervals_of_intervals intervals = match intervals with
 (*let rec evalCI varsIntvsMap = function
   | Real c -> new IA.interval c c
   | Var var -> StringMap.find var varsIntvsMap
-  | Add ((u,_),(v,_)) -> IA.CI.(evalCI varsIntvsMap u + evalCI varsIntvsMap v)
-  | Sub ((u,_),(v,_)) -> IA.CI.(evalCI varsIntvsMap u - evalCI varsIntvsMap v)
-  | Mul ((u,_),(v,_)) -> IA.CI.(evalCI varsIntvsMap u * evalCI varsIntvsMap v)
-  | Pow ((u,_),c) -> IA.CI.(evalCI varsIntvsMap u ^ c)
+  | Add (u, v) -> IA.CI.(evalCI varsIntvsMap u + evalCI varsIntvsMap v)
+  | Sub (u, v) -> IA.CI.(evalCI varsIntvsMap u - evalCI varsIntvsMap v)
+  | Mul (u, v) -> IA.CI.(evalCI varsIntvsMap u * evalCI varsIntvsMap v)
 *)  
 let rec evalCI_extra varsIntvsMap = function
   | Real c -> {low = c; high = c}
   | Var var -> 
     let intv = StringMap.find var varsIntvsMap in
     {low = intv#l; high = intv#h}
-  | Add ((u,_),(v,_)) -> evalCI_extra varsIntvsMap u +$ evalCI_extra varsIntvsMap v
-  | Sub ((u,_),(v,_)) -> evalCI_extra varsIntvsMap u -$ evalCI_extra varsIntvsMap v
-  | Mul ((u,_),(v,_)) -> evalCI_extra varsIntvsMap u *$ evalCI_extra varsIntvsMap v
-  | Pow ((u,_),c) -> pow_I_i (evalCI_extra varsIntvsMap u) c  
+  | Add (u, v) -> evalCI_extra varsIntvsMap u +$ evalCI_extra varsIntvsMap v
+  | Sub (u, v) -> evalCI_extra varsIntvsMap u -$ evalCI_extra varsIntvsMap v
+  | Mul (u, v) -> evalCI_extra varsIntvsMap u *$ evalCI_extra varsIntvsMap v
   
 let rec evalCI varsIntvsMap polyExpr =
   let computedIntv = evalCI_extra varsIntvsMap polyExpr in
@@ -291,64 +300,57 @@ let rec evalICI varsIntvsMap = function
     let lowerBound = IA.bound_of_float intv#l in
     let upperBound = IA.bound_of_float intv#h in
     new IA.inf_interval lowerBound upperBound
-  | Add ((u,_),(v,_)) -> IA.ICI.(evalICI varsIntvsMap u + evalICI varsIntvsMap v)
-  | Sub ((u,_),(v,_)) -> IA.ICI.(evalICI varsIntvsMap u - evalICI varsIntvsMap v)
-  | Mul ((u,_),(v,_)) -> IA.ICI.(evalICI varsIntvsMap u * evalICI varsIntvsMap v)
-  | Pow ((u,_),c) -> IA.ICI.(evalICI varsIntvsMap u ^ c)
+  | Add (u, v) -> IA.ICI.(evalICI varsIntvsMap u + evalICI varsIntvsMap v)
+  | Sub (u, v) -> IA.ICI.(evalICI varsIntvsMap u - evalICI varsIntvsMap v)
+  | Mul (u, v) -> IA.ICI.(evalICI varsIntvsMap u * evalICI varsIntvsMap v)
 
 (* evalAf1 compute the bound of a polynomial function from an assignment ass by AF1 form*)
 let rec evalAf1 ass n = function
   | Real c -> Util.toAf1 (new IA.interval c c) 0 n
   | Var v -> List.assoc v ass
-  | Add ((u,_),(v,_)) -> IA.AF1.(evalAf1 ass n u + evalAf1 ass n v)
-  | Sub ((u,_),(v,_)) -> IA.AF1.(evalAf1 ass n u - evalAf1 ass n v)
-  | Mul ((u,_),(v,_)) -> IA.AF1.(evalAf1 ass n u * evalAf1 ass n v)
-  | Pow ((u,_),c) -> IA.AF1.(evalAf1 ass n u ^ c)
+  | Add (u, v) -> IA.AF1.(evalAf1 ass n u + evalAf1 ass n v)
+  | Sub (u, v) -> IA.AF1.(evalAf1 ass n u - evalAf1 ass n v)
+  | Mul (u, v) -> IA.AF1.(evalAf1 ass n u * evalAf1 ass n v)
  
 (* evalAf2 compute the bound of a polynomial function from an assignment ass by AF2 form*)
 let rec evalAf2 varsAf2sMap varsNum = function
   | Real c -> Util.toAf2 (new IA.interval c c) 0 varsNum
   | Var var -> StringMap.find var varsAf2sMap
-  | Add ((u,_),(v,_)) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u + evalAf2 varsAf2sMap varsNum v)
-  | Sub ((u,_),(v,_)) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
-  | Mul ((u,_),(v,_)) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u * evalAf2 varsAf2sMap varsNum v)
-  | Pow ((u,_),c) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u ^ c)
+  | Add (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u + evalAf2 varsAf2sMap varsNum v)
+  | Sub (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
+  | Mul (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u * evalAf2 varsAf2sMap varsNum v)
 
 (* evalCai1 compute the bound of a polynomial function from an assignment ass by CAI1 form*)
 let rec evalCai1 ass n= function
   | Real c -> Util.toCai1 (new IA.interval c c) 0 n
   | Var v -> List.assoc v ass
-  | Add ((u,_),(v,_)) -> IA.CAI1.(evalCai1 ass n u + evalCai1 ass n v)
-  | Sub ((u,_),(v,_)) -> IA.CAI1.(evalCai1 ass n u - evalCai1 ass n v)
-  | Mul ((u,_),(v,_)) -> IA.CAI1.(evalCai1 ass n u * evalCai1 ass n v)
-  | Pow ((u,_),c) -> IA.CAI1.(evalCai1 ass n u ^ c)
+  | Add (u, v) -> IA.CAI1.(evalCai1 ass n u + evalCai1 ass n v)
+  | Sub (u, v) -> IA.CAI1.(evalCai1 ass n u - evalCai1 ass n v)
+  | Mul (u, v) -> IA.CAI1.(evalCai1 ass n u * evalCai1 ass n v)
 
 (* evalCai2 compute the bound of a polynomial function from an assignment ass by CAI2 form*)
 let rec evalCai2 ass n= function
   | Real c -> Util.toCai2 (new IA.interval c c) 0 n
   | Var v -> List.assoc v ass
-  | Add ((u,_),(v,_)) -> IA.CAI2.(evalCai2 ass n u + evalCai2 ass n v)
-  | Sub ((u,_),(v,_)) -> IA.CAI2.(evalCai2 ass n u - evalCai2 ass n v)
-  | Mul ((u,_),(v,_)) -> IA.CAI2.(evalCai2 ass n u * evalCai2 ass n v)
-  | Pow ((u,_),c) -> IA.CAI2.(evalCai2 ass n u ^ c)
+  | Add (u, v) -> IA.CAI2.(evalCai2 ass n u + evalCai2 ass n v)
+  | Sub (u, v) -> IA.CAI2.(evalCai2 ass n u - evalCai2 ass n v)
+  | Mul (u, v) -> IA.CAI2.(evalCai2 ass n u * evalCai2 ass n v)
 
 (* evalCai3 compute the bound of a polynomial function from an assignment ass by CAI3 form*)
 let rec evalCai3 ass n= function
   | Real c -> Util.toCai3 (new IA.interval c c) 0 n
   | Var v -> List.assoc v ass
-  | Add ((u,_),(v,_)) -> IA.CAI3.(evalCai3 ass n u + evalCai3 ass n v)
-  | Sub ((u,_),(v,_)) -> IA.CAI3.(evalCai3 ass n u - evalCai3 ass n v)
-  | Mul ((u,_),(v,_)) -> IA.CAI3.(evalCai3 ass n u * evalCai3 ass n v)
-  | Pow ((u,_),c) -> IA.CAI3.(evalCai3 ass n u ^ c)
+  | Add (u, v) -> IA.CAI3.(evalCai3 ass n u + evalCai3 ass n v)
+  | Sub (u, v) -> IA.CAI3.(evalCai3 ass n u - evalCai3 ass n v)
+  | Mul (u, v) -> IA.CAI3.(evalCai3 ass n u * evalCai3 ass n v)
   
 
 (* This function returns a set of all variables of a polynomial expression *)
 let rec get_vars_set_polyExp = function
   | Var x -> VariablesSet.singleton x
-	| Add((e1,_), (e2,_)) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Sub((e1,_), (e2,_)) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Mul((e1,_), (e2,_)) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Pow((e1,_), n)  -> get_vars_set_polyExp e1
+	| Add(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Sub(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Mul(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
 	| _ -> VariablesSet.empty
 	
 
@@ -608,6 +610,7 @@ let get_bound polyExpr varsSet varsIntvsMap =
   let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
   get_intersection  afTwoBound ciBound
 
+(*
 let rec backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInterval result =
   if polyExprInterval#h < polyExprInterval#l then (result, new IA.interval 1. (-1.))
   else
@@ -706,12 +709,5 @@ let rec backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInter
 	      else (tmpResult1, tmpIntv1)
 	    else (tmpResult1, tmpIntv1)
 	  in (tmpResult2, tmpIntv2)
-	| Pow((e1,variablesSet), n)  -> 
-	  if VariablesSet.mem var variablesSet then
-	    if n <= 1 then
-	      backward_propagate_boolExpr var intv varsIntvsMap e1 polyExprInterval result
-	    else
-	      backward_propagate_boolExpr var intv varsIntvsMap (Mul((Pow((e1,variablesSet), n-1), variablesSet), (e1, variablesSet))) polyExprInterval result  
-	  else 
-	    (result, intv)
 	| Real r -> (result, intv)
+*)	

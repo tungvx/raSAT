@@ -141,6 +141,9 @@ val abs_I: interval -> interval
 (** [union_I_I a b] returns [{low=min a.low b.low;high=max a.high b.high}] *)
 val union_I_I: interval -> interval -> interval
 
+(** [inter_I_I a b] returns [{low=max a.low b.low;high=low a.high b.high}] *)
+val inter_I_I: interval -> interval -> interval
+
 (** [max_I_I a b] returns [{low=max a.low b.low;high=max a.high b.high}] *)
 val max_I_I: interval -> interval -> interval
 

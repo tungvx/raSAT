@@ -2,6 +2,12 @@
 open Interval
 
 type bound = Float of float | Neg_inf | Pos_inf
+
+
+(* Function for converting float to string with specified decimal width *)
+let string_of_float_app f = Printf.sprintf "%.40f" f
+
+
 let eq a b = match a with
   |Float f1 -> (match b with
     |Float f2-> if (f1 == f2) then true
@@ -181,7 +187,7 @@ class interval lo hi = object (self)
        let result = new interval !mi !ma in
        result;
      
-     method to_string = "[" ^ string_of_float l ^ ", " ^ string_of_float h ^ "]"
+     method to_string = "[" ^ string_of_float_app l ^ ", " ^ string_of_float_app h ^ "]"
        
      method printForm =
       Printf.printf "[%f,%f]\n" self#l self#h;  
@@ -1048,6 +1054,7 @@ module AF2 = struct
     match n with
     | 1 -> t
     | _ -> t#mul (pow t (n-1))
+
 
   let ( * ) (t1: af2) (t2: af2) = t1 #mul t2
   let ( *@) (c: float)(t: af2)  = t #mul2 c

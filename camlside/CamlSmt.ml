@@ -1,14 +1,15 @@
-open Exp           (*type: literal, clause, formula... declaration*)   
-open Expr          (*Simplify expression module*)
+(*open Exp           (*type: literal, clause, formula... declaration*)   
+open Expr          (*Simplify expression module*)*)
 open Variable
 open Util
 open IA
-
+open Interval
+open Smtlib_syntax
 
 (*This module will generate form for Solver from SMT benchmark files*)
 module Caml = struct
 
-type nil_expr = 
+(*type nil_expr = 
   | BC of smt_bool_expr
   | Nil
   | AND of nil_expr * nil_expr 
@@ -52,7 +53,7 @@ let rec lstBVar = function
 
 (*Substitute sub variables for based variables*)
 let rec subst_poly ass = function
-  | Real c -> Real c
+  | Constant c -> Constant c
   | Var x -> Var x
   | SubVar u -> subst_poly ass (List.assoc u ass)
   | Add (e1, e2) -> Add (subst_poly ass e1, subst_poly ass e2)
@@ -83,15 +84,15 @@ let abs_float (num: float) =
   else num
   
   
-(*Remove 0. constant in an expression*)
+(*(*Remove 0. constant in an expression*)
 let rec remove_zero e = match e with
   |Var x -> Var x
-  |Real c -> Real c
-  |Add (e1, Real 0.) -> e1
-  |Add (Real 0., e1) -> e1
+  |Constant c -> Constant c
+  |Add (e1, Constant {low=0.;high=0.}) -> e1
+  |Add (Constant {low=0.;high=0.}, e1) -> e1
   |Add (e1, e2) -> Add (remove_zero e1, remove_zero e2)
-  |Sub (e1, Real 0.) -> e1
-  |Sub (Real 0., e1) -> Mul (Real (-1.), e1)
+  |Sub (e1, Constant {low=0.;high=0.}) -> e1
+  |Sub (Constant {low=0.;high=0.}, e1) -> Mul (Constant {low= (~-.)1.;high=(~-.)1.}, e1)
   |Sub (e1, e2) -> Sub (remove_zero e1, remove_zero e2)
   |Mul (e1, e2) -> Mul (remove_zero e1, remove_zero e2)
   |Pow (e1, n) -> Pow (remove_zero e1, n)
@@ -110,11 +111,11 @@ let rec bool_reduce = function
   | Multiple(b1, b2) -> Multiple(bool_reduce b1, bool_reduce b2)
   | Or(e1, e2) -> Or(bool_reduce e1, bool_reduce e2)
   | Not (e1) -> Not (bool_reduce e1)
-
+*)
 
 (*Represent a poly expression to a string by prefix order*)
 let rec poly_toPrefix isAddOrMul = function
-  | Real c -> string_of_float c
+  | Constant intv -> Printf.sprintf "[%s, %s]" (string_of_float_app intv.low) (string_of_float_app intv.high)
   | Var x -> x
   | SubVar u -> u
   | Add (e1, e2) -> "(+ "^ poly_toPrefix 1 e1 ^ " " ^ poly_toPrefix 1 e2 ^ ")"
@@ -130,7 +131,7 @@ let rec poly_toPrefix isAddOrMul = function
   | Pow (e1, n)  -> "(^ "^ poly_toPrefix 0 e1 ^ " " ^ (string_of_int n)^ ")"
 
 let rec poly_toInfix isAddOrMul = function
-  | Real c -> string_of_float c
+  | Constant intv -> string_of_interval intv
   | Var x -> x
   | SubVar u -> u
   | Add (e1, e2) -> "("^ poly_toInfix 1 e1 ^ " + " ^ poly_toInfix 1 e2 ^ ")"
@@ -837,56 +838,33 @@ let rec simplify_bool e = match e with
 let string_of_bounds bounds = match bounds with
   | [] -> ""
   | (var, lb, ub)::t -> var ^ " " ^ (string_of_float lb) ^ " " ^ (string_of_float ub) ^ " "
+*)
+(*
+type poly_expr = 
+  | Add of poly_expr * poly_expr
+  | Sub of poly_expr * poly_expr
+  | Mul of poly_expr * poly_expr
+  | Div of poly_expr * poly_expr
+  | Constant of float
+  | Var of string
+
+type poly_constraint = 
+  | Eq of poly_expr
+  | Neq of poly_expr
+  | Geq of poly_expr
+  | Leq of poly_expr
+  | Gr of poly_expr
+  | Le of poly_expr
+
+type bool_constraint =
+  | Single of poly_constraint
+  | And of bool_constraint * bool_constraint
+  | Or of bool_constraint * bool_constraint
 
 
-let genSmtForm sIntv sAssert ub =       
-  (*get Assert expression from sAssert *)  
-  (*print_endline ("Start parsing SMT constraints: " ^ sAssert);
-  flush stdout;*)
-  let eAss = read sAssert in
-  (*print_endline (ass_expr_to_infix_string eAss);
-  flush stdout;*)
- 
-  let pass = lstSubVar eAss in
-  let bass = lstBVar eAss in   
-
-  let ori_expr = getAss_expr eAss in
-  (*print_endline (bool_toPrefix ori_expr);
-  flush stdout;*)
-
-  (*Remove temporary variables and substitute them by based variables*)
-  let sub_expr = subst_bool bass pass ori_expr in
-  (*print_endline (bool_toPrefix 0 sub_expr);
-  flush stdout;*)
-
-  (*print_string ("solve({" ^ bool_toInfix 0 sub_expr ^ "}, [");*)
-
-  (*simplify expression: operations on constants, i.e., constant +-*/ constant..., Div (a, b) = a/b*)
-  let simp_expr = simplify_bool sub_expr in
-  (*print_endline (bool_toPrefix 0 simp_expr);
-  flush stdout;*)
-
-  (*remove not in expressions, "not" is allowed in quite restricted format, i.e., not (a > b)*)
-  (*let red_expr = reduce_expr simp_expr in*)
-  let red_expr = remove_not simp_expr in
-  (*print_endline (bool_toPrefix 0 red_expr);
-  flush stdout;*)
-
-  (*Placed constants to a left/right of equations, i.e., e1 > e2 <=> e1 - e2 > 0 *)
-  let final_expr = bool_simp red_expr in
-  (*print_endline (bool_toPrefix 0 final_expr);
-  flush stdout;*)
-
- (*simplify expression after substitute all temporary variables*)
-  let expr = bool_reduce final_expr in
-  (*print_endline (bool_toPrefix 0 expr);
-  flush stdout;*)
-
-  (*remove redundant expression, i.e., remove a >= 0 when a >0 occurs*)
-  let eList = bool_toList expr in
-  let simp_list = red_cons (red_list eList) in
   
-  let new_expr = list_toBool simp_list in
+let genSmtForm fileName sIntv sAssert ub =       
+  
 
   (*Get bound constraints of variables from assert expression eAss*)
   let bound_cons = remov_nil (getBound new_expr) in
@@ -915,4 +893,4 @@ let genSmtForm sIntv sAssert ub =
 end
 
 (* Export this function to C/C++ *)
-let _ = Callback.register "caml_genSmtForm" Caml.genSmtForm;;
+let _ = Callback.register "caml_genSmtForm" Caml.genSmtForm;;*)

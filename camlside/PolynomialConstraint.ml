@@ -4,8 +4,8 @@ open Variable
 
 (* ============================= START of polynomialConstraint class ================================= *)
 (* Class for storing informations of a constraint *)
-class polynomialConstraint boolExprInit variablesSetInit =
-  let varsSetInit = variablesSetInit in
+class polynomialConstraint boolExprInit =
+  let varsSetInit = get_varsSet_polyCons boolExprInit in
   let (isPositiveDirected, isEquation, isNotEquation) = 
     match boolExprInit with
     | Eq _ -> (false, true, false)
@@ -244,7 +244,7 @@ class polynomialConstraint boolExprInit variablesSetInit =
       List.fold_left add_sat_direction_extra currentVarSATDirectionMap varsSen
       
       
-    method backward_interval_propagate var intv (varsIntvsMiniSATCodesMap:(IA.interval * int) Variable.StringMap.t) =
+    (*method backward_interval_propagate var intv (varsIntvsMiniSATCodesMap:(IA.interval * int) Variable.StringMap.t) =
       let (polyExprInterval, polyExpr) = 
         match boolExpr with
         |Eq e -> (new IA.interval 0. 0., e)
@@ -259,7 +259,7 @@ class polynomialConstraint boolExprInit variablesSetInit =
         (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
       in
       let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
-      backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInterval false
+      backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInterval false*)
       
     method log_test = 
       let testValueString = string_of_float testValue in
@@ -519,12 +519,17 @@ class polynomialConstraint boolExprInit variablesSetInit =
       generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
-
-type constraints = 
-  | Single of polynomialConstraint
-  | And of constraints * constraints
-  | BOr of constraints * constraints
   
+type bool_constraint =
+  | Single of polynomialConstraint
+  | And of bool_constraint * bool_constraint
+  | Or of bool_constraint * bool_constraint 
+
+
+let rec get_varsSet_boolCons = function
+  | Single polyCons -> polyCons#get_varsSet
+  | And (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
+  | Or (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
 
 (* encode the constraints into the form of miniSAT lit *)  
 let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap logic = match constraints with
@@ -532,7 +537,7 @@ let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap 
     let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
     let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
     (MAnd (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 || isEquation2, isNotEquation1 || isNotEquation2)
-  | BOr (b1, b2) -> 
+  | Or (b1, b2) -> 
     let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
     let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
     (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 || isEquation2, isNotEquation1 || isNotEquation2)
@@ -549,7 +554,7 @@ let rec string_infix_of_constraints constraints = match constraints with
   | Single polyCons ->  polyCons#to_string_infix
   | And(c1, c2)  -> 
 	  string_infix_of_constraints c1 ^ " And\n" ^ string_infix_of_constraints c2
-	| BOr(c1, c2) -> 
+	| Or(c1, c2) -> 
 	  string_infix_of_constraints c1 ^ " Or\n" ^ string_infix_of_constraints c2
 	  
 
@@ -558,7 +563,7 @@ let rec string_infix_of_constraints_maple constraints = match constraints with
   | Single polyCons ->  polyCons#to_string_infix
   | And(c1, c2)  -> 
 	  string_infix_of_constraints_maple c1 ^ ", " ^ string_infix_of_constraints_maple c2
-	| BOr(c1, c2) -> 
+	| Or(c1, c2) -> 
 	  string_infix_of_constraints_maple c1 ^ ", " ^ string_infix_of_constraints_maple c2	  
 	
 	
@@ -577,7 +582,7 @@ let rec string_infix_of_polynomialConstraints polyConses =
 let rec string_prefix_of_constraints  = function
   | Single polyCons -> string_prefix_of_boolExpr polyCons#get_constraint
   | And(e1, e2) -> "(and "^(string_prefix_of_constraints e1)^" " ^ (string_prefix_of_constraints e2)^")"
-  | BOr(e1, e2) -> "(or "^(string_prefix_of_constraints e1)^" " ^ (string_prefix_of_constraints e2)^")"
+  | Or(e1, e2) -> "(or "^(string_prefix_of_constraints e1)^" " ^ (string_prefix_of_constraints e2)^")"
 (*==================== END string_prefix_of_constraints ==============================*)
   
 
@@ -586,7 +591,7 @@ let rec string_prefix_of_constraints  = function
 let rec string_postfix_of_constraints  = function
   | Single polyCons -> string_postfix_of_boolExpr polyCons#get_constraint
   | And(e1, e2) -> (string_postfix_of_constraints e1) ^ (string_postfix_of_constraints e2) ^ "and "
-  | BOr(e1, e2) -> (string_postfix_of_constraints e1) ^ (string_postfix_of_constraints e2) ^ "or "
+  | Or(e1, e2) -> (string_postfix_of_constraints e1) ^ (string_postfix_of_constraints e2) ^ "or "
 (*==================== START string_postfix_of_constraints ==============================*)
 
 (*=== Function for getting logs of all constraints ===*)   

@@ -22,7 +22,6 @@
 open Fpu
 
 
-
 type interval = {low: float; high: float}
 
 let zero_I = {low=0.;high=0.}
@@ -63,6 +62,8 @@ let truncate_I x =
   {low = floor x.low; high = ceil x.high}
 
 let union_I_I x y = {low = min x.low y.low; high = max x.high y.high}
+
+let inter_I_I x y = {low = max x.low y.low; high = min x.high y.high}
 
 let max_I_I x y = {low = max x.low y.low; high = max x.high y.high}
 

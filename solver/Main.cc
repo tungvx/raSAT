@@ -219,8 +219,8 @@ int main(int argc, char* argv[]) {
 
 	//generate ebg format form from SMT2 format (raSAT input form)
 	////cout << "Run1" << endl;	
-	string lb = getLoBound(argv[2]);
-	string ub = getUpBound(argv[2]);
+	double lb = stod(getLoBound(argv[2]));
+	double ub = stod(getUpBound(argv[2]));
 	//cout << "Lower Bound: " << lb << endl;
 	//cout << "Upper Bound: " << ub << endl;
 
@@ -232,62 +232,7 @@ int main(int argc, char* argv[]) {
   string logic = get_logic(smtfile);
   //cout << "Logic:" << logic << "t" << endl;
 
-	string str = get_listvars(smtfile, nvar, lb);
-	char *sInt = new char[str.size() + 1];
-	strcpy(sInt, str.c_str());
-
-	//cout << endl << "string of interval: " << str << endl;
-
-	////cout << "Run3" << endl;
-	string strAs = get_cons(smtfile, nvar); // get constraints
-	char *sAs = new char[strAs.size() + 1];
-	strcpy(sAs, strAs.c_str());
-
-	//cout << "intervals: " << sInt << endl;
-	//cout << "constraints: " << strAs << endl;
-
-	CAMLlocal1 (smt);
-	caml_register_global_root(&smt);
-
-	//cout << "Run4" << endl;
-	//cout << "SMT input assertion: " << sAs << endl;
-	smt = caml_genSmtForm(sInt, sAs, ub);
-	string smtContent = String_val(Field(smt, 0));
-
-	//cout << "raSAT input form: " << smtContent << "\n";
-	caml_remove_global_root(&smt);
-	delete[] sInt;
-	delete[] sAs;
-
-	//generate raSAT input file *.rs
-	string sfile = toFileRs(argv[1]);
-
-	char * rsFile = new char[sfile.size() + 1];
-	strcpy(rsFile, sfile.c_str());
-
-	////cout << "Run5" << endl;
-	int r = writeFile(rsFile, smtContent);
-
-	if (r != 1) {
-		if (debug)
-			cout << "Can not create " << rsFile << " file!";
-		return 0;
-	}
-
 //	cout << "Run6" << endl;
-	string strIntv = smt_getintv(rsFile);
-//	cout <<strIntv<<endl;
-	char *sIntv = new char[strIntv.size() + 1];
-	strcpy(sIntv, strIntv.c_str());
-	//printf("\n%s\n", sIntv);
-
-//	cout << "Run7" << endl;
-	string strAss = smt_ass(rsFile);
-//	cout  << "Constraints: " << strAss << endl;
-	delete[] rsFile;
-
-	char *sAss = new char[strAss.size() + 1];
-	strcpy(sAss, strAss.c_str());
 
 	double totalTime = 0;
 	double iaTime = 0;
@@ -326,7 +271,7 @@ int main(int argc, char* argv[]) {
 	if (argc >= 5)
 		timeout = getTimeout(argv[4]);
 
-//	cout <<endl <<"time out" <<timeout<<endl;
+	//cout <<endl <<"time out" <<timeout<<endl;
 
 	//get information for polynomial constraints: number of variables, constraints
 
@@ -337,7 +282,13 @@ int main(int argc, char* argv[]) {
 	caml_register_global_root (&intvInfo);
 	caml_register_generational_global_root (&miniSATCodesConstraintsMap);
 //	cout << sIntv << endl;
-	satInfo = caml_genSatForm(sAss, sIntv, esl, logic.c_str());
+  //cout << "smtfile: " << smtfile << endl;
+  //cout << "lb: " << lb << endl;
+  //cout << "ub: " << ub << endl;
+  //cout << "logic: " << logic.c_str() << endl;
+	satInfo = caml_genSatForm(smtfile, lb, ub, logic.c_str());
+	//return 0;
+	//cout << "finish genSATForm" << endl;
 	int nVars = Int_val(Field(satInfo, 0)); //nVars store the number variables for SAT content
 	string satContent = String_val(Field(satInfo, 1));
 	intvInfo = Field(satInfo, 2);
@@ -346,7 +297,7 @@ int main(int argc, char* argv[]) {
 	maxVarsNum = Int_val(Field(satInfo, 5));
 	isEquation = Bool_val(Field(satInfo, 6));
 	isNotEquation = Bool_val(Field(satInfo, 7));
-//	cout << "maxVarsNum: " << maxVarsNum << endl;
+	//cout << "maxVarsNum: " << maxVarsNum << endl;
 //	cout << satContent << endl;
 //	cout << "IsEquation: " << isEquation << endl;
 //	cout << "isNotEquation: " << isNotEquation << endl;
@@ -354,18 +305,17 @@ int main(int argc, char* argv[]) {
 
   parsingTime = cpuTime() - parsingStart;
 //	cout << "Run8" << endl;
-	sfile = toFilein(argv[1]);
+	string sfile = toFilein(argv[1]);
 	char * inFile = new char[sfile.size() + 1];
 	strcpy(inFile, sfile.c_str());
 
-	r = writeFile(inFile, satContent);
-	if (r != 1) {
+	if (writeFile(inFile, satContent) != 1) {
 		if (debug)
 			cout << "Can not create " << inFile << " file!";
 		return 0;
 	}
 
-	////cout << "Run9" << endl;
+	//cout << "Run9" << endl;
 	sfile = toFileout(argv[1]);
 	char * outFile = new char[sfile.size() + 1];
 	strcpy(outFile, sfile.c_str());
@@ -645,7 +595,7 @@ int main(int argc, char* argv[]) {
 //					cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
-//					cout << "Run49" << endl;
+					//cout << "Run49" << endl;
 					theoCheck = caml_dynTest(&intvInfo,
 							&miniSATCodesConstraintsMap, nCons, sSAT.c_str(),
 							ia, esl, c_strTestUS, iaTime, testingTime, usTime,
@@ -654,7 +604,7 @@ int main(int argc, char* argv[]) {
 					delete[] c_dIntv;
 					if (needDeleted)
 						delete[] c_strTestUS;
-//					cout << "Run50" << endl;
+					//cout << "Run50" << endl;
 					dummy.clear(true);
 //					cout << "Searched \n\n";
 					ocamlTime += cpuTime() - startCheck;
@@ -772,8 +722,6 @@ int main(int argc, char* argv[]) {
 			//cout << "finish while" << endl;
 
 			caml_remove_global_root(&theoCheck);
-			delete[] sIntv;
-			delete[] sAss;
 
 			//================================================================================================
 			// Screen information

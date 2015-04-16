@@ -9,7 +9,7 @@ open Variable
 %token <string> NUM
 %token <string> ID
 %token LPAREN RPAREN 
-%token PLUS MINUS TIMES POWER
+%token PLUS MINUS TIMES
 %token ASSERT
 %token AND OR
 
@@ -18,7 +18,6 @@ open Variable
 %left PLUS
 %left MINUS
 %left TIMES
-%left POWER
 
 %left ASSERT
 
@@ -93,7 +92,6 @@ poly_expr:
                                    (Sub ($2, $3), VariablesSet.union variablesSet2 variablesSet3) }
   | TIMES poly_expr poly_expr    { let (polyExpr2, variablesSet2) = $2 in let (polyExpr3, variablesSet3) = $3 in 
                                    (Mul ($2, $3), VariablesSet.union variablesSet2 variablesSet3) }
-  | POWER poly_expr NUM          { let (polyExpr, variablesSet) = $2 in (Pow ($2, int_of_string $3), variablesSet) }
   | NUM                          { (Real (float_of_string $1), VariablesSet.empty) }
   | ID                           { (Var $1, VariablesSet.singleton $1) }
   | LPAREN poly_expr RPAREN      { $2 }

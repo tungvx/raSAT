@@ -5,6 +5,7 @@ open Assignments
 open Util
 open Variable
 open InfiniteList
+open IA
 
 let check_equality polyCons varsSet varsIntvsMiniSATCodesMap = 
   let getFirstPoint var varsIntvsMiniSATCodesMap = 
@@ -26,7 +27,7 @@ let check_equality polyCons varsSet varsIntvsMiniSATCodesMap =
     let get_log var (intv, miniSATCode) currentString =
       if VariablesSet.mem var polyCons#get_varsSet then
         if VariablesSet.mem var varsSet then 
-          var ^ " = " ^ (string_of_float intv#l) ^ " " ^ currentString
+          var ^ " = " ^ (string_of_float_app intv#l) ^ " " ^ currentString
         else
           currentString ^ " " ^ var ^ " = " ^ intv#to_string
       else currentString

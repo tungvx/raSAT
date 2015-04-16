@@ -66,8 +66,8 @@ let rec string_of_intervals intvMap =
 (* =================================== START log_intervals =========================================== *)
 (* This functions converts the list of intervals of variables into the string format*)
 let rec log_intervals intvMap =
-  let add_string_of_newInterval var (interval, _) oldString = 
-    var ^ " in [" ^ string_of_float interval#l ^ ", " ^ string_of_float interval#h ^ "]\n" ^ oldString
+  let add_string_of_newInterval var (interval, _) oldString =
+    var ^ " in" ^ interval#to_string ^ "\n" ^ oldString
   in 
   StringMap.fold add_string_of_newInterval intvMap ""
 (* =================================== END log_intervals ============================================== *)

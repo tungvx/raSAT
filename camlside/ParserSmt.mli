@@ -1,4 +1,7 @@
 type token =
+  | NUMERAL of (string)
+  | DECIMAL of (string)
+  | HEXADECIMAL of (string)
   | EOF
   | NUM of (string)
   | ID of (string)

@@ -27,7 +27,7 @@ Settings:
     . Caml.ml, line 1236
   
 
-running experiments: 14, 19, 34, 39
+running experiments: 14, 19, 34, 39, 40
 1. raSAT_2_1TCs_10_1DecomposedVar_2: zankl, unsat directed
 2. raSAT_2_1TCs_10_1DecomposedVar_3: zankl, sat directed
 3. raSAT_2_1TCs_10_1DecomposedVar_4: zankl, random

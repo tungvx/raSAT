@@ -10,6 +10,7 @@ open Testing
 open Variable
 open PolynomialConstraint
 open Interval
+open Smtlib_syntax
 
 module Caml = struct
 
@@ -99,14 +100,296 @@ let rec sum_total_var init mb =
   (* C++ - OCaml interface *)
   (*==================================================*)
 
+let rec get_string_symbol = function
+  |Symbol (_ , str1) -> str1
+  |SymbolWithOr (_ , str1) -> str1
+
+and get_string_identifier = function 
+  |IdSymbol (_ , symbol1) ->  get_string_symbol symbol1 
+  |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 125")
+
+and get_string_qualidentifier = function
+  |QualIdentifierId (_ , identifier1) ->  get_string_identifier identifier1
+  |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
+
+and get_poly_specReal = function 
+  |SpecConstsDec (_ , str1) ->  Real (float_of_string str1) 
+  |SpecConstNum (_ , str1) ->  Real (float_of_string str1)
+  |SpecConstString (_ , str1) ->  raise (Failure "Not supported syntax line 159")
+  |SpecConstsHex (_ , str1) ->  Real (float_of_string str1) 
+  |SpecConstsBinary (_ , str1) ->  Real (float_of_string str1) 
+
+
+
+and get_poly_symbol varBindings = function 
+  |Symbol (_ , str1) -> 
+    (try
+      let term = StringMap.find str1 varBindings in
+      get_poly_term varBindings term
+    with  
+      Not_found -> Var str1
+    )
+  |SymbolWithOr (_ , str1) -> 
+    (try
+      let term = StringMap.find str1 varBindings in
+      get_poly_term varBindings term
+    with  
+      Not_found -> Var str1
+    )
+
+and get_constraint_symbol varBindings = function 
+  |Symbol (_ , str1) -> 
+    (try
+      let term = StringMap.find str1 varBindings in
+      get_constraint_term varBindings term
+    with  
+      Not_found -> raise (Failure "Wrong input")
+    )
+  |SymbolWithOr (_ , str1) -> 
+    (try
+      let term = StringMap.find str1 varBindings in
+      get_constraint_term varBindings term
+    with  
+      Not_found -> raise (Failure "Wrong input")
+    )
+
+and get_poly_identifier varBindings = function 
+  |IdSymbol (_ , symbol1) ->  get_poly_symbol varBindings symbol1 
+  |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 165")
+
+and get_constraint_identifier varBindings = function 
+  |IdSymbol (_ , symbol1) ->  get_constraint_symbol varBindings symbol1 
+  |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 200")  
+
+and get_poly_qualidentifier varBindings = function 
+  |QualIdentifierId (_ , identifier1) ->  get_poly_identifier varBindings identifier1
+  |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
+
+and get_constraint_qualidentifier varBindings = function 
+  |QualIdentifierId (_ , identifier1) ->  get_constraint_identifier varBindings identifier1
+  |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 204")  
+
+and get_mul_poly = function
+  | [] -> raise (Failure "Need arguments for multiplication") 
+  | [poly] -> poly
+  | [poly1; poly2] -> Mul(poly1, poly2)
+  | poly1::poly2::remainingPolys -> Mul(Mul(poly1, poly2), get_mul_poly remainingPolys)
+  
+and get_add_poly = function
+  | [] -> raise (Failure "Need arguments for addition") 
+  | [poly] -> poly
+  | [poly1; poly2] -> Add(poly1, poly2)
+  | poly1::poly2::remainingPolys -> Add(Add(poly1, poly2), get_mul_poly remainingPolys)
+
+and get_poly_term varBindings = function 
+  |TermSpecConst (_ , specReal1) ->  
+    get_poly_specReal specReal1
+  |TermQualIdentifier (_ , qualidentifier1) -> 
+    get_poly_qualidentifier varBindings qualidentifier1
+  |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) ->  
+    let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
+    if qualidentifier_string = "*" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      get_mul_poly polys
+    else if qualidentifier_string = "+" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      get_add_poly polys  
+    else Real ((~-.) 1.)
+  | _ -> Real ((~-.) 1.)
+   (*|TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  print_string "(";print_string " "; print_string "let";print_string " "; print_string "(";print_string " "; pp_termletterm_term_varbinding58 termletterm_term_varbinding584;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
+   |TermForAllTerm (_ , termforallterm_term_sortedvar604 , term6) ->  print_string "(";print_string " "; print_string "forall";print_string " "; print_string "(";print_string " "; pp_termforallterm_term_sortedvar60 termforallterm_term_sortedvar604;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
+   |TermExistsTerm (_ , termexiststerm_term_sortedvar624 , term6) ->  print_string "(";print_string " "; print_string "exists";print_string " "; print_string "(";print_string " "; pp_termexiststerm_term_sortedvar62 termexiststerm_term_sortedvar624;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
+   |TermExclimationPt (_ , term3 , termexclimationpt_term_attribute644) ->  print_string "(";print_string " "; print_string "!";print_string " "; pp_term term3;print_string " "; pp_termexclimationpt_term_attribute64 termexclimationpt_term_attribute644;print_string " "; print_string ")"; () 
+   *)
+
+and get_polys_termqualidterm_term_term56 varBindings = function
+  |(_,[]) ->   [] 
+  | (d , (term1)::termqualidterm_term_term562) -> 
+    let poly = get_poly_term varBindings term1 in
+    let remainingPolys = get_polys_termqualidterm_term_term56 varBindings (d,termqualidterm_term_term562) in 
+    poly :: remainingPolys 
+
+and get_constraints_termqualidterm_term_term56 varBindings = function
+  |(_,[]) ->   [] 
+  | (d , (term1)::termqualidterm_term_term562) -> 
+    let constraint1 = get_constraint_term varBindings term1 in
+    let remainingConstraints = get_constraints_termqualidterm_term_term56 varBindings (d,termqualidterm_term_term562) in 
+    constraint1 @ remainingConstraints
+
+and get_constraint_term varBindings = function 
+  |TermQualIdentifier (_ , qualidentifier1) -> 
+    get_constraint_qualidentifier varBindings qualidentifier1
+  |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) ->
+    let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
+    if qualidentifier_string = "<" then 
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      match polys with
+      | [poly; Real 0.] -> [Single (new polynomialConstraint (Le poly))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint(Le (Sub(poly1, poly2))))]
+      | _ ->  raise (Failure "Wrong Input")
+    else if qualidentifier_string = "<=" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      match polys with
+      | [poly; Real 0.] -> [Single (new polynomialConstraint (Leq poly))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint (Leq (Sub(poly1, poly2))))]
+      | _ ->  raise (Failure "Wrong Input")  
+    else if qualidentifier_string = ">" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      match polys with
+      | [poly; Real 0.] -> [Single (new polynomialConstraint(Gr poly))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint (Gr (Sub(poly1, poly2))))]
+      | _ ->  raise (Failure "Wrong Input")
+    else if qualidentifier_string = ">=" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      match polys with
+      | [poly; Real 0.] -> [Single (new polynomialConstraint(Geq poly))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint(Geq (Sub(poly1, poly2))))]
+      | _ ->  raise (Failure "Wrong Input")
+    else if qualidentifier_string = "=" then
+      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      match polys with
+      | [poly; Real 0.] -> [Single (new polynomialConstraint(Eq poly))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint(Eq (Sub(poly1, poly2))))]
+      | _ ->  raise (Failure "Wrong Input")
+    else if qualidentifier_string = "and" then
+      let constraints = get_constraints_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let andConstraint = get_and_constraint constraints in
+      [andConstraint]
+    else []
+  |TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  
+    let varBindings = get_let_termletterm_term_varbinding58 varBindings termletterm_term_varbinding584 in
+    get_constraint_term varBindings term6
+  | _ -> [] (*raise (Failure "Not supported syntax line 138")*)
+
+and get_and_constraint = function 
+  | [] -> raise (Failure "Need arguments for and") 
+  | [constraint1] -> constraint1
+  | [constraint1; constraint2] -> And(constraint1, constraint2)
+  | constraint1 :: constraint2 :: remainingConstraints -> And(And(constraint1, constraint2), get_and_constraint remainingConstraints)
+
+and get_let_termletterm_term_varbinding58 varBindings = function
+  |(_,[]) -> varBindings
+  | (d , (varbinding1)::termletterm_term_varbinding582) ->  
+    let varBindings = get_let_varbinding varBindings varbinding1 in
+    get_let_termletterm_term_varbinding58 varBindings (d,termletterm_term_varbinding582)
+    
+and get_let_varbinding varBindings = function 
+  | VarBindingSymTerm (_ , symbol2 , term3) -> 
+    let var = get_string_symbol symbol2 in 
+    StringMap.add var term3 varBindings
+              
+
+and get_constraints_command = function 
+  | CommandAssert (_ , term3) -> get_constraint_term StringMap.empty term3
+  | _  -> []
+
+and get_constraints_commands = function  
+  |(_,[]) ->   []
+  | (d , (command1)::commands_commands_command302) -> (get_constraints_command command1) @ (get_constraints_commands (d, commands_commands_command302))
+
+and get_constraints = function
+  |Commands (_ , commands_commands_command301) ->
+    let constraints = get_constraints_commands commands_commands_command301 in
+    let mergedBoolExp = get_boolExp_from_list constraints in
+    (*print_endline (string_prefix_of_constraints mergedBoolExp);
+    flush stdout;*)
+    [mergedBoolExp]
+  
+and get_boolExp_from_list = function
+  | [] -> raise (Failure "No constraint")
+  | [boolExp] -> boolExp
+  | boolExp :: remainingBoolExps -> And(boolExp, get_boolExp_from_list remainingBoolExps)
+  
+and get_intervals_from_constraints = function 
+  | Single polyCons -> get_intervals_from_polyCons polyCons#get_constraint
+  | And (boolCons1, boolCons2) -> StringMap.merge merge_interval (get_intervals_from_constraints boolCons1) (get_intervals_from_constraints boolCons2)
+  | Or (boolCons1, boolCons2) -> StringMap.merge merge_interval (get_intervals_from_constraints boolCons1) (get_intervals_from_constraints boolCons2)
+  
+and merge_interval var value1 value2 = match value1, value2 with
+  | Some intv1, Some intv2 -> Some (inter_I_I intv1 intv2)
+  | Some intv1, None -> Some intv1
+  | None, Some intv2 -> Some intv2
+  | None, None -> None
+  
+and get_intervals_from_polyCons = function
+  | Eq (Add(Var var, Real f)) -> StringMap.singleton var {low= (~-.) f;high= (~-.) f}
+  | Eq (Sub(Var var, Real f)) -> StringMap.singleton var {low= f;high= f}
+  | Eq (Mul(Var var, Real f)) -> 
+    if f = 0. then StringMap.empty
+    else StringMap.singleton var {low=0.;high=0.}
+  | Eq (Div(Var var, Real f)) -> 
+    if f = 0. then StringMap.empty
+    else StringMap.singleton var {low=0.;high=0.}
+  | Eq (Var var) -> StringMap.singleton var {low=0.;high=0.}
+  | Eq _ -> StringMap.empty
+    
+  | Neq polyExpr -> StringMap.empty
+  
+  | Geq (Add(Var var, Real f)) -> StringMap.singleton var {low= (~-.) f;high= infinity}
+  | Geq (Sub(Var var, Real f)) -> StringMap.singleton var {low= f;high= infinity}
+  | Geq (Mul(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=0.;high=infinity}
+    else if f < 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else StringMap.empty
+  | Geq (Div(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=0.;high=infinity}
+    else if f < 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else StringMap.empty
+  | Geq (Var var) -> StringMap.singleton var {low=0.;high=infinity}
+  | Geq _ -> StringMap.empty
+  
+  | Leq (Add(Var var, Real f)) -> StringMap.singleton var {low= neg_infinity;high= (~-.) f}
+  | Leq (Sub(Var var, Real f)) -> StringMap.singleton var {low= neg_infinity;high= f}
+  | Leq (Mul(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else if f < 0. then StringMap.singleton var {low=0.;high=infinity}
+    else StringMap.empty
+  | Leq (Div(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else if f < 0. then StringMap.singleton var {low=0.;high=infinity}
+    else StringMap.empty
+  | Leq (Var var) -> StringMap.singleton var {low=neg_infinity;high=0.}
+  | Leq _ -> StringMap.empty
+
+  | Gr (Add(Var var, Real f)) -> StringMap.singleton var {low= (~-.) f;high= infinity}
+  | Gr (Sub(Var var, Real f)) -> StringMap.singleton var {low= f;high= infinity}
+  | Gr (Mul(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=0.;high=infinity}
+    else if f < 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else StringMap.empty
+  | Gr (Div(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=0.;high=infinity}
+    else if f < 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else StringMap.empty
+  | Gr (Var var) -> StringMap.singleton var {low=0.;high=infinity}
+  | Gr _ -> StringMap.empty
+  
+  | Le (Add(Var var, Real f)) -> StringMap.singleton var {low= neg_infinity;high= (~-.) f}
+  | Le (Sub(Var var, Real f)) -> StringMap.singleton var {low= neg_infinity;high=f}
+  | Le (Mul(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else if f < 0. then StringMap.singleton var {low=0.;high=infinity}
+    else StringMap.empty
+  | Le (Div(Var var, Real f)) -> 
+    if f > 0. then StringMap.singleton var {low=neg_infinity;high=0.}
+    else if f < 0. then StringMap.singleton var {low=0.;high=infinity}
+    else StringMap.empty
+  | Le (Var var) -> StringMap.singleton var {low=neg_infinity;high=0.}
+  | Le _ -> StringMap.empty
+
 (*get miniSat form of interval constraints*)
-let genSatForm sAss sIntv esl logic =
-  (*print_endline ("Logic: " ^ logic);
-  flush stdout;*)
-  let constraints = ParserConstraints.main LexerConstraints.lex (Lexing.from_string sAss) in
+let genSatForm fileName lb ub logic =
+  let ic = open_in fileName in
+  let lexbuf = Lexing.from_channel ic in  
+  let parsed =  Smtlib_parse.main Smtlib_lex.token lexbuf in
+  let constraints = match parsed with
+    | None -> []
+    | Some(x) -> get_constraints x;
+  in
   (*print_endline ("solve({" ^ string_infix_of_constraints_maple  constraints ^ "})");
   flush stdout;*)
-  let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation) = miniSATExpr_of_constraints constraints 1 IntMap.empty logic in 
+  let boolCons = List.nth constraints 0 in
+  let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation) = miniSATExpr_of_constraints boolCons 1 IntMap.empty logic in 
   (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
   
   (* convert miniSATExpr into CNF *)
@@ -117,16 +400,13 @@ let genSatForm sAss sIntv esl logic =
   (*print_endline cnfMiniSATExprString;
   flush stdout;*)
   
-  let eIntv = ParserIntervals.main LexerIntervals.lex (Lexing.from_string sIntv) in
-  let nVars = List.length eIntv in
-   
-  (*let rec string_of_vars varsIntvList = match varsIntvList with
-    | [] -> ""
-    | [(var, _)] -> var
-    | (h,_)::t -> h ^ ", " ^ string_of_vars t
-  in
-  print_endline (string_of_vars eIntv ^ "])");
+  let varsSet = get_varsSet_boolCons boolCons in
+  let nVars = VariablesSet.cardinal varsSet in
+  
+  (*print_int (IntMap.cardinal miniSATCodesConstraintsMap);
   flush stdout;*)
+  (* get intervals from constraints *) 
+  let varsIntvsMap = get_intervals_from_constraints boolCons in
    
   (* generate the minisat constraints for intervals *)
   let rec genMiniSATIntvString index nVars =
@@ -135,16 +415,20 @@ let genSatForm sAss sIntv esl logic =
   in
   let miniSATIntvString = genMiniSATIntvString index nVars in
   
-  let rec generateIntvInfo varsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap eIntv index = match eIntv with
-    | [] -> (varsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, index)
-    | (var, intv)::t -> 
-      (*print_endline ("Adding interval: " ^ var ^ " in " ^ intv#to_string ^ " with index of " ^ string_of_int index);
-      flush stdout;*)
-      let newVarsIntvsMiniSATCodesMap = StringMap.add var (intv, index) varsIntvsMiniSATCodesMap in
-      let newMiniSATCodesVarsIntvsMap = IntMap.add index (var, intv) miniSATCodesVarsIntvsMap in
-      generateIntvInfo newVarsIntvsMiniSATCodesMap newMiniSATCodesVarsIntvsMap t (index + 1)
+  let rec generateIntvInfo var (varsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, index) =
+    let intv =
+    try
+      StringMap.find var varsIntvsMap
+    with Not_found ->
+      {low=neg_infinity; high=infinity}
+    in
+    let intv = inter_I_I intv {low=lb; high=ub} in
+    let interval = new IA.interval intv.low intv.high in
+    let newVarsIntvsMiniSATCodesMap = StringMap.add var (interval, index) varsIntvsMiniSATCodesMap in
+    let newMiniSATCodesVarsIntvsMap = IntMap.add index (var, interval) miniSATCodesVarsIntvsMap in
+    (newVarsIntvsMiniSATCodesMap, newMiniSATCodesVarsIntvsMap, (index + 1))
   in
-  let intvInfo = generateIntvInfo StringMap.empty IntMap.empty eIntv index in
+  let intvInfo = VariablesSet.fold generateIntvInfo varsSet (StringMap.empty, IntMap.empty, index) in
   (*Compute the total of variables for SAT encoding*)
   (*let max_bound = getMB 0.0 eIntv in
   let para = int_of_float (max_bound /. esl) in
@@ -157,10 +441,10 @@ let genSatForm sAss sIntv esl logic =
   let totalMiniSATVars = nVars + index - 1 in
   (nVars, "p cnf " ^ string_of_int totalMiniSATVars ^ " " ^ string_of_int (nVars(*+1*)+miniSATClauses) ^"\n"^ cnfMiniSATExprString ^ miniSATIntvString (*^ sTrivialClause*), intvInfo, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)    
 
-  (*Generate information about a test case*)
-  let rec logTestCase ass = match ass with
-    | [] -> ""
-    | (x, a):: t -> (x ^" = "^ string_of_float a) ^ "\n" ^ (logTestCase t)
+(*Generate information about a test case*)
+let rec logTestCase ass = match ass with
+  | [] -> ""
+  | (x, a):: t -> (x ^" = "^ string_of_float a) ^ "\n" ^ (logTestCase t)
   
 
 (*remove unnecessary assignment*)
@@ -179,7 +463,7 @@ let rec red_ass assIntv lstVar = match assIntv with
   (*Compute the list of boolean constraints without and*)
   let rec f_toList e = match e with
     |And (e1, e2) -> List.append (f_toList e1) (f_toList e2)
-    |BOr (e1, e2) -> List.append (f_toList e1) (f_toList e2)
+    |Or (e1, e2) -> List.append (f_toList e1) (f_toList e2)
     |_ -> [e]
 
   (*Inclusion between two lists: l1 is a subset of l2*)
@@ -762,7 +1046,9 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     flush stdout;*)
     let startTime = Sys.time() in
     let varsSet = polyCons#get_varsSet in
+
     let not_smallIntv intv =
+
       let lowerBound = intv#l in
       let upperBound = intv#h in
       if lowerBound = neg_infinity && upperBound < esl -. max_float then 
@@ -798,7 +1084,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
       ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false)
     else (*Continue decomposition*)
       let decompose_var var ((intv, varId), varSen, isPositiveSen) ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, bumpedVars, _) =
-        let (narrowed, newIntv) = polyCons#backward_interval_propagate var intv varsIntvsMiniSATCodesMap in
+        (*let (narrowed, newIntv) = polyCons#backward_interval_propagate var intv varsIntvsMiniSATCodesMap in*)
         let lowerBound = intv#l in
         let upperBound = intv#h in
         let newPoint = 
@@ -1072,6 +1358,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
   let dynTest (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode) miniSATCodesConstraintsMap clausesNum strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
+
     (*let tmp1 = new af2 2 in
     tmp1#set_a {low= (~-.) 75.;high= (~-.) 75.};
     let nar = Array.create 2 {low=0.;high=0.} in
@@ -1170,7 +1457,12 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                else (false, uk_cl)
              in
                if isEqualitiesSAT then 
-                  (1, "", "", get_allLogs uk_cl, (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), 
+                 let intvLog = log_intervals varsIntvsMiniSATCodesMap in
+                 let validPolyConstraints = List.rev validPolyConstraints in
+                 let iaLog = log_ia validPolyConstraints in
+                 let assignmentsLog = log_assignment a in (* log_assignment is in Assignments.ml *)
+                 let testLog = log_test uk_cl in
+                 (1, "", "", intvLog ^ iaLog ^ assignmentsLog ^ testLog ^ (get_allLogs uk_cl), (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), 
                        "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
                else (
                   (*Applied for Dynamic interval decomposition*)
@@ -1186,7 +1478,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                     else*) clTest_US
                   in
                   (*print_endline "decomposing";
-                  print_endline(bool_expr_list_to_infix_string decomposedExpr);
+                  (*print_endline(bool_expr_list_to_infix_string decomposedExpr);*)
                   flush stdout;*)
                   (*let testUNSATPolyCons = List.hd clTest_US in
                   let decomposedPolyConstraints = testUNSATPolyCons :: uk_cl in*)

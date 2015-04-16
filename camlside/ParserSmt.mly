@@ -1,7 +1,12 @@
 %{
 open Parsing
 open Exp
+open Interval
 %}
+
+%token <string> NUMERAL
+%token <string> DECIMAL
+%token <string> HEXADECIMAL
 
 %token EOF
 %token <string> NUM
@@ -78,11 +83,11 @@ smt_bool_exprs:
 smt_poly_expr:
   | PLUS smt_poly_expr smt_poly_exprs     { Add ($2, $3) }
   | MINUS smt_poly_expr smt_poly_expr    { Sub ($2, $3) }
-  | MINUS smt_poly_expr              { Sub (Real (0.0), $2) }
+  | MINUS smt_poly_expr              { Sub (Constant {low=0.;high=0.}, $2) }
   | TIMES smt_poly_expr smt_poly_exprs    { (*print_endline (poly_toString "" 0 (Mul ($2, $3))); flush stdout;*) Mul ($2, $3) }
   | DIV smt_poly_expr smt_poly_expr      { Div ($2, $3) }
   | POWER smt_poly_expr NUM          { Pow ($2, int_of_string $3) }
-  | NUM                          { (*print_endline $1; flush stdout;*) Real (float_of_string $1) }
+  | NUM                          { (*print_endline $1; flush stdout;*) Constant {low=float_of_string $1;high=float_of_string $1} }
   | ID                           { (*print_endline $1; flush stdout;*) Var $1 }
   | SUBVAR                       { SubVar $1 }
   | LPAREN smt_poly_expr RPAREN      {(*print_endline (poly_toString "" 0 $2); flush stdout;*) $2 }

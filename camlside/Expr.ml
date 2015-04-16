@@ -1,4 +1,5 @@
-open Exp
+(*open Exp
+open Interval
 
 type var = string 
 module MultiVar = struct 
@@ -47,7 +48,7 @@ module Expr = struct
      |1 -> p
      |_ -> times p (power p (n-1))
 
-  (* evaluate expressions into values *) 
+  (*(* evaluate expressions into values *) 
   let rec eval isAddOrMul (exp: Exp.smt_poly_expr) = match exp with 
     | Real c -> constant c 
     | Var v  -> variable v
@@ -62,7 +63,7 @@ module Expr = struct
       else if isAddOrMul = 2 then
         times (eval 2 e1) (eval 2 e2)
       else constant 0.
-    | _ -> constant 0.
+    | _ -> constant 0.*)
 (*    | Div(e1, e2) -> Div (eval e1) (eval e2) *) 
 	
 
@@ -95,3 +96,4 @@ module Expr = struct
 
 end 
 (*End of module Expr*)
+*)
