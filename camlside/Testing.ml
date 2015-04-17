@@ -231,9 +231,9 @@ let rec test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
   let (generatedTCs, newPriorityNum) = firstPolyCons#generateTCs VariablesSet.empty varsIntvsMiniSATCodesMap priorityNum varsSATDirectionMap in
   let abstractTCInfList = Cons((StringMap.empty, generatedTCs, VariablesSet.empty, firstPolyCons, (*1, remainingMiniSATCodesPolyConstraintsMap*) remainingPolyConstraints, newPriorityNum), fun() -> Nil) in 
   let (tc, sTest, clTest_US, varsTCsMap, b) = test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime) in
-  (*if sTest = 1 then
+  if sTest = 1 then
     verify_SAT polyConstraints varsTCsMap 
-  else*) (tc, sTest, clTest_US, varsTCsMap, b)
+  else (tc, sTest, clTest_US, varsTCsMap, b)
   
 and verify_SAT polyConstraints varsTCsMap = match polyConstraints with
   | [] -> ([], 1, [], varsTCsMap, 0)
