@@ -26,6 +26,8 @@ Settings:
   (7) Random
     . Caml.ml, line 1236
   
+4. Test generation
+  (11) Using Sensitivity: PolynomialConstraint.ml  
 
 running experiments: 14, 19, 34, 39, 40
 1. raSAT_2_1TCs_10_1DecomposedVar_2: zankl, unsat directed

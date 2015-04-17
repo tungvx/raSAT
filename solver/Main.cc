@@ -248,8 +248,8 @@ int main(int argc, char* argv[]) {
 	double UNSATLearnedClauses = 0;
 	double unknownLearnedClauses = 0;
 	int maxVarsNum = 0;
-	bool isEquation = false;
-	bool isNotEquation = false;
+	int isEquation = 0;
+	int isNotEquation = 0;
 	//char *sta = new char[2048];
 	//char *typeIA = new char[5];
 
@@ -295,8 +295,8 @@ int main(int argc, char* argv[]) {
 	miniSATCodesConstraintsMap = Field(satInfo, 3);
 	int nCons = Int_val(Field(satInfo, 4));
 	maxVarsNum = Int_val(Field(satInfo, 5));
-	isEquation = Bool_val(Field(satInfo, 6));
-	isNotEquation = Bool_val(Field(satInfo, 7));
+	isEquation = Int_val(Field(satInfo, 6));
+	isNotEquation = Int_val(Field(satInfo, 7));
 	//cout << "maxVarsNum: " << maxVarsNum << endl;
 //	cout << satContent << endl;
 //	cout << "IsEquation: " << isEquation << endl;
@@ -490,6 +490,8 @@ int main(int argc, char* argv[]) {
 					printf("Solved by unit propagation\n");
 					printStats(S);
 					//cout << "Run34" << endl;
+
+
 
 					printf("\n");
 

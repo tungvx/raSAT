@@ -4,16 +4,17 @@ open InfiniteList
 open Assignments
 open PolynomialConstraint  
 open Util
+open Interval
 
 (* This function get a random element from a list, return it and the remaining list *)
 let get_element inputList =
   Random.self_init();
   
-  (*(* (1) (2) need to change (10) *)
-  let randomIndex = 0 in*)
+  (* (1) (2) need to change (10) *)
+  let randomIndex = 0 in
   
-  (* (10) need to change line (1) and (2)*)
-  let randomIndex = Random.int (List.length inputList) in
+  (*(* (10) need to change line (1) and (2)*)
+  let randomIndex = Random.int (List.length inputList) in*)
   
   
   let rec remove aList index checkedList = 
@@ -174,7 +175,7 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
       
 
 (* This function test the list of unknow clauses, trying to find an SAT instance *)
-let test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
+let rec test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
   (*print_endline "\n\nStart Testing";*)
   let startTime = Sys.time() in
   
@@ -229,8 +230,17 @@ let test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
   let priorityNum = 10 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)
   let (generatedTCs, newPriorityNum) = firstPolyCons#generateTCs VariablesSet.empty varsIntvsMiniSATCodesMap priorityNum varsSATDirectionMap in
   let abstractTCInfList = Cons((StringMap.empty, generatedTCs, VariablesSet.empty, firstPolyCons, (*1, remainingMiniSATCodesPolyConstraintsMap*) remainingPolyConstraints, newPriorityNum), fun() -> Nil) in 
-  test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime)
+  let (tc, sTest, clTest_US, varsTCsMap, b) = test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime) in
+  (*if sTest = 1 then
+    verify_SAT polyConstraints varsTCsMap 
+  else*) (tc, sTest, clTest_US, varsTCsMap, b)
   
+and verify_SAT polyConstraints varsTCsMap = match polyConstraints with
+  | [] -> ([], 1, [], varsTCsMap, 0)
+  | polyCons :: remainingPolyConstraints -> 
+    let sat = polyCons#verify_SAT varsTCsMap in
+    if sat = 1 then verify_SAT remainingPolyConstraints varsTCsMap
+    else ([], -1, [polyCons], StringMap.empty, List.length remainingPolyConstraints)
   
 (*  
 (* incremental test *)  

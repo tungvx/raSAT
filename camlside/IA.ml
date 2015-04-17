@@ -211,126 +211,126 @@ class inf_interval lo hi = object (self)
 
     (*addition operator*)
     method add (other: inf_interval)= 
-let val_lo = 
-match self#l with
-  | Float s -> (match other#l with
-    | Float o -> Float (s+.o) 
-    | Neg_inf -> Neg_inf
-    | Pos_inf -> Pos_inf)
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let val_hi = 
-match self#h with
-  | Float s -> (match other#h with
-    | Float o -> Float (s+.o) 
-    | Pos_inf -> Pos_inf
-    | Neg_inf -> Neg_inf)
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let result = new inf_interval val_lo val_hi in
-result;
+      let val_lo = 
+      match self#l with
+        | Float s -> (match other#l with
+          | Float o -> Float (s+.o) 
+          | Neg_inf -> Neg_inf
+          | Pos_inf -> Pos_inf)
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let val_hi = 
+      match self#h with
+        | Float s -> (match other#h with
+          | Float o -> Float (s+.o) 
+          | Pos_inf -> Pos_inf
+          | Neg_inf -> Neg_inf)
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let result = new inf_interval val_lo val_hi in
+      result;
      
     (*addition by a coeff*)
     method add2 (c: float)= 
-let val_lo = 
-match self#l with
-  | Float s -> Float (s+.c) 
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let val_hi = 
-match self#h with
-  | Float s -> Float (s+.c) 
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let result = new inf_interval val_lo val_hi in
-result;
+      let val_lo = 
+      match self#l with
+        | Float s -> Float (s+.c) 
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let val_hi = 
+      match self#h with
+        | Float s -> Float (s+.c) 
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let result = new inf_interval val_lo val_hi in
+      result;
 
     (*subtraction operator*)
     method sub (other: inf_interval)= 
-let val_lo = 
-match self#l with
-  | Float s -> (match other#h with
-    | Float o -> Float (s-.o) 
-    | Neg_inf -> Pos_inf
-    | Pos_inf -> Neg_inf)
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let val_hi = 
-match self#h with
-  | Float s -> (match other#l with
-    | Float o -> Float (s-.o) 
-    | Neg_inf -> Pos_inf
-    | Pos_inf -> Neg_inf)
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let result = new inf_interval val_lo val_hi in
-result;
+      let val_lo = 
+      match self#l with
+        | Float s -> (match other#h with
+          | Float o -> Float (s-.o) 
+          | Neg_inf -> Pos_inf
+          | Pos_inf -> Neg_inf)
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let val_hi = 
+      match self#h with
+        | Float s -> (match other#l with
+          | Float o -> Float (s-.o) 
+          | Neg_inf -> Pos_inf
+          | Pos_inf -> Neg_inf)
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let result = new inf_interval val_lo val_hi in
+      result;
 
     (*subtraction by a coeff*)
     method sub2 (c: float)= 
-let val_lo = 
-match self#l with
-  | Float s -> Float (s-.c) 
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let val_hi = 
-match self#h with
-  | Float s -> Float (s-.c) 
-  | Neg_inf -> Neg_inf
-  | Pos_inf -> Pos_inf
-in
-let result = new inf_interval val_lo val_hi in
-result;	
+      let val_lo = 
+      match self#l with
+        | Float s -> Float (s-.c) 
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let val_hi = 
+      match self#h with
+        | Float s -> Float (s-.c) 
+        | Neg_inf -> Neg_inf
+        | Pos_inf -> Pos_inf
+      in
+      let result = new inf_interval val_lo val_hi in
+      result;	
 
     (*multiplication operator*)
     method mul (other: inf_interval)= 
-let mi = inf_min (inf_min (mul self#l other#l) (mul self#l other#h)) 
-         (inf_min (mul self#h other#l) (mul self#h other#h)) in 
-let ma = inf_max (inf_max (mul self#l other#l) (mul self#l other#h)) 
-         (inf_max (mul self#h other#l) (mul self#h other#h)) in 
-let result = new inf_interval mi ma in
-result;       
+      let mi = inf_min (inf_min (mul self#l other#l) (mul self#l other#h)) 
+               (inf_min (mul self#h other#l) (mul self#h other#h)) in 
+      let ma = inf_max (inf_max (mul self#l other#l) (mul self#l other#h)) 
+               (inf_max (mul self#h other#l) (mul self#h other#h)) in 
+      let result = new inf_interval mi ma in
+      result;       
 
     (*multiple an interval with a coeff*)
      method mul2 (c: float) = 
-let result = new inf_interval (mul self#l (Float c)) (mul self#h (Float c)) in
-result; 
+      let result = new inf_interval (mul self#l (Float c)) (mul self#h (Float c)) in
+      result; 
 
-     (*meet operator for interval*)
-     method meet (other: inf_interval) =
- let result = new inf_interval (inf_min self#l other#l) (inf_max self#h other#h) in
- result;
+           (*meet operator for interval*)
+           method meet (other: inf_interval) =
+       let result = new inf_interval (inf_min self#l other#l) (inf_max self#h other#h) in
+       result;
 
      (*power function*)
      method pow (n: int) = 
- let mi = ref self#l in
- let ma = ref self#h in	 
- for i = 1 to n-1 do
- 	   let lo = inf_min (inf_min (mul !mi self#l) (mul !mi self#h)) (inf_min (mul !ma self#l) (mul !ma self#h)) in
-   let hi = inf_max (inf_max (mul !mi self#l) (mul !mi self#h)) (inf_max (mul !ma self#l) (mul !ma self#h)) in
-   mi := lo;
-   ma := hi;
- done;
- let result = new inf_interval !mi !ma in
- result;
+       let mi = ref self#l in
+       let ma = ref self#h in	 
+       for i = 1 to n-1 do
+       	   let lo = inf_min (inf_min (mul !mi self#l) (mul !mi self#h)) (inf_min (mul !ma self#l) (mul !ma self#h)) in
+         let hi = inf_max (inf_max (mul !mi self#l) (mul !mi self#h)) (inf_max (mul !ma self#l) (mul !ma self#h)) in
+         mi := lo;
+         ma := hi;
+       done;
+       let result = new inf_interval !mi !ma in
+       result;
        
      method printForm =
- let sl = match self#l with
-   |Float f -> string_of_float f
-   |Neg_inf -> "-w"
-   |Pos_inf -> "+w" in
- let su = match self#h with
-   |Float f -> string_of_float f
-   |Neg_inf -> "-w"
-   |Pos_inf -> "+w" in
- Printf.printf "[%s, %s]" sl su;
+       let sl = match self#l with
+         |Float f -> string_of_float f
+         |Neg_inf -> "-w"
+         |Pos_inf -> "+w" in
+       let su = match self#h with
+         |Float f -> string_of_float f
+         |Neg_inf -> "-w"
+         |Pos_inf -> "+w" in
+       Printf.printf "[%s, %s]" sl su;
 
      method to_interval = 
        let floatL = float_of_bound l in

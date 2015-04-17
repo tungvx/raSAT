@@ -117,6 +117,7 @@ let rec evalFloat varsTCMap = function
 	| Add (u,v) -> evalFloat varsTCMap u +. evalFloat varsTCMap v
 	| Sub (u,v) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
 	| Mul (u,v) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
+	| Div (u, v) -> evalFloat varsTCMap u /. evalFloat varsTCMap v
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
@@ -148,9 +149,10 @@ let checkSAT_computeValues boolExp varsTCsMap =
 (* This function converts a polynomial expression into infix string form *)
 let rec string_infix_of_polyExpr = function
   | Var x -> x
-	| Add(e1, e2) -> (string_infix_of_polyExpr e1) ^ "+" ^ (string_infix_of_polyExpr e2)
-	| Sub(e1, e2) -> (string_infix_of_polyExpr e1) ^ "-" ^ (string_infix_of_polyExpr e2)
-	| Mul(e1, e2) -> (string_infix_of_polyExpr e1) ^ "*" ^ (string_infix_of_polyExpr e2)
+	| Add(e1, e2) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") + (" ^ (string_infix_of_polyExpr e2) ^ ")" 
+	| Sub(e1, e2) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") - (" ^ (string_infix_of_polyExpr e2) ^ ")"
+	| Mul(e1, e2) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") * (" ^ (string_infix_of_polyExpr e2) ^ ")"
+	| Div(e1, e2) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") / (" ^ (string_infix_of_polyExpr e2) ^ ")"
 	| Real r -> string_of_float r
 (*==================== END string_infix_of_polyExpr ==============================*)	
 
@@ -190,6 +192,7 @@ let rec string_prefix_of_polyExp = function
   | Add (e1, e2) -> "(+ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
   | Sub (e1, e2) -> "(- " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
   | Mul (e1, e2) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Div (e1, e2) -> "(/ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
 (*==================== END string_prefix_of_polyExp ==============================*)
 
 
@@ -213,6 +216,7 @@ let rec string_postfix_of_polyExpr = function
   | Add (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "+ " 
   | Sub (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "- "
   | Mul (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
+  | Div (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "/ "
 (*==================== END string_postfix_of_polyExpr ==============================*)
 
 
@@ -294,6 +298,7 @@ let rec evalCI_extra varsIntvsMap = function
   | Add (u, v) -> evalCI_extra varsIntvsMap u +$ evalCI_extra varsIntvsMap v
   | Sub (u, v) -> evalCI_extra varsIntvsMap u -$ evalCI_extra varsIntvsMap v
   | Mul (u, v) -> evalCI_extra varsIntvsMap u *$ evalCI_extra varsIntvsMap v
+  | Div (u, v) -> evalCI_extra varsIntvsMap u /$ evalCI_extra varsIntvsMap v
   
 let rec evalCI varsIntvsMap polyExpr =
   let computedIntv = evalCI_extra varsIntvsMap polyExpr in
@@ -327,6 +332,7 @@ let rec evalAf2 varsAf2sMap varsNum = function
   | Add (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u + evalAf2 varsAf2sMap varsNum v)
   | Sub (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
   | Mul (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u * evalAf2 varsAf2sMap varsNum v)
+  | _ -> raise (Failure "Unsupported operation of af2")
 
 (* evalCai1 compute the bound of a polynomial function from an assignment ass by CAI1 form*)
 let rec evalCai1 ass n= function
@@ -383,8 +389,10 @@ let poly_eval_af2 polyExpr varsSet varsNum varsIntvsMap =
     (StringMap.add var af2 varsAf2sMap, nextIndex + 1)
   in 
   let (varsAf2Map, _) = VariablesSet.fold add_varAf2 varsSet (StringMap.empty, 1) in
-  let res = evalAf2 varsAf2Map varsNum polyExpr in
-  res#evaluate
+  try 
+    let res = evalAf2 varsAf2Map varsNum polyExpr in
+    res#evaluate
+  with Failure f -> new IA.interval neg_infinity infinity
 
 
 (* Evaluate the polynomial using AF2, varsSensitivity is also returned *)
@@ -404,10 +412,15 @@ let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap =
     flush stdout;
   in
   List.iter print_var_index varsIndicesList;*)
-  let res = evalAf2 varsAf2Map varsNum polyExpr in
-  (*res#print_form;*)
-  let varsSensitivity = res#extract_sortedVarsSens varsIndicesList in
-  (res#evaluate, varsSensitivity)
+  try 
+    let res = evalAf2 varsAf2Map varsNum polyExpr in
+    (*res#print_form;*)
+    let varsSensitivity = res#extract_sortedVarsSens varsIndicesList in
+    (res#evaluate, varsSensitivity)
+  with Failure f -> 
+    let gen_emptyVarsSen var currentSens = (var, 0., false) :: currentSens in
+    let varsSensitivity = VariablesSet.fold gen_emptyVarsSen varsSet [] in
+    (new IA.interval neg_infinity infinity, varsSensitivity)
 
 (* Evaluate a polynomial using CI *)
 let poly_eval_ci polyExpr varsIntvsMap = 

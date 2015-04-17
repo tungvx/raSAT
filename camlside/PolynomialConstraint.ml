@@ -53,9 +53,9 @@ class polynomialConstraint boolExprInit =
     
     method isPositiveDirected = isPositiveDirected
     
-    method isEquation = isEquation
+    method isEquation = if isEquation then 1 else 0
     
-    method isNotEquation = isNotEquation
+    method isNotEquation = if isNotEquation then 1 else 0
     
     method isInfinite = isInfinite
     
@@ -82,7 +82,7 @@ class polynomialConstraint boolExprInit =
       else varsList
     
     (* check sat of this polynomial using ci*)
-    method private check_sat_getBound_ici (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap
+    (*method private check_sat_getBound_ici (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap*)
     
     (* check sat of this polynomial using combination of af2 and ci*)
     method private check_sat_af_two_ci (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap
@@ -102,10 +102,10 @@ class polynomialConstraint boolExprInit =
       in
       let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
       
-      if isInfiniteTmp then 
+      (*if isInfiniteTmp then 
         let (sat, _, _) = self#check_sat_getBound_ici varsIntvsMap in
         sat
-      else 
+      else*) 
         self#check_sat_af_two_ci varsIntvsMap
     
     method check_sat_varsSen_setIsInfinite_setBounds_setEasiness (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) =
@@ -116,9 +116,9 @@ class polynomialConstraint boolExprInit =
       let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
       isInfinite <- isInfiniteTmp;
       let (sat, bound, satLength) =
-        if isInfinite then 
+        (*if isInfinite then 
           self#check_sat_getBound_ici varsIntvsMap
-        else 
+        else*) 
           self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
       in
       let setEasiness = 
@@ -136,9 +136,9 @@ class polynomialConstraint boolExprInit =
       in
       let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
       let (_, bound, _) =
-        if isInfinite then 
+        (*if isInfinite then 
           self#check_sat_getBound_ici varsIntvsMap
-        else 
+        else*) 
           self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
       in
       bound
@@ -153,12 +153,13 @@ class polynomialConstraint boolExprInit =
       in
       let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
       let (sat, bound, satLength) =
-        if isInfiniteTmp then 
+        (*if isInfiniteTmp then 
           self#check_sat_getBound_ici varsIntvsMap
-        else 
+        else *)
           let (sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
           (sat, bound, computedSatLength)
       in
+      
       (sat, satLength, satLength /. (bound#h -. bound#l))
         
     
@@ -212,8 +213,8 @@ class polynomialConstraint boolExprInit =
           )
           else []
       in
-      (*get_n_first varsSen n (*(8)*)*)
-      get_n_random varsSen n (*(9)*)
+      get_n_first varsSen n (*(8)*)
+      (*get_n_random varsSen n (*(9)*)*)
     
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
@@ -225,7 +226,17 @@ class polynomialConstraint boolExprInit =
       let (sat, value) = checkSAT_computeValues boolExpr varsTCsMap in
       testValue <- value; 
       sat
-      
+   
+    method verify_SAT varsTCsMap = 
+      print_endline ("verifying " ^ self#to_string_infix);
+      flush stdout;
+      let convert_toIntv var tc currentVarsIntvsMap = StringMap.add var (new IA.interval tc tc) currentVarsIntvsMap in
+      let varsIntvsMap = StringMap.fold convert_toIntv varsTCsMap StringMap.empty in
+      let polyExpr = get_exp boolExpr in
+      let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
+      print_endline ("Bound" ^ ciBound#to_string);
+      flush stdout;
+      check_sat_providedBounds boolExpr ciBound
       
     method add_sat_direction currentVarSATDirectionMap = 
       let add_sat_direction_extra currentMap (var, varSen, isPositiveSen) =
@@ -493,7 +504,7 @@ class polynomialConstraint boolExprInit =
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
-          (*let isVarPositiveDirected = 0 in*)
+          (*let isVarPositiveDirected = 0 in*) (* (11) *)
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
@@ -515,8 +526,8 @@ class polynomialConstraint boolExprInit =
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      (*generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)*)
-      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)
+      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)
+      (*generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
   
@@ -543,11 +554,11 @@ let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap 
   | And (b1, b2) -> 
     let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
     let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
-    (MAnd (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 || isEquation2, isNotEquation1 || isNotEquation2)
+    (MAnd (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 + isEquation2, isNotEquation1 + isNotEquation2)
   | Or (b1, b2) -> 
     let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
     let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
-    (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 || isEquation2, isNotEquation1 || isNotEquation2)
+    (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 + isEquation2, isNotEquation1 + isNotEquation2)
   | Single polyCons -> (
       polyCons#set_miniSATCode index;
       polyCons#set_logic logic;
