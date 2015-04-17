@@ -770,6 +770,38 @@ class af2 size = object (self)
     
     result;       
    
+   (*addition operator*)
+    method div (f: float) = 
+      (*print_endline "\nAdding: ";
+      self#print_form;
+      print_endline "\nwith";
+
+      other#print_form;*)
+      
+      let size1 = Array.length self#ar in
+      let result = new af2 size1 in
+      result#set_a (self#a /$. f);
+      
+      let newKp = {low=self#kp;high=self#kp} /$. f in
+      result#set_kp newKp.high;
+      
+      let newKn = {low=self#kn;high=self#kn} /$. f in
+      result#set_kn newKn.high;
+      
+      let newK = {low=self#k;high=self#k} /$. f in
+      result#set_k newK.high;
+      
+      let nar = Array.create size1 {low=0.;high=0.} in
+      for i = 0 to size1 - 1 do
+        Array.set nar i (self#ar.(i) /$. f);
+      done;
+      result#set_ar nar;
+      
+      (*print_endline "\nresult:";
+      result#print_form;*)
+      
+      result;
+   
    (*Evaluate the bound*)
     method evaluate =    
       let intv = ref (self#a +$ {low = (~-.) self#k;high=self#k} +$ {low= (~-.) self#kn;high=self#kp}) in
@@ -841,6 +873,7 @@ module AF2 = struct
   let ( * ) (t1: af2) (t2: af2) = t1 #mul t2
   let ( + ) (t1: af2) (t2: af2) = t1 #add t2
   let ( - ) (t1: af2) (t2: af2) = t1 #sub t2
+  let ( / ) (t: af2) (f: float) = t #div f
   let ( ^ ) (t: af2)  (n: int)  = pow t n
 end
 (*class af2 size = object (self)

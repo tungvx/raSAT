@@ -332,6 +332,7 @@ let rec evalAf2 varsAf2sMap varsNum = function
   | Add (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u + evalAf2 varsAf2sMap varsNum v)
   | Sub (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
   | Mul (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u * evalAf2 varsAf2sMap varsNum v)
+  | Div (u, Real f) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u / f)
   | _ -> raise (Failure "Unsupported operation of af2")
 
 (* evalCai1 compute the bound of a polynomial function from an assignment ass by CAI1 form*)
