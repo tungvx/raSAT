@@ -346,7 +346,7 @@ and get_boolExp_from_list = function
 and get_intervals_from_constraints = function 
   | Single polyCons -> get_intervals_from_polyCons polyCons#get_constraint
   | And (boolCons1, boolCons2) -> StringMap.merge merge_interval (get_intervals_from_constraints boolCons1) (get_intervals_from_constraints boolCons2)
-  | Or (boolCons1, boolCons2) -> StringMap.merge merge_interval (get_intervals_from_constraints boolCons1) (get_intervals_from_constraints boolCons2)
+  | Or (boolCons1, boolCons2) -> StringMap.empty
   
 and merge_interval var value1 value2 = match value1, value2 with
   | Some intv1, Some intv2 -> Some (inter_I_I intv1 intv2)
@@ -1050,8 +1050,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         print_endline (bool_expr_to_infix_string h);
         flush stdout;*)
         (*let lstUC = get_unsatcore h ia assIntv in*)
-        (*print_endline ("UNSAT API: " ^ h#to_string_infix ^ ": " ^ string_of_int h#get_miniSATCode);
-        flush stdout;*)
+        print_endline ("UNSAT API: " ^ h#to_string_infix ^ ": " ^ string_of_int h#get_miniSATCode);
+        flush stdout;
         let unsatCoreVars = get_unsatcore_vars h varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap ((remainingTime -. Sys.time() +. startTime) (*/. 4.*)) in (* get_unsatcore_vars is defined in Unsat_core.ml *)
         let usTime = usTime +. Sys.time() -. startUSCoreTime in
         (*let str = 
@@ -1434,8 +1434,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     
     Random.self_init();
 		let startTime = Sys.time() in
-		(*print_endline ("Solution: " ^ strCheck);
-		flush stdout;*)
+		print_endline ("Solution: " ^ strCheck);
+		flush stdout;
     let solution = toIntList strCheck in
 
     (*print_endline "Start get constraints and intervals";
