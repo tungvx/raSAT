@@ -40,6 +40,8 @@
 camlside/a
 solver/Test/bin/raSAT
 solver/Test/raSAT
+solver/Test/smtlib-20140121/QF_NRA/nonlinear
+solver/Test/smtlib-20140121/QF_NRA/ijcar2012_benchmarks.tar
 solver/raSAT
 solver/iRRAM_2013_01/
 solver/iRRAM

@@ -15,7 +15,8 @@
 \usepackage{slashbox}
 \usepackage{amsfonts}
 
-\usepackage{algorithm2e}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
 \usepackage{epstopdf}
 \usepackage{array}
 \usepackage{enumerate}
@@ -897,6 +898,9 @@ For choosing a box to explore, {\bf raSAT} chooses more likely to be SAT.
 There are two choice, (1) a box with the largest SAT-likelyhood, and 
 (2) a box with the largest number of SAT (either IA-valid or test-SAT) APIs. 
 
+\subsubsection*{Test case generation using variables sensitivity.}
+\sloppy
+The value of variables sensitivity can also be used to approximate how likely the value of a polynomial increases when the value of that variable increases. Consider the constraint $f = -x_{15}*x_8+x_{15}*x_2-x_{10}*x_{16}>0$. With ${x_2 \in [9.9, 10]}, {x_8 \in [0, 0.1]}, {x_{10} \in [0, 0.1]}, {x_{15} \in [0, 10]},$ and $ x_{16} \in [0, 10]$. The result of AF2 for $f$ is: $0.25 \epsilon_2 - 0.25 \epsilon_8 - 0.25 \epsilon_{10} + 49.5\epsilon_{15} - 0.25\epsilon_{16} + 0.75\epsilon_{+-} + 49.25$. The coefficient of $\epsilon_2$ is $0.25$ which is positive, then we expect that if $x_2$ increases, the value of $f$ also increase.  As the result, the test case of $x_2$ is expected as high as possible in order to satisfy $f>0$. We will thus take the upper bound value of $x_2$, i.e. $10$. Similarly, we take the test cases for other variables: $x_8=0, x_{10}=0, x_{15}=10, x_{16}=0$. With these test cases, we will have $f=100 > 0$.
 
 \suppress{
 I. Selecting API for testing:
@@ -915,6 +919,81 @@ III. Selecting box:
 }
 
 
+\section{SAT on Equality by Intermediate Value Theorem} \label{sec:eq}
+\subsection*{Single Equation}
+For solving polynomial constraints with single equality ($g=0$), we apply {\em Intermediate Value Theorem}. 
+That is, if existing 2 test cases such that $g > 0$ and $g < 0$, then $g=0$ is SAT somewhere in between. 
+
+\begin{lemma} \label{lemma:ivt}
+For $\varphi = \bigwedge \limits_{j}^m f_j > 0~\wedge~g = 0$, $F$ is SAT, if 
+there is a box represented by $\Pi = \bigwedge\limits_{v_i \in V}v_i \in (l_i, h_i)$ such that
+\begin{enumerate}[(i)]
+\item $\bigwedge \limits_{j}^m f_j > 0$ is $\Pi^p_\mathbb{R}$-VALID, and 
+\item there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+It is clear from the Intermediate Value Theorem that there exist an point $\vec{t_0}$ between $\vec{t}$ and $\vec{t'}$ such that $g(\vec{t_0}) = 0$. In addition, because $\bigwedge \limits_{j}^m f_j > 0$ is $\Pi^p_\mathbb{R}$-VALID, $\vec{t_0}$ also satisfies $\bigwedge \limits_{j}^m f_j > 0$. As a result, $\varphi$ is satisfiable with $\vec{t_0}$ as the SAT instance.
+\end{proof}
+
+\begin{example}
+Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we can find a box represented by $\Pi = x \in \langle a, b \rangle \wedge y \in \langle c, d \rangle$ such that $f(x, y) > 0$ is $\Pi^p_\mathbb{R}$-VALID (Figure~\ref{fig:single-equation}). In addition, inside that box, we can find two points $(u_1, v_1)$ and $(u_2, v_2)$ such that $g(u_1, v_1) > 0$ and $g(u_2, v_2) < 0$. By Lemma~\ref{lemma:ivt}, the constraint is satisfiable.
+\end{example}
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.5]{singleEquation.png} 
+\caption{Example on solving single equation using the Intermediate Value Theorem} 
+\label{fig:single-equation} 
+%\end{minipage}
+\end{figure} 
+{\bf raSAT} first tries to find a box of variables' intervals (by refinements) such that $\bigwedge \limits_{j}^m f_j > 0$ is VALID inside that box. Then it tries to find 2 instances for $g > 0$ and $g < 0$ by testing. 
+Intermediate Value Theorem guarantees the existence of an SAT instance in between. 
+Note that this method does not find an exact SAT instance. 
+\subsection*{Multiple Equations}
+The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. Consider $n$ equations ($n \ge 1$): $\bigwedge \limits_{i=1}^n g_i = 0$ and an interval constraint ${\bigwedge\limits_{v_i \in V}v_i \in \langle l_i, h_i \rangle}$. If we can find a set ${\{V_1, \cdots, V_n\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{i=1}^n g_i = 0$ is satisfiable in ${\bigwedge\limits_{v_i \in V}v_i \in \langle l_i, h_i \rangle}$.
+\begin{itemize}
+\item[$\bullet$] For all $i = 1, \cdots, n$; we have ${V_i \subset var(g_i)}$.
+\item[$\bullet$] For all $i \neq j$, we have $V_i \neq V_j$.
+\item[$\bullet$] For all $i = 1, \cdots, n$; let $k_i = |V_i|$ and $V_i = \{v_{ij} \; | \; 1 \le j \le k_i \}$. Then, there exist two values ${(v_{i1}, \cdots, v_{ik_I}) = (x_{i1}, \cdots, x_{ik_i})}$ and ${(v_{i1}, \cdots, v_{ik_I}) = (x'_{i1}, \cdots, x'_{ik_i})}$ such that \[g_i(x_{i1}, \cdots, x_{ik_i}, \cdots, v_{ik}, \cdots) > 0\] and \[g_i(x'_{i1}, \cdots, x'_{ik_i}, \cdots, v_{ik}, \cdots) < 0\] for all values of $v_{ik}$ in $\langle l_{ik}, h_{ik} \rangle$ where $v_{ik} \in var(g_i) \setminus V_i$. We denote $ivt(g_i, V_i, \Pi)$ to represent that the polynomial $g_i$ enjoy this property with respect to $V_i$ and $\Pi$.
+\end{itemize}
+By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
+
+\begin{example}
+Consider two equations $g_1(x, y)=0$ and $g_2(x, y) = 0$ (Figure~\ref{fig:multiple-equations}) which satisfy the above restriction on the number of variables, and the variable intervals is $\Pi = x \in \langle c_1, d_1 \rangle \wedge y \in \langle d_2, c_2 \rangle$. Let $V_1 = \{x\}$ and $V_2 = \{y\}$, we have:
+\[g_1(c_1, y) < 0\text{ and }g_1(d_1, y) < 0 \text{ for all } y \in \langle d_2, c_2 \rangle \text{; and }\]
+\[g_2(x, d_2) > 0 \text{ and }g_2(x, c_2) < 0 \text{ for all } x \in \langle c_1, d_1 \rangle\]
+Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside the box represented by $\Pi$.
+\end{example}
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.4]{multipleEquations.png} 
+\caption{Example on solving single equation using the Intermediate Value Theorem} 
+\label{fig:multiple-equations} 
+%\end{minipage}
+\end{figure}
+Our current implementation of handling multiple equations is very naive which is described in Algorithm~\ref{Al:multiple-equations} because for each polynomial, \textbf{raSAT} checks every possible subsets of its variables. As the result, given the constraint $\bigwedge\limits_{i=1}^ng_i=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_n)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
+\begin{algorithm}
+\begin{algorithmic}[1]
+\Function{equationsProver}{$\bigwedge\limits_{i=j}^ng_i = 0, \Pi, V_0$}
+\If {$j > n$} \Comment{All equations are checked}
+	\State \Return SAT
+\EndIf
+\For {$V_j \in P(var(g_j))$} \Comment{$P(var(g_j))$ is the powerset of $var(g_j)$}
+	\If {$V_j \cap V = \emptyset$ and $ivt(V', g_j, \Pi)$}
+		\State $V_0 \gets V_0 \cup V'$
+		\If {\Call{equationsProver}{$\bigwedge\limits_{i=j+1}^ng_i = 0, \Pi, V_0$} = SAT}
+			\State \Return SAT
+		\EndIf
+	\EndIf
+\EndFor
+\State \Return UNSAT
+\EndFunction
+\State \Call{equationsProver}{$\bigwedge\limits_{i=1}^ng_i = 0, \Pi, \emptyset$}
+\end{algorithmic}
+\caption{Solving multiple equations $\bigwedge\limits_{i=1}^n g_i = 0$ with interval constraint ${\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle}$}
+\label{Al:multiple-equations}
+\end{algorithm}
 
 
 \section{Experiments} \label{sec:experiment}
@@ -966,16 +1045,13 @@ They are mostly small problems, up to 8 varaibles (mostly up to 5 variables), an
 \end{itemize}
 
 
-\mizuhito{
-Experiments in Section~\ref{sec:experiment} are performed 
-with 10 variables (1 varable for each 10 APIs selected by SAT-likelyhood) 
-for multiple test generation (random $2$ ticks), and  variable for decomposition. 
-
-Experiments in Section~\ref{sec:experiment} are performed 
-with $\gamma_0 = 0.1$ and $\gamma_{i+1} =  \gamma_i / 10$. 
-
-$\delta_0 = 10$, $\delta_1 = \infty$. 
-}
+The setting of the experiments are
+\begin{itemize}
+\item For test data generation, raSAT chooses 10 variables (1 variable from each of 10 APIs with largest SAT-likelyhood) and apply random 2-ticks, and single random test data is generated for each of the rest of variables.
+\item For interval decomposition, raSAT applies the balanced decomposition.
+\item For incremental widening, $\delta_0 = 10, \delta_1 = \infty$
+\item For incremental deepening, $\gamma_i = 10^{-(i+1)}$ for $i \ge 0$.
+\end{itemize}
 
 
 \subsection{Experiments on strategy combinations} \label{sec:expstrategy}
