@@ -5,6 +5,7 @@
 % *** MISC UTILITY PACKAGES ***
 %
 \usepackage{amssymb}
+\usepackage{verbatim}
 \setcounter{tocdepth}{3}
 
 \usepackage{graphicx}
@@ -1054,14 +1055,20 @@ The setting of the experiments are
 \end{itemize}
 
 
-\subsection{Experiments on strategy combinations} \label{sec:expstrategy}
+\subsection{Experiments on ICP solvers} \label{sec:expstrategy}
 
-We perform experiments only on Zankl, and Meti-Tarski families. 
+We perform experiments on ICP-based SMT solvers against inequalities of Zankl, Meti-Tarski and Keymaera families. The solvers consis of:
 
-
-Our combinations of strategies mentioned in Section~\ref{sec:strategy} are, 
+\begin{itemize}
+\item previous version of raSAT \cite{VanKhanh201227},
+\item current version of raSAT with above mentioned strategies,
+\item iSAT3 \cite{isat}, and
+\item dREAL \cite{dRealCADE13}.
+\end{itemize}
+ 
 
 \medskip
+\begin{comment}
 {\centering
 \begin{tabular}{l|l|l}
 Selecting a test-UNSAT API~~ & Selecting a box (to explore): & 
@@ -1242,8 +1249,33 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 \medskip 
 \caption{Comparison among SMT solvers} \label{tab:comparison}
 \end{table*}
+\end{comment}
 
-
+\begin{table*}[t]
+\centering
+\begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r |}
+\hline
+    \multicolumn{1}{|c|}{Solver} & 
+    \multicolumn{4}{c|}{Zankl(151)} & \multicolumn{4}{c|}{Meti-tarski (5101)} & \multicolumn{4}{c|}{Keymaera} \\
+\hline
+    & \multicolumn{2}{c|}{SAT} & \multicolumn{2}{c}{UNSAT} & \multicolumn{2}{|c|}{SAT} 
+    & \multicolumn{2}{c|}{UNSAT} & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
+\hline
+ \bf raSAT \cite{VanKhanh201227} & 21 & 933.39(s)& 10 & 0.38 (s)
+ &  &  &  & &  &  &  &  \\
+\hline
+\bf current raSAT & 36 & 1675.76 (s) & 10 & 0.91 (s) &  &  &  &  &  & &  &  \\
+\hline 
+\bf iSAT3 & 14 & 201.08(s) & 19 & 8.17(s) &  &  &  &  &  & & 
+ &  \\
+\hline
+\bf dREAL &  &  &  &  &  & &  &  &  &  & 
+ &  \\
+\hline
+\end{tabular}
+\medskip 
+\caption{Comparison among SMT solvers} \label{tab:comparison}
+\end{table*}
 
 \subsection{Polynomial constraints over integers} \label{sec:NIA}
 
