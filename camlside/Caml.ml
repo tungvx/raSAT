@@ -199,7 +199,11 @@ and get_minus_poly_extra = function
   | [poly1; poly2] -> Sub(poly1, poly2)
   | poly1::poly2::remainingPolys -> Sub(Sub(poly1, poly2), get_mul_poly remainingPolys)     
 
-and get_poly_term varBindings = function 
+and get_poly_term varBindings term =
+  let poly = get_poly_term_extra varBindings term in
+  Expr.reduce poly
+
+and get_poly_term_extra varBindings = function 
   |TermSpecConst (_ , specReal1) ->  
     get_poly_specReal specReal1
   |TermQualIdentifier (_ , qualidentifier1) -> 
@@ -249,18 +253,21 @@ and get_constraint_term varBindings = function
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
       | [poly; Real 0.] -> [Single (new polynomialConstraint (Le poly))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint (Gr poly))]
       | [poly1; poly2] -> [Single (new polynomialConstraint(Le (Sub(poly1, poly2))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = "<=" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
       | [poly; Real 0.] -> [Single (new polynomialConstraint (Leq poly))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint (Geq poly))]
       | [poly1; poly2] -> [Single (new polynomialConstraint (Leq (Sub(poly1, poly2))))]
       | _ ->  raise (Failure "Wrong Input")  
     else if qualidentifier_string = ">" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
       | [poly; Real 0.] -> [Single (new polynomialConstraint(Gr poly))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint(Le poly))]
       | [poly1; poly2] -> [Single (new polynomialConstraint (Gr (Sub(poly1, poly2))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = ">=" then
@@ -273,6 +280,7 @@ and get_constraint_term varBindings = function
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
       | [poly; Real 0.] -> [Single (new polynomialConstraint(Eq poly))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint(Eq poly))]
       | [poly1; poly2] -> [Single (new polynomialConstraint(Eq (Sub(poly1, poly2))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = "and" then
