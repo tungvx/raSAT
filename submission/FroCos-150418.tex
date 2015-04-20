@@ -1266,8 +1266,8 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 \hline
 \bf current raSAT & 36 & 1675.76 (s) & 10 & 0.91 (s) &  &  &  &  &  & &  &  \\
 \hline 
-\bf iSAT3 & 14 & 201.08(s) & 19 & 8.17(s) &  &  &  &  &  & & 
- &  \\
+\bf iSAT3 & 14 & 201.08(s) & 19 & 8.17(s) &  &  &  &  & 0 & 0(s) & 
+310 & 103.22(s) \\
 \hline
 \bf dREAL &  &  &  &  &  & &  &  &  &  & 
  &  \\
@@ -1276,6 +1276,17 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 \medskip 
 \caption{Comparison among SMT solvers} \label{tab:comparison}
 \end{table*}
+
+\subsection{Experiments on SAT solving of equations}
+\begin{table}[h]
+\begin{tabular}{lclclclcl}
+\cline{2-9}
+\multicolumn{1}{l|}{} & \multicolumn{4}{c|}{Zankl(15)}                                                                                 & \multicolumn{4}{c|}{Meti-tarski(2612)}                                                                                 \\ \cline{2-9} 
+\multicolumn{1}{l|}{} & \multicolumn{2}{c|}{SAT(11)}                           & \multicolumn{2}{c|}{UNSAT(4)}                         & \multicolumn{2}{c|}{SAT(1497)}                             & \multicolumn{2}{c|}{UNSAT(1115)}                          \\ \cline{2-9} 
+\multicolumn{1}{l|}{} & \multicolumn{1}{c|}{11} & \multicolumn{1}{c|}{0.07(s)} & \multicolumn{1}{c|}{4} & \multicolumn{1}{c|}{0.17(s)} & \multicolumn{1}{c|}{1343} & \multicolumn{1}{c|}{150.11(s)} & \multicolumn{1}{c|}{804} & \multicolumn{1}{c|}{188.61(s)} \\ \cline{2-9} 
+                      & \multicolumn{1}{l}{}    &                              & \multicolumn{1}{l}{}   &                              & \multicolumn{1}{l}{}      &                                & \multicolumn{1}{l}{}     &                               
+\end{tabular}
+\end{table}
 
 \subsection{Polynomial constraints over integers} \label{sec:NIA}
 
