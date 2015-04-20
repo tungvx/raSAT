@@ -21,7 +21,7 @@ include OCamlMakefile
 
 modcaml.o: InfiniteList.cmx Variable.cmx Util.cmx ast.cmx Expr.cmx PolynomialConstraint.cmx Testing.cmx Exp.cmx Expr.cmx IA.cmx Caml.cmx Assignments.cmx smtlib_util.cmx smtlib_syntax.cmx smtlib_parse.cmx smtlib_lex.cmx Decomposer.cmx EqualitiesHandler.cmx UnsatCore.cmx fpu.cmx fpu_rename.cmx fpu_rename_all.cmx interval.cmx
 
-	$(OC) -output-obj -o modcaml.o fpu.cmx fpu_rename.cmx fpu_rename_all.cmx interval.cmx InfiniteList.cmx IA.cmx Variable.cmx Assignments.cmx Util.cmx ast.cmx Expr.cms PolynomialConstraint.cmx Testing.cmx smtlib_util.cmx smtlib_syntax.cmx smtlib_parse.cmx smtlib_lex.cmx Decomposer.cmx EqualitiesHandler.cmx UnsatCore.cmx Caml.cmx
+	$(OC) -output-obj -o modcaml.o fpu.cmx fpu_rename.cmx fpu_rename_all.cmx interval.cmx InfiniteList.cmx IA.cmx Variable.cmx Assignments.cmx Util.cmx ast.cmx Expr.cmx PolynomialConstraint.cmx Testing.cmx smtlib_util.cmx smtlib_syntax.cmx smtlib_parse.cmx smtlib_lex.cmx Decomposer.cmx EqualitiesHandler.cmx UnsatCore.cmx Caml.cmx
 
 $(OCAML_LIB): modcaml.o chcw.o
 	rm -f $(OCAML_LIB)

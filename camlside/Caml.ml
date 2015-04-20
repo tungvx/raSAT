@@ -199,11 +199,7 @@ and get_minus_poly_extra = function
   | [poly1; poly2] -> Sub(poly1, poly2)
   | poly1::poly2::remainingPolys -> Sub(Sub(poly1, poly2), get_mul_poly remainingPolys)     
 
-and get_poly_term varBindings term =
-  let poly = get_poly_term_extra varBindings term in
-  Expr.reduce poly
-
-and get_poly_term_extra varBindings = function 
+and get_poly_term varBindings = function 
   |TermSpecConst (_ , specReal1) ->  
     get_poly_specReal specReal1
   |TermQualIdentifier (_ , qualidentifier1) -> 
@@ -252,36 +248,36 @@ and get_constraint_term varBindings = function
     if qualidentifier_string = "<" then 
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
-      | [poly; Real 0.] -> [Single (new polynomialConstraint (Le poly))]
-      | [Real 0.; poly] -> [Single (new polynomialConstraint (Gr poly))]
-      | [poly1; poly2] -> [Single (new polynomialConstraint(Le (Sub(poly1, poly2))))]
+      | [poly; Real 0.] -> [Single (new polynomialConstraint (Le (reduce poly)))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint (Gr (reduce poly)))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint(Le (reduce (Sub(poly1, poly2)))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = "<=" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
-      | [poly; Real 0.] -> [Single (new polynomialConstraint (Leq poly))]
-      | [Real 0.; poly] -> [Single (new polynomialConstraint (Geq poly))]
-      | [poly1; poly2] -> [Single (new polynomialConstraint (Leq (Sub(poly1, poly2))))]
+      | [poly; Real 0.] -> [Single (new polynomialConstraint (Leq (reduce poly)))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint (Geq (reduce poly)))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2)))))]
       | _ ->  raise (Failure "Wrong Input")  
     else if qualidentifier_string = ">" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
-      | [poly; Real 0.] -> [Single (new polynomialConstraint(Gr poly))]
-      | [Real 0.; poly] -> [Single (new polynomialConstraint(Le poly))]
-      | [poly1; poly2] -> [Single (new polynomialConstraint (Gr (Sub(poly1, poly2))))]
+      | [poly; Real 0.] -> [Single (new polynomialConstraint(Gr (reduce poly)))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint(Le (reduce poly)))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2)))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = ">=" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
-      | [poly; Real 0.] -> [Single (new polynomialConstraint(Geq poly))]
-      | [poly1; poly2] -> [Single (new polynomialConstraint(Geq (Sub(poly1, poly2))))]
+      | [poly; Real 0.] -> [Single (new polynomialConstraint(Geq (reduce poly)))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint(Geq (reduce (Sub(poly1, poly2)))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = "=" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
-      | [poly; Real 0.] -> [Single (new polynomialConstraint(Eq poly))]
-      | [Real 0.; poly] -> [Single (new polynomialConstraint(Eq poly))]
-      | [poly1; poly2] -> [Single (new polynomialConstraint(Eq (Sub(poly1, poly2))))]
+      | [poly; Real 0.] -> [Single (new polynomialConstraint(Eq (reduce poly)))]
+      | [Real 0.; poly] -> [Single (new polynomialConstraint(Eq (reduce poly)))]
+      | [poly1; poly2] -> [Single (new polynomialConstraint(Eq (reduce (Sub(poly1, poly2)))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = "and" then
       let constraints = get_constraints_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
@@ -441,7 +437,7 @@ let genSatForm fileName lb ub logic =
   flush stdout;*)
   let boolCons = List.nth constraints 0 in
   let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation) = miniSATExpr_of_constraints boolCons 1 IntMap.empty logic in 
-  (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
+  (* miniSATExpr_of_constraints is defined in PolynomialConstraint.mlgenSatForm *)
   
   (* convert miniSATExpr into CNF *)
   let cnfMiniSATExpr = cnf_of_miniSATExpr miniSATExpr in
@@ -1058,8 +1054,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         print_endline (bool_expr_to_infix_string h);
         flush stdout;*)
         (*let lstUC = get_unsatcore h ia assIntv in*)
-        print_endline ("UNSAT API: " ^ h#to_string_infix ^ ": " ^ string_of_int h#get_miniSATCode);
-        flush stdout;
+        (*print_endline ("UNSAT API: " ^ h#to_string_infix ^ ": " ^ string_of_int h#get_miniSATCode);
+        flush stdout;*)
         let unsatCoreVars = get_unsatcore_vars h varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap ((remainingTime -. Sys.time() +. startTime) (*/. 4.*)) in (* get_unsatcore_vars is defined in Unsat_core.ml *)
         let usTime = usTime +. Sys.time() -. startUSCoreTime in
         (*let str = 
@@ -1442,8 +1438,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     
     Random.self_init();
 		let startTime = Sys.time() in
-		print_endline ("Solution: " ^ strCheck);
-		flush stdout;
+		(*print_endline ("Solution: " ^ strCheck);
+		flush stdout;*)
     let solution = toIntList strCheck in
 
     (*print_endline "Start get constraints and intervals";

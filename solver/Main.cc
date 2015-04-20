@@ -703,7 +703,7 @@ int main(int argc, char* argv[]) {
 					} else { // adding unsat reason to solver
 							 //finalRes = finalRes*sat;		  
 						string cl_us = String_val(Field(theoCheck, 1));
-						cout << endl << "Add unsat clause:" << cl_us << "|"	<< endl;
+						//cout << endl << "Add unsat clause:" << cl_us << "|"	<< endl;
 						UNSATLearnedClauses += solver_addClause(S, cl_us);
 						//cout << "finish adding unsat clauses" << endl;
 					}
