@@ -64,7 +64,7 @@
 \author{Vu Xuan Tung\inst{1}, To Van Khanh\inst{2}, and Mizuhito Ogawa\inst{1}} 
 \institute{
 Japan Advanced Institute of Science and Technology\\
-\email{\{tung,mizuhito\}@jaist.ac.jp}
+\email{\{tungvx,mizuhito\}@jaist.ac.jp}
 \and 
 University of Engineering and Technology, Vietnam National 
 University, Hanoi \\
@@ -116,7 +116,7 @@ AProVE benchmark from QF\_NIA category of SMT-LIB.
 % \IEEEpeerreviewmaketitle
 
 \section{Introduction}
-{\em Polynomial constraint solving} is to find an instance 
+{\em Polynomial Constraint solving} over real (integer) numbers is to find an assignment from real (integer) numbers to variables 
 that satisfies given polynomial inequality/equality. 
 %For instance, $\exists x y. -y^2 + (x^2 - 1) y - 1 > 0 \wedge -x^2 - y^2 + 4 > 0$ is 
 %such an example. This is an easy formula, but proving its satisfiability and 
@@ -138,20 +138,20 @@ which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:185899
 %point into fixed point numbers. However, naive replacement would cause 
 
 \item {\bf Automatic termination proving}, 
-which reduces termination detection to finding a suitable ordering~\cite{lucas}, 
+which reduces termination detection to finding a suitable ordering~\cite{Lucas:2008:CCS:1361735.1361760}, 
 e.g., \TTTT~\footnote{\url{http://cl-informatik.uibk.ac.at/software/ttt2/}}, 
 AProVE~\footnote{\url{http://aprove.informatik.rwth-aachen.de}}. 
 %as a solution of polynomial constraints. 
 
 \item {\bf Loop invariant generation}. 
-Farkas's lemma is a popular approach in linear loop invariant generation~\cite{Colon03}, 
+Farkas's lemma is a popular approach in linear loop invariant generation~\cite{Colon}, 
 and is reduced to degree $2$ polynomials. 
 %matrix multiplications. 
 %degree $2$ polynomial constraints. 
 %Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
-Non-linear loop invariant~\cite{Sankaranarayanan} requires more complex polynomials.
+Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
 
-\item {\bf Hybrid system}. SMT for QF\_NRA are often used as backend engines~\cite{hybrid}. 
+\item {\bf Hybrid system}. SMT for QF\_NRA are often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
 
 \item {\bf Mechanical contrnol design}. 
 PID control is simple but widely used, and designing parameters is 
@@ -164,7 +164,7 @@ though that on integers is undecidable ({\em Hilbert's 10th problem}).
 Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)~\cite{qecad} 
 is a well known technique, and 
 implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
-in some SMTs~\cite{Jovanovic13}. 
+in some SMT solvers~\cite{Jovanovic13}. 
 It can solve general formulae at the cost of DEXPTIME, which hardly work up to 8 varaibles and degree 10.
 Satisfiability targets on an existential problem, and 
 {\em Variant quantifier elimination}~\cite{MohabJSC12} reduces polynomial constraint solving to 
