@@ -1163,7 +1163,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let lowerIntv = 
           if polyCons#get_logic = "QF_NIA" && ceil lowerBound = floor newPoint then
             let tmpNewPoint = floor newPoint in
-            new IA.interval tmpNewPoint tmpNewPoint
+            new IA.interval lowerBound tmpNewPoint
           else new IA.interval lowerBound newPoint 
         in
         (*print_endline("lowerIntv" ^ lowerIntv#to_string);

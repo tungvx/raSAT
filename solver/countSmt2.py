@@ -2,6 +2,7 @@ import fnmatch
 import os
 import subprocess
 import csv
+import sys
 
 matches = []
 def run(directory):
@@ -20,4 +21,4 @@ def run(directory):
 #run ('Test/smtlib-20140121/QF_NIA/leipzig', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, 'result.xls')
 
-run ('Test/smtlib-20140121/QF_NRA/meti-tarski')
+run (sys.argv[1])
