@@ -1,0 +1,2 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,0,EQ,NEQ
