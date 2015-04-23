@@ -1068,7 +1068,6 @@ We perform experiments on ICP-based SMT solvers against inequalities of Zankl, M
  
 
 \medskip
-\begin{comment}
 {\centering
 \begin{tabular}{l|l|l}
 Selecting a test-UNSAT API~~ & Selecting a box (to explore): & 
@@ -1244,33 +1243,6 @@ Zankl/matrix-2,3,4,5 (98) & 11 & 632.37 && 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 &
 \hline 
 Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 & 78.56 & 2916 & 811.53 & 
 1225 & 73.83 \\
-\hline
-\end{tabular}
-\medskip 
-\caption{Comparison among SMT solvers} \label{tab:comparison}
-\end{table*}
-\end{comment}
-
-\begin{table*}[t]
-\centering
-\begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r |}
-\hline
-    \multicolumn{1}{|c|}{Solver} & 
-    \multicolumn{4}{c|}{Zankl(151)} & \multicolumn{4}{c|}{Meti-tarski (5101)} & \multicolumn{4}{c|}{Keymaera} \\
-\hline
-    & \multicolumn{2}{c|}{SAT} & \multicolumn{2}{c}{UNSAT} & \multicolumn{2}{|c|}{SAT} 
-    & \multicolumn{2}{c|}{UNSAT} & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
-\hline
- \bf raSAT \cite{VanKhanh201227} & 21 & 933.39(s)& 10 & 0.38 (s)
- &  &  &  & &  &  &  &  \\
-\hline
-\bf current raSAT & 36 & 1675.76 (s) & 10 & 0.91 (s) &  &  &  &  &  & &  &  \\
-\hline 
-\bf iSAT3 & 14 & 201.08(s) & 19 & 8.17(s) &  &  &  &  & 0 & 0(s) & 
-310 & 103.22(s) \\
-\hline
-\bf dREAL &  &  &  &  &  & &  &  &  &  & 
- &  \\
 \hline
 \end{tabular}
 \medskip 
