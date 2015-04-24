@@ -179,13 +179,13 @@ and get_add_poly = function
   | [] -> raise (Failure "Need arguments for addition") 
   | [poly] -> poly
   | [poly1; poly2] -> Add(poly1, poly2)
-  | poly1::poly2::remainingPolys -> Add(Add(poly1, poly2), get_mul_poly remainingPolys)
+  | poly1::poly2::remainingPolys -> Add(Add(poly1, poly2), get_add_poly remainingPolys)
   
 and get_div_poly = function
   | [] -> raise (Failure "Need arguments for addition") 
   | [poly] -> poly
   | [poly1; poly2] -> Div(poly1, poly2)
-  | poly1::poly2::remainingPolys -> Div(Div(poly1, poly2), get_mul_poly remainingPolys)
+  | poly1::poly2::remainingPolys -> Div(Div(poly1, poly2), get_div_poly remainingPolys)
 
 and get_minus_poly = function
   | [] -> raise (Failure "Need arguments for Subtraction") 
@@ -197,7 +197,7 @@ and get_minus_poly_extra = function
   | [] -> raise (Failure "Need arguments for Subtraction") 
   | [poly] -> poly
   | [poly1; poly2] -> Sub(poly1, poly2)
-  | poly1::poly2::remainingPolys -> Sub(Sub(poly1, poly2), get_mul_poly remainingPolys)     
+  | poly1::poly2::remainingPolys -> Sub(Sub(poly1, poly2), get_minus_poly_extra remainingPolys)     
 
 and get_poly_term varBindings = function 
   |TermSpecConst (_ , specReal1) ->  
@@ -269,7 +269,8 @@ and get_constraint_term varBindings = function
     else if qualidentifier_string = ">=" then
       let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
       match polys with
-      | [poly; Real 0.] -> [Single (new polynomialConstraint(Geq (reduce poly)))]
+      | [poly; Real 0.] -> 
+        [Single (new polynomialConstraint(Geq (reduce poly)))]
       | [poly1; poly2] -> [Single (new polynomialConstraint(Geq (reduce (Sub(poly1, poly2)))))]
       | _ ->  raise (Failure "Wrong Input")
     else if qualidentifier_string = "=" then
@@ -307,7 +308,7 @@ and get_or_constraint = function
   | [] -> raise (Failure "Need arguments for or") 
   | [constraint1] -> constraint1
   | [constraint1; constraint2] -> Or(constraint1, constraint2)
-  | constraint1 :: constraint2 :: remainingConstraints -> Or(Or(constraint1, constraint2), get_and_constraint remainingConstraints)  
+  | constraint1 :: constraint2 :: remainingConstraints -> Or(Or(constraint1, constraint2), get_or_constraint remainingConstraints)  
 
 and get_not_constraint = function 
   | [] -> raise (Failure "Need arguments for not") 
@@ -1161,7 +1162,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " - easiness: " ^ string_of_float polyCons#get_easiness ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
         flush stdout;*)
         let lowerIntv = 
-          if polyCons#get_logic = "QF_NIA" && ceil lowerBound = floor newPoint then
+          if polyCons#get_logic = "QF_NIA" then
             let tmpNewPoint = floor newPoint in
             new IA.interval lowerBound tmpNewPoint
           else new IA.interval lowerBound newPoint 
@@ -1169,9 +1170,9 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         (*print_endline("lowerIntv" ^ lowerIntv#to_string);
         flush stdout;*)
         let upperIntv = 
-          if polyCons#get_logic = "QF_NIA" && ceil newPoint = floor upperBound then
+          if polyCons#get_logic = "QF_NIA" then
             let tmpNewPoint = floor upperBound in
-            new IA.interval tmpNewPoint tmpNewPoint
+            new IA.interval tmpNewPoint upperBound
           else new IA.interval newPoint upperBound 
         in
         (*print_endline("upperIntv" ^ upperIntv#to_string);

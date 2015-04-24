@@ -264,8 +264,8 @@ int main(int argc, char* argv[]) {
 		//esl = atof(argv[3]);
 		esl = getSearchingBox(argv[3]);
 //	cout <<"esl = "<<esl<<endl;
-  if (logic == "QF_NIA")
-    esl = ceil(esl);
+  //if (logic == "QF_NIA")
+    //esl = ceil(esl);
 	//get the timeout, Jan 14, 2014
 	double timeout = 60.0; //default timeout = 60 seconds
 	if (argc >= 5)
