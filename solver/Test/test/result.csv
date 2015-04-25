@@ -1,4 +1,1 @@
 Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
-Test/test/Arthan1A-chunk-0020.smt2,4,2,7,0.03279299,0.005978000000000001,0.006173,0.0,0.001707999,0.0023409900000000003,0.0001,168.0,62.0,55.0,188.0,181.0,0.0,7.0,sat,sat,1,0
-Test/test/matrix-1-all-01.smt2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,sat,timeout,0,0
-Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,1,EQ,NEQ

@@ -45,9 +45,13 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
         f.close()
       except IOError:
         result = 'unknown'
-      while (time < timeout and raSATResult == 'unknown'):
-        sbox = sbox / 10
-        subprocess.call(["./raSAT", os.path.join(root, filename), 'lb=' + str(lowerBound) + ' ' + str(upperBound), 'sbox=' + str(sbox), 'tout=' + str(timeout-time)])
+      bounds = ['lb=-1 1', 'lb=-10 10', 'lb=-inf inf']
+      boundsNum = len(bounds)
+      boundIndex = 0
+      while (raSATResult != 'sat' and time < timeout and boundIndex < boundsNum):
+        if raSATResult == 'unknown': 
+          sbox = sbox / 10
+        subprocess.call(["./raSAT", os.path.join(root, filename), bounds[boundIndex], 'sbox=' + str(sbox), 'tout=' + str(timeout-time)])
         try:
           with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
             reader = csv.reader(csvfile)
@@ -77,34 +81,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
           raSATResult = 'timeout'
         
         if raSATResult == 'unsat':
-          subprocess.call(["./raSAT", os.path.join(root, filename), 'lb=-inf inf', 'sbox=' + str(sbox), 'tout=' + str(timeout-time)])
-          try:
-            with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
-              reader = csv.reader(csvfile)
-              output = reader.next()
-              nVars = output[1]
-              maxVars = output[2]
-              nAPIs = output[3]
-              time += float(output[4])
-              iaTime += float(output[5])
-              testingTime += float(output[6])
-              usTime += float(output[7])
-              parsingTime += float(output[8])
-              decompositionTime += float(output[9])
-              miniSATTime += float(output[10])
-              miniSATVars += float(output[11])
-              miniSATClauses += float(output[12])
-              miniSATCalls += float(output[13])
-              raSATClauses += float(output[14])
-              decomposedLearnedClauses += float(output[15])
-              UNSATLearnedClauses += float(output[16])
-              unknownLearnedClauses += float(output[17])
-              isEquation = output[18]
-              isNotEquation = output[19]
-              raSATResult = output[20]
-              csvfile.close()
-          except IOError:
-            raSATResult = 'timeout'
+          boundIndex += 1
       
       if raSATResult == 'sat' or raSATResult == 'unsat':
         solvedProblems += 1     
