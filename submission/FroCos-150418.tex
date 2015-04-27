@@ -78,7 +78,7 @@ University, Hanoi \\
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-This paper presents an SMT solver {\bf raSAT} for polynomial inequality. 
+This paper presents an SMT (Satisfiability Modulo Theory) solver {\bf raSAT} for polynomial inequality. 
 It consists of a simple iterative approximation refinement, called {\bf raSAT} loop, 
 which is an extension of the standard ICP (Interval Constraint Propagation) with testing. 
 Two approximation schemes consist of interval arithmetic (over-approximation) and 
@@ -96,6 +96,7 @@ targeting on SAT detection.
 Several heuristic measures, called {\em SAT likelyhood}, {\em sensitivity}, and the number of 
 unsolved atomic polynomial constraints, are compared on Zankl and Meti-Tarski benchmarks from 
 QF\_NRA category of SMT-LIB. They are also evaluated by comparing {\bf Z3 4.3} and {\bf iSAT3}. 
+raSAT loop is extended with the use of the Intermediate Value Theorem to solve equality.
 We also show a simple modification to handle mixed intergers, and experiments on 
 AProVE benchmark from QF\_NIA category of SMT-LIB. 
 \end{abstract}
@@ -151,10 +152,10 @@ and is reduced to degree $2$ polynomials.
 %Farkas's lemma uses products of matrices, and it requires solving polynomial constraints of degree 2.
 Non-linear loop invariant~\cite{Sankaranarayanan:2004:NLI:982962.964028} requires more complex polynomials.
 
-\item {\bf Hybrid system}. SMT for QF\_NRA are often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
+\item {\bf Hybrid system}. SMT solvers for polynomial constraints over real numbers (QF\_NRA) are often used as backend engines~\cite{Sankaranarayanan04constructinginvariants}. 
 
 \item {\bf Mechanical contrnol design}. 
-PID control is simple but widely used, and designing parameters is 
+Proportional-integral-derivative controllers are simple but widely used, and designing parameters is 
 reduced to polynomial constraints~\cite{control}. 
 %Fujitsu used polynomial constraints solving to design PID control of HDD head movement
 \end{itemize}	
@@ -167,7 +168,7 @@ implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently
 in some SMT solvers~\cite{Jovanovic13}. 
 It can solve general formulae at the cost of DEXPTIME, which hardly work up to 8 varaibles and degree 10.
 Satisfiability targets on an existential problem, and 
-{\em Variant quantifier elimination}~\cite{MohabJSC12} reduces polynomial constraint solving to 
+{\em Variant quantifier elimination}~\cite{Hong2012883} reduces polynomial constraint solving to 
 polynomial optimization problems, which are solved by Groebner basis in EXPTIME. 
 
 A practical alternative is {\em ICP} (Interval Constraint Propagation), 
@@ -196,9 +197,9 @@ under the assumptions of bounded intervals.
 \end{figure} 
 
 The boundary part is reduced to polynomial equality checking, 
-which would be solved algebraic methods, like Groebner basis. 
+which would be solved by using algebraic methods, like Groebner basis. 
 Alternatively, by loosening equality to $\delta$-equality, 
-$\delta$-completeness is obtained~\cite{dRealIJCAR12,dRealLICS12}. 
+$\delta$-completeness is obtained~\cite{dRealCADE13}. 
 
 This paper presents an SMT solver {\bf raSAT} for polynomial inequality. 
 It consists of a simple iterative approximation refinement, called {\bf raSAT} {\em loop}, 
@@ -207,10 +208,10 @@ Two approximation schemes consist of interval arithmetic (over-approximation) an
 testing (under-approximation), to accelerate SAT detection. 
 If both fails, input intervals are refined by decomposition. 
 %
-Compared to typical ICPs, {\bf raSAT} 
+Compared to typical ICP solvers, {\bf raSAT} 
 \begin{itemize}
 \item introduces testing (as an under-approximation) to accelerate SAT detection, 
-\item applies various interval arithmetic, e.g., Affine intervals~\cite{Stolfi03,ngocase,tapas12}, 
+\item applies various interval arithmetic, e.g., Affine intervals~\cite{Messine_extensionsof,Ngoc:2009:ORE:1685167.1685421,VanKhanh201227}, 
 which enables to analyze the effects of input values, and 
 \item SAT confirmation step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
 \tt http://irram.uni-trier.de}, to avoid soundess bugs caused by roundoff errors. 
@@ -219,6 +220,8 @@ This design is more on SAT detection oriented, since from our preliminary experi
 if the target problems have several hundred variables, solvable cases in practice are 
 either SAT or UNSAT with small UNSAT core. 
 Thus, acceleration of SAT detection and finding UNSAT core will be keys for scalability. 
+
+As \textbf{iSAT3}, \textbf{raSAT} applies outward rounding~\cite{Hickey:2001:IAP:502102.502106} in Interval arithmetics to avoid soundless bugs due to round-off error of floating arithmetic operations. As a consequence, answers of raSAT (SAT or UNSAT) (SAT instances found in testing is verified by \textbf{iRRAM}) are guaranteed to be sound.
 
 ICP is robust for larger degrees, but the number of boxes (products of intervals) to explore 
 exponentially explodes when variables increase. 
@@ -231,7 +234,7 @@ and the number of unsolved atomic polynomial constraints, and
 \item a more influential variable is selected for multiple test cases and decomposition, 
 which is estimated by {\em sensitivity}. 
 \end{itemize} 
-Note that {\em SAT likelyhood} and {\em sensitivity} are estimated during interval arithmetic. 
+Note that {\em SAT likelyhood} and {\em sensitivity} are estimated using interval arithmetic. 
 Especially, the latter can be applied only with Affine intervals. 
 {\bf raSAT} also applies incremental search, which is often faster in practice. 
 \begin{itemize}
@@ -242,8 +245,8 @@ and restart.
 Starting with the bound that each interval will be decomposed no smaller than it. 
 If neither SAT nor UNSAT is detected, take a smaller bound and restart. 
 \end{itemize} 
-Efficient UNSAT core and UNSAT confirmation % with error bound guaranteed floating point arithmetic 
-are left for future work. 
+Efficient UNSAT core % with error bound guaranteed floating point arithmetic 
+is left for future work. 
 
 They are compared on Zankl and Meti-Tarski benchmarks from 
 QF\_NRA category of SMT-LIB\footnote{\tt http://www.smtlib.org/}. 
@@ -263,7 +266,7 @@ Non-linear constraints are still under development, and SMT solvers adapt
 several approachs other than ICP. 
 
 \medskip \noindent
-\textbf{QE-CAD}. ~RAHD \cite{rahd} and 
+\textbf{QE-CAD}. ~RAHD \cite{Passmore09combineddecision} and 
 Z3 4.3 (which is referred as nlsat in~\cite{Jovanovic13}) include QE-CAD. 
 %such as QEPCAD-B, Reduce/Redlog, and Mathematica. 
 QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions), 
@@ -282,10 +285,10 @@ combines VS, ICP, and linearization.
 
 \medskip \noindent
 \textbf{Bit-blasting}. ~Bid-blasting in bounded bit width is often used in SMTs for QF\_NIA. 
-UCLID~\cite{uclid} reduces the number of bits (i.e., narrowing bounds for SAT instances) 
+UCLID~\cite{Bryant07decidingbit-vector} reduces the number of bits (i.e., narrowing bounds for SAT instances) 
 as an under-approximation, and removes clauses as an over-approximation. 
 They refine each other, which shares a similar sprit with {\bf raSAT} loop. 
-MiniSmt~\cite{minismt}, the winner of QF\_NRA in SMT competition 2010, 
+MiniSmt~\cite{Zankl:2010:SNR:1939141.1939168}, the winner of QF\_NRA in SMT competition 2010, 
 applies it for rational numbers with symbolic representations for prefixed algebraic numbers. 
 MiniSmt can show SAT quickly with small degree polynomials, but due to the bounded bit encoding, 
 it cannot conclude UNSAT.
@@ -293,18 +296,18 @@ Bit-blasting also suffers a lot when the degree of polynomials increases.
 
 \medskip \noindent
 \textbf{Linearization}. ~
-Linearization of polynomials is often used over integers, such as Barcelogic~\cite{barce}, 
+Linearization of polynomials is often used over integers, such as Barcelogic~\cite{Borralleras:2009:SNP:1614530.1614561}, 
 which substitutes all possible integers in a given-bound to an argument of a multiplication. 
 Then, multiplications are reduced to an exhaustive search on linear constraints. 
-CORD \cite{cord} uses another linearization, called 
+CORD \cite{cordic} uses another linearization, called 
 CORDIC (COrdinate Rotation DIgital Computer) for real numbers. 
 Both Barcelogic and CORD apply Yices for solving linear constraints.
 Linearization also suffers a lot when the degree of polynomials increases. 
 %\mizuhito{Check CORD is whether bit-blasting or linearization}. 
 
 \medskip 
-{\bf raSAT} applies SAT confirmation to avoid soundness errors caused by roundoff/overflow errors. 
-Another static analysis based approach is found in~\cite{SilvaTACAS12}. 
+%{\bf raSAT} applies SAT confirmation to avoid soundness errors caused by roundoff/overflow errors. 
+%Another static analysis based approach is found in~\cite{SilvaTACAS12}. 
 
 
 
@@ -316,26 +319,26 @@ Let
 $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$, 
 %\exists x_1 \ldots x_n. (\underbrace{\bigwedge \limits_i x_i \in I_i}_{I}) \wedge 
 %                       (\underbrace{\bigwedge \limits_j \psi_j(x_1,\cdots,x_n)}_{P})
-where $\psi_j(x_1,\cdots,x_n)$ is an atomic formula. 
+where $\psi_j(x_1,\cdots,x_n)$ is an atomic formula of the form $p_j(x_1,...,x_n) \circ 0$ with $p_j(x_1,...,x_n)$ is a polynomial over variables $x_1,...,x_n$ and $\circ \in \{>, <\}$. 
 %
 $F$ is equivalnet to 
 $\exists x_1 \ldots x_n. (\bigwedge \limits_i x_i \in I_i) \wedge (\bigwedge \limits_j \psi_j(x_1,\cdots,x_n))$, 
 and we call $\bigwedge \limits_i x_i \in I_i$ {\em interval constraints}, and 
 we refer $\bigwedge \limits_j \psi_j(x_1,\cdots,x_n)$ by $\psi(x_1,\cdots,x_n)$. 
 Initially, interval constraints have a form of the conjunction $\bigwedge \limits_i x_i \in I_i$, 
-and later by refinement, $x_i \in I_i$ is decomposed into a clause $\bigvee_j x_i \in I_{i_j}$, 
+and later by refinement, $x_i \in I_i$ is decomposed into a clause $\bigvee_k x_i \in I_{i_k}$, 
 which makes a CNF. 
 
 As an SMT (SAT modulo theory) problem, 
-boolean variables are assigned to each $x_i \in I_{i_j}$, 
+boolean variables are assigned to each $x_i \in I_{i_k}$, 
 and truth assignments is produced by a SAT solver, 
 which are proved or disproved by a background theory $T$ whether it satisfies $\psi(x_1,\cdots,x_n)$. 
-
+\sloppy
 As notational convention, $m$ (the lower case) denotes 
-a variable assignments on $x_i$'s, and 
-$M$ (the upper case) denotes a truth assignment on $x_i \in I_{i_j}$'s. 
+an assignment $\{x_i \mapsto r_i \mid i \in \{0, \cdots, n\}\}$ from real numbers $r_i$'s to $x_i$'s, and 
+$M$ (the upper case) denotes a truth assignment on $x_i \in I_{i_k}$'s. 
 We write $m \in M$ when an instance $m = \{ x_i \leftarrow c_i \}$ satisfies 
-all $c_i \in I_{i_j}$ that are assigned true by $M$. 
+all $c_i \in I_{i_k}$ that are assigned true by $M$. 
 
 We assume {\em very lazy theory learning}~\cite{dpll}, and 
 a backend theory $T$ is applied only for a full truth assignment $M$. 
