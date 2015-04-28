@@ -679,7 +679,7 @@ for each $\theta \in \Theta$.
 which keep lower and upper bounds. The weakness of CI is loss of dependency 
 among values. For instance, $x - x$ is evaluated to $(-2,2)$ for $x \in (2,4)$. 
 
-Affine Interval~\cite{af,comba93} introduces \emph{noise symbols} $\epsilon$, 
+Affine Interval~\cite{Comba93affinearithmetic, Stolfi97self-validatednumerical} introduces \emph{noise symbols} $\epsilon$, 
 which are interpreted as values in $(-1,1)$. 
 For instance, $x = 3 + \epsilon$ describes $x \in (2,4)$, and 
 $x - x = (3 + \epsilon) - (3 + \epsilon)$ is evaluated to $0$. 
@@ -689,11 +689,11 @@ since it becomes $\infty + \infty~\epsilon$.
 Forms of affine intervals vary by choices how to approximate multiplications. They are,
 \begin{enumerate}[(i)]
 \item $\epsilon \epsilon'$ is replaced with a fresh noise symbol 
-($AF$)~\cite{StolfiThesis,comba93}, 
+($AF$)~\cite{Comba93affinearithmetic, Stolfi97self-validatednumerical}, 
 \item $\epsilon \epsilon'$ is reduced to the fixed error noise symbol 
-$\epsilon_{\pm}$ ($AF_1$ and $AF_2$) \cite{af},
+$\epsilon_{\pm}$ ($AF_1$ and $AF_2$) \cite{Messine_extensionsof},
 \item $\epsilon \epsilon'$ is replaced with $(-1,1) \epsilon$ 
-(or $(-1,1) \epsilon'$) ($EAI$)~\cite{ngocsefm},
+(or $(-1,1) \epsilon'$) ($EAI$)~\cite{Ngoc:2009:ORE:1685167.1685421},
 \item $\epsilon \epsilon$ is reduced to fixed noise symbols 
 $\epsilon_+$ or $\epsilon_{-}$ ($AF_2$) \cite{af}, 
 \item Chebyshev approximation of $x^2$ introduces a noise symbol $|\epsilon|$ 
@@ -1274,10 +1274,10 @@ Some has several hundred variables, but each API has few variables (mostly just 
 
 The results are, 
 \begin{itemize}
-\item {\bf raSAT} detects 6764 SAT in 1230.54s, and 0 UNSAT. 
-\item {\bf Z3 4.3} detects 6784 SAT in 103.70s, and 36 UNSAT in 36.08s. 
+\item {\bf raSAT} detects 6773 SAT in 90.22s, and 2 UNSAT in 378.04s. 
+\item {\bf Z3 4.3} detects 6784 SAT in 97.70s, and 36 UNSAT in 32.08s. 
 \end{itemize}
-where the timeout is $60s$. 
+where the timeout is $500s$. 
 {\bf raSAT} does not successfully detect UNSAT, since UNSAT problems have quite large coefficients
 which lead exhaustive search on quite large area. 
 %%%%%%%%%%%%%%%%%
