@@ -852,7 +852,7 @@ We design SAT-directed heuristic measures based on the interval arithemtic ($O.T
 
 \sloppy
 Let $F = \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge \limits_{j=1}^m f_j > 0$ 
-becomes $\vee~( \exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0)$ 
+becomes ${\vee~( \exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0)}$ 
 after box decomposition. 
 For $\exists x_1 \in I'_1 \cdots x_n \in I'_n. \bigwedge \limits_{j=1}^m f_j > 0$, 
 if some $f_j > 0$ is UNSAT, the box $I'_1 \times \cdots \times I'_n$ is UNSAT. 
@@ -925,18 +925,19 @@ For solving polynomial constraints with single equality ($g=0$), we apply {\em I
 That is, if existing 2 test cases such that $g > 0$ and $g < 0$, then $g=0$ is SAT somewhere in between. 
 
 \begin{lemma} \label{lemma:ivt}
-For $\psi = \exists x_1 \in I_1 \cdots x_n \in I_n (\bigwedge \limits_{j}^m f_j > 0~\wedge~g = 0)$, $F$ is SAT, if 
-there is a box $(l_1, h_1) \times \cdots \times (l_n, h_n)$ where $(l_i, h_i) \subseteq I_i$ for all $i \in \{1, \cdots, n\}$, such that
+For $F = \exists x_1 \in I_1 \cdots x_n \in I_n (\bigwedge \limits_{j}^m f_j > 0~\wedge~g = 0)$. Suppose decomposition creates a box $I = (l_1, h_1) \times \cdots \times (l_n, h_n)$ where $(l_i, h_i) \subseteq I_i$ for all $i \in \{1, \cdots, n\}$, such that $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in the box. Let $(l_g, h_g) = range(g, I)$.
 \begin{enumerate}[(i)]
-\item $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in the box, and 
-\item there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$.
+\item If $l_g > 0$ or $h_g < 0$, then $F$ is UNSAT in the box. 
+\item If there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$, then F is SAT.
 \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-It is clear from the Intermediate Value Theorem that there exist an point $\vec{t_0}$ between $\vec{t}$ and $\vec{t'}$ such that $g(\vec{t_0}) = 0$. In addition, because $\bigwedge \limits_{j}^m f_j > 0$ is $\Pi^p_\mathbb{R}$-VALID, $\vec{t_0}$ also satisfies $\bigwedge \limits_{j}^m f_j > 0$. As a result, $\varphi$ is satisfiable with $\vec{t_0}$ as the SAT instance.
+\begin{enumerate}[(i)]
+\item If $l_g > 0$ or $h_g < 0$, then $g=0$ cannot be satisfied in box $I$. As a result, $F$ is UNSAT in $I$. 
+\item If there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$, it is clear from the Intermediate Value Theorem that there exist one point $\vec{t_0}$ between $\vec{t}$ and $\vec{t'}$ such that $g(\vec{t_0}) = 0$. In addition, because $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in $I$, $\vec{t_0}$ also satisfies $\bigwedge \limits_{j}^m f_j > 0$. As a result, $F$ is satisfiable with $\vec{t_0}$ as the SAT instance.
+\end{enumerate}
 \end{proof}
-
 \begin{example}
 Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we can find a box represented by $\Pi = x \in \langle a, b \rangle \wedge y \in \langle c, d \rangle$ such that $f(x, y) > 0$ is $\Pi^p_\mathbb{R}$-VALID (Figure~\ref{fig:single-equation}). In addition, inside that box, we can find two points $(u_1, v_1)$ and $(u_2, v_2)$ such that $g(u_1, v_1) > 0$ and $g(u_2, v_2) < 0$. By Lemma~\ref{lemma:ivt}, the constraint is satisfiable.
 \end{example}
@@ -951,19 +952,19 @@ Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we c
 Intermediate Value Theorem guarantees the existence of an SAT instance in between. 
 Note that this method does not find an exact SAT instance. 
 \subsection*{Multiple Equations}
-The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. Consider $n$ equations ($n \ge 1$): $\bigwedge \limits_{i=1}^n g_i = 0$ and an interval constraint ${\bigwedge\limits_{v_i \in V}v_i \in \langle l_i, h_i \rangle}$. If we can find a set ${\{V_1, \cdots, V_n\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{i=1}^n g_i = 0$ is satisfiable in ${\bigwedge\limits_{v_i \in V}v_i \in \langle l_i, h_i \rangle}$.
+The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. Consider $m$ equations ($m \ge 1$): $\bigwedge \limits_{j=1}^m g_j = 0$ and an box $ I = {(l_1, h_1) \times \cdots (l_n, h_n)}$. If we can find a set ${\{V_1, \cdots, V_m\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{j=1}^m g_j = 0$ is satisfiable in $I$.
 \begin{itemize}
-\item[$\bullet$] For all $i = 1, \cdots, n$; we have ${V_i \subset var(g_i)}$.
-\item[$\bullet$] For all $i \neq j$, we have $V_i \neq V_j$.
-\item[$\bullet$] For all $i = 1, \cdots, n$; let $k_i = |V_i|$ and $V_i = \{v_{ij} \; | \; 1 \le j \le k_i \}$. Then, there exist two values ${(v_{i1}, \cdots, v_{ik_I}) = (x_{i1}, \cdots, x_{ik_i})}$ and ${(v_{i1}, \cdots, v_{ik_I}) = (x'_{i1}, \cdots, x'_{ik_i})}$ such that \[g_i(x_{i1}, \cdots, x_{ik_i}, \cdots, v_{ik}, \cdots) > 0\] and \[g_i(x'_{i1}, \cdots, x'_{ik_i}, \cdots, v_{ik}, \cdots) < 0\] for all values of $v_{ik}$ in $\langle l_{ik}, h_{ik} \rangle$ where $v_{ik} \in var(g_i) \setminus V_i$. We denote $ivt(g_i, V_i, \Pi)$ to represent that the polynomial $g_i$ enjoy this property with respect to $V_i$ and $\Pi$.
+\item[$\bullet$] For all $j \in \{1, \cdots, m\}$, we have ${V_j \subseteq var(g_j)}$.
+\item[$\bullet$] For all $j_1 \neq j_2\in \{1, \cdots, m\}$, we have $V_{j_1} \neq V_{j_2}$.
+\item[$\bullet$] For all $j\in \{1, \cdots, m\}$, let $k_j = |V_j|$ and ${V_j = \{v_{jk} \; | \; 1 \le k \le k_j \}}$, then, there exist two combinations ${(x_{j1}, \cdots, x_{jk_j}) = (t_{j1}, \cdots, t_{jk_j})}$ and ${(x_{j1}, \cdots, x_{jk_j}) = (t'_{j1}, \cdots, t'_{jk_j})}$ where $t_{jk} \neq t'_{jk} \in (l_{jk}, h_{jk})$, $1 \le k \le k_j$ such that \[g_j(t_{j1}, \cdots, t_{jk_j}, \cdots, x_{jk}, \cdots) > 0\] and \[g_j(t'_{j1}, \cdots, t'_{jk_j}, \cdots, x_{jk}, \cdots) < 0\] for all values of $x_{jk}$ in $(l_{jk}, h_{jk})$ where $x_{jk} \in var(g_j) \setminus V_j$. We denote $ivt(g_j, V_j, I)$ to represent that the polynomial $g_j$ enjoy this property with respect to $V_j$ and $I$.
 \end{itemize}
 By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
 
 \begin{example}
-Consider two equations $g_1(x, y)=0$ and $g_2(x, y) = 0$ (Figure~\ref{fig:multiple-equations}) which satisfy the above restriction on the number of variables, and the variable intervals is $\Pi = x \in \langle c_1, d_1 \rangle \wedge y \in \langle d_2, c_2 \rangle$. Let $V_1 = \{x\}$ and $V_2 = \{y\}$, we have:
+Consider two equations $g_1(x, y)=0$ and $g_2(x, y) = 0$ (Figure~\ref{fig:multiple-equations}) which satisfy the above restriction on the number of variables, and the variable intervals are $x \in (c_1, d_1)$ and $y \in(d_2, c_2)$. Let $V_1 = \{x\}$ and $V_2 = \{y\}$, we have:
 \[g_1(c_1, y) < 0\text{ and }g_1(d_1, y) < 0 \text{ for all } y \in \langle d_2, c_2 \rangle \text{; and }\]
 \[g_2(x, d_2) > 0 \text{ and }g_2(x, c_2) < 0 \text{ for all } x \in \langle c_1, d_1 \rangle\]
-Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside the box represented by $\Pi$.
+Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside the box $(c_1, d_1) \times (d_2, c_2)$.
 \end{example}
 \begin{figure}[ht]
 \centering
@@ -972,7 +973,9 @@ Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside t
 \label{fig:multiple-equations} 
 %\end{minipage}
 \end{figure}
-Our current implementation of handling multiple equations is very naive which is described in Algorithm~\ref{Al:multiple-equations} because for each polynomial, \textbf{raSAT} checks every possible subsets of its variables. As the result, given the constraint $\bigwedge\limits_{i=1}^ng_i=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_n)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
+Our current implementation of handling multiple equations is very naive \begin{comment}
+which is described in Algorithm~\ref{Al:multiple-equations}\end{comment} because for each equality $g_j = 0$, \textbf{raSAT} checks every possible subsets of its variables as candidates for $V_j$. As a result, given the constraint $\bigwedge\limits_{j=1}^mg_j=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_m)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
+\begin{comment}
 \begin{algorithm}
 \begin{algorithmic}[1]
 \Function{equationsProver}{$\bigwedge\limits_{i=j}^ng_i = 0, \Pi, V_0$}
@@ -994,7 +997,7 @@ Our current implementation of handling multiple equations is very naive which is
 \caption{Solving multiple equations $\bigwedge\limits_{i=1}^n g_i = 0$ with interval constraint ${\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle}$}
 \label{Al:multiple-equations}
 \end{algorithm}
-
+\end{comment}
 
 \section{Experiments} \label{sec:experiment}
 
@@ -1011,7 +1014,7 @@ The best combination of choices are
 \item a box by the largest SAT-likelyhood, 
 \end{enumerate} 
 and sometimes a random choice of a test-UNSAT API (instead of the least SAT-likelyhood) 
-shows an equaly good result. 
+shows an equally good result. 
 They are also compared with \textbf{Z3 4.3} and \textbf{iSAT3}, 
 where the former is considered to be the state of the art (\cite{Jovanovic13}), and 
 the latter is a popular ICP based tool. 
@@ -1030,7 +1033,7 @@ In SMT-COMP 2012, other families have been added, and currently growing.
 General comparison among various existing tools on these benchmarks is summarized in 
 Table.1 in \cite{Jovanovic13}, which shows Z3 4.3 is one of the strongest. 
 
-From them, we extract problems of polynomial inequality only %(not containing $''=''$). 
+From them, we extract problems of polynomial inequality only. %(not containing $''=''$). 
 The brief statistics and explanation are as follows. 
 \begin{itemize}
 \item {\bf Zankl} has 151 inequalities among 166, taken from termination provers. 
@@ -1054,17 +1057,13 @@ The setting of the experiments are
 \end{itemize}
 
 
-\subsection{Experiments on ICP solvers} \label{sec:expstrategy}
+\subsection{Experiments on strategy combinations} \label{sec:expstrategy}
 
-We perform experiments on ICP-based SMT solvers against inequalities of Zankl, Meti-Tarski and Keymaera families. The solvers consis of:
-
-\begin{itemize}
-\item previous version of raSAT \cite{VanKhanh201227},
-\item current version of raSAT with above mentioned strategies,
-\item iSAT3 \cite{isat}, and
-\item dREAL \cite{dRealCADE13}.
-\end{itemize}
- 
+We perform experiments only on inequalities of Zankl, and Meti-Tarski families. 
+Table~\ref{tab:rasat-experiments} shows the experimental results of above mentioned combination. 
+The timeout is set to 500s, and each time is the total of successful cases 
+(either SAT or UNSAT). Our combi-
+nations of strategies are,
 
 \medskip
 {\centering
@@ -1089,10 +1088,6 @@ Selcting a variable: \\  % (for testing and decomposition)
 }
 \medskip
 
-Table~\ref{tab:rasat-experiments} shows the experimental results of above mentioned combination. 
-The timeout is set to 500s, and each time is the total of successful cases 
-(either SAT or UNSAT). 
-
 Note that (10)-(7)-(9) means all random selection. 
 Generally speaking, the combination of (5) and (8) show the best results, 
 though the choice of (1),(2), and (10) shows different behavior on benchmarks. 
@@ -1100,78 +1095,78 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 
 \begin{table*}[t]
 \centering
-\begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r | r | r |r | r |}
+\begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{3}{c|}{(1)-(5)-(8)} & \multicolumn{2}{c|}{(1)-(5)-(9)} & 
+    \multicolumn{2}{c|}{(1)-(5)-(8)} & \multicolumn{2}{c|}{(1)-(5)-(9)} & 
     \multicolumn{2}{c|}{(1)-(6)-(8)} & \multicolumn{2}{c|}{(1)-(6)-(9)} &
     \multicolumn{2}{c|}{(10)-(5)-(8)} & \multicolumn{2}{c|}{(10)-(6)-(8)} 
 \\
 \hline
- Matrix-1 (SAT) & 20 & 132.72 & (s) & 18 & 101.07 & 15 & 1064.76 & 14 & 562.19 & \textbf{21} & 462.57 & 18 & 788.46 
+ Matrix-1 (SAT) & 20 & 132.72 (s) & 18 & 101.07 (s)& 15 & 1064.76 (s)& 14 & 562.19 (s)& \textbf{21} & 462.57 (s)& 18 & 788.46(s) 
 \\
 \hline
- Matrix-1 (UNSAT) & 2 & 0.01 && 2 & 0.01 &  2 & 0.01 & 2 & 0.01 & 2 & 0.01 
-& 2 & 0.01 
+ Matrix-1 (UNSAT) & 2 & 0.01 (s)& 2 & 0.01 (s)&  2 & 0.01 (s)& 2 & 0.01 (s)& 2 & 0.01 (s)
+& 2 & 0.01 (s)
 \\
 \hline
- Matrix-2,3,4,5 (SAT) & {\bf 10} & 632.37 && 3 & 140.27 & 1 & 3.46 & 0 & 0.00 & 5 & 943.08 & 0 & 0.00
+ Matrix-2,3,4,5 (SAT) & {\bf 10} & 632.37 (s)& 3 & 140.27 (s)& 1 & 3.46 (s)& 0 & 0.00 (s)& 5 & 943.08 (s)& 0 & 0.00 (s)
 \\
 \hline
- Matrix-2,3,4,5 (UNSAT) & 8 & 0.37 && 8 & 0.39 & 8 & 0.37 & 8 & 0.38 & 8 & 0.38 & 8 & 0.38 
+ Matrix-2,3,4,5 (UNSAT) & 8 & 0.37 (s)& 8 & 0.39 (s)& 8 & 0.37 (s)& 8 & 0.38 (s)& 8 & 0.38 (s)& 8 & 0.38 (s)
 \\
 \hline
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{3}{c|}{(2)-(5)-(8)} & \multicolumn{2}{c|}{(2)-(5)-(9)} & 
+    \multicolumn{2}{c|}{(2)-(5)-(8)} & \multicolumn{2}{c|}{(2)-(5)-(9)} & 
     \multicolumn{2}{c|}{(2)-(6)-(8)} & \multicolumn{2}{c|}{(2)-(6)-(9)} & 
     \multicolumn{2}{c|}{(2)-(7)-(8)} & \multicolumn{2}{c|}{(10)-(7)-(9)} \\
 \hline
- Matrix-1 (SAT) & 20 & 163.47 & (s) & 21 & 736.17 & 19 & 953.97 & 18 & 
-1068.40 & 19 & 799.79 & 19 & 230.39 
+ Matrix-1 (SAT) & 20 & 163.47 (s) & 21 & 736.17 (s)& 19 & 953.97 (s)& 18 & 
+1068.40 (s)& 19 & 799.79 (s)& 19 & 230.39 (s)
 \\
 \hline
- Matrix-1 (UNSAT) &     2 & 0 && 2 & 0.00 & 2 & 0.00 & 2 & 0.00 & 2 & 0.00 & 2 & 0.00 
+ Matrix-1 (UNSAT) & 2 & 0.00(s) & 2 & 0.00 (s)& 2 & 0.00 (s)& 2 & 0.00 (s)& 2 & 0.00 (s)& 2 & 0.00 (s)
 \\
 \hline
- Matrix-2,3,4,5 (SAT) &     5 & 514.37 && 1 & 350.84 & 0 & 0.00 & 0 & 0.00 & 0 & 0.00 & 1 & 13.43
+ Matrix-2,3,4,5 (SAT) & 5 & 514.37 (s)& 1 & 350.84 (s)& 0 & 0.00 (s)& 0 & 0.00 (s)& 0 & 0.00 (s)& 1 & 13.43 (s)
 \\
 \hline
- Matrix-2,3,4,5 (UNSAT) &     8 & 0.43 && 8 & 0.37 & 8 & 0.40 & 8 & 0.38 & 8 & 0.37 & 8 & 0.38 
+ Matrix-2,3,4,5 (UNSAT) & 8 & 0.43 (s)& 8 & 0.37 (s)& 8 & 0.40 (s)& 8 & 0.38 (s)& 8 & 0.37 (s)& 8 & 0.38 (s)
 \\
 \hline
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{3}{c|}{(1)-(3)-(8)} & \multicolumn{2}{c|}{(1)-(4)-(8)} & 
+    \multicolumn{2}{c|}{(1)-(3)-(8)} & \multicolumn{2}{c|}{(1)-(4)-(8)} & 
     \multicolumn{2}{c|}{(2)-(3)-(8)} & \multicolumn{2}{c|}{(2)-(4)-(8)} & 
     \multicolumn{2}{c|}{(10)-(3)-(8)} & \multicolumn{2}{c|}{(10)-(4)-(8)} \\
 \hline
- Matrix-1 (SAT) & 18 & 1438.47 & (s) & 20 & 1537.9 & 19 & 1100.60 & 17 & 916.32 & 17 & 87.78 & 20 & 710.21 
+ Matrix-1 (SAT) & 18 & 1438.47 (s) & 20 & 1537.9 (s)& 19 & 1100.60 (s)& 17 & 916.32 (s)& 17 & 87.78 (s)& 20 & 710.21 (s)
 \\
 \hline
- Matrix-1 (UNSAT) & 2 & 0.00 && 2 & 0.00 & 2 & 0.00 & 2 & 0.00 & 2 & 0.00 & 2 & 0.00 
+ Matrix-1 (UNSAT) & 2 & 0.00 (s)& 2 & 0.00(s) & 2 & 0.00 (s)& 2 & 0.00 (s)& 2 & 0.00 (s)& 2 & 0.00 (s)
 \\
 \hline
- Matrix-2,3,4,5 (SAT) & 0 & 0.00 && 1 & 33.17 & 1 & 201.32 & 2 & 328.03 & 0 & 0.00 & 1 & 20.94 
+ Matrix-2,3,4,5 (SAT) & 0 & 0.00 (s)& 1 & 33.17 (s)& 1 & 201.32 (s)& 2 & 328.03 (s)& 0 & 0.00 (s)& 1 & 20.94 (s)
 \\
 \hline
- Matrix-2,3,4,5 (UNSAT) & 8 & 0.36 && 8 & 0.36 & 8 & 0.34 & 8 & 0.37 & 8 & 0.37 & 8 & 0.39 
+ Matrix-2,3,4,5 (UNSAT) & 8 & 0.36 (s)& 8 & 0.36 (s)& 8 & 0.34 (s)& 8 & 0.37 (s)& 8 & 0.37 (s)& 8 & 0.39 (s)
 \\
 \hline
 \end{tabular}
 
 \bigskip
 
-\begin{tabular}{ | l | r | r  r | r  | r | r | r | r | r |}
+\begin{tabular}{ | l | r | r | r  | r | r | r | r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{3}{c|}{(1)-(5)-(8)} & \multicolumn{2}{c|}{(1)-(5)-(9)} & 
+    \multicolumn{2}{c|}{(1)-(5)-(8)} & \multicolumn{2}{c|}{(1)-(5)-(9)} & 
     \multicolumn{2}{c|}{(10)-(5)-(8)} & \multicolumn{2}{c|}{(10)-(7)-(9)} \\
 \hline
-    Meti-Tarski (SAT, 3528) & 3322 & 369.60 & (s) & 3303 & 425.37 & {\bf 3325} & 653.87 & 3322 & 642.04 
+    Meti-Tarski (SAT, 3528) & 3322 & 369.60 (s) & 3303 & 425.37 (s)& {\bf 3325} & 653.87 (s)& 3322 & 642.04 (s)
 \\
 \hline
-    Meti-Tarski (UNSAT, 1573) & 1052 & 383.40 && 1064 & 1141.67 & {\bf 1100} & 842.73 & 1076 & 829.43 
+    Meti-Tarski (UNSAT, 1573) & 1052 & 383.40 (s)& 1064 & 1141.67 (s)& {\bf 1100} & 842.73 (s)& 1076 & 829.43 (s) 
 \\
 \hline
 \end{tabular}
@@ -1181,25 +1176,52 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 \label{tab:rasat-experiments}
 \end{table*}
 
-Other than heuristics mentioned in Section~\ref{sec:strategy}, 
-there are lots of heuristic choices. 
-For instance, 
-\begin{itemize}
-\item how to generate test instances (in $U.T$), 
-\item how to decompose an interval, 
-\end{itemize} 
-and so on. 
-
 Experiments in Table~\ref{tab:rasat-experiments} are performed 
-with randome generation ($k$-random tick) for the former and the blanced decomposition 
+with random generation ($k$-random tick) for the former and the blanced decomposition 
 (dividing at the exact middle) for the latter. 
-Further investigation is left for future. 
 
+\subsection*{Experiments with test case generation using variables sensitivity}
+From above section, we can see that the combination (1)-(5)-(8) shows the best performance on benchmarks. This section is going to examine the effectiveness of variables sensitivity in generation of test cases which is named as (11). Table~\ref{tab:test-sen} presents the result of the experiments on QF\_NRA/Zankl and QF\_NRA/Meti-tarski benchmarks, which show that this strategy made some improvements.
+
+\begin{table}
+\begin{tabular}{ | l | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{2}{c|}{(1)-(5)-(8)-(11)} \\
+\hline
+    Matrix-1 (SAT ) & \textbf{25} & 414.99(s)
+\\
+\hline
+    Meti-1 (UNSAT) & 2 & 0.01(s)
+\\
+\hline
+	Matrix-2,3,4,5 (SAT) & \textbf{11} & 1264.77(s)
+\\
+\hline
+    Meti-2,3,4,5 (UNSAT) & 8 & 0.38(s)
+\\
+\hline
+\end{tabular}
+\begin{tabular}{ | l | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{2}{c|}{(1)-(5)-(8)-(11)} \\
+\hline
+    Meti-Tarski (SAT, 3528) & 3322 & 369.60 (s)
+\\
+\hline
+    Meti-Tarski (UNSAT, 1573) & 1052 & 383.40 (s)
+\\
+\hline
+\end{tabular}
+\caption{Effectiveness of variables sensitivity on test cases generation} 
+\label{tab:test-sen}
+\end{table}
 
 \subsection{Comparison with other SMT solvers}
 
 We compare {\bf raSAT} with other SMT solvers on NRA benchmarks, Zankl and Meti-Tarski. 
-The timeouts for Zankl and Meti-tarski are $500s$ and $60s$, respectively. 
+The timeout is $500s$. 
 For {\bf iSAT3}, ranges of all variables are uniformly set to be in the range $[-1000, 1000]$
 (otherwise, it often causes segmentation fault). 
 Thus, UNSAT detection of {\bf iSAT3} means UNSAT in the range $[-1000, 1000]$, 
@@ -1222,8 +1244,8 @@ Such examples appear in Zankl/matrix-3-all-*, matrix-4-all-*, and matrix-5-all-*
 \item {\em matrix-5-all-01} (132 variables, 276 APIs, and max length of an API is 47). 
 \end{itemize}
 Note that, for Zankl, when UNSAT is detected, it is detected very quickly. 
-This is because SMT solvers detects UNSAT only when they find small UNSAT cores, 
-without tracing all APIs. However, for SAT detection with ;arge problems, 
+This is because SMT solvers detects UNSAT when they find small UNSAT cores, 
+without tracing all APIs. However, for SAT detection with large problems, 
 SMT solvers need to trace all problems. Thus, it takes much longer time. 
 
 \begin{table*}[t]
@@ -1231,14 +1253,14 @@ SMT solvers need to trace all problems. Thus, it takes much longer time.
 \begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r | r | r |r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3)} & \multicolumn{4}{c|}{\bf iSAT3} \\
+    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} \\
 \hline
     & \multicolumn{3}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} & \multicolumn{2}{|c|}{SAT} 
     & \multicolumn{2}{|c|}{UNSAT} & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
 \hline
 Zankl/matrix-1 (53) & 20 & 132.72 & (s) & 2 & 0.00 & 41 & 2.17 & 12 & 0.00 & 11 & 4.68 & 3 & 0.00 \\
 \hline
-Zankl/matrix-2,3,4,5 (98) & 11 & 632.37 && 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 & 3 & 196.40 & 12 & 8.06 \\
+Zankl/matrix-2,3,4,5 (98) & 10 & 632.37 && 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 & 3 & 196.40 & 12 & 8.06 \\
 \hline 
 Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 & 78.56 & 2916 & 811.53 & 
 1225 & 73.83 \\
@@ -1249,7 +1271,9 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 \end{table*}
 
 \subsection{Experiments on SAT solving of equations}
+We also do experiments on constraints with equalities from QF\_NRA/Zankl and QF\_NRA/Meti-tarski. Table~\ref{tab:equations} 
 \begin{table}[h]
+\begin{center}
 \begin{tabular}{lclclclcl}
 \cline{2-9}
 \multicolumn{1}{l|}{} & \multicolumn{4}{c|}{Zankl(15)}                                                                                 & \multicolumn{4}{c|}{Meti-tarski(2612)}                                                                                 \\ \cline{2-9} 
@@ -1257,6 +1281,8 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 &
 \multicolumn{1}{l|}{} & \multicolumn{1}{c|}{11} & \multicolumn{1}{c|}{0.07(s)} & \multicolumn{1}{c|}{4} & \multicolumn{1}{c|}{0.17(s)} & \multicolumn{1}{c|}{1343} & \multicolumn{1}{c|}{150.11(s)} & \multicolumn{1}{c|}{804} & \multicolumn{1}{c|}{188.61(s)} \\ \cline{2-9} 
                       & \multicolumn{1}{l}{}    &                              & \multicolumn{1}{l}{}   &                              & \multicolumn{1}{l}{}      &                                & \multicolumn{1}{l}{}     &                               
 \end{tabular}
+\caption{Experiments on Equalities} \label{tab:equations}
+\end{center}
 \end{table}
 
 \subsection{Polynomial constraints over integers} \label{sec:NIA}
@@ -1266,7 +1292,7 @@ by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch
 and restrcting testdata generation on intergers. 
 We also compare {\bf raSAT} (combination (1)-(5)-(8)) with {\bf Z3 4.3} on NIA/AProVE benchmark. 
 {\bf AProVE} contains 6850 inequalities among 8829. 
-Some has several hundred variables, but each API has few variables (mostly just 2 variables). 
+Some has several hundred variables, but each API has few variables (mostly just 2 variables). Note that the use of the Intermediate Value Theorem cannot be applied for NIA constraints because the polynomials are not continuous.
 
 The results are, 
 \begin{itemize}
@@ -1274,7 +1300,7 @@ The results are,
 \item {\bf Z3 4.3} detects 6784 SAT in 97.70s, and 36 UNSAT in 32.08s. 
 \end{itemize}
 where the timeout is $500s$. 
-{\bf raSAT} does not successfully detect UNSAT, since UNSAT problems have quite large coefficients
+{\bf raSAT} does not detect unsatisfiability well since UNSAT problems have quite large coefficients
 which lead exhaustive search on quite large area. 
 %%%%%%%%%%%%%%%%%
 \suppress{
@@ -1411,14 +1437,8 @@ We also apply the same idea for multiple equalities $\bigwedge \limits_{i} g_i =
 \section{Conclusion} \label{sec:conclusion and Future Work}
 
 
-This paper presented {\bf raSAT} loop, which mutually refines over and under--approximation 
-theories. For polynomial inequlaity, we adopted interval arithemtic and testing for 
-over and under-approximation theories, respectively. 
-{\bf raSAT} loop is implemented as an SMT {\bf raSAT}. 
-The result of Experiments on QF\_NRA in SMT-lib is encouraging, and 
-{\bf raSAT} shows comparable and sometimes outperforming to existing SMTs, e.g., 
-Z3 4.3, HySAT, and dReal. For instance, ****** which has ** variables and degree ** 
-was solved by {\bf raSAT}, whereas none of above mentioned SMTS can. 
+This paper presented {\bf raSAT} loop, which extends ICP with testing to accelerate
+SAT detection and implemented as an SMT solver \textbf{raSAT}. With experiments on benchmarks from QF NRA category of SMT-lib, we found two heuristic measures SAT-likelyhood and sensitivity, which lead effective strategy combination for SAT detection. 
 %
 \suppress{
 \subsection{Observation and Discussion} 
@@ -1456,24 +1476,20 @@ Thus, iSAT and RSOLVER cannot use this strategy, though they are based on IA, to
 there are lots of future work. 
 
 \medskip \noindent 
-{\bf UNSAT core}. 
-\mizuhito{to be filled}
+{\bf UNSAT core}. Currently, \textbf{raSAT} focuses on SAT detection. For
+UNSAT detection, the target is to find a small UNSAT core in a large problem.
 
-\medskip \noindent 
-{\bf Exact confirmation}.
-Currently, {\bf raSAT} uses floating point arithmetic. Thus, results can be unsound. 
-We are planning to add a confirmation phase to confirm whether an SAT instance is exact
-by roundoff error bound guaranteed floating arithmetic libraries, such as ****. 
 
 \medskip \noindent 
 {\bf Equality handling}. 
-%Section~\ref{sec:eq} shows single equality handling. 
-We are planning to extend the use of Intermediate Value Theorem to multiple equality with 
-shared variables. 
+Section~\ref{sec:eq} shows equality handling where UNSAT constraints can be completely solved by ICP (with the assumption of bounded intervals). The Intermediate Value Theorem can be used to show satisfiability with restrictions on variables of polynomials. Moreover, the use of this theorem is not a complete in showing satisfiability. As a future work, we will apply Groebner basis.
 
 \medskip \noindent 
 {\bf Further strategy refiment}. 
-\mizuhito{Test data generation, blanced box decomposition}
+Currently, raSAT uses only information from
+O.T (interval arithmetic).We are planning to refine strategies such that previous
+O.T and U.T results mutually guide to each other. For instance, test generation
+and a box decomposition can be more focused.1
 
 
 %%%

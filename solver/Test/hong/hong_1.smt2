@@ -3,4 +3,6 @@
 (declare-fun x_0 () Real)
 (assert (< (* x_0 x_0) 1.))
 (assert (> x_0 1.))
+(assert (> x_0 -1000))
+(assert (< x_0 1000))
 (check-sat)
