@@ -1171,7 +1171,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         flush stdout;*)
         let upperIntv = 
           if polyCons#get_logic = "QF_NIA" then
-            let tmpNewPoint = floor upperBound in
+            let tmpNewPoint = ceil newPoint in
             new IA.interval tmpNewPoint upperBound
           else new IA.interval newPoint upperBound 
         in
@@ -1507,7 +1507,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
          let startDecompositionTime = Sys.time() in
          (* If the uk_cl are equalities, then we implement some tricks for solving them. *)
          let (isEqualitiesSAT, unsatPolyConstraints) = 
-           if is_all_equations uk_cl then (* is_all_equalities is defined in ast.ml *)
+           if can_apply_imvt uk_cl && is_all_equations uk_cl then (* is_all_equalities is defined in ast.ml *)
              check_equalities uk_cl varsIntvsMiniSATCodesMap VariablesSet.empty (* check_equalities is defined in Equalities_handler.ml *)
            else (false, uk_cl)
          in

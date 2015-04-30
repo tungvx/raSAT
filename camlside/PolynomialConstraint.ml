@@ -228,14 +228,14 @@ class polynomialConstraint boolExprInit =
       sat
    
     method verify_SAT varsTCsMap = 
-      print_endline ("verifying " ^ self#to_string_infix);
-      flush stdout;
+      (*print_endline ("verifying " ^ self#to_string_infix);
+      flush stdout;*)
       let convert_toIntv var tc currentVarsIntvsMap = StringMap.add var (new IA.interval tc tc) currentVarsIntvsMap in
       let varsIntvsMap = StringMap.fold convert_toIntv varsTCsMap StringMap.empty in
       let polyExpr = get_exp boolExpr in
       let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
-      print_endline ("Bound" ^ ciBound#to_string);
-      flush stdout;
+      (*print_endline ("Bound" ^ ciBound#to_string);
+      flush stdout;*)
       check_sat_providedBounds boolExpr ciBound
       
     method add_sat_direction currentVarSATDirectionMap = 
@@ -650,6 +650,18 @@ let rec is_all_equations polyConstraints =
   | [] -> true
   | h::t -> (is_boolExpr_equation h#get_constraint) && (is_all_equations t)
 (*==================== END is_all_equalities ==============================*)
+
+
+(*==================== START can_apply_imvt ==============================*)		
+(* This function checks if a list of boolean expressions are all equalities *)
+let rec can_apply_imvt polyConstraints = 
+  match polyConstraints with
+  | [] -> true
+  | h::t -> 
+    let logic = h#get_logic in
+    logic = "QF_NRA"
+(*==================== END can_apply_imvt ==============================*)
+
 
 
 (*==================== START first_uk_cl ==============================*)		
