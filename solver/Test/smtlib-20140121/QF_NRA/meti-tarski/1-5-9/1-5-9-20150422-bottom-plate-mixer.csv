@@ -1,0 +1,17 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0052.smt2,5,4,6,0.052992,0.010999,0.015997,0.000999,0.002998,0.004,0.017999,134.0,428.0,295.0,529.0,255.0,274.0,0.0,unsat,unsat,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0042.smt2,5,2,5,0.014998,0.0,0.011,0.0,0.0,0.000999,0.002999,46.0,54.0,26.0,70.0,60.0,10.0,0.0,unsat,unsat,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0036.smt2,3,2,3,500.001384,8.562757,2.02271,1.9507,7.986748,0.349945,479.1285,8448.0,633644.0,686412.0,701340.0,19146.0,677467.0,4727.0,sat,Timeout,1,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0048.smt2,5,4,7,0.080987,0.011999,0.029995,0.002999,0.001,0.003,0.031994,170.0,532.0,433.0,792.0,340.0,452.0,0.0,unsat,unsat,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0049.smt2,5,2,6,500.000853,12.610003,3.00653,1.54977,11.66627,0.590924,470.577275,13349.0,452844.0,497775.0,521483.0,30369.0,484615.0,6499.0,sat,Timeout,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0046.smt2,5,2,5,500.00066,11.286223,2.927572,1.507777,11.532261,0.539905,472.207084,12710.0,472879.0,490905.0,513707.0,29145.0,478436.0,6126.0,sat,Timeout,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0043.smt2,5,2,6,500.001557,15.353742,2.961558,1.480771,11.223171,0.491913,468.491079,13273.0,461408.0,486396.0,509919.0,30146.0,473421.0,6352.0,sat,Timeout,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0041.smt2,5,2,4,500.002261,12.693104,2.190683,1.78871,8.356764,0.360947,474.611451,9123.0,568894.0,626862.0,642961.0,20650.0,617438.0,4873.0,sat,Timeout,1,1
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0054.smt2,5,4,6,500.001453,18.979072,3.144529,1.429786,11.083357,0.592918,464.770979,13597.0,455532.0,479299.0,504012.0,30755.0,466447.0,6810.0,unsat,Timeout,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0044.smt2,5,2,6,0.012999,0.001,0.005,0.0,0.0,0.0,0.006999,40.0,39.0,22.0,57.0,42.0,15.0,0.0,unsat,unsat,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0038.smt2,3,2,3,0.035995,0.0,0.021998,0.0,0.002,0.007998,0.004999,218.0,0.0,102.0,460.0,455.0,0.0,5.0,sat,sat,0,1
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0039.smt2,5,2,4,500.000861,10.068442,3.146503,1.467771,11.348154,0.576908,473.393281,13429.0,458239.0,495842.0,519723.0,30585.0,482280.0,6858.0,sat,Timeout,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0045.smt2,5,2,5,500.001759,13.071974,2.830589,1.461789,11.462181,0.523923,470.651278,12808.0,462116.0,504502.0,527230.0,29120.0,491758.0,6352.0,sat,Timeout,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0050.smt2,5,2,5,500.002458,10.895376,3.111491,1.39979,11.147345,0.609907,472.83798,13906.0,461238.0,479115.0,503876.0,31702.0,465484.0,6690.0,sat,Timeout,2,0
+QF_NRA/meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0047.smt2,5,2,5,0.001999,0.0,0.002998,0.0,0.0,0.0,0.0,36.0,30.0,21.0,46.0,36.0,10.0,0.0,unsat,unsat,2,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,6,EQ,NEQ

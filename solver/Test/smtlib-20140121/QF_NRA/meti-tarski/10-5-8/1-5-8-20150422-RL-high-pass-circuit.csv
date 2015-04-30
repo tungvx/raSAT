@@ -1,0 +1,10 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0010.smt2,3,2,4,500.002306,13.59591,3.750461,1.871695,8.816624,0.107983,471.859533,9675.0,578607.0,658334.0,675446.0,21942.0,647456.0,6048.0,sat,Timeout,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0011.smt2,3,3,2,0.06399,0.007998,0.036996,0.0,0.0,0.001,0.017996,13.0,12.0,133.0,16.0,16.0,0.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0009.smt2,3,3,2,500.075999,1.35679,1.858708,0.06699,600.024,0.087984,0.684904,19424.0,52.0,19364.0,48506.0,38848.0,9656.0,2.0,unsat,Timeout,0,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0013.smt2,3,2,4,0.004999,0.0,0.001,0.0,0.0,0.0,0.003999,24.0,8.0,10.0,25.0,22.0,3.0,0.0,unsat,unsat,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0012.smt2,3,3,5,0.047993,0.008,0.019996,0.001,0.001,0.002,0.015997,106.0,192.0,181.0,359.0,202.0,157.0,0.0,unsat,unsat,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0005.smt2,3,2,3,500.003341,8.413694,3.471456,1.678744,8.396751,0.118982,477.923509,9738.0,566462.0,611669.0,629002.0,22196.0,601428.0,5378.0,sat,Timeout,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0007.smt2,3,2,3,35.8366,1.15884,26.225,0.0,0.22797,0.0,8.22475,18.0,6.0,78315.0,28.0,28.0,0.0,0.0,sat,sat,0,1
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0008.smt2,3,2,4,0.002,0.0,0.0,0.0,0.0,0.0,0.002,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,1,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,5,EQ,NEQ
