@@ -1,0 +1,10 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0010.smt2,3,2,4,0.013998,0.004,0.005999,0.0,0.0,0.002,0.001999,37.0,38.0,23.0,67.0,60.0,7.0,0.0,sat,sat,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0011.smt2,3,3,2,0.016998,0.001999,0.01,0.0,0.0,0.003,0.001999,27.0,42.0,24.0,48.0,44.0,4.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0009.smt2,3,3,2,500.062996,1.342799,2.273679,0.062993,599.661999,0.08699,0.61291,19530.0,164.0,19501.0,48764.0,39020.0,9742.0,2.0,unsat,Timeout,0,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0013.smt2,3,2,4,0.004,0.002,0.002,0.0,0.0,0.0,8.67362e-19,18.0,4.0,8.0,12.0,8.0,4.0,0.0,unsat,unsat,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0012.smt2,3,3,5,0.06599,0.018996,0.021995,0.0,0.001,0.005,0.018999,110.0,269.0,212.0,383.0,188.0,195.0,0.0,unsat,unsat,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0005.smt2,3,2,3,0.203969,0.013999,0.099985,0.004,0.008999,0.009998,0.066988,270.0,1146.0,1072.0,1457.0,516.0,836.0,105.0,sat,sat,1,0
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0007.smt2,3,2,3,0.045993,0.0,0.034994,0.0,0.0,0.0,0.010999,20.0,22.0,61.0,29.0,28.0,1.0,0.0,sat,sat,0,1
+QF_NRA/meti-tarski/RL-high-pass-circuit/RL-high-pass-circuit-gain-chunk-0008.smt2,3,2,4,0.003,0.0,0.0,0.0,0.001,0.0,0.002,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,1,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,7,EQ,NEQ

@@ -1,0 +1,4 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+QF_NRA/meti-tarski/atan/problem/1/atan-problem-1-chunk-0066.smt2,3,3,8,0.080989,0.013998,0.031994,0.0,0.0,0.006999,0.027998,304.0,299.0,151.0,593.0,567.0,24.0,2.0,sat,sat,2,0
+QF_NRA/meti-tarski/atan/problem/1/atan-problem-1-chunk-0059.smt2,3,3,8,0.009999,0.005,0.001999,0.0,0.0,0.001,0.002,38.0,18.0,16.0,45.0,37.0,8.0,0.0,unsat,unsat,2,0
+QF_NRA/meti-tarski/atan/problem/1/atan-problem-1-chunk-0054.smt2,3,3,8,0.002,0.0,0.0,0.0,0.0,0.0,0.002,22.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,2,0
