@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{verbatim}
 \setcounter{tocdepth}{3}
+\usepackage{adjustbox,lipsum}
 
 \usepackage{graphicx}
 \graphicspath{ {Figs/} }
@@ -92,7 +93,7 @@ and a box to explore.
 
 Several heuristic measures, called {\em SAT likelyhood}, {\em sensitivity}, and the number of 
 unsolved atomic polynomial constraints, are compared on Zankl and Meti-Tarski benchmarks from 
-QF\_NRA category of SMT-LIB. They are also evaluated by comparing {\bf Z3 4.3} and {\bf iSAT3}. 
+QF\_NRA category of SMT-LIB. They are also evaluated by comparing {\bf Z3 4.3}, \textbf{dReal-2.15.01} and {\bf iSAT3}. 
 raSAT loop is extended with the use of the Intermediate Value Theorem to solve equality.
 We also show a simple modification to handle mixed intergers, and experiments on 
 AProVE benchmark from QF\_NIA category of SMT-LIB. 
@@ -170,7 +171,7 @@ polynomial optimization problems, which are solved by Groebner basis in EXPTIME.
 
 A practical alternative is {\em ICP} (Interval Constraint Propagation), 
 which are used in SMT solver community, e.g., {\bf iSAT3}~\cite{isat}, 
-{\bf dReal}~\cite{dRealCADE13}, and RSOLVER~\cite{rsolver}. 
+{\bf dReal}~\cite{dRealCADE13}, and \textbf{RSolver}~\cite{rsolver}. 
 ICP is based on over-approximation by interval arithmetics, and iteratively refines by
 interval decompositions. 
 It is practically often more efficient than algebraic computation 
@@ -301,6 +302,56 @@ CORDIC (COrdinate Rotation DIgital Computer) for real numbers.
 Both Barcelogic and CORD apply Yices for solving linear constraints.
 Linearization also suffers a lot when the degree of polynomials increases. 
 %\mizuhito{Check CORD is whether bit-blasting or linearization}. 
+Because \textbf{raSAT} in the same category of using ICP with \text{iSAT3} and \text{dReal}, next part is going to take a look at details of methodologies used in these solvers.
+\subsection*{iSAT3}
+Although \textbf{iSAT3} also uses Interval Arithmetic (IA), its algorithm integrates IA with DPLL procedure~\cite{dpll} tighter than that of \textbf{raSAT}. During DPLL procedure, in addition to an assignment of literals, \textbf{iSAT3} also prepares a data structure to store interval boxes where each box corresponds to one decision level of DPLL procedure's assignment. In \textbf{UnitPropagation} rule, intead of using standard rule, \textbf{iSAT3} searches for clauses that have all but one atoms being inconsistence with the current interval box. When some atom are selected for the literals assignment, this tool tries to use the selected atoms to contract the corresponding box to make it smaller. In order to do this, \textbf{iSAT3} convert each inequality/equation in the given constraints into the conjunction of the atoms of the following form by introducing additional variables:
+\begin{center}
+\begin{tabular}{l c l}
+atom &::=& bound $\mid$ equation \\
+bound &::=& variable relation rational\_constant \\
+relation &::=& $< \mid \le \mid = \mid \ge \mid >$ \\
+equation &::=& variable = variable bop variable \\
+bop &::=& $+ \mid - \mid \times$
+\end{tabular}
+\end{center}
+In other words, the resulting atoms are of the form, e.g., either $x > 10$ or $x = y + z$. For example, the constraint \[x^2 + y^2 < 1\]
+is converted into:
+\[\left\{ 
+  \begin{array}{l}
+    x_1 = x^2\\
+    x_2 = y^2\\
+    x_3 = x_1 + x_2\\
+    x_3 < 1
+   \end{array}
+    \right.\]
+From the atoms of these form, the contraction can be easily done for interval boxes:
+\begin{itemize}
+\item[$\bullet$] For the bound atom of the form, e.g., $x > 10$, if the bound is $x \in \langle 0, 100 \rangle$, then the contracted box contain $x \in \langle 10, 100 \rangle$.
+\item[$\bullet$] For the equations of three variables $x = y \text{ bop } z$, from bounds of any two variables, we can infer the bound for the remaining one. For example, from
+\[\left\{ 
+  \begin{array}{l}
+    x = y.z\\
+    x \in \langle 1, 10 \rangle \\
+    y \in \langle 3, 7 \rangle\\
+   \end{array}
+    \right.\]
+we can infer that \[z \in \langle \frac{1}{7}, \frac{10}{3} \rangle \]
+\end{itemize}
+When the \textbf{UnitPropagation} and contraction can not be done, \textbf{iSAT3} split one interval (decomposition) in the current box and select one decomposed interval to explore which corresponds to \textbf{decide} step. If the contraction yields an empty box, a conflict is detected and the complement of the bound selection in the last split needs to be asserted. This is done via \textbf{learn} the causes of the conflict and \textbf{backjump} to the previous bound selection of the last bound selection. In order to reason about causes of a conflict, \textbf{iSAT3} maintains an implication graph to represents which atoms lead to the asserting of one atom. 
+\subsection*{dReal}
+In stead of showing satisfiability/unsatisfiability of the polynomial constraints $\varphi$ over the real numbers, \textbf{dReal} proves that either
+\begin{itemize}
+\item [$\bullet$] $\varphi$ is unsatisfiable, or 
+\item [$\bullet$] $\varphi^\delta$ is satisfiable. 
+\end{itemize}
+Here, $\varphi^\delta$ is the $\delta$-weakening of $\varphi$. For instance, the $\delta$-weakening of $x = 0$ is $|x| \le \delta$. Any constraint with operators in $\{<, \le, > , \ge, =, \not=\}$ can be converted into constraints that contains only $=$ by the following transformations.
+\begin{itemize}
+\item [$\bullet$] \textbf{Removing $\not=$}: Each formula of the form $f \not= 0$ is transformed into $f > 0 \vee f < 0$.
+\item [$\bullet$] \textbf{Removing $<$ and $\le$}: Each formula of the form $f < 0$ or $f \le 0$ is transformed into $-f \ge 0$ or $-f > 0$ respectively.
+\item [$\bullet$] \textbf{Removing $>$ and $\ge$}: Each formula of the form $f > 0$ or $f \ge 0$ is transformed into $f - x = 0$ by introducing an auxiliary variable $x$ that has bound $[0, m]$ or $(0, m]$ respectively. Here, $m$ is any rational number which is greater than the maximum of $f$ over intervals of variables. As the result, \textbf{dReal} requires the input that ranges of variables must be compact.
+\end{itemize}
+
+Note that the satisfiability of $\varphi^\delta$ does not imply that of $\varphi$. \textbf{dReal}'s methodology~\cite{Gao:2012:9DP:2352896.2352921} also cooperates DPLL with ICP in the lazy manner as in \textbf{raSAT}.
 
 \medskip 
 %{\bf raSAT} applies SAT confirmation to avoid soundness errors caused by roundoff/overflow errors. 
@@ -938,6 +989,7 @@ For $F = \exists x_1 \in I_1 \cdots x_n \in I_n (\bigwedge \limits_{j}^m f_j > 0
 \item If there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$, it is clear from the Intermediate Value Theorem that there exist one point $\vec{t_0}$ between $\vec{t}$ and $\vec{t'}$ such that $g(\vec{t_0}) = 0$. In addition, because $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in $I$, $\vec{t_0}$ also satisfies $\bigwedge \limits_{j}^m f_j > 0$. As a result, $F$ is satisfiable with $\vec{t_0}$ as the SAT instance.
 \end{enumerate}
 \end{proof}
+In the case that both (i) and (ii) do not occur, then \textbf{raSAT} continue by decomposition.
 \begin{example}
 Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we can find a box represented by $\Pi = x \in \langle a, b \rangle \wedge y \in \langle c, d \rangle$ such that $f(x, y) > 0$ is $\Pi^p_\mathbb{R}$-VALID (Figure~\ref{fig:single-equation}). In addition, inside that box, we can find two points $(u_1, v_1)$ and $(u_2, v_2)$ such that $g(u_1, v_1) > 0$ and $g(u_2, v_2) < 0$. By Lemma~\ref{lemma:ivt}, the constraint is satisfiable.
 \end{example}
@@ -1095,6 +1147,7 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 
 \begin{table*}[t]
 \centering
+\adjustbox{max width=\columnwidth}{
 \begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
@@ -1154,9 +1207,9 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 \\
 \hline
 \end{tabular}
-
+}
 \bigskip
-
+\adjustbox{max width=\columnwidth}{
 \begin{tabular}{ | l | r | r | r  | r | r | r | r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
@@ -1170,7 +1223,7 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
 \\
 \hline
 \end{tabular}
-
+}
 \medskip
 \caption{Combnations of {\bf raSAT} strategies on NRA/Zankl,Meti-Tarski benchmark} 
 \label{tab:rasat-experiments}
@@ -1225,7 +1278,7 @@ The timeout is $500s$.
 For {\bf iSAT3}, ranges of all variables are uniformly set to be in the range $[-1000, 1000]$
 (otherwise, it often causes segmentation fault). 
 Thus, UNSAT detection of {\bf iSAT3} means UNSAT in the range $[-1000, 1000]$, 
-while that of {\bf raSAT} and {\bf Z3 4.3} means  UNSAT over $[-\infty, \infty]$. 
+while that of {\bf raSAT}, \textbf{dReal} and {\bf Z3 4.3} means  UNSAT over $[-\infty, \infty]$. Another note is that if \textbf{dReal} concludes SAT, the constraint is $\delta$-SAT, which cannot imply the satisfiability of the constraint. For instances, with a number of UNSAT problems in Zankl, \textbf{dReal} still concludes SAT.
 
 Among these SMT solvers, {\bf Z3 4.3} shows the best performance. 
 However, if we closely observe, there are certain tendency. 
@@ -1250,22 +1303,24 @@ SMT solvers need to trace all problems. Thus, it takes much longer time.
 
 \begin{table*}[t]
 \centering
-\begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r | r | r |r | r |}
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r | r | r | r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} \\
+    \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} & \multicolumn{4}{c|}{\bf dReal}\\
 \hline
-    & \multicolumn{3}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} & \multicolumn{2}{|c|}{SAT} 
-    & \multicolumn{2}{|c|}{UNSAT} & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
+    & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
+    & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c|}{UNSAT}\\
 \hline
-Zankl/matrix-1 (53) & 20 & 132.72 & (s) & 2 & 0.00 & 41 & 2.17 & 12 & 0.00 & 11 & 4.68 & 3 & 0.00 \\
+Zankl/matrix-1 (53) & 20 & 132.72 (s) & 2 & 0.00 & 41 & 2.17 & 12 & 0.00 & 11 & 4.68 & 3 & 0.00 & 46 & 3573.43 (s) & 0 & 0.00(s)\\
 \hline
-Zankl/matrix-2,3,4,5 (98) & 10 & 632.37 && 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 & 3 & 196.40 & 12 & 8.06 \\
+Zankl/matrix-2,3,4,5 (98) & 10 & 632.37 & 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 & 3 & 196.40 & 12 & 8.06 & 19& 2708.89 (s) & 0 &0.00 (s) \\
 \hline 
-Meti-Tarski (3528/1573) & 3322 & 369.60 && 1052 & 383.40 & 3528 & 51.22 & 1568 & 78.56 & 2916 & 811.53 & 
-1225 & 73.83 \\
+Meti-Tarski (3528/1573) & 3322 & 369.60 & 1052 & 383.40 & 3528 & 51.22 & 1568 & 78.56 & 2916 & 811.53 & 
+1225 & 73.83 & 3523 & 441.35 (s) & 1197 & 55.39 (s) \\
 \hline
 \end{tabular}
+}
 \medskip 
 \caption{Comparison among SMT solvers} \label{tab:comparison}
 \end{table*}
