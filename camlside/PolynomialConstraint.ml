@@ -213,8 +213,8 @@ class polynomialConstraint boolExprInit =
           )
           else []
       in
-      get_n_first varsSen n (*(8)*)
-      (*get_n_random varsSen n (*(9)*)*)
+      (*get_n_first varsSen n (*(8)*)*)
+      get_n_random varsSen n (*(9)*)
     
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
@@ -504,7 +504,7 @@ class polynomialConstraint boolExprInit =
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
-          (*let isVarPositiveDirected = 0 in (* not (11) *)*)
+          let isVarPositiveDirected = 0 in (* not (11) *)
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
@@ -526,8 +526,8 @@ class polynomialConstraint boolExprInit =
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)
-      (*generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)*)
+      (*generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)*)
+      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
   
