@@ -312,7 +312,11 @@ and get_or_constraint = function
 
 and get_not_constraint = function 
   | [] -> raise (Failure "Need arguments for not") 
-  | [constraint1] -> not_of_boolCons constraint1
+  | [constraint1] -> 
+    (*print_endline ("not of " ^ string_infix_of_constraints constraint1);
+    print_endline ("is " ^ string_infix_of_constraints (not_of_boolCons constraint1));
+    flush stdout;*)
+    not_of_boolCons constraint1
   | _ -> raise (Failure "Extra arguments for not") 
 
 and get_let_termletterm_term_varbinding58 varBindings = function

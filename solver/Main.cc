@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = false;
+	bool debug = true;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -700,7 +700,7 @@ int main(int argc, char* argv[]) {
 						//cout << S.nVars() << endl;	
 						//cout << "finish adding clauses" << endl;	
 						//cout << endl << "Bumping activity of variables: "
-						//		<< bump_vars << endl;
+							//	<< bump_vars << endl;
 						//solver_bumping(S, bump_vars);
 //						cout << "finish bump" << endl;
 						//cout << S.nVars() << endl;

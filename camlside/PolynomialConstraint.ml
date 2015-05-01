@@ -543,7 +543,7 @@ let rec get_varsSet_boolCons = function
   | Or (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
 
 and not_of_boolCons = function
-  | Single polyCons -> 
+  | Single polyCons ->
     let polyConstraint = not_of_polyConstraint polyCons#get_constraint in
     Single (new polynomialConstraint(polyConstraint))
   | And (boolCons1, boolCons2) -> Or (not_of_boolCons boolCons1, not_of_boolCons boolCons2)
