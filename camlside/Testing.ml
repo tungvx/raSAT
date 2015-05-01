@@ -10,11 +10,11 @@ open Interval
 let get_element inputList =
   Random.self_init();
   
-  (*(* (1) (2) need to change (10) *)
-  let randomIndex = 0 in*)
+  (* (1) (2) need to change (10) *)
+  let randomIndex = 0 in
   
-  (* (10) need to change line (1) and (2)*)
-  let randomIndex = Random.int (List.length inputList) in
+  (*(* (10) need to change line (1) and (2)*)
+  let randomIndex = Random.int (List.length inputList) in*)
   
   
   let rec remove aList index checkedList = 
