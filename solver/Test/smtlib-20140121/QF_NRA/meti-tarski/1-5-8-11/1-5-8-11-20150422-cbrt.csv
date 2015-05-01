@@ -1,6 +1,6 @@
 Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
-QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0065.smt2,3,3,4,0.001,0.0,0.0,0.0,0.0,0.0,0.001,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0065.smt2,3,3,4,0.005,0.0,0.0,0.0,0.0,0.0,0.005,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
 QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0018.smt2,3,2,4,0.001,0.0,0.0,0.0,0.0,0.0,0.001,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
-QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0055.smt2,3,3,5,0.002,0.0,0.0,0.0,0.0,0.0,0.002,16.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
-QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0026.smt2,3,3,5,0.002,0.0,0.0,0.0,0.0,0.0,0.002,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,0
-QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0064.smt2,3,3,7,0.005,0.001,0.0,0.0,0.001,0.0,0.003,20.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0055.smt2,3,3,5,0.003,0.001,0.0,0.0,0.0,0.0,0.002,16.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0026.smt2,3,3,5,0.004,0.0,0.001,0.0,0.0,0.0,0.003,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/cbrt/3/cbrt-problem-3-chunk-0064.smt2,3,3,7,0.007,0.003,0.0,0.0,0.001,0.0,0.003,20.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
