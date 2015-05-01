@@ -312,7 +312,11 @@ and get_or_constraint = function
 
 and get_not_constraint = function 
   | [] -> raise (Failure "Need arguments for not") 
-  | [constraint1] -> not_of_boolCons constraint1
+  | [constraint1] -> 
+    (*print_endline ("not of " ^ string_infix_of_constraints constraint1);
+    print_endline ("is " ^ string_infix_of_constraints (not_of_boolCons constraint1));
+    flush stdout;*)
+    not_of_boolCons constraint1
   | _ -> raise (Failure "Extra arguments for not") 
 
 and get_let_termletterm_term_varbinding58 varBindings = function
@@ -1259,7 +1263,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             
             if totalLowerSatLength > totalUpperSatLength then (nextMiniSATCode, "")
             else (nextMiniSATCode+1, "")*)
-          (* (5) and (6) *)
+          (* (5) and (6), need to change (7), (3), (4) *)
           else (*if varSen = 0. then*)
             (* Compute the SAT length of lower interval by IA *)
             let lowerVarsIntvsMiniSATCodesMap = StringMap.add var (lowerIntv, nextMiniSATCode) varsIntvsMiniSATCodesMap in

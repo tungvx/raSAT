@@ -33,7 +33,9 @@
 #include "solver/Solver.h"
 #include "exactRealArithmetics.h"
 
+#ifdef iRRAM_INC
 #include "iRRAM/lib.h"
+#endif
 
 //Caml interaction
 #include "modwrap.h"
@@ -198,13 +200,16 @@ extern char* assignments;
 extern bool checkingResult;
 
 int main(int argc, char* argv[]) {
+
+#ifdef iRRAM_INC  
   iRRAM_initialize(argc,argv);
+#endif
   //iRRAM::iRRAM_exec(checkSAT,"");
   //testIRRAM(0);
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = true;
+	bool debug = false;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -695,7 +700,7 @@ int main(int argc, char* argv[]) {
 						//cout << S.nVars() << endl;	
 						//cout << "finish adding clauses" << endl;	
 						//cout << endl << "Bumping activity of variables: "
-						//		<< bump_vars << endl;
+							//	<< bump_vars << endl;
 						//solver_bumping(S, bump_vars);
 //						cout << "finish bump" << endl;
 						//cout << S.nVars() << endl;

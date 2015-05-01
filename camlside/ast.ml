@@ -68,7 +68,7 @@ let rec string_of_cnf_miniSATExpr cnfMiniSATExpr isFinal = match cnfMiniSATExpr 
     (string1 ^ string2, clauses1 + clauses2)
   | MOr (e1, e2) -> 
     let (string1, clauses1) = string_of_cnf_miniSATExpr e1 false in
-    let (string2, clauses2) = string_of_cnf_miniSATExpr e2 true in
+    let (string2, clauses2) = string_of_cnf_miniSATExpr e2 isFinal in
     (string1 ^ string2, clauses1 + clauses2)
 
 
