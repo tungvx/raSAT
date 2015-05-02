@@ -1310,7 +1310,7 @@ SMT solvers need to trace all problems. Thus, it takes much longer time.
     \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} & \multicolumn{4}{c|}{\bf dReal}\\
 \hline
     & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
-    & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c|}{UNSAT}\\
+    & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{$\delta-$SAT} & \multicolumn{2}{|c|}{UNSAT}\\
 \hline
 Zankl/matrix-1 (53) & 20 & 132.72 (s) & 2 & 0.00 & 41 & 2.17 & 12 & 0.00 & 11 & 4.68 & 3 & 0.00 & 46 & 3573.43 (s) & 0 & 0.00(s)\\
 \hline
@@ -1322,23 +1322,34 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 & 1052 & 383.40 & 3528 & 51.22 & 1568 & 
 \end{tabular}
 }
 \medskip 
-\caption{Comparison among SMT solvers} \label{tab:comparison}
+\caption{Comparison among SMT solvers over inequalities} \label{tab:comparison}
 \end{table*}
 
 \subsection{Experiments on SAT solving of equations}
 We also do experiments on constraints with equalities from QF\_NRA/Zankl and QF\_NRA/Meti-tarski. Table~\ref{tab:equations} 
-\begin{table}[h]
-\begin{center}
-\begin{tabular}{lclclclcl}
-\cline{2-9}
-\multicolumn{1}{l|}{} & \multicolumn{4}{c|}{Zankl(15)}                                                                                 & \multicolumn{4}{c|}{Meti-tarski(2612)}                                                                                 \\ \cline{2-9} 
-\multicolumn{1}{l|}{} & \multicolumn{2}{c|}{SAT(11)}                           & \multicolumn{2}{c|}{UNSAT(4)}                         & \multicolumn{2}{c|}{SAT(1497)}                             & \multicolumn{2}{c|}{UNSAT(1115)}                          \\ \cline{2-9} 
-\multicolumn{1}{l|}{} & \multicolumn{1}{c|}{11} & \multicolumn{1}{c|}{0.07(s)} & \multicolumn{1}{c|}{4} & \multicolumn{1}{c|}{0.17(s)} & \multicolumn{1}{c|}{1343} & \multicolumn{1}{c|}{150.11(s)} & \multicolumn{1}{c|}{804} & \multicolumn{1}{c|}{188.61(s)} \\ \cline{2-9} 
-                      & \multicolumn{1}{l}{}    &                              & \multicolumn{1}{l}{}   &                              & \multicolumn{1}{l}{}      &                                & \multicolumn{1}{l}{}     &                               
+\begin{table*}[t]
+\centering
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r | r | r | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} & \multicolumn{4}{c|}{\bf dReal}\\
+\hline
+    & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
+    & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{$\delta-$SAT} & \multicolumn{2}{|c|}{UNSAT}\\
+\hline
+Zankl (15) & 11 & 0.07 (s) & 4 & 0.17 (s) & 11 & 0.17 (s) & 4 & 0.02 & 0 & 0.00 (s) & 4 & 0.0.05 & 11 & 0.06 (s) & 4 & 0.02(s)\\
+\hline
+Keymaera (98) & 10 & 632.37 & 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 & 3 & 196.40 & 12 & 8.06 & 19& 2708.89 (s) & 0 &0.00 (s) \\
+\hline 
+Meti-Tarski (3528/1573) & 3322 & 369.60 & 1052 & 383.40 & 1497 & 21.00 (s) & 1115 & 74.19 & 1 & 0.28 & 
+1075 & 22.6 & 1497 & 72.85 (s) & 943 & 21.40 (s) \\
+\hline
 \end{tabular}
-\caption{Experiments on Equalities} \label{tab:equations}
-\end{center}
-\end{table}
+}
+\medskip 
+\caption{Comparison among SMT solvers over equalities} \label{tab:equations}
+\end{table*}
 
 \subsection{Polynomial constraints over integers} \label{sec:NIA}
 
