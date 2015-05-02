@@ -62,3 +62,13 @@ QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0010.smt2,4,1,6,500.001967,0.
 QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0028.smt2,4,2,9,500.106864,0.820876,3.297482,0.033996,637.671991,0.321961,7.86284,26569.0,44708.0,15849.0,68289.0,63198.0,5050.0,41.0,unsat,Timeout,3,0
 QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0030.smt2,4,3,9,0.07399,0.009999,0.016999,0.0,0.001999,0.001999,0.042994,266.0,215.0,117.0,521.0,514.0,4.0,3.0,sat,sat,3,0
 QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0053.smt2,4,4,10,0.052991,0.011998,0.010998,0.0,0.001,0.001,0.027995,200.0,129.0,85.0,385.0,382.0,1.0,2.0,sat,sat,3,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0043.smt2,4,4,7,500.002,170.314,2.80959,7.84983,25.0212,0.071985,293.935,803.0,302747.0,2164840.0,2197480.0,1745.0,2186560.0,9170.0,unsat,Timeout,0,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0012.smt2,4,2,7,500.088942,0.547912,2.528613,0.003,661.537999,0.322951,6.521991,26140.0,41373.0,13291.0,64920.0,64624.0,278.0,18.0,sat,Timeout,2,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0047.smt2,4,3,9,0.016998,0.001,0.007999,0.0,0.0,0.0,0.007999,75.0,72.0,33.0,153.0,152.0,0.0,1.0,sat,sat,3,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0041.smt2,4,1,6,0.320953,0.013,0.13498,0.001,0.007997,0.010997,0.152979,1300.0,146.0,884.0,2842.0,2540.0,287.0,15.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0051.smt2,4,4,9,0.048993,0.008999,0.012,0.0,0.0,0.001,0.026994,158.0,176.0,79.0,329.0,316.0,12.0,1.0,sat,sat,3,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0019.smt2,4,2,9,0.028996,0.003,0.013998,0.0,0.0,0.002,0.009998,146.0,147.0,69.0,300.0,293.0,4.0,3.0,sat,sat,3,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0038.smt2,4,3,9,500.010837,1.341788,4.818228,0.007998,538.852995,0.362932,8.186794,23340.0,21325.0,22461.0,61774.0,50003.0,1934.0,9837.0,unsat,Timeout,3,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0032.smt2,4,3,6,0.003,0.0,0.0,0.0,0.0,0.001,0.002,16.0,0.0,4.0,15.0,15.0,0.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0045.smt2,4,4,10,0.062992,0.008,0.026995,0.0,0.001,0.001999,0.024998,188.0,111.0,80.0,354.0,348.0,4.0,2.0,sat,sat,3,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,49,EQ,NEQ

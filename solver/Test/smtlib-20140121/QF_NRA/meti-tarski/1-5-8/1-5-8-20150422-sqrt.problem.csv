@@ -227,3 +227,10 @@ QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0017.smt2,5
 QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0024.smt2,5,2,10,0.030995,0.001,0.013997,0.0,0.002,0.001,0.012998,73.0,68.0,37.0,143.0,134.0,7.0,2.0,sat,sat,4,0
 QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0028.smt2,5,5,4,0.005,0.001,0.003,0.0,0.0,0.0,0.001,13.0,2.0,3.0,9.0,9.0,0.0,0.0,sat,sat,0,0
 QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0021.smt2,5,2,9,0.013998,0.002,0.005999,0.0,0.0,0.002,0.003999,52.0,23.0,20.0,89.0,89.0,0.0,0.0,sat,sat,3,0
+QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0026.smt2,5,2,10,500.020862,2.360641,2.973565,0.26296,473.782996,0.263963,69.177647,22970.0,87546.0,47120.0,102574.0,54685.0,46786.0,1103.0,sat,Timeout,3,1
+QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0020.smt2,5,2,8,500.046969,0.561914,2.297652,0.0,673.582999,0.330947,3.859443,25440.0,24214.0,12647.0,63094.0,63079.0,0.0,15.0,sat,Timeout,1,1
+QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0027.smt2,5,2,11,0.005999,0.001,0.0,0.0,0.0,0.0,0.004999,28.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,4,0
+QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0015.smt2,5,1,7,500.103975,0.406942,2.427631,0.0,705.534,0.296956,4.215335,24304.0,23094.0,12087.0,60294.0,60279.0,0.0,15.0,sat,Timeout,1,0
+QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0023.smt2,5,2,9,500.076935,0.710885,2.754558,0.001,656.185996,0.347945,6.464054,26154.0,41536.0,13051.0,64650.0,64579.0,55.0,16.0,sat,Timeout,2,1
+QF_NRA/meti-tarski/sqrt/problem/13/vars5/sqrt-problem-13-vars5-chunk-0018.smt2,5,2,8,0.050992,0.004998,0.026995,0.0,0.0,0.004999,0.014,244.0,155.0,111.0,469.0,458.0,8.0,3.0,sat,sat,2,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,209,EQ,NEQ

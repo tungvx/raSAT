@@ -1,8 +1,8 @@
 Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
-QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0034.smt2,3,1,5,0.003999,0.0,0.001999,0.0,0.0,0.0,0.002,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,1
-QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0036.smt2,3,1,5,500.002073,3.740435,123.96738,0.0,77.924129,3.548471,290.822173,276850.0,148600.0,204155.0,664460.0,598229.0,0.0,66231.0,unsat,Timeout,0,1
-QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0032.smt2,3,1,5,0.002,0.0,0.0,0.0,0.0,0.0,0.002,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,1
-QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0035.smt2,3,2,6,500.003307,4.645262,125.492588,0.0,3.107531,3.290525,363.466935,214068.0,109104.0,199004.0,520096.0,428112.0,0.0,91984.0,unsat,Timeout,0,1
-QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0030.smt2,3,1,5,0.003,0.0,0.0,0.0,0.0,0.0,0.003,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,1
-QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0033.smt2,3,1,4,0.004,0.0,0.0,0.0,0.0,0.0,0.004,12.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0034.smt2,3,1,5,0.003999,0.0,0.000999,0.0,0.0,0.0,0.003,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0036.smt2,3,1,5,500.001117,3.862425,116.372327,0.0,80.561833,3.414483,295.790424,274288.0,152080.0,200372.0,656834.0,593105.0,0.0,63729.0,unsat,Timeout,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0032.smt2,3,1,5,0.002,0.0,0.001,0.0,0.0,0.0,0.001,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0035.smt2,3,2,6,500.000305,4.862292,125.31359,0.0,3.188535,3.31149,363.323929,211362.0,105362.0,196084.0,513117.0,422700.0,0.0,90417.0,unsat,Timeout,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0030.smt2,3,1,5,0.001999,0.0,0.0,0.0,0.0,0.0,0.001999,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0033.smt2,3,1,4,0.003,0.0,0.0,0.0,0.0,0.0,0.003,12.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
 Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,4,EQ,NEQ
