@@ -600,3 +600,16 @@ QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0063.smt2,3,3,6,0.007999,0.0,0.
 QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0597.smt2,3,3,14,0.020997,0.004,0.014997,0.0,0.001,0.002,0.0,81.0,131.0,50.0,164.0,144.0,16.0,4.0,sat,sat,0,0
 QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0224.smt2,3,3,11,0.211968,0.108987,0.022995,0.003999,0.012998,0.005,0.057989,160.0,399.0,920.0,1313.0,300.0,1013.0,0.0,unsat,unsat,0,0
 QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0534.smt2,3,3,15,0.008,0.005,0.0,0.0,0.002,0.0,0.002,34.0,6.0,4.0,4.0,0.0,4.0,0.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0237.smt2,3,3,10,500.0007,117.089878,7.598855,4.970266,18.426285,0.300961,351.613892,2798.0,95172.0,1377294.0,1382761.0,5896.0,1355062.0,21803.0,unsat,Timeout,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0602.smt2,3,3,13,500.001037,214.330461,4.108383,6.249052,64.498161,3.697441,207.11742,26486.0,656065.0,1483668.0,1708915.0,63775.0,1645092.0,48.0,unsat,Timeout,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0191.smt2,3,3,9,500.049786,2.542593,3.337515,0.050991,571.709983,1.035852,10.166472,22862.0,43452.0,22117.0,61046.0,47833.0,13193.0,20.0,unsat,Timeout,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0166.smt2,3,3,7,0.002,0.0,0.0,0.0,0.001,0.0,0.001,16.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0521.smt2,3,3,14,0.039994,0.009998,0.013998,0.0,0.002,0.005998,0.008,83.0,155.0,57.0,185.0,154.0,29.0,2.0,sat,sat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0134.smt2,3,3,10,0.003,0.0,0.002,0.0,0.0,0.0,0.001,15.0,1.0,2.0,5.0,5.0,0.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0267.smt2,3,3,10,0.038994,0.009997,0.016,0.0,0.001,0.008,0.003997,83.0,182.0,75.0,214.0,153.0,55.0,6.0,sat,sat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0017.smt2,3,2,6,1.052842,0.105981,0.432951,0.015996,0.082993,0.076991,0.33793,2833.0,8535.0,5619.0,12005.0,6000.0,5986.0,19.0,unsat,unsat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0048.smt2,3,3,6,0.012998,0.0,0.009,0.0,0.0,0.002,0.001998,41.0,58.0,17.0,67.0,67.0,0.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0373.smt2,3,3,11,0.005999,0.002,0.003999,0.0,0.0,0.0,3.46945e-18,20.0,8.0,6.0,15.0,13.0,2.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0089.smt2,3,3,7,0.005999,0.001,0.004,0.0,0.0,0.0,0.000999,18.0,12.0,5.0,16.0,16.0,0.0,0.0,sat,sat,0,0
+QF_NRA/meti-tarski/atan/vega/3/atan-vega-3-chunk-0108.smt2,3,3,7,0.011999,0.0,0.011,0.0,0.0,0.001,0.0,40.0,44.0,16.0,65.0,65.0,0.0,0.0,sat,sat,0,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,492,EQ,NEQ
