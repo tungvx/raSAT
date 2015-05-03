@@ -91,14 +91,13 @@ exponentially explodes with respect to the number of variables.
 We design strategies for boosting SAT detection on the choice of a variable to decompose
 and a box to explore. 
 
-Several heuristic measures, called {\em SAT likelyhood}, {\em sensitivity}, and the number of 
-unsolved atomic polynomial constraints, are compared on Zankl and Meti-Tarski benchmarks from 
+Several heuristic measures, called {\em SAT likelihood}, {\em sensitivity}, and the number of 
+unsolved atomic polynomial constraints, are compared on Zankl and Meti-tarski benchmarks from 
 QF\_NRA category of SMT-LIB. They are also evaluated by comparing {\bf Z3 4.3}, \textbf{dReal-2.15.01} and {\bf iSAT3}. 
-raSAT loop is extended with the use of the Intermediate Value Theorem to solve equality.
-We also show a simple modification to handle mixed intergers, and experiments on 
+raSAT loop is extended with the use of the Intermediate Value Theorem to solve equality. This extension is evaluated on equalities of Zankl, Meti-tarski and Keymaera families.
+We also show a simple modification to handle mixed integers, and experiments on 
 AProVE benchmark from QF\_NIA category of SMT-LIB. 
 \end{abstract}
-
 % no keywords
 %\keywords{interval arithmetic, affine arithmetic, SMT, polynomial constraints, 
 %testing, abstract DPLL.}
@@ -127,7 +126,7 @@ Many applications are reduced to solving polynomial constraints, such as
 \begin{itemize}
 \item {\bf Locating roundoff and overflow errors}, 
 which is our motivation~\cite{Ngoc:2009:ORE:1685167.1685421,Ngoc:2010:CRE:1858996.1859056}. 
-%DSP decorders in practice are defined by reference algorithms in C using floating point arithmetic. 
+%DSP decoders in practice are defined by reference algorithms in C using floating point arithmetic. 
 %In embedded systems, often it is replaced with fixed point arithmetic, 
 %which may cause visible noises. 
 %and locating such roundoff error source is not easy. 
@@ -164,18 +163,19 @@ Quantifier elimination by cylindrical algebraic decomposition (QE-CAD)~\cite{qec
 is a well known technique, and 
 implemented in Mathematica, Maple/SynRac, Reduce/Redlog, QEPCAD-B, and recently 
 in some SMT solvers~\cite{Jovanovic13}. 
-It can solve general formulae at the cost of DEXPTIME, which hardly work up to 8 varaibles and degree 10.
+It can solve general formula at the cost of DEXPTIME, which hardly work up to 8 variables and degree 10.
 Satisfiability targets on an existential problem, and 
 {\em Variant quantifier elimination}~\cite{Hong2012883} reduces polynomial constraint solving to 
 polynomial optimization problems, which are solved by Groebner basis in EXPTIME. 
 
-A practical alternative is {\em ICP} (Interval Constraint Propagation), 
+A practical alternative is Interval Constraint Propagation ({\em ICP}), 
 which are used in SMT solver community, e.g., {\bf iSAT3}~\cite{isat}, 
 {\bf dReal}~\cite{dRealCADE13}, and \textbf{RSolver}~\cite{rsolver}. 
 ICP is based on over-approximation by interval arithmetics, and iteratively refines by
 interval decompositions. 
 It is practically often more efficient than algebraic computation 
 with weaker theoretical completeness. 
+\begin{comment}
 For polynomial inequality 
 $\exists x_1 \in (a_1,b_1) \cdots x_n \in (a_n,b_n) . \wedge_{i} f_i > 0$, 
 \begin{itemize}
@@ -198,6 +198,7 @@ The boundary part is reduced to polynomial equality checking,
 which would be solved by using algebraic methods, like Groebner basis. 
 Alternatively, by loosening equality to $\delta$-equality, 
 $\delta$-completeness is obtained~\cite{dRealCADE13}. 
+\end{comment}
 
 This paper presents an SMT solver {\bf raSAT} for polynomial inequality. 
 It consists of a simple iterative approximation refinement, called {\bf raSAT} {\em loop}, 
@@ -227,12 +228,12 @@ Thus, design of strategies for selecting variables to decompose and boxes to exp
 for efficiency. Our strategy design is, 
 \begin{itemize}
 \item a box with more possiblity to be SAT is selected to explore, which is estimated by 
-several heuristic measures, called {\em SAT likelyhood}, 
+several heuristic measures, called {\em SAT likelihood}, 
 and the number of unsolved atomic polynomial constraints, and
 \item a more influential variable is selected for multiple test cases and decomposition, 
 which is estimated by {\em sensitivity}. 
 \end{itemize} 
-Note that {\em SAT likelyhood} and {\em sensitivity} are estimated using interval arithmetic. 
+Note that {\em SAT likelihood} and {\em sensitivity} are estimated using interval arithmetic. 
 Especially, the latter can be applied only with Affine intervals. 
 {\bf raSAT} also applies incremental search, which is often faster in practice. 
 \begin{itemize}
@@ -255,7 +256,7 @@ and experiments on AProVE benchmark from QF\_NIA category of SMT-LIB compares {\
 {\bf Z3 4.3}. 
 Although {\bf Z3 4.3} performs the best, {\bf raSAT} shows comparable SAT detection on 
 very large problems (e.g., with several hundred variables) with the combination of 
-{\em SAT likelyhood} and {\em sensitivity}. 
+{\em SAT likelihood} and {\em sensitivity}. 
 
 
 \subsection*{Related Work} \label{sec:relate}
@@ -679,7 +680,7 @@ Our design of an SMT solver {\bf raSAT} applies two heuristic features.
 \item Incremental widening intervals, and incremental deeping search 
 (Section~\ref{sec:incsearch}). 
 \item 
-Heurstic measures {\em SAT-likelyhood} and {\em sensitivity}, 
+Heurstic measures {\em SAT-likelihood} and {\em sensitivity}, 
 for selection of a variable to decompose and a box to explore. 
 (Section~\ref{sec:SATheuristics}). 
 \end{itemize} 
@@ -920,33 +921,33 @@ We define
 \begin{itemize} 
 
 \item {\em Sensitivity} of a variable $x_i$ in a test-UNSAT API $f_j > 0$ is $max(|c_i|, |d_i|)$. 
-\item {\em SAT-likelyhood} of an API $f_j > 0$ is $| I \cap (0,\infty) | / |I|$ where $I = range(f_j, I'_1 \times \cdots \times I'_n)$, and 
-\item {\em SAT-likelyhood} of a box $I'_1 \times \cdots \times I'_n$ is 
-the least SAT-likelyhood of test-UNSAT APIs. 
+\item {\em SAT-likelihood} of an API $f_j > 0$ is $| I \cap (0,\infty) | / |I|$ where $I = range(f_j, I'_1 \times \cdots \times I'_n)$, and 
+\item {\em SAT-likelihood} of a box $I'_1 \times \cdots \times I'_n$ is 
+the least SAT-likelihood of test-UNSAT APIs. 
 \end{itemize} 
 
-\begin{example} \label{examp:SATlikelyhood}
+\begin{example} \label{examp:SATlikelihood}
 In Example~\ref{examp:sensitivity}, 
 \begin{itemize}
 \item sensitivity is estimated $1$ for $x$ and $2$ for $y$ by $AF_2$, and $3\frac{1}{4}$ for $x$ and 
 $2$ for $y$. 
-\item SAT-likelyhood of $f$ is estimated $0.4= \frac{6}{9-(-6)}$ by $AF_2$ 
+\item SAT-likelihood of $f$ is estimated $0.4= \frac{6}{9-(-6)}$ by $AF_2$ 
 and $0.36 = \frac{4.5}{4.5-(-8)}$ by $CAI$. 
 \end{itemize}
 \end{example}
 
 
-{\em SAT-likelyhood} intends to estimate APIs how likely to be SAT. 
-For choosing variables, {\bf raSAT} first choose a test-UNSAT API by SAT-likelyhood. 
+{\em SAT-likelihood} intends to estimate APIs how likely to be SAT. 
+For choosing variables, {\bf raSAT} first choose a test-UNSAT API by SAT-likelihood. 
 There are two choices, either {\em the largest} or {\em the least}. 
 {\em Sensitivity} of a variable intends to estimate how a variable is influential to the value of an API. 
-From a selected API by SAT-likelyhood, {\bf raSAT} selects a variable with the largest sensitivity. 
+From a selected API by SAT-likelihood, {\bf raSAT} selects a variable with the largest sensitivity. 
 This selection of variables are used for (1) {\em multiple test instances generation}, and 
 (2) {\em decomposition}. 
 For test generation, we will select multiple variables by repeating the selection. 
 
 For choosing a box to explore, {\bf raSAT} chooses one which is more likely to be SAT. 
-There are two choice, (1) a box with the largest SAT-likelyhood, and 
+There are two choice, (1) a box with the largest SAT-likelihood, and 
 (2) a box with the largest number of SAT (either IA-valid or test-SAT) APIs. 
 
 \subsubsection*{Test case generation using variables sensitivity.}
@@ -1004,12 +1005,18 @@ Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we c
 Intermediate Value Theorem guarantees the existence of an SAT instance in between. 
 Note that this method does not find an exact SAT instance. 
 \subsection*{Multiple Equations}
-The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. Consider $m$ equations ($m \ge 1$): $\bigwedge \limits_{j=1}^m g_j = 0$ and an box $ I = {(l_1, h_1) \times \cdots (l_n, h_n)}$. If we can find a set ${\{V_1, \cdots, V_m\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{j=1}^m g_j = 0$ is satisfiable in $I$.
+The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. 
+\begin{lemma}
+Consider $m$ equations ($m \ge 1$): $\bigwedge \limits_{j=1}^m g_j = 0$ and an box $ I = {(l_1, h_1) \times \cdots (l_n, h_n)}$. If we can find a set ${\{V_1, \cdots, V_m\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{j=1}^m g_j = 0$ is satisfiable in $I$.
 \begin{itemize}
 \item[$\bullet$] For all $j \in \{1, \cdots, m\}$, we have ${V_j \subseteq var(g_j)}$.
-\item[$\bullet$] For all $j_1 \neq j_2\in \{1, \cdots, m\}$, we have $V_{j_1} \neq V_{j_2}$.
+\item[$\bullet$] For all $j_1 \neq j_2\in \{1, \cdots, m\}$, we have $V_{j_1} \cap V_{j_2} = \emptyset$.
 \item[$\bullet$] For all $j\in \{1, \cdots, m\}$, let $k_j = |V_j|$ and ${V_j = \{v_{jk} \; | \; 1 \le k \le k_j \}}$, then, there exist two combinations ${(x_{j1}, \cdots, x_{jk_j}) = (t_{j1}, \cdots, t_{jk_j})}$ and ${(x_{j1}, \cdots, x_{jk_j}) = (t'_{j1}, \cdots, t'_{jk_j})}$ where $t_{jk} \neq t'_{jk} \in (l_{jk}, h_{jk})$, $1 \le k \le k_j$ such that \[g_j(t_{j1}, \cdots, t_{jk_j}, \cdots, x_{jk}, \cdots) > 0\] and \[g_j(t'_{j1}, \cdots, t'_{jk_j}, \cdots, x_{jk}, \cdots) < 0\] for all values of $x_{jk}$ in $(l_{jk}, h_{jk})$ where $x_{jk} \in var(g_j) \setminus V_j$. We denote $ivt(g_j, V_j, I)$ to represent that the polynomial $g_j$ enjoy this property with respect to $V_j$ and $I$.
 \end{itemize}
+\end{lemma}
+\begin{proof}
+
+\end{proof}
 By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
 
 \begin{example}
@@ -1025,9 +1032,9 @@ Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside t
 \label{fig:multiple-equations} 
 %\end{minipage}
 \end{figure}
-Our current implementation of handling multiple equations is very naive \begin{comment}
-which is described in Algorithm~\ref{Al:multiple-equations}\end{comment} because for each equality $g_j = 0$, \textbf{raSAT} checks every possible subsets of its variables as candidates for $V_j$. As a result, given the constraint $\bigwedge\limits_{j=1}^mg_j=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_m)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
-\begin{comment}
+Our current implementation of handling multiple equations is very naive
+which is described in Algorithm~\ref{Al:multiple-equations}
+because for each equality $g_j = 0$, \textbf{raSAT} checks every possible subsets of its variables as candidates for $V_j$. As a result, given the constraint $\bigwedge\limits_{j=1}^mg_j=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_m)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
 \begin{algorithm}
 \begin{algorithmic}[1]
 \Function{equationsProver}{$\bigwedge\limits_{i=j}^ng_i = 0, \Pi, V_0$}
@@ -1049,7 +1056,6 @@ which is described in Algorithm~\ref{Al:multiple-equations}\end{comment} because
 \caption{Solving multiple equations $\bigwedge\limits_{i=1}^n g_i = 0$ with interval constraint ${\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle}$}
 \label{Al:multiple-equations}
 \end{algorithm}
-\end{comment}
 
 \section{Experiments} \label{sec:experiment}
 
@@ -1061,11 +1067,11 @@ and random stategies are compared on {\em Zankl}, {\em Meti-Tarski} in NRA categ
 and {\em AProVE} in NIA category from SMT-LIB. 
 The best combination of choices are 
 \begin{enumerate}
-\item a test-UNSAT API by the least SAT-likelyhood, 
+\item a test-UNSAT API by the least SAT-likelihood, 
 \item a variable by the largest sensitivity, and 
-\item a box by the largest SAT-likelyhood, 
+\item a box by the largest SAT-likelihood, 
 \end{enumerate} 
-and sometimes a random choice of a test-UNSAT API (instead of the least SAT-likelyhood) 
+and sometimes a random choice of a test-UNSAT API (instead of the least SAT-likelihood) 
 shows an equally good result. 
 They are also compared with \textbf{Z3 4.3} and \textbf{iSAT3}, 
 where the former is considered to be the state of the art (\cite{Jovanovic13}), and 
@@ -1077,7 +1083,7 @@ The experiments are on a system with Intel Xeon E5-2680v2 2.80GHz and 4 GB of RA
 
 \subsection{Benchmarks from SMT-LIB} \label{sec:expsmtlib}
 
-In SMT-LIB~\footnote{\tt http://www.smt-lib.org}, 
+In SMT-LIB\footnote{\tt http://www.smt-lib.org}, 
 benchmark programs on non-linear real number arithmetic 
 (QF\_NRA) are categorized into Meti-Tarski, Keymaera, Kissing, Hong, and Zankl families. 
 Until SMT-COMP 2011, benchmarks are only Zankl family. 
@@ -1102,7 +1108,7 @@ They are mostly small problems, up to 8 varaibles (mostly up to 5 variables), an
 
 The setting of the experiments are
 \begin{itemize}
-\item For test data generation, raSAT chooses 10 variables (1 variable from each of 10 APIs with largest SAT-likelyhood) and apply random 2-ticks, and single random test data is generated for each of the rest of variables.
+\item For test data generation, raSAT chooses 10 variables (1 variable from each of 10 APIs with largest SAT-likelihood) and apply random 2-ticks, and single random test data is generated for each of the rest of variables.
 \item For interval decomposition, raSAT applies the balanced decomposition.
 \item For incremental widening, $\delta_0 = 10, \delta_1 = \infty$
 \item For incremental deepening, $\gamma_i = 10^{-(i+1)}$ for $i \ge 0$.
@@ -1124,16 +1130,16 @@ Selecting a test-UNSAT API~~ & Selecting a box (to explore): &
 Selcting a variable: \\  % (for testing and decomposition)
 \hline
 
-(1) Least SAT-likelyhood. & 
+(1) Least SAT-likelihood. & 
 (3) Largest number of SAT APIs.~~ & 
 (8) Largest sensitibity. \\
 
-(2) Largest SAT-likelyhood. & 
+(2) Largest SAT-likelihood. & 
 (4) Least number of SAT APIs. & \\
 
-& (5) Largest SAT-likelyhood. & \\
+& (5) Largest SAT-likelihood. & \\
 
-& (6) Least SAT-likelyhood. & \\
+& (6) Least SAT-likelihood. & \\
 
 (10) Random. & (7) Random. & (9) Random. \\
 \end{tabular}
@@ -1237,36 +1243,31 @@ with random generation ($k$-random tick) for the former and the blanced decompos
 From above section, we can see that the combination (1)-(5)-(8) shows the best performance on benchmarks. This section is going to examine the effectiveness of variables sensitivity in generation of test cases which is named as (11). Table~\ref{tab:test-sen} presents the result of the experiments on QF\_NRA/Zankl and QF\_NRA/Meti-tarski benchmarks, which show that this strategy made some improvements.
 
 \begin{table}
-\begin{tabular}{ | l | r | r |}
+\begin{center}
+\begin{tabular}{ | l | r | r | r | r |}
 \hline
-    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{1}{|l|}{Benchmark} & \multicolumn{2}{c|}{(1)-(5)-(8)-(11)} &
     \multicolumn{2}{c|}{(1)-(5)-(8)-(11)} \\
 \hline
-    Matrix-1 (SAT ) & \textbf{25} & 414.99(s)
+    Matrix-1 (SAT ) & 20 & 132.72 (s) & \textbf{25} & 414.99(s)
 \\
 \hline
-    Meti-1 (UNSAT) & 2 & 0.01(s)
+    Matrix-1 (UNSAT) & 2 & 0.01(s) & 2 & 0.01(s)
 \\
 \hline
-	Matrix-2,3,4,5 (SAT) & \textbf{11} & 1264.77(s)
+	Matrix-2,3,4,5 (SAT) & 10 & 632.37 (s) & \textbf{11} & 1264.77(s)
 \\
 \hline
-    Meti-2,3,4,5 (UNSAT) & 8 & 0.38(s)
+    Matrix-2,3,4,5 (UNSAT) & 8 & 0.37(s) & 8 & 0.38(s)
+\\ \hline
+    Meti-Tarski (SAT, 3528) & 3322 & 369.60 (s) & 3322 & 369.60 (s)
+\\
+\hline
+    Meti-Tarski (UNSAT, 1573) & 3322 & 369.60 (s) & 1052 & 383.40 (s)
 \\
 \hline
 \end{tabular}
-\begin{tabular}{ | l | r | r |}
-\hline
-    \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{2}{c|}{(1)-(5)-(8)-(11)} \\
-\hline
-    Meti-Tarski (SAT, 3528) & 3322 & 369.60 (s)
-\\
-\hline
-    Meti-Tarski (UNSAT, 1573) & 1052 & 383.40 (s)
-\\
-\hline
-\end{tabular}
+\end{center}
 \caption{Effectiveness of variables sensitivity on test cases generation} 
 \label{tab:test-sen}
 \end{table}
@@ -1356,38 +1357,42 @@ Meti-Tarski (3528/1573) & 3322 & 369.60 & 1052 & 383.40 & 1497 & 21.00 (s) & 111
 {\bf raSAT} loop is easily modified to NIA (nonlinear arithmetic over integers) from NRA, 
 by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch} 
 and restrcting testdata generation on intergers. 
-We also compare {\bf raSAT} (combination (1)-(5)-(8)) with {\bf Z3 4.3} on NIA/AProVE benchmark. 
-{\bf AProVE} contains 6850 inequalities among 8829. 
-Some has several hundred variables, but each API has few variables (mostly just 2 variables). Note that the use of the Intermediate Value Theorem cannot be applied for NIA constraints because the polynomials are not continuous.
+We also compare {\bf raSAT} (combination (1)-(5)-(8)-(11) with {\bf Z3 4.3} on NIA/AProVE benchmark. 
+{\bf AProVE} consists of 6850 inequalities and 1979 equalities. 
+Some has several hundred variables, but each API has few variables (mostly just 2 variables). Note that the use of the Intermediate Value Theorem cannot be applied for NIA constraints because the polynomials are not continuous. However, Interval Arithmetics can conclude UNSAT of QF\_NIA benchmarks because UNSAT over real numbers simply implies UNSAT over integer numbers. For SAT benchmarks (both inequalities and equalities), \textbf{raSAT} concludes satisfiability only by testing.
 
-The results are, 
+The results are presented in Table~\ref{tab:aprove}
+\suppress{
 \begin{itemize}
 \item {\bf raSAT} detects 6773 SAT in 90.22s, and 2 UNSAT in 378.04s. 
 \item {\bf Z3 4.3} detects 6784 SAT in 97.70s, and 36 UNSAT in 32.08s. 
 \end{itemize}
+}
 where the timeout is $500s$. 
 {\bf raSAT} does not detect unsatisfiability well since UNSAT problems have quite large coefficients
-which lead exhaustive search on quite large area. 
-%%%%%%%%%%%%%%%%%
-\suppress{
+which lead exhaustive search on quite large area.
+
 \begin{table*}[t]
 \centering
-\begin{tabular}{ | l | r | r  r | r | r  | r | r | r | r |}
+\begin{tabular}{ | l | r | r | r | r  | r | r | r | r |}
 \hline
     \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{5}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3)}\\
+    \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3}\\
 \hline
-    & \multicolumn{3}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} 
-    & \multicolumn{2}{|c|}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
+    & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} 
+    & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
 \hline
-AProve (6850) & 6764 & 1230.54 & (s) & 0 & 0.00 & 6784 & 103.70 & 36 & 36.08 
+inequalities (6850) & \textbf{6784} & 65.60 (s) & 0 & 0.00 (s) & \textbf{6784} & 97.77 (s) & \textbf{36} & 32.46 (s) 
+\\
+\hline
+equalities (1979) & 891 & 33721.37 (s) & 16 & 27.34 (s) & \textbf{900} & 1951.01(s) & \textbf{250} & 3104.74(s) 
 \\
 \hline
 \end{tabular}
 \medskip 
 \caption{Comparison on NIA/AProVE} \label{tab:aprove}
 \end{table*}
-}
+
 %%%%%%%%%%%%%%%%%
 \suppress{
 \section{Equality handling} \label{sec:equality}
@@ -1504,7 +1509,7 @@ We also apply the same idea for multiple equalities $\bigwedge \limits_{i} g_i =
 
 
 This paper presented {\bf raSAT} loop, which extends ICP with testing to accelerate
-SAT detection and implemented as an SMT solver \textbf{raSAT}. With experiments on benchmarks from QF NRA category of SMT-lib, we found two heuristic measures SAT-likelyhood and sensitivity, which lead effective strategy combination for SAT detection. 
+SAT detection and implemented as an SMT solver \textbf{raSAT}. With experiments on benchmarks from QF NRA category of SMT-lib, we found two heuristic measures SAT-likelihood and sensitivity, which lead effective strategy combination for SAT detection. 
 %
 \suppress{
 \subsection{Observation and Discussion} 
