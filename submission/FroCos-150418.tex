@@ -72,6 +72,7 @@ University, Hanoi \\
 \email{khanhtv@vnu.edu.vn}
 }
 
+\tableofcontents
 
 % make the title area
 \maketitle
@@ -970,93 +971,6 @@ III. Selecting box:
   (7) Random
 }
 
-
-\section{Extensions for Equality Handling} \label{sec:eq}
-\subsection*{Single Equation}
-For solving polynomial constraints with single equality ($g=0$), we apply {\em Intermediate Value Theorem}. 
-That is, if existing 2 test cases such that $g > 0$ and $g < 0$, then $g=0$ is SAT somewhere in between. 
-
-\begin{lemma} \label{lemma:ivt}
-For $F = \exists x_1 \in I_1 \cdots x_n \in I_n (\bigwedge \limits_{j}^m f_j > 0~\wedge~g = 0)$. Suppose decomposition creates a box $I = (l_1, h_1) \times \cdots \times (l_n, h_n)$ where $(l_i, h_i) \subseteq I_i$ for all $i \in \{1, \cdots, n\}$, such that $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in the box. Let $(l_g, h_g) = range(g, I)$.
-\begin{enumerate}[(i)]
-\item If $l_g > 0$ or $h_g < 0$, then $F$ is UNSAT in the box. 
-\item If there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$, then F is SAT.
-\end{enumerate}
-\end{lemma}
-
-\begin{proof}
-\begin{enumerate}[(i)]
-\item If $l_g > 0$ or $h_g < 0$, then $g=0$ cannot be satisfied in box $I$. As a result, $F$ is UNSAT in $I$. 
-\item If there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$, it is clear from the Intermediate Value Theorem that there exist one point $\vec{t_0}$ between $\vec{t}$ and $\vec{t'}$ such that $g(\vec{t_0}) = 0$. In addition, because $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in $I$, $\vec{t_0}$ also satisfies $\bigwedge \limits_{j}^m f_j > 0$. As a result, $F$ is satisfiable with $\vec{t_0}$ as the SAT instance.
-\end{enumerate}
-\end{proof}
-In the case that both (i) and (ii) do not occur, then \textbf{raSAT} continue by decomposition.
-\begin{example}
-Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we can find a box represented by $\Pi = x \in \langle a, b \rangle \wedge y \in \langle c, d \rangle$ such that $f(x, y) > 0$ is $\Pi^p_\mathbb{R}$-VALID (Figure~\ref{fig:single-equation}). In addition, inside that box, we can find two points $(u_1, v_1)$ and $(u_2, v_2)$ such that $g(u_1, v_1) > 0$ and $g(u_2, v_2) < 0$. By Lemma~\ref{lemma:ivt}, the constraint is satisfiable.
-\end{example}
-\begin{figure}[ht]
-\centering
-\includegraphics[scale=0.5]{singleEquation.png} 
-\caption{Example on solving single equation using the Intermediate Value Theorem} 
-\label{fig:single-equation} 
-%\end{minipage}
-\end{figure} 
-{\bf raSAT} first tries to find a box of variables' intervals (by refinements) such that $\bigwedge \limits_{j}^m f_j > 0$ is VALID inside that box. Then it tries to find 2 instances for $g > 0$ and $g < 0$ by testing. 
-Intermediate Value Theorem guarantees the existence of an SAT instance in between. 
-Note that this method does not find an exact SAT instance. 
-\subsection*{Multiple Equations}
-The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. 
-\begin{lemma}
-Consider $m$ equations ($m \ge 1$): $\bigwedge \limits_{j=1}^m g_j = 0$ and an box $ I = {(l_1, h_1) \times \cdots (l_n, h_n)}$. If we can find a set ${\{V_1, \cdots, V_m\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{j=1}^m g_j = 0$ is satisfiable in $I$.
-\begin{itemize}
-\item[$\bullet$] For all $j \in \{1, \cdots, m\}$, we have ${V_j \subseteq var(g_j)}$.
-\item[$\bullet$] For all $j_1 \neq j_2\in \{1, \cdots, m\}$, we have $V_{j_1} \cap V_{j_2} = \emptyset$.
-\item[$\bullet$] For all $j\in \{1, \cdots, m\}$, let $k_j = |V_j|$ and ${V_j = \{v_{jk} \; | \; 1 \le k \le k_j \}}$, then, there exist two combinations ${(x_{j1}, \cdots, x_{jk_j}) = (t_{j1}, \cdots, t_{jk_j})}$ and ${(x_{j1}, \cdots, x_{jk_j}) = (t'_{j1}, \cdots, t'_{jk_j})}$ where $t_{jk} \neq t'_{jk} \in (l_{jk}, h_{jk})$, $1 \le k \le k_j$ such that \[g_j(t_{j1}, \cdots, t_{jk_j}, \cdots, x_{jk}, \cdots) > 0\] and \[g_j(t'_{j1}, \cdots, t'_{jk_j}, \cdots, x_{jk}, \cdots) < 0\] for all values of $x_{jk}$ in $(l_{jk}, h_{jk})$ where $x_{jk} \in var(g_j) \setminus V_j$. We denote $ivt(g_j, V_j, I)$ to represent that the polynomial $g_j$ enjoy this property with respect to $V_j$ and $I$.
-\end{itemize}
-\end{lemma}
-\begin{proof}
-
-\end{proof}
-By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
-
-\begin{example}
-Consider two equations $g_1(x, y)=0$ and $g_2(x, y) = 0$ (Figure~\ref{fig:multiple-equations}) which satisfy the above restriction on the number of variables, and the variable intervals are $x \in (c_1, d_1)$ and $y \in(d_2, c_2)$. Let $V_1 = \{x\}$ and $V_2 = \{y\}$, we have:
-\[g_1(c_1, y) < 0\text{ and }g_1(d_1, y) < 0 \text{ for all } y \in \langle d_2, c_2 \rangle \text{; and }\]
-\[g_2(x, d_2) > 0 \text{ and }g_2(x, c_2) < 0 \text{ for all } x \in \langle c_1, d_1 \rangle\]
-Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside the box $(c_1, d_1) \times (d_2, c_2)$.
-\end{example}
-\begin{figure}[ht]
-\centering
-\includegraphics[scale=0.4]{multipleEquations.png} 
-\caption{Example on solving single equation using the Intermediate Value Theorem} 
-\label{fig:multiple-equations} 
-%\end{minipage}
-\end{figure}
-Our current implementation of handling multiple equations is very naive
-which is described in Algorithm~\ref{Al:multiple-equations}
-because for each equality $g_j = 0$, \textbf{raSAT} checks every possible subsets of its variables as candidates for $V_j$. As a result, given the constraint $\bigwedge\limits_{j=1}^mg_j=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_m)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
-\begin{algorithm}
-\begin{algorithmic}[1]
-\Function{equationsProver}{$\bigwedge\limits_{i=j}^ng_i = 0, \Pi, V_0$}
-\If {$j > n$} \Comment{All equations are checked}
-	\State \Return SAT
-\EndIf
-\For {$V_j \in P(var(g_j))$} \Comment{$P(var(g_j))$ is the powerset of $var(g_j)$}
-	\If {$V_j \cap V = \emptyset$ and $ivt(V', g_j, \Pi)$}
-		\State $V_0 \gets V_0 \cup V'$
-		\If {\Call{equationsProver}{$\bigwedge\limits_{i=j+1}^ng_i = 0, \Pi, V_0$} = SAT}
-			\State \Return SAT
-		\EndIf
-	\EndIf
-\EndFor
-\State \Return UNSAT
-\EndFunction
-\State \Call{equationsProver}{$\bigwedge\limits_{i=1}^ng_i = 0, \Pi, \emptyset$}
-\end{algorithmic}
-\caption{Solving multiple equations $\bigwedge\limits_{i=1}^n g_i = 0$ with interval constraint ${\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle}$}
-\label{Al:multiple-equations}
-\end{algorithm}
-
 \section{Experiments} \label{sec:experiment}
 
 %\subsection{{\bf raSAT} Implementation} 
@@ -1120,8 +1034,7 @@ The setting of the experiments are
 We perform experiments only on inequalities of Zankl, and Meti-Tarski families. 
 Table~\ref{tab:rasat-experiments} shows the experimental results of above mentioned combination. 
 The timeout is set to 500s, and each time is the total of successful cases 
-(either SAT or UNSAT). Our combi-
-nations of strategies are,
+(either SAT or UNSAT). Our combinations of strategies are,
 
 \medskip
 {\centering
@@ -1329,7 +1242,88 @@ Keymaera (68) & 0 & 0.00 (s) & 16 & 0.06 (s) & 0 & 0.00 (s) & 68 & 0.36 (s) & 0 
 \caption{Comparison among SMT solvers over inequalities} \label{tab:comparison}
 \end{table*}
 
-\subsection{Experiments on SAT solving of equations}
+\section{Extensions} \label{sec:eq}
+\subsection{Extensions for Equality Handling}
+\subsubsection*{Single Equation}
+For solving polynomial constraints with single equality ($g=0$), we apply {\em Intermediate Value Theorem}. 
+That is, if existing 2 test cases such that $g > 0$ and $g < 0$, then $g=0$ is SAT somewhere in between. 
+
+\begin{lemma} \label{lemma:ivt}
+For $F = \exists x_1 \in I_1 \cdots x_n \in I_n (\bigwedge \limits_{j}^m f_j > 0~\wedge~g = 0)$. Suppose decomposition creates a box $I = (l_1, h_1) \times \cdots \times (l_n, h_n)$ where $(l_i, h_i) \subseteq I_i$ for all $i \in \{1, \cdots, n\}$, such that $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in the box. Let $(l_g, h_g) = range(g, I)$.
+\begin{enumerate}[(i)]
+\item If $l_g > 0$ or $h_g < 0$, then $F$ is UNSAT in the box. 
+\item If there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$, then F is SAT.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+\begin{enumerate}[(i)]
+\item If $l_g > 0$ or $h_g < 0$, then $g=0$ cannot be satisfied in box $I$. As a result, $F$ is UNSAT in $I$. 
+\item If there are two instances $\vec{t},\vec{t'}$ in the box with $g(\vec{t}) > 0$ and $g(\vec{t'}) < 0$, it is clear from the Intermediate Value Theorem that there exist one point $\vec{t_0}$ between $\vec{t}$ and $\vec{t'}$ such that $g(\vec{t_0}) = 0$. In addition, because $\bigwedge \limits_{j}^m f_j > 0$ is IA-VALID in $I$, $\vec{t_0}$ also satisfies $\bigwedge \limits_{j}^m f_j > 0$. As a result, $F$ is satisfiable with $\vec{t_0}$ as the SAT instance.
+\end{enumerate}
+\end{proof}
+In the case that both (i) and (ii) do not occur, then \textbf{raSAT} continue by decomposition.
+\begin{example}
+Consider the constraint $\varphi = f(x, y) > 0 \wedge g(x, y) = 0$. Suppose we can find a box represented by $\Pi = x \in \langle a, b \rangle \wedge y \in \langle c, d \rangle$ such that $f(x, y) > 0$ is $\Pi^p_\mathbb{R}$-VALID (Figure~\ref{fig:single-equation}). In addition, inside that box, we can find two points $(u_1, v_1)$ and $(u_2, v_2)$ such that $g(u_1, v_1) > 0$ and $g(u_2, v_2) < 0$. By Lemma~\ref{lemma:ivt}, the constraint is satisfiable.
+\end{example}
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.5]{singleEquation.png} 
+\caption{Example on solving single equation using the Intermediate Value Theorem} 
+\label{fig:single-equation} 
+%\end{minipage}
+\end{figure} 
+{\bf raSAT} first tries to find a box of variables' intervals (by refinements) such that $\bigwedge \limits_{j}^m f_j > 0$ is VALID inside that box. Then it tries to find 2 instances for $g > 0$ and $g < 0$ by testing. 
+Intermediate Value Theorem guarantees the existence of an SAT instance in between. 
+Note that this method does not find an exact SAT instance. 
+\subsubsection*{Multiple Equations}
+The idea of using the Intermediate Value Theorem can also be used for solving multiple equations. 
+Consider $m$ equations ($m \ge 1$): $\bigwedge \limits_{j=1}^m g_j = 0$ and an box $ I = {(l_1, h_1) \times \cdots (l_n, h_n)}$. If we can find a set ${\{V_1, \cdots, V_m\}}$ that satisfies the following properties, then we can conclude that $\bigwedge \limits_{j=1}^m g_j = 0$ is satisfiable in $I$.
+\begin{itemize}
+\item[$\bullet$] For all $j \in \{1, \cdots, m\}$, we have ${V_j \subseteq var(g_j)}$.
+\item[$\bullet$] For all $j_1 \neq j_2\in \{1, \cdots, m\}$, we have $V_{j_1} \cap V_{j_2} = \emptyset$.
+\item[$\bullet$] For all $j\in \{1, \cdots, m\}$, let $k_j = |V_j|$ and ${V_j = \{v_{jk} \; | \; 1 \le k \le k_j \}}$, then, there exist two combinations ${(x_{j1}, \cdots, x_{jk_j}) = (t_{j1}, \cdots, t_{jk_j})}$ and ${(x_{j1}, \cdots, x_{jk_j}) = (t'_{j1}, \cdots, t'_{jk_j})}$ where $t_{jk} \neq t'_{jk} \in (l_{jk}, h_{jk})$, $1 \le k \le k_j$ such that \[g_j(t_{j1}, \cdots, t_{jk_j}, \cdots, x_{jk}, \cdots) > 0\] and \[g_j(t'_{j1}, \cdots, t'_{jk_j}, \cdots, x_{jk}, \cdots) < 0\] for all values of $x_{jk}$ in $(l_{jk}, h_{jk})$ where $x_{jk} \in var(g_j) \setminus V_j$. We denote $ivt(g_j, V_j, I)$ to represent that the polynomial $g_j$ enjoy this property with respect to $V_j$ and $I$.
+\end{itemize}
+By the first two properties, this method restricts that the number of variables must be greater than or equal to the number of equations.
+
+\begin{example}
+Consider two equations $g_1(x, y)=0$ and $g_2(x, y) = 0$ (Figure~\ref{fig:multiple-equations}) which satisfy the above restriction on the number of variables, and the variable intervals are $x \in (c_1, d_1)$ and $y \in(d_2, c_2)$. Let $V_1 = \{x\}$ and $V_2 = \{y\}$, we have:
+\[g_1(c_1, y) < 0\text{ and }g_1(d_1, y) < 0 \text{ for all } y \in \langle d_2, c_2 \rangle \text{; and }\]
+\[g_2(x, d_2) > 0 \text{ and }g_2(x, c_2) < 0 \text{ for all } x \in \langle c_1, d_1 \rangle\]
+Thus we can conclude that $g_1(x,y)=0 \wedge g_2(x,y)=0$ has a solution inside the box $(c_1, d_1) \times (d_2, c_2)$. This is because $ABCD$ creates a Jordan Curve and the continuous graph of $g_2$ connects one point in the interior to one point in the the exterior of that curve, so the graph of $g_2$ must intersects the curve somewhere.
+\end{example}
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.4]{multipleEquations.png} 
+\caption{Example on solving single equation using the Intermediate Value Theorem} 
+\label{fig:multiple-equations} 
+%\end{minipage}
+\end{figure}
+Our current implementation of handling multiple equations is very naive
+which is described in Algorithm~\ref{Al:multiple-equations}
+because for each equality $g_j = 0$, \textbf{raSAT} checks every possible subsets of its variables as candidates for $V_j$. As a result, given the constraint $\bigwedge\limits_{j=1}^mg_j=0$, in the worst case \textbf{raSAT} will check $2^{|var(g_1)|}*\cdots*2^{|var(g_m)|}$ cases. As a future work, we may use variables' sensitivity to give priority on subsets of variables.
+\begin{algorithm}
+\begin{algorithmic}[1]
+\Function{equationsProver}{$\bigwedge\limits_{i=j}^ng_i = 0, \Pi, V_0$}
+\If {$j > n$} \Comment{All equations are checked}
+	\State \Return SAT
+\EndIf
+\For {$V_j \in P(var(g_j))$} \Comment{$P(var(g_j))$ is the powerset of $var(g_j)$}
+	\If {$V_j \cap V = \emptyset$ and $ivt(V', g_j, \Pi)$}
+		\State $V_0 \gets V_0 \cup V'$
+		\If {\Call{equationsProver}{$\bigwedge\limits_{i=j+1}^ng_i = 0, \Pi, V_0$} = SAT}
+			\State \Return SAT
+		\EndIf
+	\EndIf
+\EndFor
+\State \Return UNSAT
+\EndFunction
+\State \Call{equationsProver}{$\bigwedge\limits_{i=1}^ng_i = 0, \Pi, \emptyset$}
+\end{algorithmic}
+\caption{Solving multiple equations $\bigwedge\limits_{i=1}^n g_i = 0$ with interval constraint ${\Pi = \bigwedge\limits_{v_i \in V} v_i \in \langle l_i, h_i \rangle}$}
+\label{Al:multiple-equations}
+\end{algorithm}
+
 We also do experiments on constraints with equalities from QF\_NRA/Zankl and QF\_NRA/Meti-tarski. Table~\ref{tab:equations} 
 \begin{table*}[t]
 \centering
@@ -1355,7 +1349,7 @@ Keymaera (612) & 0 & 0.00 (s)& 312 & 66.63 (s) & 0 & 0.00 (s) & \textbf{610} & 2
 \caption{Comparison among SMT solvers over equalities} \label{tab:equations}
 \end{table*}
 
-\subsection{Polynomial constraints over integers} \label{sec:NIA}
+\subsection{Extension for Polynomial Constraints Over Integers} \label{sec:NIA}
 
 {\bf raSAT} loop is easily modified to NIA (nonlinear arithmetic over integers) from NRA, 
 by setting $\gamma_0 = 1$ in incremental deepening in Section~\ref{sec:incsearch} 
