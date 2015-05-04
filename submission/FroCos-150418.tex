@@ -1222,10 +1222,10 @@ We tentatively prefer (1) or (10), but it needs to be investigated further.
     \multicolumn{2}{c|}{(1)-(5)-(8)} & \multicolumn{2}{c|}{(1)-(5)-(9)} & 
     \multicolumn{2}{c|}{(10)-(5)-(8)} & \multicolumn{2}{c|}{(10)-(7)-(9)} \\
 \hline
-    Meti-Tarski (SAT, 3528) & 3322 & 369.60 (s) & 3303 & 425.37 (s)& {\bf 3325} & 653.87 (s)& 3322 & 642.04 (s)
+    Meti-Tarski (SAT) & 3322 & 369.60 (s) & 3456 & 644.21 (s)& {\bf 3454} & 747.25 (s)& 3451 & 895.14 (s)
 \\
 \hline
-    Meti-Tarski (UNSAT, 1573) & 1052 & 383.40 (s)& 1064 & 1141.67 (s)& {\bf 1100} & 842.73 (s)& 1076 & 829.43 (s) 
+    Meti-Tarski (UNSAT) & 1052 & 383.40 (s)& 1044 & 957.71 (s)& {\bf 1061} & 321.00 (s)& 1060 & 233.46 (s) 
 \\
 \hline
 \end{tabular}
@@ -1246,7 +1246,7 @@ From above section, we can see that the combination (1)-(5)-(8) shows the best p
 \begin{center}
 \begin{tabular}{ | l | r | r | r | r |}
 \hline
-    \multicolumn{1}{|l|}{Benchmark} & \multicolumn{2}{c|}{(1)-(5)-(8)-(11)} &
+    \multicolumn{1}{|l|}{Benchmark} & \multicolumn{2}{c|}{(1)-(5)-(8)} &
     \multicolumn{2}{c|}{(1)-(5)-(8)-(11)} \\
 \hline
     Matrix-1 (SAT ) & 20 & 132.72 (s) & \textbf{25} & 414.99(s)
@@ -1260,10 +1260,10 @@ From above section, we can see that the combination (1)-(5)-(8) shows the best p
 \hline
     Matrix-2,3,4,5 (UNSAT) & 8 & 0.37(s) & 8 & 0.38(s)
 \\ \hline
-    Meti-Tarski (SAT, 3528) & 3322 & 369.60 (s) & 3322 & 369.60 (s)
+    Meti-Tarski (SAT) & 3322 & 369.60 (s) & 3322 & 369.60 (s)
 \\
 \hline
-    Meti-Tarski (UNSAT, 1573) & 3322 & 369.60 (s) & 1052 & 383.40 (s)
+    Meti-Tarski (UNSAT) & 3322 & 369.60 (s) & 1052 & 383.40 (s)
 \\
 \hline
 \end{tabular}
@@ -1310,15 +1310,18 @@ SMT solvers need to trace all problems. Thus, it takes much longer time.
     \multicolumn{1}{|l|}{Benchmark} & 
     \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} & \multicolumn{4}{c|}{\bf dReal}\\
 \hline
-    & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
+    & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
     & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{$\delta-$SAT} & \multicolumn{2}{|c|}{UNSAT}\\
 \hline
-Zankl/matrix-1 (53) & 20 & 132.72 (s) & 2 & 0.00 & 41 & 2.17 & 12 & 0.00 & 11 & 4.68 & 3 & 0.00 & 46 & 3573.43 (s) & 0 & 0.00(s)\\
+Zankl/matrix-1 (53) & 25 & 414.99 (s) & 2 & 0.01 (s) & \textbf{41} & 2.17 (s) & 12 & 0.00 (s) & 11 & 4.68 (s) & 3 & 0.00 (s) & 46 & 3573.43 (s) & 0 & 0.00 (s)\\
 \hline
-Zankl/matrix-2,3,4,5 (98) & 10 & 632.37 & 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 & 3 & 196.40 & 12 & 8.06 & 19& 2708.89 (s) & 0 &0.00 (s) \\
+Zankl/matrix-2,3,4,5 (98) & 11 & 1264.77 (s) & 8 & 0.38 (s) & \textbf{13} & 1031.68 (s) & 11 & 0.57 (s) & 3 & 196.40 (s) & 12 & 8.06 (s) & 19& 2708.89 (s) & 0 & 0.00 (s) \\
 \hline 
-Meti-Tarski (3528/1573) & 3322 & 369.60 & 1052 & 383.40 & 3528 & 51.22 & 1568 & 78.56 & 2916 & 811.53 & 
-1225 & 73.83 & 3523 & 441.35 (s) & 1197 & 55.39 (s) \\
+Meti-Tarski (5101) & 3322 & 369.60 (s) & 1052 & 383.40 (s) & 3528 & 51.22 (s) & 1568 & 78.56 (s) & 2916 & 811.53 (s) & 
+1225 & 73.83 (s) & 3523 & 441.35 (s) & 1197 & 55.39 (s) \\
+\hline
+Keymaera (68) & 0 & 0.00 (s) & 16 & 0.06 (s) & 0 & 0.00 (s) & 68 & 0.36 (s) & 0 & 0.00 (s) & 
+16 & 0.07 (s) & 8 & 0.18 (s) & 0 & 0.00 (s) \\
 \hline
 \end{tabular}
 }
@@ -1339,13 +1342,13 @@ We also do experiments on constraints with equalities from QF\_NRA/Zankl and QF\
     & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
     & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{$\delta-$SAT} & \multicolumn{2}{|c|}{UNSAT}\\
 \hline
-Zankl (15) & 11 & 0.07 (s) & 4 & 0.17 (s) & 11 & 0.17 (s) & 4 & 0.02 & 0 & 0.00 (s) & 4 & 0.0.05 & 11 & 0.06 (s) & 4 & 0.02(s)\\
+Zankl (15) & \textbf{11} & 0.07 (s) & \textbf{4} & 0.17 (s) & \textbf{11} & 0.17 (s) & \textbf{4} & 0.02 (s) & 0 & 0.00 (s) & \textbf{4} & 0.05 (s) & 11 & 0.06 (s) & \textbf{4} & 0.02(s)\\
 \hline
-Keymaera (98) & 10 & 632.37 & 8 & 0.37 & 13 & 1031.68 & 11 & 0.57 & 3 & 196.40 & 12 & 8.06 & 19& 2708.89 (s) & 0 &0.00 (s) \\
+Meti-Tarski (3528/1573) & 3322 & 369.60 (s) & 1052 & 383.40 (s) & 1497 & 21.00 (s) & 1115 & 74.19 (s) & 1 & 0.28 (s) & 
+1075 & 22.6 (s) & 1497 & 72.85 (s) & 943 & 21.40 (s) \\
+\hline
+Keymaera (612) & 0 & 0.00 (s)& 312 & 66.63 (s) & 0 & 0.00 (s) & \textbf{610} & 2.92 (s) & 0 & 0.00 (s) & 226 & 1.63 (s) & 13& 4.03 (s) & 318 & 1.96 (s) \\
 \hline 
-Meti-Tarski (3528/1573) & 3322 & 369.60 & 1052 & 383.40 & 1497 & 21.00 (s) & 1115 & 74.19 & 1 & 0.28 & 
-1075 & 22.6 & 1497 & 72.85 (s) & 943 & 21.40 (s) \\
-\hline
 \end{tabular}
 }
 \medskip 
