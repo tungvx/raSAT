@@ -32,7 +32,7 @@ Settings:
 running experiments: 1, 14, 30, 15, 31, 35, 36, 8, 32, 9, 33, 29, 34, 13, 12, 10, 11, 37, 38, 3, 19, 40, 43, 39, 46, 2, 4
 1. raSAT_2_1TCs_10_1DecomposedVar_2: QF_NIA/AProVE, 1-5-8-11
 2. raSAT_2_1TCs_10_1DecomposedVar_3: zankl, 1-5-8-11
-3. raSAT_2_1TCs_10_1DecomposedVar_4: zankl, 10-7-9, 1 level widening
+3. raSAT_2_1TCs_10_1DecomposedVar_4: zankl, 10-7-9, 4 level widening
 4. raSAT_2_1TCs_10_1DecomposedVar_5: meti-tarski, unsat directed
 5. raSAT_2_1TCs_10_1DecomposedVar_6: meti-tarski, sat directed
 6. raSAT_2_1TCs_10_1DecomposedVar_7: meti-tarski, random
