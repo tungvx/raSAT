@@ -538,6 +538,12 @@ type bool_constraint =
   | And of bool_constraint * bool_constraint
   | Or of bool_constraint * bool_constraint 
 
+type smt_poly_expr =
+  | SPoly of poly_expr
+  | Poly of bool_constraint * poly_expr
+  | POr of smt_poly_expr * smt_poly_expr
+  
+
 let rec get_varsSet_boolCons = function
   | Single polyCons -> polyCons#get_varsSet
   | And (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
