@@ -121,20 +121,20 @@ and get_poly_specReal = function
 
 
 
-and get_poly_symbol varBindings = function 
+and get_poly_symbol variables varBindings = function 
   |Symbol (_ , str1) -> 
     (try
       let term = StringMap.find str1 varBindings in
-      get_poly_term varBindings term
+      get_poly_term variables varBindings term
     with  
-      Not_found -> Var str1
+      Not_found -> SPoly(Var str1)
     )
   |SymbolWithOr (_ , str1) -> 
     (try
       let term = StringMap.find str1 varBindings in
-      get_poly_term varBindings term
+      get_poly_term variables varBindings term
     with  
-      Not_found -> Var str1
+      Not_found -> SPoly(Var str1)
     )
 
 and get_constraint_symbol variables varBindings = function 
@@ -165,16 +165,16 @@ and get_constraint_symbol variables varBindings = function
         )
     )
 
-and get_poly_identifier varBindings = function 
-  |IdSymbol (_ , symbol1) ->  get_poly_symbol varBindings symbol1 
+and get_poly_identifier variables varBindings = function 
+  |IdSymbol (_ , symbol1) ->  get_poly_symbol variables varBindings symbol1 
   |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 165")
 
 and get_constraint_identifier variables varBindings = function 
   |IdSymbol (_ , symbol1) ->  get_constraint_symbol variables varBindings symbol1 
   |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 200")  
 
-and get_poly_qualidentifier varBindings = function 
-  |QualIdentifierId (_ , identifier1) ->  get_poly_identifier varBindings identifier1
+and get_poly_qualidentifier variables varBindings = function 
+  |QualIdentifierId (_ , identifier1) ->  get_poly_identifier variables varBindings identifier1
   |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
 
 and get_constraint_qualidentifier variables varBindings = function 
@@ -187,79 +187,85 @@ and get_mul_poly = function
   | poly1::poly2::remainingPolys -> get_mul_poly ((get_mul_poly_extra poly1 poly2) :: remainingPolys)
   
 and get_mul_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-  | (SPoly(poly11), SPoly(poly21)) -> SPoly (Mul(poly11, poly21))
-  | (SPoly(poly11), Poly (boolConstraint21, poly21)) -> Poly (boolConstraint21, Mul(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), SPoly(poly21)) -> Poly (boolConstraint11, Mul(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), Poly (boolConstraint21, poly21)) -> Poly(And(boolConstraint11, boolConstraint21), Mul(poly11, poly21))
-  | (POr(smtPoly11, smtPoly12), smtPoly21) -> POr (get_mul_poly_extra smtPoly11 smtPoly21, get_mul_poly_extra smtPoly12 smtPoly21)
-  | (smtPoly11, POr(smtPoly21, smtPoly22)) -> POr (get_mul_poly_extra smtPoly11 smtPoly21, get_mul_poly_extra smtPoly11 smtPoly22)
+  | (SPoly(poly1), SPoly(poly2)) -> SPoly (Mul(poly1, poly2))
+  | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Mul(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Mul(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Mul(poly1, poly2))
+  | (POr(smtPoly11, smtPoly12), _) -> POr (get_mul_poly_extra smtPoly11 smtPoly2, get_mul_poly_extra smtPoly12 smtPoly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> POr (get_mul_poly_extra smtPoly1 smtPoly21, get_mul_poly_extra smtPoly1 smtPoly22)
 
 and get_add_poly = function
   | [] -> raise (Failure "Need arguments for addition") 
   | [poly] -> poly
-  | poly1::poly2::remainingPolys -> get_add_poly((get_add_poly_extra(poly1, poly2)) :: remainingPolys)
+  | poly1::poly2::remainingPolys -> get_add_poly((get_add_poly_extra poly1 poly2) :: remainingPolys)
 
 and get_add_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-  | (SPoly(poly11), SPoly(poly21)) -> SPoly (Add(poly11, poly21))
-  | (SPoly(poly11), Poly (boolConstraint21, poly21)) -> Poly (boolConstraint21, Add(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), SPoly(poly21)) -> Poly (boolConstraint11, Add(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), Poly (boolConstraint21, poly21)) -> Poly(And(boolConstraint11, boolConstraint21), Add(poly11, poly21))
-  | (POr(smtPoly11, smtPoly12), smtPoly21) -> POr (get_add_poly_extra smtPoly11 smtPoly21, get_add_poly_extra smtPoly12 smtPoly21)
-  | (smtPoly11, POr(smtPoly21, smtPoly22)) -> POr (get_add_poly_extra smtPoly11 smtPoly21, get_add_poly_extra smtPoly11 smtPoly22)
+  | (SPoly(poly1), SPoly(poly2)) -> SPoly (Add(poly1, poly2))
+  | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Add(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Add(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Add(poly1, poly2))
+  | (POr(smtPoly11, smtPoly12), _) -> POr (get_add_poly_extra smtPoly11 smtPoly2, get_add_poly_extra smtPoly12 smtPoly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> POr (get_add_poly_extra smtPoly1 smtPoly21, get_add_poly_extra smtPoly1 smtPoly22)
   
 and get_div_poly = function
-  | [] -> raise (Failure "Need arguments for addition") 
+  | [] -> raise (Failure "Need arguments for addition")
   | [poly] -> poly
-  | poly1::poly2::remainingPolys -> get_div_poly((get_div_poly_extra(poly1, poly2)) :: remainingPolys)
+  | poly1::poly2::remainingPolys -> get_div_poly((get_div_poly_extra poly1 poly2) :: remainingPolys)
 
 and get_div_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-  | (SPoly(poly11), SPoly(poly21)) -> SPoly (Div(poly11, poly21))
-  | (SPoly(poly11), Poly (boolConstraint21, poly21)) -> Poly (boolConstraint21, Div(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), SPoly(poly21)) -> Poly (boolConstraint11, Div(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), Poly (boolConstraint21, poly21)) -> Poly(And(boolConstraint11, boolConstraint21), Div(poly11, poly21))
-  | (POr(smtPoly11, smtPoly12), smtPoly21) -> POr (get_div_poly_extra smtPoly11 smtPoly21, get_div_poly_extra smtPoly12 smtPoly21)
-  | (smtPoly11, POr(smtPoly21, smtPoly22)) -> POr (get_div_poly_extra smtPoly11 smtPoly21, get_div_poly_extra smtPoly11 smtPoly22)
+  | (SPoly(poly1), SPoly(poly2)) -> SPoly (Div(poly1, poly2))
+  | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Div(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Div(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) 
+    -> Poly(And(boolConstraint1, boolConstraint2), Div(poly1, poly2))
+  | (POr(smtPoly11, smtPoly12), _) -> POr (get_div_poly_extra smtPoly11 smtPoly2, get_div_poly_extra smtPoly12 smtPoly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> POr (get_div_poly_extra smtPoly1 smtPoly21, get_div_poly_extra smtPoly1 smtPoly22)
 
 and get_minus_poly = function
   | [] -> raise (Failure "Need arguments for Subtraction") 
-  | [Real f] -> Real ((~-.) f)
-  | [poly] -> Sub (Real 0., poly)
+  | [SPoly(Real f)] -> SPoly(Real ((~-.) f))
+  | [SPoly(poly)] -> SPoly(Sub(Real 0., poly))
+  | [Poly(boolConstraint, Real f)] -> Poly(boolConstraint, Real ((~-.) f))
+  | [Poly(boolConstraint, poly)] -> Poly(boolConstraint, Sub (Real 0., poly))
   | polys -> get_minus_poly_extra polys
 
 and get_minus_poly_extra = function 
   | [] -> raise (Failure "Need arguments for Subtraction") 
   | [poly] -> poly
-  | poly1::poly2::remainingPolys -> get_minus_poly_extra((get_minus_poly_extra_extra(poly1, poly2)) :: remainingPolys)     
+  | poly1::poly2::remainingPolys -> get_minus_poly_extra((get_minus_poly_extra_extra poly1 poly2) :: remainingPolys)     
 
 and get_minus_poly_extra_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-  | (SPoly(poly11), SPoly(poly21)) -> SPoly (Sub(poly11, poly21))
-  | (SPoly(poly11), Poly (boolConstraint21, poly21)) -> Poly (boolConstraint21, Sub(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), SPoly(poly21)) -> Poly (boolConstraint11, Sub(poly11, poly21))
-  | (Poly(boolConstraint11, poly11), Poly (boolConstraint21, poly21)) -> Poly(And(boolConstraint11, boolConstraint21), Sub(poly11, poly21))
-  | (POr(smtPoly11, smtPoly12), smtPoly21) -> POr (get_minus_poly_extra_extra smtPoly11 smtPoly21, get_minus_poly_extra_extra smtPoly12 smtPoly21)
-  | (smtPoly11, POr(smtPoly21, smtPoly22)) -> POr (get_minus_poly_extra_extra smtPoly11 smtPoly21, get_minus_poly_extra_extra smtPoly11 smtPoly22)
+  | (SPoly(poly1), SPoly(poly2)) -> SPoly (Sub(poly1, poly2))
+  | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Sub(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Sub(poly1, poly2))
+  | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) 
+    -> Poly(And(boolConstraint1, boolConstraint2), Sub(poly1, poly2))
+  | (POr(smtPoly11, smtPoly12), _) 
+    -> POr (get_minus_poly_extra_extra smtPoly11 smtPoly2, get_minus_poly_extra_extra smtPoly12 smtPoly2)
+  | (_, POr(smtPoly21, smtPoly22)) 
+    -> POr (get_minus_poly_extra_extra smtPoly1 smtPoly21, get_minus_poly_extra_extra smtPoly1 smtPoly22)
 
-and get_poly_term varBindings = function 
+and get_poly_term variables varBindings = function
   |TermSpecConst (_ , specReal1) ->  
     get_poly_specReal specReal1
   |TermQualIdentifier (_ , qualidentifier1) -> 
-    get_poly_qualidentifier varBindings qualidentifier1
-  |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) ->  
+    get_poly_qualidentifier variables varBindings qualidentifier1
+  |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) -> 
     let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
     if qualidentifier_string = "*" then
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_mul_poly polys
     else if qualidentifier_string = "+" then
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_add_poly polys  
     else if qualidentifier_string = "/" then
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_div_poly polys
     else if qualidentifier_string = "-" then
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_minus_poly polys
     else if qualidentifier_string = "ite" then
-      get_ite_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563
+      get_ite_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563
     else raise (Failure "Undefined Function Symbols")
   | _ -> raise (Failure "Undefined Suported Function Symbols")
    (*|TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  print_string "(";print_string " "; print_string "let";print_string " "; print_string "(";print_string " "; pp_termletterm_term_varbinding58 termletterm_term_varbinding584;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
@@ -268,28 +274,29 @@ and get_poly_term varBindings = function
    |TermExclimationPt (_ , term3 , termexclimationpt_term_attribute644) ->  print_string "(";print_string " "; print_string "!";print_string " "; pp_term term3;print_string " "; pp_termexclimationpt_term_attribute64 termexclimationpt_term_attribute644;print_string " "; print_string ")"; () 
    *)
 
-and get_ite_polys_termqualidterm_term_term56 varBindings = function
-  |(_,[]) -> [] 
+and get_ite_polys_termqualidterm_term_term56 variables varBindings = function
+  |(_,[]) -> raise (Failure "Wrong number of arguments for ite")
   | (d , (term1)::termqualidterm_term_term562) -> 
-    let boolConstraint = get_constraint_term varBindings term1 in
-    let smtPolys = get_polys_termqualidterm_term_term56 varBindings (d,termqualidterm_term_term562) in 
+    let boolConstraints = get_constraint_term variables varBindings term1 in
+    let boolConstraint = get_boolExp_from_list boolConstraints in  
+    let smtPolys = get_polys_termqualidterm_term_term56 variables varBindings (d,termqualidterm_term_term562) in 
     (match smtPolys with 
       | [smtPoly1; smtPoly2] -> 
-        (let get_ite_polys boolConstraint' smtPoly = match smtPoly with
-          | SPoly(poly) -> Poly(boolConstraint', poly)
-          | Poly(boolConstraint1, poly1) -> Poly(And (boolConstraint1, boolConstraint'), poly1)
-          | Por(smtPoly1', smtPoly2') -> Por (get_ite_polys boolConstraint' smtPoly1', get_ite_polys boolConstraint' smtPoly2')
+        (let rec get_ite_polys boolConstraint2 smtPoly = match smtPoly with
+          | SPoly(poly) -> Poly(boolConstraint2, poly)
+          | Poly(boolConstraint1, poly1) -> Poly(And (boolConstraint1, boolConstraint2), poly1)
+          | POr(smtPoly11, smtPoly21) -> POr (get_ite_polys boolConstraint2 smtPoly11, get_ite_polys boolConstraint2 smtPoly21)
         in
-        [Por(get_ite_polys boolConstraint smtPoly1, get_ite_polys (not_of_boolCons boolConstraint) smtPoly2)]
+        POr(get_ite_polys boolConstraint smtPoly1, get_ite_polys (not_of_boolCons boolConstraint) smtPoly2)
         )
       | _ -> raise (Failure "Wrong number of arguments for ite")
     )
 
-and get_polys_termqualidterm_term_term56 varBindings = function
+and get_polys_termqualidterm_term_term56 variables varBindings = function
   |(_,[]) ->   [] 
   | (d , (term1)::termqualidterm_term_term562) -> 
-    let poly = get_poly_term varBindings term1 in
-    let remainingPolys = get_polys_termqualidterm_term_term56 varBindings (d,termqualidterm_term_term562) in 
+    let poly = get_poly_term variables varBindings term1 in
+    let remainingPolys = get_polys_termqualidterm_term_term56 variables varBindings (d,termqualidterm_term_term562) in 
     poly :: remainingPolys 
 
 and get_constraints_termqualidterm_term_term56 variables varBindings = function
@@ -305,37 +312,84 @@ and get_le_constraint polys = match polys with
   | poly1::poly2::remainingPolys -> (get_le_constraint_extra poly1 poly2) :: (get_le_constraint (poly2::remainingPolys))
 
 and get_le_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-  | (SPoly(poly1), SPoly(Real 0.)) -> SPoly
-  | [Real 0.; poly] -> [Single (new polynomialConstraint (Gr (reduce poly)))]
-  | [poly1; poly2] -> [Single (new polynomialConstraint(Le (reduce (Sub(poly1, poly2)))))]  
+  | (SPoly(poly1), SPoly(poly2)) -> get_le_constraint_extra_extra poly1 poly2
+  | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_le_constraint_extra_extra poly1 poly2)
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_le_constraint_extra_extra poly1 poly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> Or(get_le_constraint_extra smtPoly1 smtPoly21, get_le_constraint_extra smtPoly1 smtPoly22)
+  | (POr(smtPoly11, smtPoly12), _) -> Or(get_le_constraint_extra smtPoly11 smtPoly2, get_le_constraint_extra smtPoly12 smtPoly2)
+
+and get_le_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
+  | (_, Real 0.) -> Single (new polynomialConstraint (Le (reduce poly1)))
+  | (Real 0., _) -> Single (new polynomialConstraint (Gr (reduce poly2)))
+  | _ -> Single (new polynomialConstraint (Le (reduce (Sub(poly1, poly2)))))
 
 and get_leq_constraint polys = match polys with
-  | [poly; Real 0.] -> [Single (new polynomialConstraint (Leq (reduce poly)))]
-  | [Real 0.; poly] -> [Single (new polynomialConstraint (Geq (reduce poly)))]
-  | [poly1; poly2] -> [Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2)))))]
-  | poly1::poly2::remainingPolys -> (get_leq_constraint [poly1; poly2]) @ (get_leq_constraint (poly2::remainingPolys))
-  | _ ->  raise (Failure "Wrong Input") 
+  | [] ->  raise (Failure "Wrong Input") 
+  | [poly] -> []
+  | poly1::poly2::remainingPolys -> (get_leq_constraint_extra poly1 poly2) :: (get_leq_constraint (poly2::remainingPolys))
+
+and get_leq_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
+  | (SPoly(poly1), SPoly(poly2)) -> get_leq_constraint_extra_extra poly1 poly2
+  | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_leq_constraint_extra_extra poly1 poly2)
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_leq_constraint_extra_extra poly1 poly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> Or(get_leq_constraint_extra smtPoly1 smtPoly21, get_leq_constraint_extra smtPoly1 smtPoly22)
+  | (POr(smtPoly11, smtPoly12), _) -> Or(get_leq_constraint_extra smtPoly11 smtPoly2, get_leq_constraint_extra smtPoly12 smtPoly2)
+
+and get_leq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
+  | (_, Real 0.) -> Single (new polynomialConstraint (Leq (reduce poly1)))
+  | (Real 0., _) -> Single (new polynomialConstraint (Geq (reduce poly2)))
+  | _ -> Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2)))))  
 
 and get_gr_constraint polys = match polys with
-  | [poly; Real 0.] -> [Single (new polynomialConstraint(Gr (reduce poly)))]
-  | [Real 0.; poly] -> [Single (new polynomialConstraint(Le (reduce poly)))]
-  | [poly1; poly2] -> [Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2)))))]
-  | poly1::poly2::remainingPolys -> (get_gr_constraint [poly1; poly2]) @ (get_gr_constraint (poly2::remainingPolys))
-  | _ ->  raise (Failure "Wrong Input")
+  | [] ->  raise (Failure "Wrong Input")
+  | [poly] -> []
+  | poly1::poly2::remainingPolys -> (get_gr_constraint_extra poly1 poly2) :: (get_gr_constraint (poly2::remainingPolys))
+
+and get_gr_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
+  | (SPoly(poly1), SPoly(poly2)) -> get_gr_constraint_extra_extra poly1 poly2
+  | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_gr_constraint_extra_extra poly1 poly2)
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_gr_constraint_extra_extra poly1 poly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> Or(get_gr_constraint_extra smtPoly1 smtPoly21, get_gr_constraint_extra smtPoly1 smtPoly22)
+  | (POr(smtPoly11, smtPoly12), _) -> Or(get_gr_constraint_extra smtPoly11 smtPoly2, get_gr_constraint_extra smtPoly12 smtPoly2)
+
+and get_gr_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
+  | (_, Real 0.) -> Single (new polynomialConstraint (Gr (reduce poly1)))
+  | (Real 0., _) -> Single (new polynomialConstraint (Le (reduce poly2)))
+  | _ -> Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2)))))    
 
 and get_geq_constraint polys = match polys with
-  | [poly; Real 0.] -> 
-    [Single (new polynomialConstraint(Geq (reduce poly)))]
-  | [poly1; poly2] -> [Single (new polynomialConstraint(Geq (reduce (Sub(poly1, poly2)))))]
-  | poly1::poly2::remainingPolys -> (get_geq_constraint [poly1; poly2]) @ (get_geq_constraint (poly2::remainingPolys))
-  | _ ->  raise (Failure "Wrong Input")
+  | [] ->  raise (Failure "Wrong Input")
+  | [poly] ->  []
+  | poly1::poly2::remainingPolys -> (get_geq_constraint_extra poly1 poly2) :: (get_geq_constraint (poly2::remainingPolys))
+
+and get_geq_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
+  | (SPoly(poly1), SPoly(poly2)) -> get_geq_constraint_extra_extra poly1 poly2
+  | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_geq_constraint_extra_extra poly1 poly2)
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_geq_constraint_extra_extra poly1 poly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> Or(get_geq_constraint_extra smtPoly1 smtPoly21, get_geq_constraint_extra smtPoly1 smtPoly22)
+  | (POr(smtPoly11, smtPoly12), _) -> Or(get_geq_constraint_extra smtPoly11 smtPoly2, get_geq_constraint_extra smtPoly12 smtPoly2)
+
+and get_geq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
+  | (_, Real 0.) -> Single (new polynomialConstraint (Geq (reduce poly1)))
+  | (Real 0., _) -> Single (new polynomialConstraint (Leq (reduce poly2)))
+  | _ -> Single (new polynomialConstraint (Geq (reduce (Sub(poly1, poly2)))))   
 
 and get_eq_constraint polys = match polys with
-  | [poly; Real 0.] -> [Single (new polynomialConstraint(Eq (reduce poly)))]
-  | [Real 0.; poly] -> [Single (new polynomialConstraint(Eq (reduce poly)))]
-  | [poly1; poly2] -> [Single (new polynomialConstraint(Eq (reduce (Sub(poly1, poly2)))))]
-  | poly1::poly2::remainingPolys -> (get_eq_constraint [poly1; poly2]) @ (get_eq_constraint (poly2::remainingPolys))
-  | _ ->  raise (Failure "Wrong Input")
+  | [] ->  raise (Failure "Wrong Input")
+  | [poly] -> []
+  | poly1::poly2::remainingPolys -> (get_eq_constraint_extra poly1 poly2) :: (get_eq_constraint (poly2::remainingPolys))
+
+and get_eq_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
+  | (SPoly(poly1), SPoly(poly2)) -> get_eq_constraint_extra_extra poly1 poly2
+  | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_eq_constraint_extra_extra poly1 poly2)
+  | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_eq_constraint_extra_extra poly1 poly2)
+  | (_, POr(smtPoly21, smtPoly22)) -> Or(get_eq_constraint_extra smtPoly1 smtPoly21, get_eq_constraint_extra smtPoly1 smtPoly22)
+  | (POr(smtPoly11, smtPoly12), _) -> Or(get_eq_constraint_extra smtPoly11 smtPoly2, get_eq_constraint_extra smtPoly12 smtPoly2)
+
+and get_eq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
+  | (_, Real 0.) -> Single (new polynomialConstraint (Eq (reduce poly1)))
+  | (Real 0., _) -> Single (new polynomialConstraint (Eq (reduce poly2)))
+  | _ -> Single (new polynomialConstraint (Eq (reduce (Sub(poly1, poly2)))))   
 
 and get_constraint_term variables varBindings = function 
   |TermQualIdentifier (_ , qualidentifier1) -> 
@@ -343,20 +397,20 @@ and get_constraint_term variables varBindings = function
   |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) ->
     let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
     if qualidentifier_string = "<" then 
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_le_constraint polys
     else if qualidentifier_string = "<=" then
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_leq_constraint polys 
     else if qualidentifier_string = ">" then
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_gr_constraint polys
     else if qualidentifier_string = ">=" then
-      let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
       get_geq_constraint polys
     else if qualidentifier_string = "=" then
       try 
-        let polys = get_polys_termqualidterm_term_term56 varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
         get_eq_constraint polys
       with Failure _ -> 
         let constraints = get_constraints_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
@@ -1760,5 +1814,4 @@ end
 (* Export those functions to C/C++ *)
 (*===========================================================*)
 let _ = Callback.register "caml_genSatForm" Caml.genSatForm;;
-let _ = Callback.register "caml_dynTest" Caml.dynTest;;
-
+let _ = Callback.register "caml_dynTest" Caml.dynTest;
