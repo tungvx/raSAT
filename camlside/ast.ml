@@ -54,22 +54,38 @@ and not_of_polyConstraint = function
   | Gr polyExpr -> Leq polyExpr
   | Le polyExpr -> Geq polyExpr
 
-(* This function convert the cnf miniSAT expression into string under the format of miniSAT input *)
-let rec string_of_cnf_miniSATExpr cnfMiniSATExpr isFinal = match cnfMiniSATExpr with
+let rec get_clauses cnfMiniSATExpr isFinal = match cnfMiniSATExpr with
   | Lit i -> 
-    let (ending, clauses) = 
-      if isFinal then (" 0\n", 1)
-      else (" ", 0)
-    in
-    (string_of_int i ^ ending, clauses)
+    (*print_endline (string_of_int i);
+    flush stdout;*)
+    if isFinal then
+      1  
+    else 
+      0
   | MAnd (e1, e2) -> 
-    let (string1, clauses1) = string_of_cnf_miniSATExpr e1 true in
-    let (string2, clauses2) = string_of_cnf_miniSATExpr e2 true in
-    (string1 ^ string2, clauses1 + clauses2)
+    let clauses1 = get_clauses e1 true in
+    let clauses2 = get_clauses e2 true in
+    clauses1 + clauses2
   | MOr (e1, e2) -> 
-    let (string1, clauses1) = string_of_cnf_miniSATExpr e1 false in
-    let (string2, clauses2) = string_of_cnf_miniSATExpr e2 isFinal in
-    (string1 ^ string2, clauses1 + clauses2)
+    let clauses1 = get_clauses e1 false in
+    let clauses2 = get_clauses e2 isFinal in
+    clauses1 + clauses2
+
+(* This function convert the cnf miniSAT expression into string under the format of miniSAT input *)
+let rec write_cnf_toFile cnfMiniSATExpr isFinal oc = match cnfMiniSATExpr with
+  | Lit i -> 
+    (*print_endline (string_of_int i);
+    flush stdout;*)
+    if isFinal then
+      Printf.fprintf oc "%d 0\n" i  
+    else 
+      Printf.fprintf oc "%d " i
+  | MAnd (e1, e2) -> 
+    write_cnf_toFile e1 true oc;
+    write_cnf_toFile e2 true oc
+  | MOr (e1, e2) -> 
+    write_cnf_toFile e1 false oc;
+    write_cnf_toFile e2 isFinal oc
 
 
 let rec distributeLeft m1 m2 = match m2 with

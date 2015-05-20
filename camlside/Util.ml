@@ -137,7 +137,9 @@ module Util = struct
 	
 	(* Function for converting a list of variables to be learned into minisat codes*)
 	let rec learn_vars varsList intvMap polyConsMiniSATCode = match varsList with
-	  | [] -> "-" ^ string_of_int polyConsMiniSATCode ^ " "
+	  | [] ->
+	    if polyConsMiniSATCode > 0 then "-" ^ string_of_int polyConsMiniSATCode ^ " "
+	    else string_of_int (-polyConsMiniSATCode) ^ " "
     | h::t -> 
       let (_, varId) = StringMap.find h intvMap in
       "-" ^ string_of_int varId ^ " " ^ (learn_vars  t intvMap polyConsMiniSATCode)

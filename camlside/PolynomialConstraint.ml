@@ -213,8 +213,8 @@ class polynomialConstraint boolExprInit =
           )
           else []
       in
-      (*get_n_first varsSen n (*(8)*)*)
-      get_n_random varsSen n (*(9)*)
+      get_n_first varsSen n (*(8)*)
+      (*get_n_random varsSen n (*(9)*)*)
     
     method get_varsDiffNum otherVarsSet = 
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
@@ -504,7 +504,7 @@ class polynomialConstraint boolExprInit =
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
-          let isVarPositiveDirected = 0 in (* not (11) *)
+          (*let isVarPositiveDirected = 0 in (* not (11) *)*)
           let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
@@ -526,21 +526,24 @@ class polynomialConstraint boolExprInit =
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      (*generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)*)
-      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)
+      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)
+      (*generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
   
 type bool_constraint =
   | Single of polynomialConstraint
+  | BVar of string
+  | NBVar of string
   | And of bool_constraint * bool_constraint
   | Or of bool_constraint * bool_constraint 
-
 
 let rec get_varsSet_boolCons = function
   | Single polyCons -> polyCons#get_varsSet
   | And (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
   | Or (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
+  | BVar var -> VariablesSet.empty
+  | NBVar var -> VariablesSet.empty
 
 and not_of_boolCons = function
   | Single polyCons ->
@@ -548,24 +551,37 @@ and not_of_boolCons = function
     Single (new polynomialConstraint(polyConstraint))
   | And (boolCons1, boolCons2) -> Or (not_of_boolCons boolCons1, not_of_boolCons boolCons2)
   | Or (boolCons1, boolCons2) -> And (not_of_boolCons boolCons1, not_of_boolCons boolCons2)
+  | BVar var -> NBVar var
+  | NBVar var -> BVar var
 
 (* encode the constraints into the form of miniSAT lit *)  
-let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap logic = match constraints with
+let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap logic bVarMiniSatCodeMap = match constraints with
   | And (b1, b2) -> 
-    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
-    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
-    (MAnd (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 + isEquation2, isNotEquation1 + isNotEquation2)
+    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1, bVarMiniSatCodeMap1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic bVarMiniSatCodeMap in
+    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2, bVarMiniSatCodeMap2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic bVarMiniSatCodeMap1 in
+    (MAnd (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 + isEquation2, isNotEquation1 + isNotEquation2, bVarMiniSatCodeMap2)
   | Or (b1, b2) -> 
-    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic in
-    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic in
-    (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 + isEquation2, isNotEquation1 + isNotEquation2)
+    let (mB1, index1, miniSATCodesConstraintsMap1, maxVarsNum1, isEquation1, isNotEquation1, bVarMiniSatCodeMap1) = miniSATExpr_of_constraints b1 index miniSATCodesConstraintsMap logic bVarMiniSatCodeMap in
+    let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2, bVarMiniSatCodeMap2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic bVarMiniSatCodeMap1 in
+    (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 + isEquation2, isNotEquation1 + isNotEquation2, bVarMiniSatCodeMap2)
   | Single polyCons -> (
-      polyCons#set_miniSATCode index;
-      polyCons#set_logic logic;
-      let newMiniSATCodesConstraintsMap = IntMap.add index polyCons miniSATCodesConstraintsMap in
-      (Lit index, index + 1, newMiniSATCodesConstraintsMap, polyCons#get_varsNum, polyCons#isEquation, polyCons#isNotEquation) 
+    polyCons#set_miniSATCode index;
+    polyCons#set_logic logic;
+    let newMiniSATCodesConstraintsMap = IntMap.add index polyCons miniSATCodesConstraintsMap in
+    (Lit index, index + 1, newMiniSATCodesConstraintsMap, polyCons#get_varsNum, polyCons#isEquation, polyCons#isNotEquation, bVarMiniSatCodeMap) 
     )
-    
+  | BVar var ->
+    (try
+      let miniSATCode = StringMap.find var bVarMiniSatCodeMap in
+      (Lit miniSATCode, index, miniSATCodesConstraintsMap, 0, 0, 0, bVarMiniSatCodeMap)
+    with Not_found -> (Lit index, index + 1, miniSATCodesConstraintsMap, 0, 0, 0, StringMap.add var index bVarMiniSatCodeMap)  
+    )
+  | NBVar var -> 
+    (try
+      let miniSATCode = StringMap.find var bVarMiniSatCodeMap in
+      (Lit (-miniSATCode), index, miniSATCodesConstraintsMap, 0, 0, 0, bVarMiniSatCodeMap)
+    with Not_found -> (Lit (-index), index + 1, miniSATCodesConstraintsMap, 0, 0, 0, StringMap.add var index bVarMiniSatCodeMap)  
+    )
 
 (* Function for converting constraints into infix string *)    
 let rec string_infix_of_constraints constraints = match constraints with 
@@ -574,6 +590,8 @@ let rec string_infix_of_constraints constraints = match constraints with
 	  string_infix_of_constraints c1 ^ " And\n" ^ string_infix_of_constraints c2
 	| Or(c1, c2) -> 
 	  string_infix_of_constraints c1 ^ " Or\n" ^ string_infix_of_constraints c2
+	| BVar var -> var
+	| NBVar var -> var
 	  
 
 (* Function for converting constraints into infix string for mapple input *)    

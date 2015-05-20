@@ -15,6 +15,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
     csvfile.close()
   for root, dirnames, filenames in os.walk(directory):
     for filename in fnmatch.filter(filenames, '*.smt2'):
+      print "Checking ", filename
       sbox = initSbox * 10
       nVars = 0
       maxVars = 0
@@ -124,5 +125,5 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
 #run ('Test/smtlib-20140121/QF_NIA/leipzig', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, 'result.xls')
 
-#run ('Test/smtlib-20140121/QF_NRA/meti-tarski', -10, 10, 0.1, 60, 'result.csv')
-run ('Test/test', -10, 10, 0.1, 60, 'result.csv')
+run ('Test/smtlib-20140121/QF_NRA/hycomp', -10, 10, 0.1, 60, '1-5-8.csv')
+#run ('Test/test', -10, 10, 0.1, 60, 'result.csv')

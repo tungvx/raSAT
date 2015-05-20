@@ -291,7 +291,12 @@ int main(int argc, char* argv[]) {
   //cout << "lb: " << lb << endl;
   //cout << "ub: " << ub << endl;
   //cout << "logic: " << logic.c_str() << endl;
-	satInfo = caml_genSatForm(smtfile, lb, ub, logic.c_str());
+  //	cout << "Run8" << endl;
+	string sfile = toFilein(argv[1]);
+	char * inFile = new char[sfile.size() + 1];
+	strcpy(inFile, sfile.c_str());
+	
+	satInfo = caml_genSatForm(smtfile, lb, ub, logic.c_str(), inFile);
 	//return 0;
 	//cout << "finish genSATForm" << endl;
 	int nVars = Int_val(Field(satInfo, 0)); //nVars store the number variables for SAT content
@@ -309,16 +314,6 @@ int main(int argc, char* argv[]) {
 	caml_remove_global_root(&satInfo);
 
   parsingTime = cpuTime() - parsingStart;
-//	cout << "Run8" << endl;
-	string sfile = toFilein(argv[1]);
-	char * inFile = new char[sfile.size() + 1];
-	strcpy(inFile, sfile.c_str());
-
-	if (writeFile(inFile, satContent) != 1) {
-		if (debug)
-			cout << "Can not create " << inFile << " file!";
-		return 0;
-	}
 
 	//cout << "Run9" << endl;
 	sfile = toFileout(argv[1]);
@@ -503,7 +498,7 @@ int main(int argc, char* argv[]) {
 				}
 				if (debug)
 					printf("UNSATISFIABLE\n");
-				exit(20);
+				//exit(20);
 			}
 
 			//cout << "Run35" << endl;
@@ -552,9 +547,9 @@ int main(int argc, char* argv[]) {
 //					cout << "Run45" << endl;
 					bool firstSolution = true;
 					for (int i = 0; i < S.nVars(); i++) {
-						if (S.model[i] == l_True) {
+						if (i < nCons || S.model[i] == l_True) {
 							char numstr[21];
-							sprintf(numstr, "%s%d", firstSolution ? "" : " ", i+1);
+							sprintf(numstr, "%s%d", firstSolution ? "" : " ", S.model[i] == l_True ? i+1 : -(i+1));
 							sSAT.append(numstr);
 //							ostringstream ss;
 //							ss << i+1;
