@@ -300,11 +300,14 @@ and get_constraints_termqualidterm_term_term56 variables varBindings = function
     constraint1 @ remainingConstraints
 
 and get_le_constraint polys = match polys with
-  | [poly; Real 0.] -> [Single (new polynomialConstraint (Le (reduce poly)))]
+  | [] ->  raise (Failure "Wrong Input")
+  | [poly] -> []
+  | poly1::poly2::remainingPolys -> (get_le_constraint_extra poly1 poly2) :: (get_le_constraint (poly2::remainingPolys))
+
+and get_le_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
+  | (SPoly(poly1), SPoly(Real 0.)) -> SPoly
   | [Real 0.; poly] -> [Single (new polynomialConstraint (Gr (reduce poly)))]
-  | [poly1; poly2] -> [Single (new polynomialConstraint(Le (reduce (Sub(poly1, poly2)))))]
-  | poly1::poly2::remainingPolys -> (get_le_constraint [poly1; poly2]) @ (get_le_constraint (poly2::remainingPolys))
-  | _ ->  raise (Failure "Wrong Input")
+  | [poly1; poly2] -> [Single (new polynomialConstraint(Le (reduce (Sub(poly1, poly2)))))]  
 
 and get_leq_constraint polys = match polys with
   | [poly; Real 0.] -> [Single (new polynomialConstraint (Leq (reduce poly)))]
