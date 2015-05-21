@@ -46,7 +46,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
         f.close()
       except IOError:
         result = 'unknown'
-      bounds = ['lb=-1 1', 'lb=-10 10', 'lb=-inf inf']
+      bounds = ['lb=-10 10', 'lb=-inf inf']
       boundsNum = len(bounds)
       boundIndex = 0
       while (raSATResult != 'sat' and time < timeout and boundIndex < boundsNum):
@@ -123,7 +123,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
 #run ('Test/smtlib-20140121/QF_NIA/AProVE', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/calypto', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/leipzig', -10, 10, 0.1, 60, 'result.xls')
-#run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, 'result.xls')
+run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, '1-5-8.csv')
 
-run ('Test/smtlib-20140121/QF_NRA/hycomp', -10, 10, 0.1, 60, '1-5-8.csv')
+#run ('Test/smtlib-20140121/QF_NRA/hycomp', -10, 10, 0.1, 60, '1-5-8.csv')
 #run ('Test/test', -10, 10, 0.1, 60, 'result.csv')

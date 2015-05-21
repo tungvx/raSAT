@@ -121,64 +121,88 @@ and get_poly_specReal = function
 
 
 
-and get_poly_symbol variables varBindings = function 
+and get_poly_symbol varTermMap functions variables varBindings = function 
   |Symbol (_ , str1) -> 
     (try
       let term = StringMap.find str1 varBindings in
-      get_poly_term variables varBindings term
+      get_poly_term varTermMap functions variables varBindings term
     with  
-      Not_found -> SPoly(Var str1)
+      Not_found -> 
+        (try
+          let term = StringMap.find str1 varTermMap in
+          get_poly_term StringMap.empty functions variables varBindings term
+        with
+        | Not_found -> SPoly(Var str1)
+        )
     )
   |SymbolWithOr (_ , str1) -> 
     (try
       let term = StringMap.find str1 varBindings in
-      get_poly_term variables varBindings term
+      get_poly_term varTermMap functions variables varBindings term
     with  
-      Not_found -> SPoly(Var str1)
+      Not_found ->  
+        (try
+          let term = StringMap.find str1 varTermMap in
+          get_poly_term StringMap.empty functions variables varBindings term
+        with
+        | Not_found -> SPoly(Var str1)
+        )
     )
 
-and get_constraint_symbol variables varBindings = function 
+and get_constraint_symbol varTermMap functions variables varBindings = function 
   |Symbol (_ , str1) -> 
     (try
       let term = StringMap.find str1 varBindings in
-      get_constraint_term variables varBindings term
+      get_constraint_term varTermMap functions variables varBindings term
     with  
       Not_found -> 
         ( try
             let varSort = StringMap.find str1 variables in
             if varSort = "Bool" then [BVar str1]
             else raise (Failure "Wrong input")
-          with Not_found -> raise (Failure "Wrong input")
+          with Not_found -> 
+            (try
+              let term = StringMap.find str1 varTermMap in
+              get_constraint_term StringMap.empty functions variables varBindings term
+            with
+            | Not_found -> raise (Failure "Wrong input")
+            )
         )
     )
   |SymbolWithOr (_ , str1) -> 
     (try
       let term = StringMap.find str1 varBindings in
-      get_constraint_term variables varBindings term
+      get_constraint_term varTermMap functions variables varBindings term
     with  
       Not_found -> 
         ( try
             let varSort = StringMap.find str1 variables in
             if varSort = "Bool" then [BVar str1]
             else raise (Failure "Wrong input")
-          with Not_found -> raise (Failure "Wrong input")
+          with Not_found -> 
+            (try
+              let term = StringMap.find str1 varTermMap in
+              get_constraint_term StringMap.empty functions variables varBindings term
+            with
+            | Not_found -> raise (Failure "Wrong input")
+            )
         )
     )
 
-and get_poly_identifier variables varBindings = function 
-  |IdSymbol (_ , symbol1) ->  get_poly_symbol variables varBindings symbol1 
+and get_poly_identifier varTermMap functions variables varBindings = function 
+  |IdSymbol (_ , symbol1) ->  get_poly_symbol varTermMap functions variables varBindings symbol1 
   |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 165")
 
-and get_constraint_identifier variables varBindings = function 
-  |IdSymbol (_ , symbol1) ->  get_constraint_symbol variables varBindings symbol1 
+and get_constraint_identifier varTermMap functions variables varBindings = function 
+  |IdSymbol (_ , symbol1) ->  get_constraint_symbol varTermMap functions variables varBindings symbol1 
   |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 200")  
 
-and get_poly_qualidentifier variables varBindings = function 
-  |QualIdentifierId (_ , identifier1) ->  get_poly_identifier variables varBindings identifier1
+and get_poly_qualidentifier varTermMap functions variables varBindings = function 
+  |QualIdentifierId (_ , identifier1) ->  get_poly_identifier varTermMap functions variables varBindings identifier1
   |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
 
-and get_constraint_qualidentifier variables varBindings = function 
-  |QualIdentifierId (_ , identifier1) ->  get_constraint_identifier variables varBindings identifier1
+and get_constraint_qualidentifier varTermMap functions variables varBindings = function 
+  |QualIdentifierId (_ , identifier1) ->  get_constraint_identifier varTermMap functions variables varBindings identifier1
   |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 204")  
 
 and get_mul_poly = function
@@ -245,27 +269,34 @@ and get_minus_poly_extra_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
   | (_, POr(smtPoly21, smtPoly22)) 
     -> POr (get_minus_poly_extra_extra smtPoly1 smtPoly21, get_minus_poly_extra_extra smtPoly1 smtPoly22)
 
-and get_poly_term variables varBindings = function
+and get_poly_term varTermMap functions variables varBindings = function
   |TermSpecConst (_ , specReal1) ->  
     get_poly_specReal specReal1
   |TermQualIdentifier (_ , qualidentifier1) -> 
-    get_poly_qualidentifier variables varBindings qualidentifier1
+    get_poly_qualidentifier varTermMap functions variables varBindings qualidentifier1
   |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) -> 
     let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
     if qualidentifier_string = "*" then
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_mul_poly polys
     else if qualidentifier_string = "+" then
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_add_poly polys  
     else if qualidentifier_string = "/" then
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_div_poly polys
     else if qualidentifier_string = "-" then
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_minus_poly polys
     else if qualidentifier_string = "ite" then
-      get_ite_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563
+      get_ite_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563
+    else if StringMap.mem qualidentifier_string functions then
+      let (arguments, funcSort, funcDef) = StringMap.find qualidentifier_string functions in
+      if funcSort = "Real" || funcSort = "Int" then
+        let varTermMap = get_varTermMap_termqualidterm_term_term56 arguments termqualidterm_term_term563 in
+        get_poly_term varTermMap functions variables varBindings funcDef
+      else   
+        raise (Failure ("Undefined predicate symbols: " ^ qualidentifier_string))
     else raise (Failure "Undefined Function Symbols")
   | _ -> raise (Failure "Undefined Suported Function Symbols")
    (*|TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  print_string "(";print_string " "; print_string "let";print_string " "; print_string "(";print_string " "; pp_termletterm_term_varbinding58 termletterm_term_varbinding584;print_string " "; print_string ")";print_string " "; pp_term term6;print_string " "; print_string ")"; () 
@@ -274,12 +305,12 @@ and get_poly_term variables varBindings = function
    |TermExclimationPt (_ , term3 , termexclimationpt_term_attribute644) ->  print_string "(";print_string " "; print_string "!";print_string " "; pp_term term3;print_string " "; pp_termexclimationpt_term_attribute64 termexclimationpt_term_attribute644;print_string " "; print_string ")"; () 
    *)
 
-and get_ite_polys_termqualidterm_term_term56 variables varBindings = function
+and get_ite_polys_termqualidterm_term_term56 varTermMap functions variables varBindings = function
   |(_,[]) -> raise (Failure "Wrong number of arguments for ite")
   | (d , (term1)::termqualidterm_term_term562) -> 
-    let boolConstraints = get_constraint_term variables varBindings term1 in
+    let boolConstraints = get_constraint_term varTermMap functions variables varBindings term1 in
     let boolConstraint = get_boolExp_from_list boolConstraints in  
-    let smtPolys = get_polys_termqualidterm_term_term56 variables varBindings (d,termqualidterm_term_term562) in 
+    let smtPolys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings (d,termqualidterm_term_term562) in 
     (match smtPolys with 
       | [smtPoly1; smtPoly2] -> 
         (let rec get_ite_polys boolConstraint2 smtPoly = match smtPoly with
@@ -292,19 +323,29 @@ and get_ite_polys_termqualidterm_term_term56 variables varBindings = function
       | _ -> raise (Failure "Wrong number of arguments for ite")
     )
 
-and get_polys_termqualidterm_term_term56 variables varBindings = function
+and get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings = function
   |(_,[]) ->   [] 
   | (d , (term1)::termqualidterm_term_term562) -> 
-    let poly = get_poly_term variables varBindings term1 in
-    let remainingPolys = get_polys_termqualidterm_term_term56 variables varBindings (d,termqualidterm_term_term562) in 
+    let poly = get_poly_term varTermMap functions variables varBindings term1 in
+    let remainingPolys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings (d,termqualidterm_term_term562) in 
     poly :: remainingPolys 
 
-and get_constraints_termqualidterm_term_term56 variables varBindings = function
+and get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings = function
   |(_,[]) ->   [] 
   | (d , (term1)::termqualidterm_term_term562) -> 
-    let constraint1 = get_constraint_term variables varBindings term1 in
-    let remainingConstraints = get_constraints_termqualidterm_term_term56 variables varBindings (d,termqualidterm_term_term562) in 
+    let constraint1 = get_constraint_term varTermMap functions variables varBindings term1 in
+    let remainingConstraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings (d,termqualidterm_term_term562) in 
     constraint1 @ remainingConstraints
+
+and get_varTermMap_termqualidterm_term_term56 arguments = function
+  |(_,[]) ->  StringMap.empty 
+  | (d , (term1)::termqualidterm_term_term562) -> 
+    (match arguments with
+      | [] -> raise (Failure "Wrong number of arguments for defined function symbol")
+      | (var, _)::remainingArguments -> 
+        let varTermMap = get_varTermMap_termqualidterm_term_term56 remainingArguments (d, termqualidterm_term_term562) in
+        StringMap.add var term1 varTermMap
+    )      
 
 and get_le_constraint polys = match polys with
   | [] ->  raise (Failure "Wrong Input")
@@ -391,52 +432,58 @@ and get_eq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
   | (Real 0., _) -> Single (new polynomialConstraint (Eq (reduce poly2)))
   | _ -> Single (new polynomialConstraint (Eq (reduce (Sub(poly1, poly2)))))   
 
-and get_constraint_term variables varBindings = function 
+and get_constraint_term varTermMap functions variables varBindings = function 
   |TermQualIdentifier (_ , qualidentifier1) -> 
-    get_constraint_qualidentifier variables varBindings qualidentifier1
+    get_constraint_qualidentifier varTermMap  functions variables varBindings qualidentifier1
   |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) ->
     let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
     if qualidentifier_string = "<" then 
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_le_constraint polys
     else if qualidentifier_string = "<=" then
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_leq_constraint polys 
     else if qualidentifier_string = ">" then
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_gr_constraint polys
     else if qualidentifier_string = ">=" then
-      let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       get_geq_constraint polys
     else if qualidentifier_string = "=" then
       try 
-        let polys = get_polys_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
         get_eq_constraint polys
       with Failure _ -> 
-        let constraints = get_constraints_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+        let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
         let iffConstraint = get_iff_constraint constraints in
         [iffConstraint]
     else if qualidentifier_string = "and" then
-      let constraints = get_constraints_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       let andConstraint = get_and_constraint constraints in
       [andConstraint]
     else if qualidentifier_string = "or" then
-      let constraints = get_constraints_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       let orConstraint = get_or_constraint constraints in
       [orConstraint]
     else if qualidentifier_string = "not" then
-      let constraints = get_constraints_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+      let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       let notConstraint = get_not_constraint constraints in
       [notConstraint]
-    else if 
-      qualidentifier_string = "ite" then
-      let constraints = get_constraints_termqualidterm_term_term56 variables varBindings termqualidterm_term_term563 in
+    else if qualidentifier_string = "ite" then
+      let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
       let iteConstraint = get_ite_constraint constraints in
       [iteConstraint]
+    else if StringMap.mem qualidentifier_string functions then
+      let (arguments, funcSort, funcDef) = StringMap.find qualidentifier_string functions in
+      if funcSort = "Bool" then
+        let varTermMap = get_varTermMap_termqualidterm_term_term56 arguments termqualidterm_term_term563 in
+        get_constraint_term varTermMap functions variables varBindings funcDef
+      else   
+        raise (Failure ("Undefined predicate symbols: " ^ qualidentifier_string))
     else raise (Failure ("Undefined predicate symbols: " ^ qualidentifier_string))
   |TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  
     let varBindings = get_let_termletterm_term_varbinding58 varBindings termletterm_term_varbinding584 in
-    get_constraint_term variables varBindings term6
+    get_constraint_term varTermMap functions variables varBindings term6
   | _ -> [] (*raise (Failure "Not supported syntax line 138")*)
 
 and get_and_constraint = function 
@@ -480,18 +527,19 @@ and get_let_varbinding varBindings = function
     StringMap.add var term3 varBindings
               
 
-and get_constraints_command variables = function 
-  | CommandAssert (_ , term3) -> get_constraint_term variables StringMap.empty term3
+and get_constraints_command varTermMap functions variables = function 
+  | CommandAssert (_ , term3) -> get_constraint_term varTermMap functions variables StringMap.empty term3
   | _  -> []  
 
-and get_constraints_commands variables = function  
+and get_constraints_commands varTermMap functions variables = function  
   |(_,[]) ->   []
-  | (d , (command1)::commands_commands_command302) -> (get_constraints_command variables command1) @ (get_constraints_commands variables (d, commands_commands_command302))
+  | (d , (command1)::commands_commands_command302) -> 
+    (get_constraints_command varTermMap functions variables command1) @ (get_constraints_commands varTermMap functions variables (d, commands_commands_command302))
   
 
-and get_constraints variables = function
+and get_constraints varTermMap functions variables = function
   |Commands (_ , commands_commands_command301) ->
-    let constraints = get_constraints_commands variables commands_commands_command301 in
+    let constraints = get_constraints_commands varTermMap functions variables commands_commands_command301 in
     let mergedBoolExp = get_boolExp_from_list constraints in
     (*print_endline (string_prefix_of_constraints mergedBoolExp);
     flush stdout;*)
@@ -501,26 +549,59 @@ and get_constraints variables = function
 and get_variables = function   
   |Commands (_ , commands_commands_command301) ->
     get_variables_commands commands_commands_command301
+
+
+and get_functions = function
+  |Commands (_ , commands_commands_command301) ->
+    get_functions_commands commands_commands_command301
         
 and get_variables_commands = function  
   |(_,[]) ->   StringMap.empty
   | (d , (command1)::commands_commands_command302) -> 
     let merge_variables var sort1 sort2 = match sort1, sort2 with
-      | Some varSort1, Some varSort2 -> Some varSort1
-      | Some varSort1, None -> Some varSort1
-      | None, Some varSort2 -> Some varSort2
+      | Some varSort1, _ -> Some varSort1
+      | _, Some varSort2 -> Some varSort2
       | None, None -> None
     in
     StringMap.merge merge_variables (get_variables_command command1) (get_variables_commands (d, commands_commands_command302))  
+
+and get_functions_commands = function  
+  |(_,[]) ->   StringMap.empty
+  | (d , (command1)::commands_commands_command302) -> 
+    let merge_functions funcSym def1 def2 = match def1, def2 with
+      | Some def11, _ -> Some def11
+      | _, Some def21 -> Some def21
+      | None, None -> None
+    in
+    StringMap.merge merge_functions (get_functions_command command1) (get_functions_commands (d, commands_commands_command302))  
   
 and get_variables_command = function 
   | CommandDeclareFun (_ , symbol3 , commanddeclarefun_command_sort135 , sort7) ->  
     let variable = get_string_symbol symbol3 in
-    let varSort = get_variable_sort sort7 in 
+    let varSort = get_sort sort7 in 
     StringMap.singleton variable varSort
   | _  -> StringMap.empty
+
+and get_functions_command = function 
+  |CommandDefineFun (_ , symbol3 , commanddefinefun_command_sortedvar155 , sort7 , term8) ->  
+    let funcSym = get_string_symbol symbol3 in
+    let arguments = get_arguments_commanddefinefun_command_sortedvar15 commanddefinefun_command_sortedvar155 in
+    let funcSort = get_sort sort7 in
+    StringMap.singleton funcSym (arguments, funcSort, term8)
+  | _  -> StringMap.empty
+
+and get_arguments_commanddefinefun_command_sortedvar15 = function
+  |(_,[]) -> []
+  | (d , (sortedvar1)::commanddefinefun_command_sortedvar152) ->  
+    (get_sortedvar sortedvar1) :: (get_arguments_commanddefinefun_command_sortedvar15 (d,commanddefinefun_command_sortedvar152))
+
+and get_sortedvar = function 
+  |SortedVarSymSort (_ , symbol2 , sort3) -> 
+    let var = get_string_symbol symbol2 in
+    let varSort = get_sort sort3 in
+    (var, varSort)
   
-and get_variable_sort = function  
+and get_sort = function  
   |SortIdentifier (_ , identifier1) ->  get_string_identifier identifier1 
   |SortIdSortMulti (_ , identifier2 , sortidsortmulti_sort_sort443) -> raise (Failure "Wrong Input when declaring function symbols")
   
@@ -608,15 +689,19 @@ and get_intervals_from_polyCons = function
   | Le (Var var) -> StringMap.singleton var {low=neg_infinity;high=0.}
   | Le _ -> StringMap.empty
 
+
 (*get miniSat form of interval constraints*)
 let genSatForm fileName lb ub logic inFile =
   let ic = open_in fileName in
   let lexbuf = Lexing.from_channel ic in  
   let parsed =  Smtlib_parse.main Smtlib_lex.token lexbuf in
-  let variables = 
-    match parsed with
-      | None -> StringMap.empty
-      | Some(x) -> get_variables x;
+  let functions = match parsed with
+    | None -> StringMap.empty
+    | Some(x) -> get_functions x;
+  in
+  let variables = match parsed with
+    | None -> StringMap.empty
+    | Some(x) -> get_variables x;
   in
   (*print_int (StringMap.cardinal variables);
   let print_var var varSort =
@@ -627,7 +712,7 @@ let genSatForm fileName lb ub logic inFile =
   flush stdout;*)
   let constraints = match parsed with
     | None -> []
-    | Some(x) -> get_constraints variables x;
+    | Some(x) -> get_constraints StringMap.empty functions variables x;
   in
   (*print_endline ("solve({" ^ string_infix_of_constraints_maple  constraints ^ "})");
   flush stdout;*)
