@@ -470,7 +470,6 @@ int main(int argc, char* argv[]) {
 			signal(SIGINT, SIGINT_interrupt);
 			//cout << "Run30" << endl;
 			signal(SIGXCPU, SIGINT_interrupt);
-
 			//cout << "Run30" << endl;
 			if (!S.simplify()) {
 				//cout << "Run31" << endl;
@@ -500,7 +499,7 @@ int main(int argc, char* argv[]) {
 					printf("UNSATISFIABLE\n");
 				//exit(20);
 			}
-
+      
 			//cout << "Run35" << endl;
 			vec < Lit > dummy;
 			//int nLearn=0;
@@ -513,7 +512,7 @@ int main(int argc, char* argv[]) {
 			//cout << "Run37" << endl;
 			caml_register_global_root(&theoCheck);
 			//cout << "Run38" << endl;
-
+      
 			if (debug)
 				cout << "\nStart searching, ";
 			if (debug)
@@ -723,7 +722,7 @@ int main(int argc, char* argv[]) {
 			//cout << "finish while" << endl;
 
 			caml_remove_global_root(&theoCheck);
-
+      
 			//================================================================================================
 			// Screen information
 			if (!check) {
@@ -735,28 +734,43 @@ int main(int argc, char* argv[]) {
 				double totalTime = cpuTime() - initial_time;
 				if (totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime > 0)
 				  miniSATTime += totalTime - iaTime - testingTime - usTime - parsingTime - decompositionTime - miniSATTime;
-				char *sta = new char[1024];
+				string sta;
 				if (debug)
 					printf(
 							"\n===========================[ Problem Statistic ]===================================\n");
-
+        
 				final_result << argv[1] << ","; //output problem name to the final compact result file:
-				sprintf(sta, "\nInput problem         : %s ", argv[1]);
-
+				sta += "\nInput problem         : ";
+				sta += argv[1];
 				final_result << nVars << ","; // output the number of variables to final compact result.
-				sprintf(sta, "%s\nNumber of variables   : %d ", sta, nVars);
+				sta += "\nNumber of variables   : ";
+				std::stringstream sstm;
+        sstm << nVars;
+				sta += sstm.str();
 
 				final_result << maxVarsNum << ","; // output the max number of variables in one api to final compact result.
 
 				final_result << nCons << ","; // output the number of apis to final compact result.
-				sprintf(sta, "%s\nNumber of constraints : %d ", sta, nCons);
-				sprintf(sta, "%s\nUnit searching box    : %g", sta, esl);
-				sprintf(sta, "%s\nTimeout setting       : %g seconds\n", sta,
-						timeout);
+				sta += "\nNumber of constraints : ";
+				std::stringstream sstm;
+        sstm << nCons;
+				sta += sstm.str();
+				sta + "\nUnit searching box    : ";
+				std::stringstream sstm;
+        sstm << esl;
+				sta += sstm.str();
+				sta += "\nTimeout setting       : ";
+				std::stringstream sstm;
+        sstm << timeout;
+				sta += sstm.str();
+				sta += "seconds\n";
 
 				final_result << totalTime << ","; // output the total running time to final compact result.
-				sprintf(sta, "%s\nTotal running time    : %g seconds\n", sta,
-						totalTime);
+				sta += "\nTotal running time    : ";
+				std::stringstream sstm;
+        sstm << totalTime;
+				sta += sstm.str();
+				sta += " seconds\n";
 
 				final_result << iaTime << ","; // output the total time of IA operations
 				sprintf(sta, "%s\nIA time               : %g seconds\n", sta,
@@ -814,7 +828,6 @@ int main(int argc, char* argv[]) {
 
 				final_result << isEquation << ",";
 				final_result << isNotEquation << ",";
-				
 //				cout<<sta;
 				if (finalRes == -2) {
 					//cout <<"\nTIMEOUT";
@@ -825,7 +838,7 @@ int main(int argc, char* argv[]) {
 					fprintf(res, sta);
 					fclose(res);
 				}
-
+          
 				else if (finalRes == 0) {
 					//cout <<"\nUNKNOWN";
 					//cout << "unknown";
@@ -867,7 +880,7 @@ int main(int argc, char* argv[]) {
 					cout << endl;
 				final_result.close();
 			}
-
+      
 			// End screen information
 
 #ifdef NDEBUG
@@ -884,4 +897,5 @@ int main(int argc, char* argv[]) {
 			exit(0);
 		}
 	} //End combination of SAT and IA
+	
 }
