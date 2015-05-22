@@ -29,15 +29,15 @@ Settings:
 4. Test generation
   (11) Using Sensitivity: PolynomialConstraint.ml  
 
-running experiments: 1, 14, 30, 15, 31, 35, 36, 8, 32, 9, 33, 29, 34, 13, 12, 10, 11, 37, 38, 3, 19, 40, 43, 39, 46, 2, 4
-1. raSAT_2_1TCs_10_1DecomposedVar_2: QF_NIA/AProVE, 1-5-8-11
-2. raSAT_2_1TCs_10_1DecomposedVar_3: zankl, 1-5-8-11
-3. raSAT_2_1TCs_10_1DecomposedVar_4: zankl, 10-7-9, 4 level widening
-4. raSAT_2_1TCs_10_1DecomposedVar_5: meti-tarski, unsat directed
-5. raSAT_2_1TCs_10_1DecomposedVar_6: meti-tarski, sat directed
-6. raSAT_2_1TCs_10_1DecomposedVar_7: meti-tarski, random
-7. raSAT_2_1TCs_10_1DecomposedVar_1: zankl, 10-7-9, 3 level widening
-8. raSAT_2_1TCs_10_1DecomposedVar_8: zankl, easy first, select box using easiness - SAT-directed, 1 var each constraints for multiple test cases: 52: 2-5-8
+running experiments: 3, 2, 46, 1, 4, 5, 6
+1. raSAT_2_1TCs_10_1DecomposedVar_1: hong, 1-5-8-11 
+2. raSAT_2_1TCs_10_1DecomposedVar_2: QF_NIA/AProVE, 1-5-8-11
+3. raSAT_2_1TCs_10_1DecomposedVar_3: zankl, 1-5-8-11
+4. raSAT_2_1TCs_10_1DecomposedVar_4: kissing, 1-5-8-11
+5. raSAT_2_1TCs_10_1DecomposedVar_5: LassoRanker, 1-5-8-11
+6. raSAT_2_1TCs_10_1DecomposedVar_6: hycomp
+7. raSAT_2_1TCs_10_1DecomposedVar_7: QF_NIA/calypto
+8. raSAT_2_1TCs_10_1DecomposedVar_8: 
 9. raSAT_2_1TCs_10_1DecomposedVar_9: zankl, easy first, select box using easiness - UNSAT-directed, 1 var each constraints for multiple test cases: 46: 2-6-8
 10. raSAT_2_1TCs_10_1DecomposedVar_10: zankl, easy first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases: 44: 2-3-8
 11. raSAT_2_1TCs_10_1DecomposedVar_11: zankl, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases: 47: 2-4-8

@@ -1791,7 +1791,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     else (*if unknown, testing will be implemented here*)(
       (*let uk_cl = List.rev uk_cl in (* reverse the list so that the apis are sorted based on variables dependency *)*)
       (*print_endline("IA Unkown constraints: " ^ string_infix_of_polynomialConstraints uk_cl); (* string_infix_of_polynomialConstraints is defined in polynomialConstraint.ml *)
-      flush stdout;*)
+      dflush stdout;*)
       if (uk_cl = []) then (*This case will never happen*)
         (res, us, "", "", (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
       else (

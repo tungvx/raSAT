@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = true;
+	bool debug = false;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -740,7 +740,7 @@ int main(int argc, char* argv[]) {
 							"===========================[ Problem Statistic ]===================================\n");
         
 				final_result << argv[1] << ","; //output problem name to the final compact result file:
-				
+			  	
 				sta += "Input problem         : ";
 				sta += argv[1];
 				final_result << nVars << ","; // output the number of variables to final compact result.
@@ -877,13 +877,13 @@ int main(int argc, char* argv[]) {
 
 				final_result << isEquation << ",";
 				final_result << isNotEquation << ",";
-//				cout<<sta;
+//				cout<<sta;  
 				if (finalRes == -2) {
 					//cout <<"TIMEOUT";
 					final_result << "Timeout\n"; // output the result to final compact result.
 					sta += "Result                : Timeout\n\n";
 					if (debug)
-						cout << sta;
+						cout << sta;	
 					fprintf(res, sta.c_str());
 					fclose(res);
 				}
@@ -912,7 +912,7 @@ int main(int argc, char* argv[]) {
 					final_result << "sat\n"; // output the result to final compact result.
 					sta += "Result                : SAT\n\n";
 					if (debug)
-						cout << sta;
+						cout << sta;	
 					char * logContent = new char[logResult.size() + 1];
 					strcpy(logContent, logResult.c_str());
 					if (debug)
@@ -925,8 +925,9 @@ int main(int argc, char* argv[]) {
 					fprintf(res, logContent);
 					fclose(res);
 				}
+				
 				if (debug)
-					cout << endl;
+					cout << "\n";
 				final_result.close();
 			}
       
