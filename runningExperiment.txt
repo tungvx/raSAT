@@ -37,7 +37,7 @@ running experiments: 3, 2, 46, 1, 4, 5, 6, 7, 8, 9
 5. raSAT_2_1TCs_10_1DecomposedVar_5: LassoRanker, 1-5-8-11
 6. raSAT_2_1TCs_10_1DecomposedVar_6: hycomp
 7. raSAT_2_1TCs_10_1DecomposedVar_7: QF_NIA/calypto
-8. raSAT_2_1TCs_10_1DecomposedVar_8: QF_NIA/lei
+8. raSAT_2_1TCs_10_1DecomposedVar_8: QF_NIA/leipzig
 9. raSAT_2_1TCs_10_1DecomposedVar_9: QF_NIA/mcm
 10. raSAT_2_1TCs_10_1DecomposedVar_10: zankl, easy first, select box using number of sat constraints - SAT-directed, 1 var each constraints for multiple test cases: 44: 2-3-8
 11. raSAT_2_1TCs_10_1DecomposedVar_11: zankl, easy first, select box using number of sat constraints - UNSAT-directed, 1 var each constraints for multiple test cases: 47: 2-4-8

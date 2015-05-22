@@ -1,0 +1,7 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+QF_NRA/hycomp/3/ball_count_1d_plain.01.seq_lazy_linear_enc_lemmas_global_1.smt2,17,4,101,500.005364,92.763031,5.963135,0.578914,136.459992,0.703891,263.53546,26800.0,211752.0,115848.0,221718.0,59951.0,159763.0,2004.0,unsat,Timeout,28,2
+QF_NRA/hycomp/3/ball_count_1d_plain.10.seq_lazy_linear_enc_global_15.smt2,129,4,741,500.01223,43.94732,2.097674,0.043996,15.923614,0.082989,437.916081,19272.0,26317.0,9460.0,24337.0,13054.0,11134.0,149.0,unsat,Timeout,378,30
+QF_NRA/hycomp/3/ball_count_2d_plain.10.seq_lazy_lemmas_global_6.smt2,72,5,609,500.001446,57.824151,2.13367,0.059991,22.632581,0.087987,417.262431,16862.0,29754.0,12328.0,27846.0,13780.0,13215.0,851.0,unsat,Timeout,201,12
+QF_NRA/hycomp/3/ball_count_1d_plain.02.qfree_global_11.smt2,97,4,489,500.032008,42.655485,2.680567,0.076988,22.097605,0.156983,432.364587,18488.0,40429.0,15396.0,42935.0,22228.0,20329.0,378.0,unsat,Timeout,278,22
+QF_NRA/hycomp/3/ball_count_2d_hill.04.seq_lazy_lemmas_global_8.smt2,100,7,791,500.0436,101.298643,1.576766,0.069993,13.796952,0.029997,383.27203,17748.0,28966.0,7528.0,27732.0,8524.0,19078.0,130.0,unsat,Timeout,293,16
+QF_NRA/hycomp/3/ball_count_2d_hill.10.redlog_global_13.smt2,155,7,1125,500.06206,130.43616,2.879589,0.018999,23.246494,0.05599,343.42516,24722.0,18039.0,4360.0,15345.0,10429.0,4832.0,84.0,unsat,Timeout,515,82
