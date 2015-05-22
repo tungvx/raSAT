@@ -1,0 +1,8 @@
+(set-logic QF_NRA)
+(declare-fun x_0 () Real)
+(declare-fun x_1 () Bool)
+(declare-fun x_2 () Real)
+(define-fun f ((x Real) (y Real) (z Bool)) Real (ite z (+ x y) (/ x 1)))
+(assert (< (f x_0 (f 2 3 (< 1 3)) x_1) 2))
+(check-sat)
+(exit)

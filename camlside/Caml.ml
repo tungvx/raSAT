@@ -714,11 +714,11 @@ let genSatForm fileName lb ub logic inFile =
     | None -> []
     | Some(x) -> get_constraints StringMap.empty functions variables x;
   in
-  (*print_endline ("solve({" ^ string_infix_of_constraints_maple  constraints ^ "})");
-  flush stdout;*)
   (*print_endline "finished getting constraints";
   flush stdout;*)
   let boolCons = List.nth constraints 0 in
+  (* print_endline (string_infix_of_constraints boolCons);
+  flush stdout; *)
   let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation, _) = miniSATExpr_of_constraints boolCons 1 IntMap.empty logic StringMap.empty in 
   (*print_endline "finished getting miniSAT constraints";
   flush stdout;*)

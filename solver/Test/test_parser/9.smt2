@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun x_0 () Real)
+(declare-fun x_1 () Bool)
+(declare-fun x_2 () Real)
+(assert (and (or x_1 (< 1 0)) (or (not x_1) (< 4 3))))
+(check-sat)
+(exit)

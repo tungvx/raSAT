@@ -593,11 +593,11 @@ let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap 
 let rec string_infix_of_constraints constraints = match constraints with 
   | Single polyCons ->  polyCons#to_string_infix
   | And(c1, c2)  -> 
-	  string_infix_of_constraints c1 ^ " And\n" ^ string_infix_of_constraints c2
+	  "( " ^ string_infix_of_constraints c1 ^ " And\n" ^ string_infix_of_constraints c2 ^ ")"
 	| Or(c1, c2) -> 
-	  string_infix_of_constraints c1 ^ " Or\n" ^ string_infix_of_constraints c2
+	  "( " ^ string_infix_of_constraints c1 ^ " Or\n" ^ string_infix_of_constraints c2 ^ ")"
 	| BVar var -> var
-	| NBVar var -> var
+	| NBVar var -> "not " ^ var
 	  
 
 (* Function for converting constraints into infix string for mapple input *)    
