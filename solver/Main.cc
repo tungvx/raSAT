@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = false;
+	bool debug = true;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -313,7 +313,7 @@ int main(int argc, char* argv[]) {
 //	cout << "isNotEquation: " << isNotEquation << endl;
 	caml_remove_global_root(&satInfo);
 
-  parsingTime = cpuTime() - parsingStart;
+  	parsingTime = cpuTime() - parsingStart;
 
 	//cout << "Run9" << endl;
 	sfile = toFileout(argv[1]);
@@ -546,7 +546,7 @@ int main(int argc, char* argv[]) {
 //					cout << "Run45" << endl;
 					bool firstSolution = true;
 					for (int i = 0; i < S.nVars(); i++) {
-						if (i < nCons || S.model[i] == l_True) {
+						if (/*i < nCons ||*/ S.model[i] == l_True) {
 							char numstr[21];
 							sprintf(numstr, "%s%d", firstSolution ? "" : " ", S.model[i] == l_True ? i+1 : -(i+1));
 							sSAT.append(numstr);

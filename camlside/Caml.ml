@@ -126,27 +126,34 @@ and get_poly_symbol varTermMap functions variables varBindings = function
     (try
       let term = StringMap.find str1 varBindings in
       get_poly_term varTermMap functions variables varBindings term
-    with  
-      Not_found -> 
+    with Not_found -> 
+      (try
+        let term = StringMap.find str1 varTermMap in
+        get_poly_term StringMap.empty functions variables varBindings term
+      with Not_found -> 
         (try
-          let term = StringMap.find str1 varTermMap in
-          get_poly_term StringMap.empty functions variables varBindings term
-        with
-        | Not_found -> SPoly(Var str1)
-        )
+          let varSort = StringMap.find str1 variables in
+          if (varSort = "Real" || varSort = "Int") then SPoly(Var str1)
+          else raise (Failure "Wrong input")
+        with Not_found -> raise (Failure "Need Real/Int variable"))
+      )
     )
   |SymbolWithOr (_ , str1) -> 
     (try
       let term = StringMap.find str1 varBindings in
       get_poly_term varTermMap functions variables varBindings term
-    with  
-      Not_found ->  
+    with Not_found ->  
+      (try
+        let term = StringMap.find str1 varTermMap in
+        get_poly_term StringMap.empty functions variables varBindings term
+      with Not_found -> 
         (try
-          let term = StringMap.find str1 varTermMap in
-          get_poly_term StringMap.empty functions variables varBindings term
-        with
-        | Not_found -> SPoly(Var str1)
+          let varSort = StringMap.find str1 variables in
+          if (varSort = "Real" || varSort = "Int") then SPoly(Var str1)
+          else raise (Failure "Wrong input")
+        with Not_found -> raise (Failure "Need Real/Int variable")
         )
+      )
     )
 
 and get_constraint_symbol varTermMap functions variables varBindings = function 
@@ -1455,8 +1462,13 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         (*print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
         print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " - easiness: " ^ string_of_float polyCons#get_easiness ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
         flush stdout;*)
-        
-        if newPoint < lowerBound || newPoint > upperBound then
+        (* print_endline ("logic: " ^ polyCons#get_logic);
+        flush stdout; *)
+        let unknown = 
+          if polyCons#get_logic = "QF_NIA" then floor newPoint < lowerBound || ceil newPoint > upperBound
+          else newPoint < lowerBound || newPoint > upperBound
+        in
+        if unknown then
           let add_learnt_var var learntVars = 
             let (_, varId) = StringMap.find var varsIntvsMiniSATCodesMap in
             "-" ^ string_of_int varId ^ " " ^ learntVars
@@ -1474,16 +1486,16 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             new IA.interval lowerBound tmpNewPoint
           else new IA.interval lowerBound newPoint 
         in
-        (*print_endline("lowerIntv" ^ lowerIntv#to_string);
-        flush stdout;*)
+        (* print_endline("lowerIntv" ^ lowerIntv#to_string);
+        flush stdout; *)
         let upperIntv = 
           if polyCons#get_logic = "QF_NIA" then
             let tmpNewPoint = ceil newPoint in
             new IA.interval tmpNewPoint upperBound
           else new IA.interval newPoint upperBound 
         in
-        (*print_endline("upperIntv" ^ upperIntv#to_string);
-        flush stdout;*)
+        (* print_endline("upperIntv" ^ upperIntv#to_string);
+        flush stdout; *)
         let (bumpVar, unsatCore) =
           if lowerBound = neg_infinity || upperBound = infinity then
             if newPoint > 0. then (nextMiniSATCode, "")
@@ -1701,10 +1713,14 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
             if h > 0 then                                
               nextChosenPolyConstraint::chosenPolyConstraints 
             else 
+              (print_int h;
+              print_endline "";
+              flush stdout;
               let newPolyConstraint = not_of_polyConstraint nextChosenPolyConstraint#get_constraint in
               let polyCons = new polynomialConstraint(newPolyConstraint) in
               polyCons#set_miniSATCode h;
-              polyCons::chosenPolyConstraints
+              polyCons#set_logic nextChosenPolyConstraint#get_logic;
+              polyCons::chosenPolyConstraints)
             in
           (*print_endline "Finish adding constraint";
           flush stdout;*)
@@ -1773,8 +1789,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
     (*let polyConstraints = List.rev polyConstraints in*)
     (*print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
     flush stdout;*)
-    (*print_endline ("\nIntervals: " ^ string_of_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
-    flush stdout;*)
+    (* print_endline ("\nIntervals: \n" ^ log_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
+    flush stdout; *)
     let parsingTime = parsingTime +. Sys.time() -. startTime in
     (*print_endline "Start IA";
     flush stdout;*)
@@ -1786,8 +1802,11 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
       (res, us, "", "", (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime) 
     )
     else if (res = 1) then (*if all clauses are satisfiable*)
-      (res, "", "", (*(allLog polyConstraints ia varsIntvsMiniSATCodesMap)*) "", (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", "", "", 
-            iaTime, testingTime, usTime, parsingTime, decompositionTime)      
+      let intvLog = log_intervals varsIntvsMiniSATCodesMap in
+      let validPolyConstraints = List.rev validPolyConstraints in
+      let iaLog = log_ia validPolyConstraints in
+      (res, "", "", intvLog ^  iaLog, (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", "", "", 
+            iaTime, testingTime, usTime, parsingTime, decompositionTime)
     else (*if unknown, testing will be implemented here*)(
       (*let uk_cl = List.rev uk_cl in (* reverse the list so that the apis are sorted based on variables dependency *)*)
       (*print_endline("IA Unkown constraints: " ^ string_infix_of_polynomialConstraints uk_cl); (* string_infix_of_polynomialConstraints is defined in polynomialConstraint.ml *)
