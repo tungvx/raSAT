@@ -774,14 +774,14 @@ lbool Solver::solve_() {
 	learntsize_adjust_cnt = (int) learntsize_adjust_confl;
 	lbool status = l_Undef;
 
-	/*
-	 if (verbosity >= 1){
-	 printf("============================[ Search Statistics ]==============================\n");
-	 printf("| Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
-	 printf("|           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
-	 printf("===============================================================================\n");
-	 }
-	 */
+	
+	if (verbosity >= 1){
+		printf("============================[ Search Statistics ]==============================\n");
+		printf("| Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+		printf("|           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+		printf("===============================================================================\n");
+	}
+	 
 	// Search:
 	int curr_restarts = 0;
 	while (status == l_Undef) {
@@ -804,10 +804,10 @@ lbool Solver::solve_() {
 		curr_restarts++;
 	}
 
-	/*
-	 if (verbosity >= 1)
-	 printf("===============================================================================\n");
-	 */
+	
+	if (verbosity >= 1)
+	 	printf("===============================================================================\n");
+	 
 
 	if (status == l_True) {
 		// Extend & copy model:

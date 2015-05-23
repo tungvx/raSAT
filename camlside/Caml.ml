@@ -171,8 +171,10 @@ and get_constraint_symbol varTermMap functions variables varBindings = function
             (try
               let term = StringMap.find str1 varTermMap in
               get_constraint_term StringMap.empty functions variables varBindings term
-            with
-            | Not_found -> raise (Failure "Wrong input")
+            with Not_found -> 
+              if str1 = "true" then [Or(BVar "true", NBVar "true")]
+              else if str1 = "false" then [And(BVar "false", NBVar "false")]
+              else raise (Failure "Wrong input")
             )
         )
     )
@@ -190,8 +192,10 @@ and get_constraint_symbol varTermMap functions variables varBindings = function
             (try
               let term = StringMap.find str1 varTermMap in
               get_constraint_term StringMap.empty functions variables varBindings term
-            with
-            | Not_found -> raise (Failure "Wrong input")
+            with Not_found -> 
+              if str1 = "true" then [Or(BVar "true", NBVar "true")]
+              else if str1 = "false" then [And(BVar "false", NBVar "false")]
+              else raise (Failure "Wrong input")
             )
         )
     )
