@@ -1,0 +1,8 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0034.smt2,3,1,5,0.002,0.0,0.001,0.0,0.0,0.0,0.001,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0036.smt2,3,1,5,500.001488,4.238331,41.960849,0.0,91.422046,3.583451,358.796769,293782.0,164982.0,217456.0,703159.0,632093.0,0.0,71066.0,unsat,Timeout,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0032.smt2,3,1,5,0.001,0.0,0.001,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0035.smt2,3,2,6,500.004978,5.502126,33.456901,0.0,3.681474,3.741443,453.62294,243502.0,106972.0,230811.0,596054.0,486980.0,0.0,109074.0,unsat,Timeout,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0030.smt2,3,1,5,0.002,0.0,0.0,0.0,0.0,0.0,0.002,14.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,1
+QF_NRA/meti-tarski/log/fun-ineq/log-fun-ineq-g-chunk-0033.smt2,3,1,4,0.004,0.0,0.0,0.0,0.001,0.0,0.003,12.0,0.0,4.0,2.0,0.0,2.0,0.0,unsat,unsat,0,0
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,4,EQ,NEQ
