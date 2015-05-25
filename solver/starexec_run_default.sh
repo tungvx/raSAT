@@ -9,9 +9,8 @@ sbox=1
 round=0
 while [ "$result" = "unknown" ] 
   do
-  #round=$((round + 1))
-  #sbox=`echo "scale=$round; $sbox / 10" | bc`
-  #echo $sbox
+  round=$((round + 1))
+  sbox=`echo "scale=$round; $sbox / 10" | bc`
 	./raSAT $1 lb="-10 10" $sbox $STAREXEC_CPU_LIMIT
   read result < $1.tmp
 	
