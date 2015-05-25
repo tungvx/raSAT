@@ -1,3 +1,0 @@
-Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
-QF_NRA/meti-tarski/heartdipole/heartdipole-chunk-0047.smt2,8,8,1,0.003,0.001,0.001,0.0,0.0,0.0,0.001,0.0,0.0,1.0,0.0,0.0,0.0,0.0,sat,sat,0,0
-Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,1,EQ,NEQ
