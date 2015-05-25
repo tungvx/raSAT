@@ -8,8 +8,7 @@ time=0;
 result="unknown"
 sbox=1
 while [ $(echo "$time < $STAREXEC_CPU_LIMIT" | bc) -ne 0 -a "$result" = "unknown" ] 
-  sbox=`echo "$sbox / 10" | bc)`
-  echo $sbox
+  
   do
 	./raSAT $1 lb="-10 10" $sbox `echo $STAREXEC_CPU_LIMIT - $time | bc`
   read result < $1.tmp

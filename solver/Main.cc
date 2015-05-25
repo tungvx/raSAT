@@ -212,6 +212,7 @@ int main(int argc, char* argv[]) {
   //return 0;
 	////cout << "Run" << endl;
 	bool debug = false;
+	bool statistics = true;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -740,150 +741,151 @@ int main(int argc, char* argv[]) {
 				if (debug)
 					printf(
 							"===========================[ Problem Statistic ]===================================\n");
-        
-				final_result << argv[1] << ","; //output problem name to the final compact result file:
 			  	
-				sta += "Input problem         : ";
-				sta += argv[1];
-				final_result << nVars << ","; // output the number of variables to final compact result.
+				if (statistics) {
+				  final_result << argv[1] << ","; //output problem name to the final compact result file:
+				  sta += "Input problem         : ";
+				  sta += argv[1];
+				  final_result << nVars << ","; // output the number of variables to final compact result.
 				
-				sta += "\nNumber of variables   : ";
-				std::stringstream sstm;
-        		sstm << nVars;
-				sta += sstm.str();
-				final_result << maxVarsNum << ","; // output the max number of variables in one api to final compact result.
+				  sta += "\nNumber of variables   : ";
+				  std::stringstream sstm;
+          		sstm << nVars;
+				  sta += sstm.str();
+				  final_result << maxVarsNum << ","; // output the max number of variables in one api to final compact result.
 
-				final_result << nCons << ","; // output the number of apis to final compact result.
+				  final_result << nCons << ","; // output the number of apis to final compact result.
 				
-				sta += "\nNumber of constraints : ";
-				sstm.str(std::string());
-        		sstm << nCons;
-				sta += sstm.str();
+				  sta += "\nNumber of constraints : ";
+				  sstm.str(std::string());
+          		sstm << nCons;
+				  sta += sstm.str();
 				
-				sta += "\nUnit searching box    : ";
-				sstm.str(std::string());
-        		sstm << esl;
-				sta += sstm.str();
+				  sta += "\nUnit searching box    : ";
+				  sstm.str(std::string());
+          		sstm << esl;
+				  sta += sstm.str();
 				
-				sta += "\nTimeout setting       : ";
-				sstm.str(std::string());
-        		sstm << timeout;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  sta += "\nTimeout setting       : ";
+				  sstm.str(std::string());
+          		sstm << timeout;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 				
-				final_result << totalTime << ","; // output the total running time to final compact result.
+				  final_result << totalTime << ","; // output the total running time to final compact result.
 				
-				sta += "Total running time    : ";
-				sstm.str(std::string());
-        		sstm << totalTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  sta += "Total running time    : ";
+				  sstm.str(std::string());
+          		sstm << totalTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				final_result << iaTime << ","; // output the total time of IA operations
+				  final_result << iaTime << ","; // output the total time of IA operations
 				
-				sta += "IA time               : ";
-				sstm.str(std::string());
-        		sstm << iaTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  sta += "IA time               : ";
+				  sstm.str(std::string());
+          		sstm << iaTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				final_result << testingTime << ","; // output the total time of testing operations
-				sta += "Testing time          : ";
-				sstm.str(std::string());
-        		sstm << testingTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  final_result << testingTime << ","; // output the total time of testing operations
+				  sta += "Testing time          : ";
+				  sstm.str(std::string());
+          		sstm << testingTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				final_result << usTime << ","; // output the total time of unsat core computations
-				sta += "UNSAT Core time       : ";
-				sstm.str(std::string());
-        		sstm << usTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  final_result << usTime << ","; // output the total time of unsat core computations
+				  sta += "UNSAT Core time       : ";
+				  sstm.str(std::string());
+          		sstm << usTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				final_result << parsingTime << ",";
-				sta += "Parsing time          : ";
-				sstm.str(std::string());
-        		sstm << parsingTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  final_result << parsingTime << ",";
+				  sta += "Parsing time          : ";
+				  sstm.str(std::string());
+          		sstm << parsingTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				final_result << decompositionTime << ",";
-				sta += "Decomposition time    : ";
-				sstm.str(std::string());
-        		sstm << decompositionTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  final_result << decompositionTime << ",";
+				  sta += "Decomposition time    : ";
+				  sstm.str(std::string());
+          		sstm << decompositionTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				sta += "Ocaml time            : ";
-				sstm.str(std::string());
-        		sstm << ocamlTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  sta += "Ocaml time            : ";
+				  sstm.str(std::string());
+          		sstm << ocamlTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				final_result << miniSATTime << ",";
-				sta += "MiniSAT time          : ";
-				sstm.str(std::string());
-        		sstm << miniSATTime;
-				sta += sstm.str();
-				sta += " seconds\n";
+				  final_result << miniSATTime << ",";
+				  sta += "MiniSAT time          : ";
+				  sstm.str(std::string());
+          		sstm << miniSATTime;
+				  sta += sstm.str();
+				  sta += " seconds\n";
 
-				final_result << miniSATVars << ",";
-				sta += "MiniSAT vars          : ";
-				sstm.str(std::string());
-        		sstm << miniSATVars;
-				sta += sstm.str();
-				sta += " \n";
+				  final_result << miniSATVars << ",";
+				  sta += "MiniSAT vars          : ";
+				  sstm.str(std::string());
+          		sstm << miniSATVars;
+				  sta += sstm.str();
+				  sta += " \n";
 
-				final_result << maxClauses << ",";
-				sta += "MiniSAT max clauses   : ";
-				sstm.str(std::string());
-        		sstm << maxClauses;
-				sta += sstm.str();
-				sta += " \n";
+				  final_result << maxClauses << ",";
+				  sta += "MiniSAT max clauses   : ";
+				  sstm.str(std::string());
+          		sstm << maxClauses;
+				  sta += sstm.str();
+				  sta += " \n";
 
-				final_result << miniSATCalls << ",";
-				sta += "MiniSAT calls         : ";
-				sstm.str(std::string());
-        		sstm << miniSATCalls;
-				sta += sstm.str();
-				sta += " \n";
+				  final_result << miniSATCalls << ",";
+				  sta += "MiniSAT calls         : ";
+				  sstm.str(std::string());
+          		sstm << miniSATCalls;
+				  sta += sstm.str();
+				  sta += " \n";
 
-				final_result << clauses << ",";
-				sta += "raSAT clauses         : ";
-				sstm.str(std::string());
-        		sstm << clauses;
-				sta += sstm.str();
-				sta += " \n";
+				  final_result << clauses << ",";
+				  sta += "raSAT clauses         : ";
+				  sstm.str(std::string());
+          		sstm << clauses;
+				  sta += sstm.str();
+				  sta += " \n";
 
-				final_result << nDecompositions << ",";
-				sta += "Decomposed clauses    : ";
-				sstm.str(std::string());
-        		sstm << nDecompositions;
-				sta += sstm.str();
-				sta += " \n";
+				  final_result << nDecompositions << ",";
+				  sta += "Decomposed clauses    : ";
+				  sstm.str(std::string());
+          		sstm << nDecompositions;
+				  sta += sstm.str();
+				  sta += " \n";
 
-				final_result << UNSATLearnedClauses << ",";
-				sta += "UNSAT learned clauses : ";
-				sstm.str(std::string());
-        		sstm << UNSATLearnedClauses;
-				sta += sstm.str();
-				sta += " \n";
+				  final_result << UNSATLearnedClauses << ",";
+				  sta += "UNSAT learned clauses : ";
+				  sstm.str(std::string());
+          		sstm << UNSATLearnedClauses;
+				  sta += sstm.str();
+				  sta += " \n";
 
-				final_result << unknownLearnedClauses << ",";
-				sta += "UNKOWN learned clauses: ";
-				sstm.str(std::string());
-        		sstm << unknownLearnedClauses;
-				sta += sstm.str();
-				sta += " \n";
+				  final_result << unknownLearnedClauses << ",";
+				  sta += "UNKOWN learned clauses: ";
+				  sstm.str(std::string());
+          		sstm << unknownLearnedClauses;
+				  sta += sstm.str();
+				  sta += " \n";
 
-				final_result << isEquation << ",";
-				final_result << isNotEquation << ",";
+				  final_result << isEquation << ",";
+				  final_result << isNotEquation << ",";
+				}
 //				cout<<sta;  
 				if (finalRes == -2) {
 					//cout <<"TIMEOUT";
 					final_result << "Timeout\n"; // output the result to final compact result.
-					sta += "Result                : Timeout\n\n";
+					if (debug) sta += "Result                : Timeout\n\n";
 					if (debug)
 						cout << sta;	
 					fprintf(res, sta.c_str());
@@ -894,7 +896,7 @@ int main(int argc, char* argv[]) {
 					//cout <<"UNKNOWN";
 					//cout << "unknown";
 					final_result << "unknown\n"; // output the result to final compact result.
-					sta += "Result                : UNKNOWN\n\n";
+					if (debug) sta += "Result                : UNKNOWN\n\n";
 					if (debug)
 						cout << sta;
 					fprintf(res, sta.c_str());
@@ -903,7 +905,7 @@ int main(int argc, char* argv[]) {
 					//cout <<"UNSAT";
 					//cout << "unsat";
 					final_result << "unsat\n"; // output the result to final compact result.
-					sta += "Result                : UNSAT			\n\n";
+					if (debug) sta += "Result                : UNSAT			\n\n";
 					if (debug)
 						cout << sta;
 					fprintf(res, sta.c_str());
@@ -912,7 +914,7 @@ int main(int argc, char* argv[]) {
 					//cout <<"SAT\n";
 					//cout << "sat";
 					final_result << "sat\n"; // output the result to final compact result.
-					sta += "Result                : SAT\n\n";
+					if (debug) sta += "Result                : SAT\n\n";
 					if (debug)
 						cout << sta;	
 					char * logContent = new char[logResult.size() + 1];
