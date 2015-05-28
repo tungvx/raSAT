@@ -1,7 +1,0 @@
-(set-logic QF_NRA)
-(set-info :source | x_i^2 + y_i^2 + z_i^2 = 1 and (x_i - x_j)^2 + (y_i - y_j)^2 + (z_i - z_j)^2 \geq 1 if i \ neq j for 1 \leq i \leq n |)
-(declare-fun x_1 () Real)
-(declare-fun y_1 () Real)
-(declare-fun z_1 () Real)
-(assert (= (+ (* x_1 x_1) (+ (* y_1 y_1) (* z_1 z_1))) 1.))
-(check-sat)
