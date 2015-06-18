@@ -39,6 +39,7 @@ let rec get_varsSet_polyCons = function
   | Leq polyExpr -> get_varsSet_polyExpr polyExpr
   | Gr polyExpr -> get_varsSet_polyExpr polyExpr
   | Le polyExpr -> get_varsSet_polyExpr polyExpr
+
 and get_varsSet_polyExpr = function
   | Add (polyExpr1, polyExpr2) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
   | Sub (polyExpr1, polyExpr2) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
@@ -46,6 +47,7 @@ and get_varsSet_polyExpr = function
   | Div (polyExpr1, polyExpr2) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
   | Real f -> VariablesSet.empty
   | Var var -> VariablesSet.singleton var
+  | Pow(var, _) -> VariablesSet.singleton var
 
 and not_of_polyConstraint = function 
   | Eq polyExpr -> Neq polyExpr
@@ -135,6 +137,7 @@ let rec evalFloat varsTCMap = function
 	| Sub (u,v) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
 	| Mul (u,v) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
 	| Div (u, v) -> evalFloat varsTCMap u /. evalFloat varsTCMap v
+  | Pow (var, multiplicity) -> StringMap.find var varsTCMap ** (float_of_int multiplicity)
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
@@ -171,6 +174,7 @@ let rec string_infix_of_polyExpr = function
 	| Mul(e1, e2) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") * (" ^ (string_infix_of_polyExpr e2) ^ ")"
 	| Div(e1, e2) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") / (" ^ (string_infix_of_polyExpr e2) ^ ")"
 	| Real r -> string_of_float r
+  | Pow (var, multiplicity) -> var ^ " ^ " ^ string_of_int multiplicity
 (*==================== END string_infix_of_polyExpr ==============================*)	
 
 (*==================== START string_infix_of_polyExprs ==============================*)	
@@ -210,6 +214,7 @@ let rec string_prefix_of_polyExp = function
   | Sub (e1, e2) -> "(- " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
   | Mul (e1, e2) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
   | Div (e1, e2) -> "(/ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Pow (var, multiplicity) -> "( " ^ "** " ^ var ^ " " ^ string_of_int multiplicity ^ ")"
 (*==================== END string_prefix_of_polyExp ==============================*)
 
 
@@ -234,6 +239,7 @@ let rec string_postfix_of_polyExpr = function
   | Sub (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "- "
   | Mul (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
   | Div (e1, e2) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "/ "
+  | Pow (var, multiplicity) -> var ^ " " ^ string_of_int multiplicity ^ " ** "
 (*==================== END string_postfix_of_polyExpr ==============================*)
 
 
@@ -316,6 +322,16 @@ let rec evalCI_extra varsIntvsMap = function
   | Sub (u, v) -> evalCI_extra varsIntvsMap u -$ evalCI_extra varsIntvsMap v
   | Mul (u, v) -> evalCI_extra varsIntvsMap u *$ evalCI_extra varsIntvsMap v
   | Div (u, v) -> evalCI_extra varsIntvsMap u /$ evalCI_extra varsIntvsMap v
+  | Pow (var, multiplicity) -> 
+    let intv = StringMap.find var varsIntvsMap in
+    let lowerBound = {low = intv#l; high = intv#l} in
+    let upperBound = {low = intv#h; high = intv#h} in
+    let tmpLowerBound = pow_I_i lowerBound multiplicity in
+    let tmpUpperBound = pow_I_i upperBound multiplicity in
+    if multiplicity mod 2 = 0 && intv#l < 0. && intv#h > 0. then
+      {low = 0.; high = max tmpLowerBound.low tmpUpperBound.low}
+    else
+      {low = min tmpLowerBound.low tmpUpperBound.low; high = max tmpLowerBound.low tmpUpperBound.low}
   
 let rec evalCI varsIntvsMap polyExpr =
   let computedIntv = evalCI_extra varsIntvsMap polyExpr in
@@ -350,7 +366,19 @@ let rec evalAf2 varsAf2sMap varsNum = function
   | Sub (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
   | Mul (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u * evalAf2 varsAf2sMap varsNum v)
   | Div (u, Real f) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u / f)
-  | _ -> raise (Failure "Unsupported operation of af2")
+  | Pow (var, multiplicity) -> 
+    if multiplicity = 1 then StringMap.find var varsAf2sMap
+    else if multiplicity mod 2 = 0 then 
+      let newMultiplicity = multiplicity / 2 in 
+      let newPowExpr = Pow (var, newMultiplicity) in
+      let tmpAf2Result = evalAf2 varsAf2sMap varsNum newPowExpr in
+      IA.AF2.(tmpAf2Result * tmpAf2Result)
+    else 
+      let varAf2 = StringMap.find var varsAf2sMap in
+      let newPowExpr = Pow (var, multiplicity - 1) in
+      let powExprAf2 = evalAf2 varsAf2sMap varsNum newPowExpr in
+      IA.AF2.(varAf2 * powExprAf2)
+  (* | _ -> raise (Failure "Unsupported operation of af2") *)
 
 (* evalCai1 compute the bound of a polynomial function from an assignment ass by CAI1 form*)
 let rec evalCai1 ass n= function

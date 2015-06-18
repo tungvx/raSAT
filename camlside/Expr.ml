@@ -1,14 +1,16 @@
 open Ast
-open Multipleset
+open Multiset
 
-type var = string 
+
 module MultiVar = struct 
-    (* multisets naively implemented as sorted lists *) 
-    type t = var list 
+    (* multisets naively implemented as sorted lists  *)
+    type t = string 
     let compare = Pervasives.compare 
+    let to_string s = s
 end 
 
-module Poly = Map.Make(MultiVar) 
+module MultiVarSet = Multiset.Make(MultiVar)
+module Poly = Map.Make(MultiVarSet) 
 
 type poly = 
   | Monomials of float Poly.t
@@ -21,8 +23,8 @@ let sort vars = List.sort String.compare vars
 
 (* evaluate expressions into values *) 
 let rec eval = function 
-  | Real c -> Monomials (Poly.singleton [] c)
-  | Var v  -> Monomials (Poly.singleton [v] 1.)
+  | Real c -> Monomials (Poly.singleton MultiVarSet.empty c)
+  | Var v  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
   | Add(e1, e2) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
@@ -48,6 +50,7 @@ let rec eval = function
       | _ -> MonoMul (newE1, newE2)
     )
   | Div(e1, e2) -> MonoDiv ((eval e1), (eval e2))
+  | _ -> raise (Failure "Unsupported SMT2 function symbols")
 
 (* BatOption.default *) 
 and default d = function 
@@ -67,7 +70,7 @@ and minus p1 p2 =
 and times p1 p2 = (* naive implementation *) 
   let p2_times_monome vars coeff acc = 
     let add_monome v c acc = 
-      let monome = Poly.singleton (sort (vars @ v)) (c *. coeff) in 
+      let monome = Poly.singleton (MultiVarSet.add_sets v vars) (c *. coeff) in 
       plus monome acc in 
     Poly.fold add_monome p2 acc in 
   Poly.fold p2_times_monome p1 Poly.empty 
@@ -81,13 +84,17 @@ let rec reify = function
     let addMonomial vars coefficient currentPolyExpr =
       if coefficient = 0. then currentPolyExpr
       else 
-        let createMulExpr currentMulExpr var = 
+        let createMulExpr currentMulExpr (var, multiplicity) = 
+          let tmpVarExpr = 
+            if multiplicity = 1 then Var var
+            else Pow(var, multiplicity) 
+          in
           (match currentMulExpr with
-            | Real 1. -> Var var
-            | _ -> Mul(currentMulExpr, Var var) 
+            | Real 1. -> tmpVarExpr
+            | _ -> Mul(currentMulExpr, tmpVarExpr) 
           )
         in
-        let newPolyExpr = List.fold_left createMulExpr (Real coefficient) vars in
+        let newPolyExpr = List.fold_left createMulExpr (Real coefficient) (MultiVarSet.elements_packed vars) in
         (
         match currentPolyExpr with 
           | Real 0. -> newPolyExpr
