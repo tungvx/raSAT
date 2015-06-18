@@ -1,4 +1,5 @@
 open Ast
+open Multipleset
 
 type var = string 
 module MultiVar = struct 

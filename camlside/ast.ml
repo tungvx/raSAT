@@ -20,6 +20,7 @@ type poly_expr =
   | Div of poly_expr * poly_expr
   | Real of float
   | Var of string
+  | Pow of string * int
 
 type poly_constraint = 
   | Eq of poly_expr
