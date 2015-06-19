@@ -1,6 +1,7 @@
 open Ast
 open IA
 open Variable
+open Interval
 
 (* ============================= START of polynomialConstraint class ================================= *)
 (* Class for storing informations of a constraint *)
@@ -85,35 +86,24 @@ class polynomialConstraint boolExprInit =
     (*method private check_sat_getBound_ici (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap*)
     
     (* check sat of this polynomial using combination of af2 and ci*)
-    method private check_sat_af_two_ci (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap
+    method private check_sat_af_two_ci (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap
         
     (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
-    method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(IA.interval Variable.StringMap.t)) = 
+    method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = 
       let (sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
       varsSen <- sortedVarsSen;
       satLength <- computedSatLength;
       (sat, bound, computedSatLength)
     
     (* This method does not update isInfinite field, and varsSen is not computed *)
-    method check_sat (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) =
-      let add_intv (isInfinite, varsIntvsMap) var =
-        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
-        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
-      in
-      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
-      
-      (*if isInfiniteTmp then 
-        let (sat, _, _) = self#check_sat_getBound_ici varsIntvsMap in
-        sat
-      else*) 
+    method check_sat (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = 
         self#check_sat_af_two_ci varsIntvsMap
     
-    method check_sat_varsSen_setIsInfinite_setBounds_setEasiness (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) =
-      let add_intv (isInfinite, varsIntvsMap) var =
-        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
-        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
+    method check_sat_varsSen_setIsInfinite_setBounds_setEasiness (varsIntvsMap:(Interval.interval Variable.StringMap.t)) =
+      let exist_infinity var intv =
+        intv.high = infinity || intv.low = neg_infinity
       in
-      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+      let isInfiniteTmp = StringMap.exists exist_infinity varsIntvsMap in
       isInfinite <- isInfiniteTmp;
       let (sat, bound, satLength) =
         (*if isInfinite then 
@@ -129,29 +119,14 @@ class polynomialConstraint boolExprInit =
       iaValue <- bound;
       sat
     
-    method get_bound (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) =
-      let add_intv (isInfinite, varsIntvsMap) var =
-        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
-        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
-      in
-      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+    method get_bound (varsIntvsMap:(Interval.interval Variable.StringMap.t)) =
       let (_, bound, _) =
-        (*if isInfinite then 
-          self#check_sat_getBound_ici varsIntvsMap
-        else*) 
           self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
       in
       bound
     
     (* get length of SAT by af2 and ci *)
-    method check_sat_get_satLength (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) = 
-      (*print_endline ("Start get length: " ^ self#to_string_infix);
-      flush stdout;*)
-      let add_intv (isInfinite, varsIntvsMap) var =
-        let (intv, _) = StringMap.find var varsIntvsMiniSATCodesMap in
-        (isInfinite || intv#h = infinity || intv#l = neg_infinity, StringMap.add var intv varsIntvsMap)
-      in
-      let (isInfiniteTmp, varsIntvsMap) = List.fold_left add_intv (false, StringMap.empty) varsList in
+    method check_sat_get_satLength (varsIntvsMap:(Interval.interval Variable.StringMap.t)) =
       let (sat, bound, satLength) =
         (*if isInfiniteTmp then 
           self#check_sat_getBound_ici varsIntvsMap
@@ -159,7 +134,6 @@ class polynomialConstraint boolExprInit =
           let (sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
           (sat, bound, computedSatLength)
       in
-      
       (sat, satLength, satLength /. (bound#h -. bound#l))
         
     
@@ -230,7 +204,9 @@ class polynomialConstraint boolExprInit =
     method verify_SAT varsTCsMap = 
       (*print_endline ("verifying " ^ self#to_string_infix);
       flush stdout;*)
-      let convert_toIntv var tc currentVarsIntvsMap = StringMap.add var (new IA.interval tc tc) currentVarsIntvsMap in
+      let convert_toIntv var tc currentVarsIntvsMap = 
+        StringMap.add var {low=tc;high=tc} currentVarsIntvsMap 
+      in
       let varsIntvsMap = StringMap.fold convert_toIntv varsTCsMap StringMap.empty in
       let polyExpr = get_exp boolExpr in
       let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
@@ -306,7 +282,7 @@ class polynomialConstraint boolExprInit =
 	    |Gr e -> 
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " > 0"  
     
-    method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) = 
+    method generateTCs assignedVarsSet (varsIntvsMap:(Interval.interval Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) = 
       (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)
       (*print_endline ("\n\nSelecting api: " ^ self#to_string_infix ^ " - miniSATCode: " ^ string_of_int self#get_miniSATCode);
@@ -317,14 +293,14 @@ class polynomialConstraint boolExprInit =
       let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
       (* This function generates test cases for one variable *)
-      let rec generate_tc_var interval tcNum isFirst varSen isVarPositiveDirected =
+      let rec generate_tc_var intv tcNum isFirst varSen isVarPositiveDirected =
         (*print_endline ("TcNum: " ^ string_of_int tcNum);
         print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
         flush stdout;*)
         if tcNum <= 0 then []
         else
-          let lowerBound = interval#l in
-          let upperBound = interval#h in
+          let lowerBound = intv.low in
+          let upperBound = intv.high in
 		      (*print_endline ("[" ^ string_of_float lowerBound ^ ", " ^ string_of_float upperBound ^ "]");
 		      flush stdout;*)
 		      (*(* if the upper bound is -max_float, stop testing*)
@@ -394,8 +370,8 @@ class polynomialConstraint boolExprInit =
 		          (*print_endline (string_of_float tc);
 		          flush stdout;*)
 		          if tc >= lowerBound && tc <= upperBound then (* for QF_NIA, sometimes the test cases are not in the interval due to rounding *)
-		            tc :: (generate_tc_var interval (tcNum - 1) false varSen 0)
-		          else generate_tc_var interval (tcNum - 1) false varSen 0
+		            tc :: (generate_tc_var intv (tcNum - 1) false varSen 0)
+		          else generate_tc_var intv (tcNum - 1) false varSen 0
 		  in
       let rec generateTCs_extra varsSen generatedTCs priorityNum = match varsSen with
         | [] -> (generatedTCs, priorityNum);
@@ -404,7 +380,7 @@ class polynomialConstraint boolExprInit =
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
           let isVarPositiveDirected = 0 in
-          let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+          let intv = StringMap.find var varsIntvsMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
           print_endline ("priorityNum: " ^ string_of_int priorityNum);
@@ -415,10 +391,10 @@ class polynomialConstraint boolExprInit =
             if isVarPositiveDirected = 0 && priorityNum > 0 then (
               (*print_string (var ^ " ");
               flush stdout;*)
-              (generate_tc_var interval 2 true varSen 0, priorityNum - 1)
+              (generate_tc_var intv 2 true varSen 0, priorityNum - 1)
             )
             else 
-              (generate_tc_var interval 1 true varSen isVarPositiveDirected, priorityNum)
+              (generate_tc_var intv 1 true varSen isVarPositiveDirected, priorityNum)
           in
           generateTCs_extra t ((var, testcases)::generatedTCs) newPriorityNum
       in
@@ -444,15 +420,15 @@ class polynomialConstraint boolExprInit =
             flush stdout;*)
             (*print_endline selectedVar;
             flush stdout;*)
-            let (interval, _) = StringMap.find selectedVar varsIntvsMiniSATCodesMap in
-            let testcases = generate_tc_var interval 2 true 0 0 in
+            let intv = StringMap.find selectedVar varsIntvsMap in
+            let testcases = generate_tc_var intv 2 true 0 0 in
             generateTCs_extra_random remainingVarsSen ((selectedVar, testcases)::generatedTCs) (priorityNum - 1)
           )
           else (
             (*print_endline var;
             flush stdout;*)
-            let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in 
-            let testcases = generate_tc_var interval 1 true 0 0 in
+            let intv = StringMap.find var varsIntvsMap in 
+            let testcases = generate_tc_var intv 1 true 0 0 in
             generateTCs_extra_random t ((var, testcases)::generatedTCs) 0
           )
       in
@@ -486,15 +462,15 @@ class polynomialConstraint boolExprInit =
             let ((selectedVar, _, _), remainingVarsSen) = remove varsSen randomIndex [] in
             (*print_endline (selectedVar);
             flush stdout;*)
-            let (interval, _) = StringMap.find selectedVar varsIntvsMiniSATCodesMap in
-            let testcases = generate_tc_var interval 2 true 0 0 in
+            let intv = StringMap.find selectedVar varsIntvsMap in
+            let testcases = generate_tc_var intv 2 true 0 0 in
             generateTCs_extra_1VarChosen_random remainingVarsSen ((selectedVar, testcases)::generatedTCs) (priorityNum - 1) false
           )
           else (
             (*print_endline (var);
             flush stdout;*)
-            let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
-            let testcases = generate_tc_var interval 1 true varSen isVarPositiveDirected in
+            let intv = StringMap.find var varsIntvsMap in
+            let testcases = generate_tc_var intv 1 true varSen isVarPositiveDirected in
             generateTCs_extra_1VarChosen_random t ((var, testcases)::generatedTCs) priorityNum false
          )
       in
@@ -505,7 +481,7 @@ class polynomialConstraint boolExprInit =
           flush stdout;*)
           let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
           (*let isVarPositiveDirected = 0 in (* not (11) *)*)
-          let (interval, _) = StringMap.find var varsIntvsMiniSATCodesMap in
+          let intv = StringMap.find var varsIntvsMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
           print_endline ("priorityNum: " ^ string_of_int priorityNum);
@@ -516,10 +492,10 @@ class polynomialConstraint boolExprInit =
             if isFirst && isVarPositiveDirected = 0 && priorityNum > 0 then (
               (*print_string (var ^ " ");
               flush stdout;*)
-              (generate_tc_var interval 2 true varSen isVarPositiveDirected, priorityNum - 1, false)
+              (generate_tc_var intv 2 true varSen isVarPositiveDirected, priorityNum - 1, false)
             )
             else 
-              (generate_tc_var interval 1 true varSen isVarPositiveDirected, priorityNum, isFirst)
+              (generate_tc_var intv 1 true varSen isVarPositiveDirected, priorityNum, isFirst)
           in
           generateTCs_extra_1VarChosen t ((var, testcases)::generatedTCs) newPriorityNum newIsFirst
       in

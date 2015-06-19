@@ -599,7 +599,7 @@ int main(int argc, char* argv[]) {
 //					cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
-					//cout << "Run49" << endl;
+					// cout << "Run49" << endl;
 					theoCheck = caml_dynTest(&intvInfo,
 							&miniSATCodesConstraintsMap, nCons, sSAT.c_str(),
 							ia, esl, c_strTestUS, iaTime, testingTime, usTime,
@@ -608,7 +608,7 @@ int main(int argc, char* argv[]) {
 					delete[] c_dIntv;
 					if (needDeleted)
 						delete[] c_strTestUS;
-					//cout << "Run50" << endl;
+					// cout << "Run50" << endl;
 					dummy.clear(true);
 //					cout << "Searched \n\n";
 					ocamlTime += cpuTime() - startCheck;
@@ -652,7 +652,7 @@ int main(int argc, char* argv[]) {
 					parsingTime = Double_val(Field(theoCheck, 12));
 
 					decompositionTime = Double_val(Field(theoCheck, 13));
-//					cout << "Run53" << endl;
+					// cout << "Run53" << endl;
 
 					//check timeout occurs
 					if ((cpuTime() - initial_time) >= timeout) {
@@ -705,7 +705,7 @@ int main(int argc, char* argv[]) {
 					} else { // adding unsat reason to solver
 							 //finalRes = finalRes*sat;		  
 						string cl_us = String_val(Field(theoCheck, 1));
-						//cout << endl << "Add unsat clause:" << cl_us << "|"	<< endl;
+						// cout << endl << "Add unsat clause:" << cl_us << "|"	<< endl;
 						UNSATLearnedClauses += solver_addClause(S, cl_us);
 						//cout << "finish adding unsat clauses" << endl;
 					}

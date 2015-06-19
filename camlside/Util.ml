@@ -17,9 +17,9 @@ module Util = struct
      result
 
    (*CI to AF2 conversion, id <=size*)
-   let toAf2 (it: IA.interval) (id:int) (size: int) = 
-     let a = ({low=it#l;high=it#l} +$ {low=it#h;high=it#h}) /$. 2. in
-     let b = ({low=it#h;high=it#h} -$ {low=it#l;high=it#l}) /$. 2. in
+   let toAf2 (intv: Interval.interval) (id:int) (size: int) = 
+     let a = ({low=intv.low;high=intv.low} +$ {low=intv.high;high=intv.high}) /$. 2. in
+     let b = ({low=intv.high;high=intv.high} -$ {low=intv.low;high=intv.low}) /$. 2. in
      let result = new IA.af2 size in
      result#set_a a;
      result#set_kp 0.0;

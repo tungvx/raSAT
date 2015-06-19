@@ -6,30 +6,31 @@ open Util
 open Variable
 open InfiniteList
 open IA
+open Interval
 
-let check_equality polyCons varsSet varsIntvsMiniSATCodesMap = 
-  let getFirstPoint var varsIntvsMiniSATCodesMap = 
-    let (intv, miniSATCode) = StringMap.find var varsIntvsMiniSATCodesMap in
-    StringMap.add var (new IA.interval intv#l intv#l, miniSATCode) varsIntvsMiniSATCodesMap
+let check_equality polyCons varsSet varsIntvsMap = 
+  let getFirstPoint var varsIntvsMap = 
+    let intv = StringMap.find var varsIntvsMap in
+    StringMap.add var {low=intv.low; high=intv.high} varsIntvsMap
   in
-  let firstPoint = VariablesSet.fold getFirstPoint varsSet varsIntvsMiniSATCodesMap in
+  let firstPoint = VariablesSet.fold getFirstPoint varsSet varsIntvsMap in
   let firstBound = polyCons#get_bound firstPoint in
   
-  let getSecondPoint var varsIntvsMiniSATCodesMap = 
-    let (intv, miniSATCode) = StringMap.find var varsIntvsMiniSATCodesMap in
-    StringMap.add var (new IA.interval intv#h intv#h, miniSATCode) varsIntvsMiniSATCodesMap
+  let getSecondPoint var varsIntvsMap = 
+    let intv = StringMap.find var varsIntvsMap in
+    StringMap.add var {low=intv.high; high=intv.high} varsIntvsMap
   in
-  let secondPoint = VariablesSet.fold getSecondPoint varsSet varsIntvsMiniSATCodesMap in
+  let secondPoint = VariablesSet.fold getSecondPoint varsSet varsIntvsMap in
   let secondBound = polyCons#get_bound secondPoint in
  
   (* Intermediate theorem f(a) . f(b) < 0 ==> f(x) has a root between a and b *)
   if (firstBound#h < 0. && secondBound#l > 0.) || (firstBound#l > 0. && secondBound#h < 0.) then (
-    let get_log var (intv, miniSATCode) currentString =
+    let get_log var intv currentString =
       if VariablesSet.mem var polyCons#get_varsSet then
         if VariablesSet.mem var varsSet then 
-          var ^ " = " ^ (string_of_float_app intv#l) ^ " " ^ currentString
+          var ^ " = " ^ (string_of_float_app intv.low) ^ " " ^ currentString
         else
-          currentString ^ " " ^ var ^ " = " ^ intv#to_string
+          currentString ^ " " ^ var ^ " = " ^ sprintf_I "%f" intv
       else currentString
     in
     let firstLog = StringMap.fold get_log firstPoint "" in
@@ -41,7 +42,7 @@ let check_equality polyCons varsSet varsIntvsMiniSATCodesMap =
   else false
 
 
-let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMiniSATCodesMap consideredVarsSet = 
+let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet = 
   match polyConstraints with 
   | [] -> (true, [])
   | h::t -> 
@@ -51,32 +52,32 @@ let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMiniSA
     let varsSet = List.fold_right VariablesSet.add varsList VariablesSet.empty in
     let commonVarsSet = VariablesSet.inter consideredVarsSet varsSet in
     if VariablesSet.is_empty commonVarsSet then
-      if check_equality h varsSet varsIntvsMiniSATCodesMap then
+      if check_equality h varsSet varsIntvsMap then
         match t with
         | [] -> (true, [])
         | l::m ->
           let varsList = l#get_varsList in
           let newVarsSetCandidates = power_set varsList in
           let (result, _) = 
-            check_equalities_extra t newVarsSetCandidates varsIntvsMiniSATCodesMap (VariablesSet.union consideredVarsSet varsSet)
+            check_equalities_extra t newVarsSetCandidates varsIntvsMap (VariablesSet.union consideredVarsSet varsSet)
           in
           if result then
             (true, [])
           else
-            check_equalities_extra polyConstraints (tail()) varsIntvsMiniSATCodesMap consideredVarsSet
-      else check_equalities_extra polyConstraints (tail()) varsIntvsMiniSATCodesMap consideredVarsSet
+            check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
+      else check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
     else
-      check_equalities_extra polyConstraints (tail()) varsIntvsMiniSATCodesMap consideredVarsSet
+      check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
   
 
 (* polyConstraints is a list of polynomial constraints, each constraints must be an equation *)
-let rec check_equalities polyConstraints varsIntvsMiniSATCodesMap consideredVarsSet = 
+let rec check_equalities polyConstraints varsIntvsMap consideredVarsSet = 
   match polyConstraints with 
   | [] -> (true, [])
   | h::t -> (
     let varsList = h#get_varsList in
     let varsSetCandidates = power_set varsList in
-    check_equalities_extra polyConstraints varsSetCandidates varsIntvsMiniSATCodesMap consideredVarsSet
+    check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet
   )
   
 

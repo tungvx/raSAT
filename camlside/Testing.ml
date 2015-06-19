@@ -175,7 +175,7 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
       
 
 (* This function test the list of unknow clauses, trying to find an SAT instance *)
-let rec test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
+let rec test polyConstraints varsIntvsMaps remainingTime =
   (*print_endline "\n\nStart Testing";*)
   let startTime = Sys.time() in
   
@@ -228,9 +228,9 @@ let rec test polyConstraints varsIntvsMiniSATCodesMap remainingTime =
   flush stdout;*)
   (*let indicesSortedPolyConstraintsMap = IntMap.add 1 firstPolyCons IntMap.empty in*)
   let priorityNum = 10 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)
-  let (generatedTCs, newPriorityNum) = firstPolyCons#generateTCs VariablesSet.empty varsIntvsMiniSATCodesMap priorityNum varsSATDirectionMap in
+  let (generatedTCs, newPriorityNum) = firstPolyCons#generateTCs VariablesSet.empty varsIntvsMaps priorityNum varsSATDirectionMap in
   let abstractTCInfList = Cons((StringMap.empty, generatedTCs, VariablesSet.empty, firstPolyCons, (*1, remainingMiniSATCodesPolyConstraintsMap*) remainingPolyConstraints, newPriorityNum), fun() -> Nil) in 
-  let (tc, sTest, clTest_US, varsTCsMap, b) = test_extra abstractTCInfList varsIntvsMiniSATCodesMap firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime) in
+  let (tc, sTest, clTest_US, varsTCsMap, b) = test_extra abstractTCInfList varsIntvsMaps firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime) in
   if sTest = 1 then
     verify_SAT polyConstraints varsTCsMap 
   else (tc, sTest, clTest_US, varsTCsMap, b)

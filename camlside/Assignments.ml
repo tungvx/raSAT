@@ -1,6 +1,7 @@
 (* /\/\/\/\/\/\/\/\/\/\ MODULE for assignments related definitions and operations /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\*)
 
 open Variable
+open Interval
 
 (* |============================== START getLeftBound ==========================================| *)	
 (* | get the lower bounds of assignments intervals			            	                          | *)
@@ -54,21 +55,31 @@ let rec log_assignment ass =
 
 (* =================================== START string_of_intervals =========================================== *)
 (* This functions converts the list of intervals of variables into the string format*)
-let rec string_of_intervals intvMap =
-  let add_string_of_newInterval var (interval, _) oldString = 
-    var ^ " " ^ string_of_float interval#l ^ " " ^ string_of_float interval#h ^ " " ^ oldString
+let rec string_of_intervals varsIntvsMap =
+  let add_string_of_newInterval var intv oldString = 
+    var ^ " " ^ string_of_float intv.low ^ " " ^ string_of_float intv.high ^ " " ^ oldString
   in 
-  StringMap.fold add_string_of_newInterval intvMap ""
+  StringMap.fold add_string_of_newInterval varsIntvsMap ""
 (* =================================== END string_of_intervals ============================================== *)
 
 
+let rec string_of_varsIntvsMaps varsIntvsMaps = match varsIntvsMaps with
+  | [] -> ""
+  | h::t -> string_of_intervals h ^ "\n" ^ string_of_varsIntvsMaps t
+
+let rec string_of_varsIntvsPrioritiesMap varsIntvsPrioritiesMap =
+  let add_string_of_newPriorityInterval priority varsIntvsMaps oldString = 
+    string_of_float priority ^ "\n" ^ string_of_varsIntvsMaps varsIntvsMaps ^ oldString
+  in
+  FloatMap.fold add_string_of_newPriorityInterval varsIntvsPrioritiesMap ""
+
 (* =================================== START log_intervals =========================================== *)
 (* This functions converts the list of intervals of variables into the string format*)
-let rec log_intervals intvMap =
-  let add_string_of_newInterval var (interval, _) oldString =
-    var ^ " in" ^ interval#to_string ^ "\n" ^ oldString
+let rec log_intervals varsIntvsMaps =
+  let add_string_of_newInterval var intv oldString =
+    var ^ " in" ^ sprintf_I "%f" intv ^ "\n" ^ oldString
   in 
-  StringMap.fold add_string_of_newInterval intvMap ""
+  StringMap.fold add_string_of_newInterval varsIntvsMaps ""
 (* =================================== END log_intervals ============================================== *)
  
 

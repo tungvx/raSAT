@@ -315,23 +315,25 @@ let rec infIntervals_of_intervals intervals = match intervals with
 *)  
 let rec evalCI_extra varsIntvsMap = function
   | Real c -> {low = c; high = c}
-  | Var var -> 
-    let intv = StringMap.find var varsIntvsMap in
-    {low = intv#l; high = intv#h}
+  | Var var -> StringMap.find var varsIntvsMap
   | Add (u, v) -> evalCI_extra varsIntvsMap u +$ evalCI_extra varsIntvsMap v
   | Sub (u, v) -> evalCI_extra varsIntvsMap u -$ evalCI_extra varsIntvsMap v
   | Mul (u, v) -> evalCI_extra varsIntvsMap u *$ evalCI_extra varsIntvsMap v
   | Div (u, v) -> evalCI_extra varsIntvsMap u /$ evalCI_extra varsIntvsMap v
   | Pow (var, multiplicity) -> 
     let intv = StringMap.find var varsIntvsMap in
-    let lowerBound = {low = intv#l; high = intv#l} in
-    let upperBound = {low = intv#h; high = intv#h} in
+    pow_I_i intv multiplicity
+    (* let lowerBound = {low = intv.low; high = intv.low} in
+    let upperBound = {low = intv.high; high = intv.high} in
     let tmpLowerBound = pow_I_i lowerBound multiplicity in
     let tmpUpperBound = pow_I_i upperBound multiplicity in
-    if multiplicity mod 2 = 0 && intv#l < 0. && intv#h > 0. then
-      {low = 0.; high = max tmpLowerBound.low tmpUpperBound.low}
+    print_endline (sprintf_I "LowerBound: %f" tmpLowerBound);
+    print_endline (sprintf_I "UpperBound: %f" tmpUpperBound);
+    flush stdout;
+    if multiplicity mod 2 = 0 && intv.low < 0. && intv.high > 0. then
+      {low = 0.; high = max tmpLowerBound.high tmpUpperBound.high}
     else
-      {low = min tmpLowerBound.low tmpUpperBound.low; high = max tmpLowerBound.low tmpUpperBound.low}
+      {low = min tmpLowerBound.low tmpUpperBound.low; high = max tmpLowerBound.high tmpUpperBound.high} *)
   
 let rec evalCI varsIntvsMap polyExpr =
   let computedIntv = evalCI_extra varsIntvsMap polyExpr in
@@ -360,7 +362,7 @@ let rec evalAf1 ass n = function
  
 (* evalAf2 compute the bound of a polynomial function from an assignment ass by AF2 form*)
 let rec evalAf2 varsAf2sMap varsNum = function
-  | Real c -> Util.toAf2 (new IA.interval c c) 0 varsNum
+  | Real c -> Util.toAf2 {low=c;high=c} 0 varsNum
   | Var var -> StringMap.find var varsAf2sMap
   | Add (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u + evalAf2 varsAf2sMap varsNum v)
   | Sub (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
@@ -479,7 +481,7 @@ let poly_eval_ici polyExpr varsIntvsMap =
 
 (*evaluate the bound of poly expression by type of interval arithmetic*)						     
 let poly_eval e varsSet ia varsIntvsMap = 
-  let rec get_interval var intvList =
+  (* let rec get_interval var intvList =
     let intv = StringMap.find var varsIntvsMap in
     (var, intv)::intvList
   in
@@ -490,7 +492,8 @@ let poly_eval e varsSet ia varsIntvsMap =
     let res = evalAf1 assAf1 iIntvVar e in
     (res#evaluate, []);
   )  
-  else if (ia=2) then (
+  else *) if (ia=2) then (
+    let iIntvVar = VariablesSet.cardinal varsSet in
     let estimatedIntv = poly_eval_af2 e varsSet iIntvVar varsIntvsMap in
     (estimatedIntv, ([]:float list));
     (*let assAf2VarPos = e_toAf2 assIntv 1 iIntvVar in
@@ -499,7 +502,7 @@ let poly_eval e varsSet ia varsIntvsMap =
     let varsSensitivity = res#extract_varsSen varPos in
     (res#evaluate, varsSensitivity);*)
   )  
-  else if (ia=3) then (
+  (* else if (ia=3) then (
     let assCai1 = e_toCai1 assIntv 1 iIntvVar in
     let res = evalCai1 assCai1 iIntvVar e in
     (res#evaluate, []);
@@ -517,7 +520,7 @@ let poly_eval e varsSet ia varsIntvsMap =
   else if (ia = -1) then (
     let res = poly_eval_ici e varsIntvsMap in
     (res, []);
-  )
+  ) *)
   else (
     let res = poly_eval_ci e varsIntvsMap in
     (res, []);
@@ -633,6 +636,8 @@ let check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum vars
   in
   List.iter print_var_sen varsSens;
   flush stdout;*)
+  (* print_endline afTwoBound#to_string;
+  flush stdout; *)
   let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
