@@ -23,9 +23,9 @@ let sort vars = List.sort String.compare vars
 
 (* evaluate expressions into values *) 
 let rec eval = function 
-  | Real c -> Monomials (Poly.singleton MultiVarSet.empty c)
-  | Var v  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
-  | Add(e1, e2) -> 
+  | Real (c, _) -> Monomials (Poly.singleton MultiVarSet.empty c)
+  | Var (v, _)  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
+  | Add(e1, e2, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -33,7 +33,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (plus m1 m2)
       | _ -> MonoAdd (newE1, newE2)
     )
-  | Sub(e1, e2) -> 
+  | Sub(e1, e2, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -41,7 +41,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (minus m1 m2)
       | _ -> MonoSub (newE1, newE2)
     )
-  | Mul(e1, e2) -> 
+  | Mul(e1, e2, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -49,7 +49,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (times m1 m2)
       | _ -> MonoMul (newE1, newE2)
     )
-  | Div(e1, e2) -> MonoDiv ((eval e1), (eval e2))
+  | Div(e1, e2, _) -> MonoDiv ((eval e1), (eval e2))
   | _ -> raise (Failure "Unsupported SMT2 function symbols")
 
 (* BatOption.default *) 
@@ -86,38 +86,38 @@ let rec reify = function
       else 
         let createMulExpr currentMulExpr (var, multiplicity) = 
           let tmpVarExpr = 
-            if multiplicity = 1 then Var var
-            else Pow(var, multiplicity) 
+            if multiplicity = 1 then Var (var, {low=neg_infinity;high=infinity})
+            else Pow(var, multiplicity, {low=neg_infinity;high=infinity}) 
           in
           (match currentMulExpr with
-            | Real 1. -> tmpVarExpr
-            | _ -> Mul(currentMulExpr, tmpVarExpr) 
+            | Real (1., _) -> tmpVarExpr
+            | _ -> Mul(currentMulExpr, tmpVarExpr, {low=neg_infinity;high=infinity}) 
           )
         in
-        let newPolyExpr = List.fold_left createMulExpr (Real coefficient) (MultiVarSet.elements_packed vars) in
+        let newPolyExpr = List.fold_left createMulExpr (Real (coefficient, {low=neg_infinity;high=infinity})) (MultiVarSet.elements_packed vars) in
         (
         match currentPolyExpr with 
-          | Real 0. -> newPolyExpr
-          | _ -> Add (currentPolyExpr, newPolyExpr)
+          | Real (0., _) -> newPolyExpr
+          | _ -> Add (currentPolyExpr, newPolyExpr, {low=neg_infinity;high=infinity})
         )
     in
-    Poly.fold addMonomial p (Real 0.)
+    Poly.fold addMonomial p (Real (0., {low=neg_infinity;high=infinity}))
   | MonoAdd (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Add (polyExpr1, polyExpr2)
+    Add (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
   | MonoSub (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Sub (polyExpr1, polyExpr2)
+    Sub (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
   | MonoMul (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Mul (polyExpr1, polyExpr2)
+    Mul (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
   | MonoDiv (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Div (polyExpr1, polyExpr2)
+    Div (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
 (*Simplify an expression*)  
 let reduce e = reify (eval e)
 

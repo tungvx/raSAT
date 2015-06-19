@@ -137,7 +137,7 @@ let rec evalFloat varsTCMap = function
 	| Sub (u,v, _) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
 	| Mul (u,v, _) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
 	| Div (u, v, _) -> evalFloat varsTCMap u /. evalFloat varsTCMap v
-  | Pow (var, multiplicity, _) -> StringMap.find Var (var, _)sTCMap ** (float_of_int multiplicity)
+  | Pow (var, multiplicity, _) -> StringMap.find var varsTCMap ** (float_of_int multiplicity)
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
@@ -309,110 +309,147 @@ let rec infIntervals_of_intervals intervals = match intervals with
 (*let rec evalCI varsIntvsMap = function
   | Real (c, _) -> new IA.interval c c
   | Var (var, _) -> StringMap.find Var (var, _)sIntvsMap
-  | Add (u, v) -> IA.CI.(evalCI varsIntvsMap u + evalCI varsIntvsMap v)
-  | Sub (u, v) -> IA.CI.(evalCI varsIntvsMap u - evalCI varsIntvsMap v)
-  | Mul (u, v) -> IA.CI.(evalCI varsIntvsMap u * evalCI varsIntvsMap v)
+  | Add (u, v, _) -> IA.CI.(evalCI varsIntvsMap u + evalCI varsIntvsMap v)
+  | Sub (u, v, _) -> IA.CI.(evalCI varsIntvsMap u - evalCI varsIntvsMap v)
+  | Mul (u, v, _) -> IA.CI.(evalCI varsIntvsMap u * evalCI varsIntvsMap v)
 *)  
 let rec evalCI_extra varsIntvsMap = function
-  | Real (c, _) -> {low = c; high = c}
-  | Var (var, _) -> StringMap.find Var (var, _)sIntvsMap
-  | Add (u, v) -> evalCI_extra varsIntvsMap u +$ evalCI_extra varsIntvsMap v
-  | Sub (u, v) -> evalCI_extra varsIntvsMap u -$ evalCI_extra varsIntvsMap v
-  | Mul (u, v) -> evalCI_extra varsIntvsMap u *$ evalCI_extra varsIntvsMap v
-  | Div (u, v) -> evalCI_extra varsIntvsMap u /$ evalCI_extra varsIntvsMap v
-  | Pow (var, multiplicity) -> 
-    let intv = StringMap.find Var (var, _)sIntvsMap in
-    pow_I_i intv multiplicity
-    (* let lowerBound = {low = intv.low; high = intv.low} in
-    let upperBound = {low = intv.high; high = intv.high} in
-    let tmpLowerBound = pow_I_i lowerBound multiplicity in
-    let tmpUpperBound = pow_I_i upperBound multiplicity in
-    print_endline (sprintf_I "LowerBound: %f" tmpLowerBound);
-    print_endline (sprintf_I "UpperBound: %f" tmpUpperBound);
-    flush stdout;
-    if multiplicity mod 2 = 0 && intv.low < 0. && intv.high > 0. then
-      {low = 0.; high = max tmpLowerBound.high tmpUpperBound.high}
-    else
-      {low = min tmpLowerBound.low tmpUpperBound.low; high = max tmpLowerBound.high tmpUpperBound.high} *)
+  | Real (c, _) -> ((Real (c, {low = c; high = c})), {low = c; high = c})
+  | Var (var, _) -> 
+    let intv = StringMap.find var varsIntvsMap in
+    (Var (var, intv), intv)
+  | Add (u, v, oldIntv) -> 
+    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
+    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let intv = uIntv +$ vIntv in
+    let newIntv = inter_I_I oldIntv intv in
+    (Add(u, v, newIntv), newIntv)
+  | Sub (u, v, oldIntv) -> 
+    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
+    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let intv = uIntv -$ vIntv in
+    let newIntv = inter_I_I oldIntv intv in
+    (Sub(u, v, newIntv), newIntv)
+  | Mul (u, v, oldIntv) -> 
+    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
+    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let intv = uIntv *$ vIntv in
+    let newIntv = inter_I_I oldIntv intv in
+    (Mul(u, v, newIntv), newIntv)
+  | Div (u, v, oldIntv) -> 
+    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
+    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let intv = uIntv /$ vIntv in
+    let newIntv = inter_I_I oldIntv intv in
+    (Div(u, v, newIntv), newIntv)
+  | Pow (var, multiplicity, oldIntv) -> 
+    let varIntv = StringMap.find var varsIntvsMap in
+    let intv = pow_I_i varIntv multiplicity in
+    let newIntv = inter_I_I oldIntv intv in
+    (Pow(var, multiplicity, newIntv), newIntv)
+    
   
 let rec evalCI varsIntvsMap polyExpr =
-  let computedIntv = evalCI_extra varsIntvsMap polyExpr in
-  new IA.interval (computedIntv.low) (computedIntv.high)
+  evalCI_extra varsIntvsMap polyExpr
+  
   
 
 (* evalICI compute the bound of a polynomial function from an assignment ass by ICI form*)
 let rec evalICI varsIntvsMap = function
   | Real (c, _) -> let newC = IA.bound_of_float c in new IA.inf_interval newC newC
   | Var (var, _) -> 
-    let intv = StringMap.find Var (var, _)sIntvsMap in
+    let intv = StringMap.find var varsIntvsMap in
     let lowerBound = IA.bound_of_float intv#l in
     let upperBound = IA.bound_of_float intv#h in
     new IA.inf_interval lowerBound upperBound
-  | Add (u, v) -> IA.ICI.(evalICI varsIntvsMap u + evalICI varsIntvsMap v)
-  | Sub (u, v) -> IA.ICI.(evalICI varsIntvsMap u - evalICI varsIntvsMap v)
-  | Mul (u, v) -> IA.ICI.(evalICI varsIntvsMap u * evalICI varsIntvsMap v)
+  | Add (u, v, _) -> IA.ICI.(evalICI varsIntvsMap u + evalICI varsIntvsMap v)
+  | Sub (u, v, _) -> IA.ICI.(evalICI varsIntvsMap u - evalICI varsIntvsMap v)
+  | Mul (u, v, _) -> IA.ICI.(evalICI varsIntvsMap u * evalICI varsIntvsMap v)
 
 (* evalAf1 compute the bound of a polynomial function from an assignment ass by AF1 form*)
 let rec evalAf1 ass n = function
   | Real (c, _) -> Util.toAf1 (new IA.interval c c) 0 n
-  | Var v -> List.assoc v ass
-  | Add (u, v) -> IA.AF1.(evalAf1 ass n u + evalAf1 ass n v)
-  | Sub (u, v) -> IA.AF1.(evalAf1 ass n u - evalAf1 ass n v)
-  | Mul (u, v) -> IA.AF1.(evalAf1 ass n u * evalAf1 ass n v)
+  | Var (v, _) -> List.assoc v ass
+  | Add (u, v, _) -> IA.AF1.(evalAf1 ass n u + evalAf1 ass n v)
+  | Sub (u, v, _) -> IA.AF1.(evalAf1 ass n u - evalAf1 ass n v)
+  | Mul (u, v, _) -> IA.AF1.(evalAf1 ass n u * evalAf1 ass n v)
  
 (* evalAf2 compute the bound of a polynomial function from an assignment ass by AF2 form*)
 let rec evalAf2 varsAf2sMap varsNum = function
-  | Real (c, _) -> Util.toAf2 {low=c;high=c} 0 varsNum
-  | Var (var, _) -> StringMap.find Var (var, _)sAf2sMap
-  | Add (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u + evalAf2 varsAf2sMap varsNum v)
-  | Sub (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u - evalAf2 varsAf2sMap varsNum v)
-  | Mul (u, v) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u * evalAf2 varsAf2sMap varsNum v)
-  | Div (u, Real f) -> IA.AF2.(evalAf2 varsAf2sMap varsNum u / f)
-  | Pow (var, multiplicity) -> 
-    if multiplicity = 1 then StringMap.find Var (var, _)sAf2sMap
+  | Real (c, _) -> 
+    let af2Form = Util.toAf2 {low=c;high=c} 0 varsNum in
+    (Real(c, {low=c;high=c}), af2Form)
+  | Var (var, _) -> 
+    let af2Form = StringMap.find var varsAf2sMap in
+    (Var(var, af2Form#evaluate), af2Form)
+  | Add (u, v, _) -> 
+    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let (_, af2FormV) = evalAf2 varsAf2sMap varsNum v in
+    let af2Form = IA.AF2.(af2FormU + af2FormV) in
+    (Add(u, v, af2Form#evaluate), af2Form)
+  | Sub (u, v, _) -> 
+    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let (_, af2FormV) = evalAf2 varsAf2sMap varsNum v in
+    let af2Form = IA.AF2.(af2FormU - af2FormV) in
+    (Sub(u, v, af2Form#evaluate), af2Form)
+  | Mul (u, v, _) -> 
+    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let (_, af2FormV) = evalAf2 varsAf2sMap varsNum v in
+    let af2Form = IA.AF2.(af2FormU * af2FormV) in
+    (Mul(u, v, af2Form#evaluate), af2Form)
+  | Div (u, Real (f, fBound), _) -> 
+    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let af2Form = IA.AF2.(af2FormU / f) in
+    (Div(u, Real(f, fBound), af2Form#evaluate), af2Form)
+  | Pow (var, multiplicity, _) -> 
+    if multiplicity = 1 then 
+      let varAF2Form = StringMap.find var varsAf2sMap in 
+      (Pow(var, multiplicity, varAF2Form#evaluate), varAF2Form)
     else if multiplicity mod 2 = 0 then 
       let newMultiplicity = multiplicity / 2 in 
-      let newPowExpr = Pow (var, newMultiplicity) in
-      let tmpAf2Result = evalAf2 varsAf2sMap varsNum newPowExpr in
-      IA.AF2.(tmpAf2Result * tmpAf2Result)
+      let newPowExpr = Pow (var, newMultiplicity, {low=0.;high=0.}) in
+      let (_, tmpAf2Result) = evalAf2 varsAf2sMap varsNum newPowExpr in
+      let af2Form = IA.AF2.(tmpAf2Result * tmpAf2Result) in
+      (Pow(var, multiplicity, af2Form#evaluate), af2Form)
     else 
-      let varAf2 = StringMap.find Var (var, _)sAf2sMap in
-      let newPowExpr = Pow (var, multiplicity - 1) in
-      let powExprAf2 = evalAf2 varsAf2sMap varsNum newPowExpr in
-      IA.AF2.(varAf2 * powExprAf2)
-  (* | _ -> raise (Failure "Unsupported operation of af2") *)
+      let varAf2 = StringMap.find var varsAf2sMap in
+      let newPowExpr = Pow (var, multiplicity - 1, {low=0.;high=0.}) in
+      let (_, powExprAf2) = evalAf2 varsAf2sMap varsNum newPowExpr in
+      let af2Form = IA.AF2.(varAf2 * powExprAf2) in
+      (Pow(var, multiplicity, af2Form#evaluate), af2Form)
+  | _ -> raise (Failure "Unsupported operation of af2")
 
 (* evalCai1 compute the bound of a polynomial function from an assignment ass by CAI1 form*)
 let rec evalCai1 ass n= function
   | Real (c, _) -> Util.toCai1 (new IA.interval c c) 0 n
-  | Var v -> List.assoc v ass
-  | Add (u, v) -> IA.CAI1.(evalCai1 ass n u + evalCai1 ass n v)
-  | Sub (u, v) -> IA.CAI1.(evalCai1 ass n u - evalCai1 ass n v)
-  | Mul (u, v) -> IA.CAI1.(evalCai1 ass n u * evalCai1 ass n v)
+  | Var (v, _) -> List.assoc v ass
+  | Add (u, v, _) -> IA.CAI1.(evalCai1 ass n u + evalCai1 ass n v)
+  | Sub (u, v, _) -> IA.CAI1.(evalCai1 ass n u - evalCai1 ass n v)
+  | Mul (u, v, _) -> IA.CAI1.(evalCai1 ass n u * evalCai1 ass n v)
 
 (* evalCai2 compute the bound of a polynomial function from an assignment ass by CAI2 form*)
 let rec evalCai2 ass n= function
   | Real (c, _) -> Util.toCai2 (new IA.interval c c) 0 n
-  | Var v -> List.assoc v ass
-  | Add (u, v) -> IA.CAI2.(evalCai2 ass n u + evalCai2 ass n v)
-  | Sub (u, v) -> IA.CAI2.(evalCai2 ass n u - evalCai2 ass n v)
-  | Mul (u, v) -> IA.CAI2.(evalCai2 ass n u * evalCai2 ass n v)
+  | Var (v, _) -> List.assoc v ass
+  | Add (u, v, _) -> IA.CAI2.(evalCai2 ass n u + evalCai2 ass n v)
+  | Sub (u, v, _) -> IA.CAI2.(evalCai2 ass n u - evalCai2 ass n v)
+  | Mul (u, v, _) -> IA.CAI2.(evalCai2 ass n u * evalCai2 ass n v)
 
 (* evalCai3 compute the bound of a polynomial function from an assignment ass by CAI3 form*)
 let rec evalCai3 ass n= function
   | Real (c, _) -> Util.toCai3 (new IA.interval c c) 0 n
-  | Var v -> List.assoc v ass
-  | Add (u, v) -> IA.CAI3.(evalCai3 ass n u + evalCai3 ass n v)
-  | Sub (u, v) -> IA.CAI3.(evalCai3 ass n u - evalCai3 ass n v)
-  | Mul (u, v) -> IA.CAI3.(evalCai3 ass n u * evalCai3 ass n v)
+  | Var (v, _) -> List.assoc v ass
+  | Add (u, v, _) -> IA.CAI3.(evalCai3 ass n u + evalCai3 ass n v)
+  | Sub (u, v, _) -> IA.CAI3.(evalCai3 ass n u - evalCai3 ass n v)
+  | Mul (u, v, _) -> IA.CAI3.(evalCai3 ass n u * evalCai3 ass n v)
   
 
 (* This function returns a set of all variables of a polynomial expression *)
 let rec get_vars_set_polyExp = function
-  | Var x -> VariablesSet.singleton x
-	| Add(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Sub(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
-	| Mul(e1, e2) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+  | Var (x, _) -> VariablesSet.singleton x
+	| Add(e1, e2, _) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Sub(e1, e2, _) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
+	| Mul(e1, e2, _) -> VariablesSet.union (get_vars_set_polyExp e1) (get_vars_set_polyExp e2)
 	| _ -> VariablesSet.empty
 	
 
@@ -432,21 +469,29 @@ let rec get_vars_set_boolExprs boolExps = match boolExps with
 (* Evaluate a polynomial using AF2 *)
 let poly_eval_af2 polyExpr varsSet varsNum varsIntvsMap =
   let add_varAf2 var (varsAf2sMap, nextIndex) =
-    let intv = StringMap.find Var (var, _)sIntvsMap in
+    let intv = StringMap.find var varsIntvsMap in
     let af2 = Util.toAf2 intv nextIndex varsNum in
     (StringMap.add var af2 varsAf2sMap, nextIndex + 1)
   in 
   let (varsAf2Map, _) = VariablesSet.fold add_varAf2 varsSet (StringMap.empty, 1) in
   try 
-    let res = evalAf2 varsAf2Map varsNum polyExpr in
+    let (newPolyExpr, res) = evalAf2 varsAf2Map varsNum polyExpr in
     res#evaluate
-  with Failure f -> new IA.interval neg_infinity infinity
+  with Failure f -> {low=neg_infinity;high=infinity}
 
+let rec reset_intv = function 
+  | Real (c, _) -> Real(c, {low=neg_infinity;high=infinity})
+  | Var (v, _) -> Var (v, {low=neg_infinity;high=infinity})
+  | Add (u, v, _) -> Add (reset_intv u, reset_intv v, {low=neg_infinity;high=infinity})
+  | Sub (u, v, _) -> Sub (reset_intv u, reset_intv v, {low=neg_infinity;high=infinity})
+  | Mul (u, v, _) -> Mul (reset_intv u, reset_intv v, {low=neg_infinity;high=infinity})
+  | Div (u, v, _) -> Div (reset_intv u, reset_intv v, {low=neg_infinity;high=infinity})
+  | Pow (var, multiplicity, _) -> Pow (var, multiplicity, {low=neg_infinity;high=infinity})
 
 (* Evaluate the polynomial using AF2, varsSensitivity is also returned *)
 let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap =
   let add_varAf2Index var (varsAf2sMap, varsIndicesList, nextIndex) =
-    let intv = StringMap.find Var (var, _)sIntvsMap in
+    let intv = StringMap.find var varsIntvsMap in
     let af2 = Util.toAf2 intv nextIndex varsNum in
     (*print_string ("Af2 of " ^ var ^ " in " ^ intv#to_string ^ "is ");
     af2#print_form;
@@ -461,14 +506,15 @@ let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap =
   in
   List.iter print_var_index varsIndicesList;*)
   try 
-    let res = evalAf2 varsAf2Map varsNum polyExpr in
+    let (newPolyExpr, res) = evalAf2 varsAf2Map varsNum polyExpr in
     (*res#print_form;*)
     let varsSensitivity = res#extract_sortedVarsSens varsIndicesList in
-    (res#evaluate, varsSensitivity)
+    (newPolyExpr, res#evaluate, varsSensitivity)
   with Failure f -> 
     let gen_emptyVarsSen var currentSens = (var, 0., false) :: currentSens in
     let varsSensitivity = VariablesSet.fold gen_emptyVarsSen varsSet [] in
-    (new IA.interval neg_infinity infinity, varsSensitivity)
+    let newPolyExpr = reset_intv polyExpr in
+    (newPolyExpr, {low=neg_infinity; high=infinity}, varsSensitivity)
 
 (* Evaluate a polynomial using CI *)
 let poly_eval_ci polyExpr varsIntvsMap = 
@@ -494,7 +540,7 @@ let poly_eval e varsSet ia varsIntvsMap =
   )  
   else *) if (ia=2) then (
     let iIntvVar = VariablesSet.cardinal varsSet in
-    let estimatedIntv = poly_eval_af2 e varsSet iIntvVar (var, _)sIntvsMap in
+    let estimatedIntv = poly_eval_af2 e varsSet iIntvVar varsIntvsMap in
     (estimatedIntv, ([]:float list));
     (*let assAf2VarPos = e_toAf2 assIntv 1 iIntvVar in
     let (assAf2, varPos) = List.split assAf2VarPos in
@@ -522,7 +568,7 @@ let poly_eval e varsSet ia varsIntvsMap =
     (res, []);
   ) *)
   else (
-    let res = poly_eval_ci e varsIntvsMap in
+    let (_, res) = poly_eval_ci e varsIntvsMap in
     (res, []);
   )  
 
@@ -533,35 +579,35 @@ let check_sat_providedBounds boolExp bound =
   flush stdout;*)
   match boolExp with
   |Eq e -> 
-    if (bound#l = bound#h && bound#h = 0.) then 1
-    else if (bound#h < 0. || bound#l > 0.) then -1
+    if (bound.low = bound.high && bound.high = 0.) then 1
+    else if (bound.high < 0. || bound.low > 0.) then -1
     else 0
   |Neq e -> 
-    if (bound#l = bound#h && bound#h = 0.) then -1
-    else if (bound#h < 0. || bound#l > 0.) then 1
+    if (bound.low = bound.high && bound.high = 0.) then -1
+    else if (bound.high < 0. || bound.low > 0.) then 1
     else 0
   |Leq e -> 
-    if (bound#h <= 0.) then 1
-    else if (bound#l > 0.) then -1
+    if (bound.high <= 0.) then 1
+    else if (bound.low > 0.) then -1
     else 0
   |Le e -> 
-    if (bound#h < 0.) then 1
-    else if (bound#l >= 0.) then -1
+    if (bound.high < 0.) then 1
+    else if (bound.low >= 0.) then -1
     else 0
   |Geq e -> 
-    if (bound#l >= 0.) then 1
-    else if (bound#h < 0.) then -1
+    if (bound.low >= 0.) then 1
+    else if (bound.high < 0.) then -1
     else 0
   |Gr e -> 
-    if (bound#l > 0.) then 1
-    else if (bound#h <= 0.) then -1
+    if (bound.low > 0.) then 1
+    else if (bound.high <= 0.) then -1
     else 0
 
 
 (* Check whether an expression e is satisfiable or not provided the over-approximation of sides, length of SAT area also be returned *)
 let check_sat_get_satLength_providedBounds boolExp bound = 
-  let lowerBound = bound#l in
-  let upperBound = bound#h in
+  let lowerBound = bound.low in
+  let upperBound = bound.high in
   (*print_endline ("Bounds: " ^ string_of_float lowerBound ^ " " ^ string_of_float upperBound);
   flush stdout;*)
   match boolExp with
@@ -591,18 +637,6 @@ let check_sat_get_satLength_providedBounds boolExp bound =
     else (0, upperBound)
 
 
-(* check sat of boolean expression using ICI *)
-let check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap =
-  let polyExpr = get_exp boolExpr in
-  let iciBound  =  poly_eval_ici polyExpr varsIntvsMap in
-  let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr iciBound in
-  (sat, iciBound, satLength)
-
-let check_sat_ici_get_satLength_boolExpr boolExpr varsIntvsMap =
-  let polyExpr = get_exp boolExpr in
-  let iciBound  =  poly_eval_ici polyExpr varsIntvsMap in
-  check_sat_get_satLength_providedBounds boolExpr iciBound
-
 (* Check sat with combination of AF2 and CI *)
 let check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap = 
   let polyExpr = get_exp boolExpr in
@@ -613,11 +647,8 @@ let check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap =
   let sat = check_sat_providedBounds boolExpr afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
-    let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
-    
-    let newLowerBound = max afTwoBound#l ciBound#l in
-    let newHigherBound = min afTwoBound#h ciBound#h in
-    let newBound = new IA.interval newLowerBound newHigherBound in
+    let (_, ciBound)  = poly_eval_ci polyExpr varsIntvsMap in
+    let newBound = inter_I_I afTwoBound ciBound in
     let sat = check_sat_providedBounds boolExpr newBound in
     sat
   else sat
@@ -629,7 +660,7 @@ let check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum vars
   (* evaluate the expression using AF2 *)
   (*print_endline ("Start checking using af2\n");
   flush stdout;*)
-  let (afTwoBound, varsSens)  = poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap in
+  let (newPolyExpr, afTwoBound, varsSens)  = poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap in
   (*let print_var_sen (var, sen, isPositiveSen) = 
     print_endline (var ^ ": " ^ string_of_float sen ^ " ");
     flush stdout;
@@ -641,14 +672,11 @@ let check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum vars
   let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
-    let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
+    let (newPolyExpr, ciBound)  = poly_eval_ci newPolyExpr varsIntvsMap in
     
-    let newLowerBound = max afTwoBound#l ciBound#l in
-    let newHigherBound = min afTwoBound#h ciBound#h in
-    let newBound = new IA.interval newLowerBound newHigherBound in
-    let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr newBound in
-    (sat, satLength, varsSens, newBound)
-  else (sat, satLength, varsSens, afTwoBound)
+    let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr ciBound in
+    (newPolyExpr, sat, satLength, varsSens, ciBound)
+  else (newPolyExpr, sat, satLength, varsSens, afTwoBound)
   
 let check_sat_af_two_ci_get_satLength_boolExpr boolExpr varsSet varsNum varsIntvsMap =
   let polyExpr = get_exp boolExpr in
@@ -659,127 +687,74 @@ let check_sat_af_two_ci_get_satLength_boolExpr boolExpr varsSet varsNum varsIntv
   let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr afTwoBound in
   if sat = 0 then (* AF2 fails to conclude the expression *)
     (* Compute bouds of polynomial using *)
-    let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
+    let (_, ciBound)  = poly_eval_ci polyExpr varsIntvsMap in
     
-    let newLowerBound = max afTwoBound#l ciBound#l in
-    let newHigherBound = min afTwoBound#h ciBound#h in
-    let newBound = new IA.interval newLowerBound newHigherBound in
+    let newBound = inter_I_I afTwoBound ciBound in
     check_sat_get_satLength_providedBounds boolExpr newBound
   else (sat, satLength)
 
-let check_constracted oldBound newBound = 
-  oldBound#l < newBound#l || oldBound#h > newBound#h
+let check_contract oldIntv intv = 
+  oldIntv.low < intv.low || oldIntv.high > intv.high
 
-let get_intersection bound1 bound2 =
-  let newLowerBound = max bound1#l bound2#l in
-  let newHigherBound = min bound1#h bound2#h in
-  let newBound = new IA.interval newLowerBound newHigherBound in
-  newBound
+let get_intv_ofPolyExpr = function
+  | Real (_, intv) -> intv
+  | Var (_, intv) -> intv
+  | Add (_, _, intv) -> intv
+  | Sub (_, _, intv) -> intv
+  | Mul (_, _, intv) -> intv
+  | Div (_, _, intv) -> intv
+  | Pow (_, _, intv) -> intv
 
-let get_bound polyExpr varsSet varsIntvsMap =
-  let varsNum = VariablesSet.cardinal varsSet in
-  let afTwoBound  = poly_eval_af2 polyExpr varsSet varsNum varsIntvsMap in
-  let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
-  get_intersection  afTwoBound ciBound
+let rec contract_polyExpr polyExpr intv varsIntvsMap =
+  let oldIntv = get_intv_ofPolyExpr polyExpr in
+  let contracted = check_contract oldIntv intv in
+  if contracted then 
+    let newIntv = inter_I_I oldIntv intv in 
+    if newIntv.low <= newIntv.high then match polyExpr with 
+      | Var (var, _) -> (contracted, StringMap.add var newIntv varsIntvsMap)
+      | Add (u, v, _) -> 
+        let uIntv = get_intv_ofPolyExpr u in
+        let vIntv = get_intv_ofPolyExpr v in
 
-(*
-let rec backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInterval result =
-  if polyExprInterval#h < polyExprInterval#l then (result, new IA.interval 1. (-1.))
-  else
-  match polyExpr with
-  | Var x -> 
-    if x = var then 
-      if polyExprInterval#l > intv#l || polyExprInterval#h < intv#h then
-        (true, get_intersection polyExprInterval intv)
-      else (result, intv)
-    else (result, intv)
-	| Add((e1, varsSet1), (e2, varsSet2)) -> 
-	  let (tmpResult1, tmpIntv1) =
-	    if VariablesSet.mem Var (var, _)sSet1 then
-	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
-	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
-	      let newBound1 = IA.CI.(polyExprInterval - bound2) in
-	      if check_constracted bound1 newBound1 then 
-	        backward_propagate_boolExpr var intv varsIntvsMap e1 (get_intersection bound1 newBound1) result
-	      else 
-	        (result, intv)
-	    else (result, intv)
-	  in
-	  let varsIntvsMap =
-	    if tmpResult1 then StringMap.add var tmpIntv1 varsIntvsMap
-	    else varsIntvsMap
-	  in
-	  let (tmpResult2, tmpIntv2) =
-	    if VariablesSet.mem Var (var, _)sSet2 then
-	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
-	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
-	      let newBound2 = IA.CI.(polyExprInterval - bound1) in 
-	      if check_constracted bound2 newBound2 then
-	        backward_propagate_boolExpr var tmpIntv1 varsIntvsMap e1 (get_intersection bound2 newBound2) tmpResult1
-	      else (tmpResult1, tmpIntv1)
-	    else (tmpResult1, tmpIntv1)
-	  in (tmpResult2, tmpIntv2)
-	| Sub((e1, varsSet1), (e2, varsSet2)) -> 
-	  let (tmpResult1, tmpIntv1) =
-	    if VariablesSet.mem Var (var, _)sSet1 then
-	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
-	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
-	      let newBound1 = IA.CI.(polyExprInterval + bound2) in
-	      if check_constracted bound1 newBound1 then 
-	        backward_propagate_boolExpr var intv varsIntvsMap e1 (get_intersection bound1 newBound1) result
-	      else 
-	        (result, intv)
-	    else (result, intv)
-	  in
-	  let varsIntvsMap =
-	    if tmpResult1 then StringMap.add var tmpIntv1 varsIntvsMap
-	    else varsIntvsMap
-	  in
-	  let (tmpResult2, tmpIntv2) =
-	    if VariablesSet.mem Var (var, _)sSet2 then
-	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
-	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
-	      let newBound2 = IA.CI.(bound1 - polyExprInterval) in 
-	      if check_constracted bound2 newBound2 then
-	        backward_propagate_boolExpr var tmpIntv1 varsIntvsMap e1 (get_intersection bound2 newBound2) tmpResult1
-	      else (tmpResult1, tmpIntv1)
-	    else (tmpResult1, tmpIntv1)
-	  in (tmpResult2, tmpIntv2)
-	| Mul((e1, varsSet1), (e2, varsSet2)) ->
-	  let (tmpResult1, tmpIntv1) =
-	    if VariablesSet.mem Var (var, _)sSet1 then
-	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
-	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
-	      let newBound1 =
-	        if bound2#l < 0. && bound2#h > 0. then
-	          new IA.interval neg_infinity infinity (* later we need special processing here *)
-	        else
-	          IA.CI.(polyExprInterval * (new IA.interval (1. /. bound2#h) (1. /. bound2#l)))
-	      in
-	      if check_constracted bound1 newBound1 then 
-	        backward_propagate_boolExpr var intv varsIntvsMap e1 (get_intersection bound1 newBound1) result
-	      else 
-	        (result, intv)
-	    else (result, intv)
-	  in
-	  let varsIntvsMap =
-	    if tmpResult1 then StringMap.add var tmpIntv1 varsIntvsMap
-	    else varsIntvsMap
-	  in
-	  let (tmpResult2, tmpIntv2) =
-	    if VariablesSet.mem Var (var, _)sSet2 then
-	      let bound1 = get_bound e1 varsSet1 varsIntvsMap in
-	      let bound2 = get_bound e2 varsSet2 varsIntvsMap in
-	      let newBound2 = 
-	        if bound1#l < 0. && bound1#h > 0. then
-	          new IA.interval neg_infinity infinity (* later we need special processing here *)
-	        else
-	          IA.CI.(polyExprInterval * (new IA.interval (1. /. bound1#h) (1. /. bound1#l)))
-	      in 
-	      if check_constracted bound2 newBound2 then
-	        backward_propagate_boolExpr var tmpIntv1 varsIntvsMap e1 (get_intersection bound2 newBound2) tmpResult1
-	      else (tmpResult1, tmpIntv1)
-	    else (tmpResult1, tmpIntv1)
-	  in (tmpResult2, tmpIntv2)
-	| Real r -> (result, intv)
-*)	
+        (* try to contract u *)
+        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv -$ vIntv) varsIntvsMap in
+        if uConstracted then (uConstracted, varsIntvsMap)
+        else 
+          let (vConstracted, varsIntvsMap) = contract_polyExpr v (newIntv -$ uIntv) varsIntvsMap in
+          (vConstracted, varsIntvsMap)
+      | Sub (u, v, _) -> 
+        let uIntv = get_intv_ofPolyExpr u in
+        let vIntv = get_intv_ofPolyExpr v in
+
+        (* try to contract u *)
+        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv +$ vIntv) varsIntvsMap in
+        if uConstracted then (uConstracted, varsIntvsMap)
+        else 
+          let (vConstracted, varsIntvsMap) = contract_polyExpr v (uIntv -$ newIntv) varsIntvsMap in
+          (vConstracted, varsIntvsMap)
+      | Mul (u, v, _) -> 
+        let uIntv = get_intv_ofPolyExpr u in
+        let vIntv = get_intv_ofPolyExpr v in
+
+        (* try to contract u *)
+        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv /$ vIntv) varsIntvsMap in
+        if uConstracted then (uConstracted, varsIntvsMap)
+        else 
+          let (vConstracted, varsIntvsMap) = contract_polyExpr v (newIntv /$ uIntv) varsIntvsMap in
+          (vConstracted, varsIntvsMap)
+      | Div (u, v, _) ->
+        let uIntv = get_intv_ofPolyExpr u in
+        let vIntv = get_intv_ofPolyExpr v in
+
+        (* try to contract u *)
+        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv *$ vIntv) varsIntvsMap in
+        if uConstracted then (uConstracted, varsIntvsMap)
+        else 
+          let (vConstracted, varsIntvsMap) = contract_polyExpr v (uIntv /$ newIntv) varsIntvsMap in
+          (vConstracted, varsIntvsMap)
+      | Pow (var, multiplicity, _) -> 
+        let varIntv = newIntv **$ ({low=1.;high=0.1} /$. float_of_int multiplicity) in
+        (contracted, StringMap.add var varIntv varsIntvsMap)
+      | _ -> raise (Failure "Wrong implementation in contraction operation")
+    else (contracted, StringMap.empty)  
+  else (false, varsIntvsMap)

@@ -19,7 +19,7 @@ class polynomialConstraint boolExprInit =
   let varsNumInit = VariablesSet.cardinal varsSetInit in
   let varsListInit = VariablesSet.elements varsSetInit in
   object (self)
-    val boolExpr = boolExprInit
+    val mutable boolExpr = boolExprInit
     val varsSet = varsSetInit
     val varsNum = varsNumInit
     val varsList = varsListInit
@@ -30,7 +30,7 @@ class polynomialConstraint boolExprInit =
     val mutable satLength = 0. 
     val mutable isInfinite = false
     val mutable testValue = 0.
-    val mutable iaValue = new IA.interval 0. 0.
+    val mutable iaValue = {low=neg_infinity;high=infinity}
     val mutable logic = ""
     val mutable easiness = 0.
     val mutable log = ""
@@ -39,6 +39,17 @@ class polynomialConstraint boolExprInit =
     method set_log setLog = log <- setLog
     
     method get_constraint = boolExpr
+    method set_polyExpr polyExpr =
+      let newBoolExpr = match boolExpr with
+      | Eq _ -> Eq polyExpr
+      | Neq _ -> Neq polyExpr 
+      | Geq _ -> Geq polyExpr
+      | Leq _ -> Leq polyExpr
+      | Gr _ -> Gr polyExpr
+      | Le _ -> Le polyExpr
+      in 
+      boolExpr <- newBoolExpr
+    method get_polyExpr = get_exp boolExpr
     
     method get_varsSet = varsSet
     
@@ -64,6 +75,13 @@ class polynomialConstraint boolExprInit =
     method get_logic = logic
     
     method get_iaValue = iaValue
+    method get_contractedIntv = match boolExpr with
+      | Eq _ -> {low=0.; high=0.}
+      | Neq _ -> iaValue
+      | Geq _ -> inter_I_I iaValue {low=0.;high=infinity}
+      | Leq _ -> inter_I_I iaValue {low=neg_infinity;high=0.}
+      | Gr _ -> inter_I_I iaValue {low=0.;high=infinity}
+      | Le _ -> inter_I_I iaValue {low=neg_infinity;high=0.}
     
     method get_easiness = easiness
     
@@ -81,7 +99,8 @@ class polynomialConstraint boolExprInit =
     method get_varsList = 
       if List.length varsSen = varsNum then self#get_n_varsSen varsNum
       else varsList
-    
+
+
     (* check sat of this polynomial using ci*)
     (*method private check_sat_getBound_ici (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap*)
     
@@ -90,7 +109,8 @@ class polynomialConstraint boolExprInit =
         
     (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
     method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = 
-      let (sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
+      let (newPolyExpr, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
+      self#set_polyExpr newPolyExpr;
       varsSen <- sortedVarsSen;
       satLength <- computedSatLength;
       (sat, bound, computedSatLength)
@@ -113,7 +133,7 @@ class polynomialConstraint boolExprInit =
       in
       let setEasiness = 
         if satLength = infinity then 1.
-        else satLength /. (bound#h -. bound#l)
+        else satLength /. (bound.high -. bound.low)
       in
       easiness <- setEasiness;
       iaValue <- bound;
@@ -131,10 +151,10 @@ class polynomialConstraint boolExprInit =
         (*if isInfiniteTmp then 
           self#check_sat_getBound_ici varsIntvsMap
         else *)
-          let (sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
+          let (_, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
           (sat, bound, computedSatLength)
       in
-      (sat, satLength, satLength /. (bound#h -. bound#l))
+      (sat, satLength, satLength /. (bound.high -. bound.low))
         
     
     (* get n-first variables by varsSen *)
@@ -209,7 +229,7 @@ class polynomialConstraint boolExprInit =
       in
       let varsIntvsMap = StringMap.fold convert_toIntv varsTCsMap StringMap.empty in
       let polyExpr = get_exp boolExpr in
-      let ciBound  = poly_eval_ci polyExpr varsIntvsMap in
+      let (_, ciBound)  = poly_eval_ci polyExpr varsIntvsMap in
       (*print_endline ("Bound" ^ ciBound#to_string);
       flush stdout;*)
       check_sat_providedBounds boolExpr ciBound
@@ -265,9 +285,7 @@ class polynomialConstraint boolExprInit =
 		    (string_infix_of_polyExpr e) ^ " = " ^ testValueString ^ " > 0"  
 		    
 		method log_ia = 
-		  let lowerString = string_of_float iaValue#l in
-      let upperString = string_of_float iaValue#h in
-      let iaString = "[" ^ lowerString ^ ", " ^ upperString ^ "]" in
+      let iaString = sprintf_I "%f" iaValue in
       match boolExpr with
       |Eq e -> 
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " = 0"

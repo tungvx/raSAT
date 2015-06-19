@@ -38,6 +38,7 @@
 *.out
 *.tmp
 camlside/a
+Test/
 Test/bin/raSAT
 Test/raSAT
 bin/raSAT

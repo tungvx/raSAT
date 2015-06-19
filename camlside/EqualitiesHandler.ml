@@ -24,7 +24,7 @@ let check_equality polyCons varsSet varsIntvsMap =
   let secondBound = polyCons#get_bound secondPoint in
  
   (* Intermediate theorem f(a) . f(b) < 0 ==> f(x) has a root between a and b *)
-  if (firstBound#h < 0. && secondBound#l > 0.) || (firstBound#l > 0. && secondBound#h < 0.) then (
+  if (firstBound.high < 0. && secondBound.low > 0.) || (firstBound.low > 0. && secondBound.high < 0.) then (
     let get_log var intv currentString =
       if VariablesSet.mem var polyCons#get_varsSet then
         if VariablesSet.mem var varsSet then 
@@ -35,7 +35,7 @@ let check_equality polyCons varsSet varsIntvsMap =
     in
     let firstLog = StringMap.fold get_log firstPoint "" in
     let secondLog = StringMap.fold get_log secondPoint "" in
-    let log = polyCons#to_string_infix ^ ":\n" ^ firstLog ^ ": " ^ firstBound#to_string ^ "\n" ^ secondLog ^ ": " ^ secondBound#to_string ^ "\n" in
+    let log = polyCons#to_string_infix ^ ":\n" ^ firstLog ^ ": " ^ sprintf_I "%f" firstBound ^ "\n" ^ secondLog ^ ": " ^ sprintf_I "%f"  secondBound ^ "\n" in
     polyCons#set_log log;
     true
   )

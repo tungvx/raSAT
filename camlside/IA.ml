@@ -810,8 +810,7 @@ class af2 size = object (self)
         intv := !intv +$ {low= (~-.) (abs_I ar.(i)).high; high = (abs_I ar.(i)).high};
       done;
 
-     let result = new interval !intv.low !intv.high in
-     result;
+     !intv;
     
     method print_form = 
       print_string "a: ";
@@ -821,7 +820,7 @@ class af2 size = object (self)
       done;
       Printf.printf "kp: %f, kn: %f, k: %f, " kp kn k;
       print_string "output: ";
-      self#evaluate#printForm;
+      (* self#evaluate#printForm; *)
       flush stdout;
     
     method extract_sortedVarsSens varsIndicesList = 

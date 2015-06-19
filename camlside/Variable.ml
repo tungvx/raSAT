@@ -1,4 +1,5 @@
 module VariablesSet = Set.Make(String);;
+module IntSet = Set.Make(struct type t = int let compare = compare end);;
 module IntMap = Map.Make(struct type t = int let compare = compare end);;
 module StringMap = Map.Make(String);;
 module FloatMap = Map.Make(struct type t = float let compare = compare end);;
