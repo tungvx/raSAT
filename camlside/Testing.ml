@@ -133,14 +133,14 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
   match abstractTCInfList with
   | Nil -> ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
   | Cons((varsTCsMap, testCases, assignedVarsSet, testedPolyCons, remainingPolyConstraints, priorityNum), tail) ->
-    if remainingTime <= 0. || testedPolyCons#isInfinite then ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
+    if remainingTime <= 0. (* || testedPolyCons#isInfinite *) then ([],-1, [unsatPolyCons],StringMap.empty, polyConstraintsNum - IntMap.cardinal miniSATCodesSATPolyConstraintsMap)
     else 
       let startTime = Sys.time() in
       match testCases with
       | [] -> (* Testing for some apis are implemented here, or testcases will be generated *)
-        (*print_endline ("\nTesting: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
-        flush stdout;*)
         let sat = testedPolyCons#check_SAT varsTCsMap in
+        (* print_endline ("\nTesting: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
+        flush stdout; *)
         if sat then (
           (*print_endline ("SAT constraint: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
           flush stdout;*)
@@ -176,7 +176,7 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
 
 (* This function test the list of unknow clauses, trying to find an SAT instance *)
 let rec test polyConstraints varsIntvsMaps remainingTime =
-  (*print_endline "\n\nStart Testing";*)
+  (* print_endline "\n\nStart Testing"; *)
   let startTime = Sys.time() in
   
   (* Get information about SAT direction of variables *)
@@ -186,11 +186,11 @@ let rec test polyConstraints varsIntvsMaps remainingTime =
     polyCons#add_sat_direction currentMap
   in
   let varsSATDirectionMap = List.fold_left add_sat_direction StringMap.empty polyConstraints in
-  (*let print_varSATDirection var isPositiveDirected =
+  (* let print_varSATDirection var isPositiveDirected =
     print_endline (var ^ ": " ^ string_of_int isPositiveDirected);
     flush stdout;
   in
-  StringMap.iter print_varSATDirection varsSATDirectionMap;*)
+  StringMap.iter print_varSATDirection varsSATDirectionMap; *)
   (* sort the polynomial constraings using dependency, which make the additional test data generation minimal *)
   (*let rec find_min_additionalTCGen_polyCons checkedVarsSet checkedPolyConstraints remainingPolyConstraints currentResult currentAdditionalTCs = match remainingPolyConstraints with
     | [] -> (currentResult, checkedPolyConstraints)

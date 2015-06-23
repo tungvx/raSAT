@@ -319,29 +319,32 @@ let rec evalCI_extra varsIntvsMap = function
     let intv = StringMap.find var varsIntvsMap in
     (Var (var, intv), intv)
   | Add (u, v, oldIntv) -> 
-    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
-    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let (u', uIntv) = evalCI_extra varsIntvsMap u in 
+    let (v', vIntv) = evalCI_extra varsIntvsMap v in
     let intv = uIntv +$ vIntv in
     let newIntv = inter_I_I oldIntv intv in
-    (Add(u, v, newIntv), newIntv)
+
+    (* print_endline ("Estimating " ^ string_infix_of_polyExpr (Add(u, v, newIntv)) ^ " as " ^ sprintf_I "%f" newIntv);
+    flush stdout; *)
+    (Add(u', v', newIntv), newIntv)
   | Sub (u, v, oldIntv) -> 
-    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
-    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let (u', uIntv) = evalCI_extra varsIntvsMap u in 
+    let (v', vIntv) = evalCI_extra varsIntvsMap v in
     let intv = uIntv -$ vIntv in
     let newIntv = inter_I_I oldIntv intv in
-    (Sub(u, v, newIntv), newIntv)
+    (Sub(u', v', newIntv), newIntv)
   | Mul (u, v, oldIntv) -> 
-    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
-    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let (u', uIntv) = evalCI_extra varsIntvsMap u in 
+    let (v', vIntv) = evalCI_extra varsIntvsMap v in
     let intv = uIntv *$ vIntv in
     let newIntv = inter_I_I oldIntv intv in
-    (Mul(u, v, newIntv), newIntv)
+    (Mul(u', v', newIntv), newIntv)
   | Div (u, v, oldIntv) -> 
-    let (_, uIntv) = evalCI_extra varsIntvsMap u in 
-    let (_, vIntv) = evalCI_extra varsIntvsMap v in
+    let (u', uIntv) = evalCI_extra varsIntvsMap u in 
+    let (v', vIntv) = evalCI_extra varsIntvsMap v in
     let intv = uIntv /$ vIntv in
     let newIntv = inter_I_I oldIntv intv in
-    (Div(u, v, newIntv), newIntv)
+    (Div(u', v', newIntv), newIntv)
   | Pow (var, multiplicity, oldIntv) -> 
     let varIntv = StringMap.find var varsIntvsMap in
     let intv = pow_I_i varIntv multiplicity in
@@ -383,24 +386,24 @@ let rec evalAf2 varsAf2sMap varsNum = function
     let af2Form = StringMap.find var varsAf2sMap in
     (Var(var, af2Form#evaluate), af2Form)
   | Add (u, v, _) -> 
-    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
-    let (_, af2FormV) = evalAf2 varsAf2sMap varsNum v in
+    let (u', af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let (v', af2FormV) = evalAf2 varsAf2sMap varsNum v in
     let af2Form = IA.AF2.(af2FormU + af2FormV) in
-    (Add(u, v, af2Form#evaluate), af2Form)
+    (Add(u', v', af2Form#evaluate), af2Form)
   | Sub (u, v, _) -> 
-    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
-    let (_, af2FormV) = evalAf2 varsAf2sMap varsNum v in
+    let (u', af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let (v', af2FormV) = evalAf2 varsAf2sMap varsNum v in
     let af2Form = IA.AF2.(af2FormU - af2FormV) in
-    (Sub(u, v, af2Form#evaluate), af2Form)
+    (Sub(u', v', af2Form#evaluate), af2Form)
   | Mul (u, v, _) -> 
-    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
-    let (_, af2FormV) = evalAf2 varsAf2sMap varsNum v in
+    let (u', af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let (v', af2FormV) = evalAf2 varsAf2sMap varsNum v in
     let af2Form = IA.AF2.(af2FormU * af2FormV) in
-    (Mul(u, v, af2Form#evaluate), af2Form)
+    (Mul(u', v', af2Form#evaluate), af2Form)
   | Div (u, Real (f, fBound), _) -> 
-    let (_, af2FormU) = evalAf2 varsAf2sMap varsNum u in
+    let (u', af2FormU) = evalAf2 varsAf2sMap varsNum u in
     let af2Form = IA.AF2.(af2FormU / f) in
-    (Div(u, Real(f, fBound), af2Form#evaluate), af2Form)
+    (Div(u', Real(f, fBound), af2Form#evaluate), af2Form)
   | Pow (var, multiplicity, _) -> 
     if multiplicity = 1 then 
       let varAF2Form = StringMap.find var varsAf2sMap in 
@@ -499,13 +502,13 @@ let poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap =
     flush stdout;*)
     (StringMap.add var af2 varsAf2sMap, (var, nextIndex-1)::varsIndicesList, nextIndex + 1)
   in
-  let (varsAf2Map, varsIndicesList, _) = VariablesSet.fold add_varAf2Index varsSet (StringMap.empty, [], 1) in
-  (*let print_var_index (var, index) = 
-    print_endline (var ^ ": " ^ string_of_int index ^ " ");
-    flush stdout;
-  in
-  List.iter print_var_index varsIndicesList;*)
   try 
+    let (varsAf2Map, varsIndicesList, _) = VariablesSet.fold add_varAf2Index varsSet (StringMap.empty, [], 1) in
+    (*let print_var_index (var, index) = 
+      print_endline (var ^ ": " ^ string_of_int index ^ " ");
+      flush stdout;
+    in
+    List.iter print_var_index varsIndicesList;*)
     let (newPolyExpr, res) = evalAf2 varsAf2Map varsNum polyExpr in
     (*res#print_form;*)
     let varsSensitivity = res#extract_sortedVarsSens varsIndicesList in
@@ -661,12 +664,12 @@ let check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum vars
   (*print_endline ("Start checking using af2\n");
   flush stdout;*)
   let (newPolyExpr, afTwoBound, varsSens)  = poly_eval_af2_varsSens polyExpr varsSet varsNum varsIntvsMap in
-  (*let print_var_sen (var, sen, isPositiveSen) = 
+(*   let print_var_sen (var, sen, isPositiveSen) = 
     print_endline (var ^ ": " ^ string_of_float sen ^ " ");
     flush stdout;
   in
   List.iter print_var_sen varsSens;
-  flush stdout;*)
+  flush stdout; *)
   (* print_endline afTwoBound#to_string;
   flush stdout; *)
   let (sat, satLength) = check_sat_get_satLength_providedBounds boolExpr afTwoBound in
@@ -693,8 +696,8 @@ let check_sat_af_two_ci_get_satLength_boolExpr boolExpr varsSet varsNum varsIntv
     check_sat_get_satLength_providedBounds boolExpr newBound
   else (sat, satLength)
 
-let check_contract oldIntv intv = 
-  oldIntv.low < intv.low || oldIntv.high > intv.high
+let check_contract oldIntv intv esl = 
+  oldIntv.low +. esl < intv.low || oldIntv.high > intv.high +. esl
 
 let get_intv_ofPolyExpr = function
   | Real (_, intv) -> intv
@@ -705,56 +708,72 @@ let get_intv_ofPolyExpr = function
   | Div (_, _, intv) -> intv
   | Pow (_, _, intv) -> intv
 
-let rec contract_polyExpr polyExpr intv varsIntvsMap =
+let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
   let oldIntv = get_intv_ofPolyExpr polyExpr in
-  let contracted = check_contract oldIntv intv in
+  let contracted = check_contract oldIntv intv esl in
   if contracted then 
     let newIntv = inter_I_I oldIntv intv in 
+    (* print_endline ("Contracted " ^ string_infix_of_polyExpr polyExpr ^ " from " ^ sprintf_I "%f" oldIntv
+      ^ " to " ^ sprintf_I "%f" newIntv);
+    flush stdout; *)
     if newIntv.low <= newIntv.high then match polyExpr with 
       | Var (var, _) -> (contracted, StringMap.add var newIntv varsIntvsMap)
       | Add (u, v, _) -> 
         let uIntv = get_intv_ofPolyExpr u in
         let vIntv = get_intv_ofPolyExpr v in
-
+        (* print_endline ("Contracting " ^ string_infix_of_polyExpr u ^ " from " ^ sprintf_I "%f" uIntv
+          ^ " to " ^ sprintf_I "%f" (newIntv -$ vIntv));
+        flush stdout;   *)
         (* try to contract u *)
-        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv -$ vIntv) varsIntvsMap in
-        if uConstracted then (uConstracted, varsIntvsMap)
+        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv -$ vIntv) varsIntvsMap esl in
+        if uContracted && StringMap.is_empty varsIntvsMap then 
+          (uContracted, StringMap.empty)
         else 
-          let (vConstracted, varsIntvsMap) = contract_polyExpr v (newIntv -$ uIntv) varsIntvsMap in
-          (vConstracted, varsIntvsMap)
+          let (vContracted, varsIntvsMap) = contract_polyExpr v (newIntv -$ uIntv) varsIntvsMap esl in
+          (uContracted || vContracted, varsIntvsMap)
       | Sub (u, v, _) -> 
         let uIntv = get_intv_ofPolyExpr u in
         let vIntv = get_intv_ofPolyExpr v in
 
         (* try to contract u *)
-        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv +$ vIntv) varsIntvsMap in
-        if uConstracted then (uConstracted, varsIntvsMap)
-        else 
-          let (vConstracted, varsIntvsMap) = contract_polyExpr v (uIntv -$ newIntv) varsIntvsMap in
-          (vConstracted, varsIntvsMap)
+        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv +$ vIntv) varsIntvsMap esl in 
+        if uContracted && StringMap.is_empty varsIntvsMap then 
+          (uContracted, StringMap.empty)
+        else
+          let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv -$ newIntv) varsIntvsMap esl in
+          (uContracted || vContracted, varsIntvsMap)
       | Mul (u, v, _) -> 
         let uIntv = get_intv_ofPolyExpr u in
         let vIntv = get_intv_ofPolyExpr v in
 
         (* try to contract u *)
-        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv /$ vIntv) varsIntvsMap in
-        if uConstracted then (uConstracted, varsIntvsMap)
-        else 
-          let (vConstracted, varsIntvsMap) = contract_polyExpr v (newIntv /$ uIntv) varsIntvsMap in
-          (vConstracted, varsIntvsMap)
+        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv /$ vIntv) varsIntvsMap esl in
+        if uContracted && StringMap.is_empty varsIntvsMap then 
+          (uContracted, StringMap.empty)
+        else
+          let (vContracted, varsIntvsMap) = contract_polyExpr v (newIntv /$ uIntv) varsIntvsMap esl in
+          (uContracted || vContracted, varsIntvsMap)
       | Div (u, v, _) ->
         let uIntv = get_intv_ofPolyExpr u in
         let vIntv = get_intv_ofPolyExpr v in
 
         (* try to contract u *)
-        let (uConstracted, varsIntvsMap) = contract_polyExpr u (newIntv *$ vIntv) varsIntvsMap in
-        if uConstracted then (uConstracted, varsIntvsMap)
-        else 
-          let (vConstracted, varsIntvsMap) = contract_polyExpr v (uIntv /$ newIntv) varsIntvsMap in
-          (vConstracted, varsIntvsMap)
+        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv *$ vIntv) varsIntvsMap esl in
+        if uContracted && StringMap.is_empty varsIntvsMap then 
+          (uContracted, StringMap.empty)
+        else
+          let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv /$ newIntv) varsIntvsMap esl in
+          (uContracted || vContracted, varsIntvsMap)
       | Pow (var, multiplicity, _) -> 
-        let varIntv = newIntv **$ ({low=1.;high=0.1} /$. float_of_int multiplicity) in
-        (contracted, StringMap.add var varIntv varsIntvsMap)
+        let varIntv = newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
+        let varIntv = 
+          if multiplicity mod 2 = 0 then {low = -.(varIntv.high);high=varIntv.high}
+          else varIntv
+        in
+        (* print_endline ("Contracted " ^ var ^ " from " ^ sprintf_I "%f" newIntv
+      ^ " to " ^ sprintf_I "%f" varIntv); *)
+        if check_contract (StringMap.find var varsIntvsMap) varIntv esl then (contracted, StringMap.add var varIntv varsIntvsMap)
+        else (false, varsIntvsMap)
       | _ -> raise (Failure "Wrong implementation in contraction operation")
     else (contracted, StringMap.empty)  
   else (false, varsIntvsMap)

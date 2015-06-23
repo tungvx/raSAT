@@ -18,18 +18,20 @@ module Util = struct
 
    (*CI to AF2 conversion, id <=size*)
    let toAf2 (intv: Interval.interval) (id:int) (size: int) = 
-     let a = ({low=intv.low;high=intv.low} +$ {low=intv.high;high=intv.high}) /$. 2. in
-     let b = ({low=intv.high;high=intv.high} -$ {low=intv.low;high=intv.low}) /$. 2. in
-     let result = new IA.af2 size in
-     result#set_a a;
-     result#set_kp 0.0;
-     result#set_kn 0.0;
-     result#set_k 0.0;
-     let ar1 = Array.create size {low=0.;high=0.} in
-     if id > 0 then
-       Array.set ar1 (id-1) b;
-     result#set_ar ar1;
-     result
+      if intv.low = neg_infinity || intv.high = infinity then raise (Failure "AA2 does not support infinity")
+      else 
+       let a = ({low=intv.low;high=intv.low} +$ {low=intv.high;high=intv.high}) /$. 2. in
+       let b = ({low=intv.high;high=intv.high} -$ {low=intv.low;high=intv.low}) /$. 2. in
+       let result = new IA.af2 size in
+       result#set_a a;
+       result#set_kp 0.0;
+       result#set_kn 0.0;
+       result#set_k 0.0;
+       let ar1 = Array.create size {low=0.;high=0.} in
+       if id > 0 then
+         Array.set ar1 (id-1) b;
+       result#set_ar ar1;
+       result
      
      (*CI to AF2 conversion, id <=size*)
    (*let toAf2 (it: IA.interval) (id:int) (size: int) = 

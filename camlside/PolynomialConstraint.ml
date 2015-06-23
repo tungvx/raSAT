@@ -2,6 +2,7 @@ open Ast
 open IA
 open Variable
 open Interval
+open Assignments
 
 (* ============================= START of polynomialConstraint class ================================= *)
 (* Class for storing informations of a constraint *)
@@ -132,7 +133,7 @@ class polynomialConstraint boolExprInit =
           self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
       in
       let setEasiness = 
-        if satLength = infinity then 1.
+        if satLength = infinity then 0.
         else satLength /. (bound.high -. bound.low)
       in
       easiness <- setEasiness;
@@ -218,6 +219,8 @@ class polynomialConstraint boolExprInit =
       (*print_endline (self#to_string_infix); 
       flush stdout;*)
       let (sat, value) = checkSAT_computeValues boolExpr varsTCsMap in
+      (* print_endline ("Test case: " ^ log_assignment varsTCsMap);
+      flush stdout; *)
       testValue <- value; 
       sat
    
@@ -303,18 +306,18 @@ class polynomialConstraint boolExprInit =
     method generateTCs assignedVarsSet (varsIntvsMap:(Interval.interval Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) = 
       (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)
-      (*print_endline ("\n\nSelecting api: " ^ self#to_string_infix ^ " - miniSATCode: " ^ string_of_int self#get_miniSATCode);
+      (* print_endline ("\n\nSelecting api: " ^ self#to_string_infix ^ " - miniSATCode: " ^ string_of_int self#get_miniSATCode);
       print_endline ("Variables sensitivity: " ^ self#string_of_varsSen);
       print_string ("Selecting variables: ");
-      flush stdout;*)
+      flush stdout; *)
       let neededVarsSet = VariablesSet.diff varsSet assignedVarsSet in
       let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
       (* This function generates test cases for one variable *)
       let rec generate_tc_var intv tcNum isFirst varSen isVarPositiveDirected =
-        (*print_endline ("TcNum: " ^ string_of_int tcNum);
+        (* print_endline ("TcNum: " ^ string_of_int tcNum);
         print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
-        flush stdout;*)
+        flush stdout; *)
         if tcNum <= 0 then []
         else
           let lowerBound = intv.low in

@@ -719,10 +719,10 @@ module Caml = struct
         )
 
 
-  let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap contracted = match uk_cl with
+  let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl contracted = match uk_cl with
     | [] -> (contracted, unsatPolyConstraintsCodes, varsIntvsMap)
     | h :: t -> 
-      let (newContracted, varsIntvsMap) = contract_polyExpr h#get_polyExpr h#get_contractedIntv varsIntvsMap in
+      let (newContracted, varsIntvsMap) = contract_polyExpr h#get_polyExpr h#get_contractedIntv varsIntvsMap esl in
       if newContracted && StringMap.is_empty varsIntvsMap then 
         (true, IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes, varsIntvsMap)
       else
@@ -730,26 +730,33 @@ module Caml = struct
           if newContracted then IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes
           else unsatPolyConstraintsCodes
         in
-        contract_polyConstraints t unsatPolyConstraintsCodes varsIntvsMap (contracted || newContracted)
+        contract_polyConstraints t unsatPolyConstraintsCodes varsIntvsMap esl (contracted || newContracted)
 
-  let rec icp res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime remainingTime =
+  let rec icp res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap esl iaTime usTime remainingTime =
     let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime) = 
       eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime remainingTime
     in
-    if res <> 0 then (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)
-    else (* implement ICP here *) 
-      let (constracted, unsatPolyConstraintsCodes, varsIntvsMap) = contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap false in
-      if constracted then 
-        if StringMap.is_empty varsIntvsMap then (-1, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)
-        else icp 1 unsatPolyConstraintsCodes [] validPolyConstraints uk_cl varsIntvsMap iaTime usTime remainingTime
-      else (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)
+    if res <> 0 then (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
+    else (* implement ICP here *) (
+      print_endline ("Contracting \n" ^ log_intervals varsIntvsMap);
+      flush stdout;
+      let (contracted, unsatPolyConstraintsCodes, varsIntvsMap) = contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl false in
+      if contracted then (
+        print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
+        flush stdout;
+        if StringMap.is_empty varsIntvsMap then (-1, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
+        else icp 1 unsatPolyConstraintsCodes [] validPolyConstraints uk_cl varsIntvsMap esl iaTime usTime remainingTime
+      )  
+      else (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
+    )
 
   (*Binary balance decomposition on intervals*)
   let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
     (*print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
     flush stdout;*)
     let startTime = Sys.time() in
-    let varsSet = polyCons#get_varsSet in
+    let add_varsSet currentVarsSet polyCons = VariablesSet.union polyCons#get_varsSet currentVarsSet in
+    let varsSet = List.fold_left add_varsSet VariablesSet.empty unkownPolyConstraints in
 
     let not_smallIntv intv =
 
@@ -778,7 +785,7 @@ module Caml = struct
         (reducedVarsSet, infVar)
       )
     in
-    let (reducedVarsSet, infVar) = (*varsSet*) VariablesSet.fold add_notSmallInterval varsSet (VariablesSet.empty, VariablesSet.choose varsSet) in
+    let (reducedVarsSet, infVar) = (*varsSet*) VariablesSet.fold add_notSmallInterval varsSet (VariablesSet.empty, "") in
     if VariablesSet.is_empty reducedVarsSet then (*Stop decomposition*) 
       (* let add_learnt_var var learntVars = 
         let (_, varId) = StringMap.find var varsIntvsMiniSATCodesMap in
@@ -817,9 +824,9 @@ module Caml = struct
           )
           else newPoint
         in*)
-        (*print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
-        print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " - easiness: " ^ string_of_float polyCons#get_easiness ^ " in [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "] with " ^ string_of_float newPoint);
-        flush stdout;*)
+        print_endline ("VarsSen: " ^ polyCons#string_of_varsSen);
+        print_endline ("Decomposing: " ^ var ^ " of " ^ polyCons#to_string_infix ^ " - easiness: " ^ string_of_float polyCons#get_easiness ^ " in " ^ sprintf_I "%f" intv ^ " with " ^ string_of_float newPoint);
+        flush stdout;
         (* print_endline ("logic: " ^ polyCons#get_logic);
         flush stdout; *)
         let unknown = 
@@ -943,8 +950,8 @@ module Caml = struct
           (* else if varSen = 0. then *)
             let add_new_varsIntvsPriority priority addedVarsIntvsMap varsIntvsMapPrioritiesMaps =
               try
-                let varsIntvsMaps = FloatMap.find priority varsIntvsMapPrioritiesMaps in
-                FloatMap.add priority (addedVarsIntvsMap::varsIntvsMaps) varsIntvsMapPrioritiesMaps
+                let varsIntvsMaps = FloatMap.find (* priority *) 0. varsIntvsMapPrioritiesMaps in
+                FloatMap.add (* priority *) 0. (addedVarsIntvsMap::varsIntvsMaps) varsIntvsMapPrioritiesMaps
               with Not_found -> FloatMap.add priority ([addedVarsIntvsMap]) varsIntvsMapPrioritiesMaps
             in
             (* Compute the SAT length of lower interval by IA *)
@@ -954,21 +961,24 @@ module Caml = struct
             let (lowerSAT, lowerSatLength, lowerEasiness) = polyCons#check_sat_get_satLength lowerVarsIntvsMap in
             (*print_endline ("Lower: " ^ string_of_int lowerSAT ^ " - " ^ string_of_float lowerSatLength ^ " - easiness: " ^ string_of_float lowerEasiness);
             flush stdout;*)
-            let varsIntvsMapPrioritiesMaps =
-              if lowerSAT <> -1 then add_new_varsIntvsPriority lowerEasiness lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
-              else varsIntvsMapPrioritiesMaps
-            in
             
             (* Compute the SAT length of upper interval by IA *)
             let upperVarsIntvsMap = StringMap.add var upperIntv varsIntvsMap in
             let (upperSAT, upperSatLength, upperEasiness) = polyCons#check_sat_get_satLength upperVarsIntvsMap in
             (*print_endline ("Upper: " ^ string_of_int upperSAT ^ " - satLength: " ^ string_of_float upperSatLength ^ " - easiness: " ^ string_of_float upperEasiness);
             flush stdout;*)
-            let varsIntvsMapPrioritiesMaps =
-              if upperSAT <> -1 then add_new_varsIntvsPriority upperEasiness upperVarsIntvsMap varsIntvsMapPrioritiesMaps
-              else varsIntvsMapPrioritiesMaps
-            in
-            varsIntvsMapPrioritiesMaps 
+
+            if lowerSAT = -1 then 
+              if upperSAT = -1 then varsIntvsMapPrioritiesMaps
+              else 
+                add_new_varsIntvsPriority upperEasiness upperVarsIntvsMap varsIntvsMapPrioritiesMaps
+            else if upperSAT = -1 then add_new_varsIntvsPriority lowerEasiness lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
+            else if lowerBound = neg_infinity || lowerEasiness < upperEasiness then 
+              let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority lowerEasiness lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
+              add_new_varsIntvsPriority upperEasiness upperVarsIntvsMap varsIntvsMapPrioritiesMaps
+            else
+              let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority upperEasiness upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
+              add_new_varsIntvsPriority lowerEasiness lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
             
             (* if lowerSAT = 1 then 
               if upperSAT = 1 then
@@ -1039,7 +1049,7 @@ module Caml = struct
       (*print_endline (string_of_bool polyCons#isInfinite);
       flush stdout;*)
       let decomposedVarsList = 
-        if polyCons#isInfinite then [(infVar, 0., false)]
+        if infVar <> "" then [(infVar, 0., false)]
         else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
       in
       let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
@@ -1094,11 +1104,14 @@ module Caml = struct
       let startTime = Sys.time() in 
       let (satLikelihood, varsIntvsMaps) = FloatMap.max_binding varsIntvsMapPrioritiesMaps in
       let varsIntvsMap = List.hd varsIntvsMaps in
+      print_endline "---------------------------NEW----------------------";
+      print_endline (log_intervals varsIntvsMap);
+      flush stdout;
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
         | [] -> FloatMap.remove satLikelihood varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add satLikelihood (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
       in
-      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime) = icp 1 unsatPolyConstraintsCodes [] [] polyConstraints varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime) in
+      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = icp 1 unsatPolyConstraintsCodes [] [] polyConstraints varsIntvsMap esl iaTime usTime (remainingTime -. Sys.time() +. startTime) in
       (* print_endline ("EndIA, result: " ^ string_of_int res);
       flush stdout; *)
       if (res = -1) then 
@@ -1191,6 +1204,7 @@ module Caml = struct
                 flush stdout;*)
                 (* print_endline ("New Boxes: \n" ^ string_of_varsIntvsPrioritiesMap varsIntvsMapPrioritiesMaps);
                 flush stdout; *)
+                (* let varsIntvsMapPrioritiesMaps = FloatMap.empty in *)
                 let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
                 check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime                
              )
@@ -1251,8 +1265,8 @@ module Caml = struct
     let polyConstraints = getConsAndIntv solution miniSATCodesConstraintsMap [] in
 
     (*let polyConstraints = List.rev polyConstraints in*)
-    (*print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
-    flush stdout;*)
+    print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
+    flush stdout;
     (* print_endline ("\nIntervals: \n" ^ log_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout; *)
     let parsingTime = parsingTime +. Sys.time() -. startTime in

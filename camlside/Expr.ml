@@ -1,5 +1,6 @@
 open Ast
 open Multiset
+open Interval
 
 
 module MultiVar = struct 
