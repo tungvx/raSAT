@@ -1,0 +1,112 @@
+%\documentclass[conference, oribibl]{IEEEtran}
+\documentclass[runningheads,a4paper,oribibl]{llncs}
+%\usepackage{llncsdoc}
+
+% *** MISC UTILITY PACKAGES ***
+%
+\usepackage{amssymb}
+\usepackage{verbatim}
+\setcounter{tocdepth}{3}
+\usepackage{adjustbox,lipsum}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\graphicspath{ {Figs/} }
+
+\usepackage{amsmath}
+\usepackage{multirow}
+%\usepackage{slashbox}
+\usepackage{amsfonts}
+
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{epstopdf}
+\usepackage{array}
+\usepackage{enumerate}
+
+\usepackage{epstopdf}
+
+\usepackage{url}
+%\urldef{\mailsa}\path|{khanhtv, mizuhito}@jaist.ac.jp|    
+
+%ieee requirements
+%\usepackage[utf8]{inputenc}
+%\usepackage[T1]{fontenc}
+%\usepackage{microtype} 
+%\usepackage{balance}
+
+%user definitions
+\newcommand{\Nat}{{\mathbb N}}
+\newcommand{\Real}{{\mathbb R}}
+\newcommand{\Rat}{{\mathbb Q}}
+\newcommand{\suppress}[1]{} % Comment out text.
+\newcommand{\mizuhito}[1]{\{{\bf Mizuhito:~\sf #1}\}} % Highlight text.
+\newcommand{\khanh}[1]{\{{\bf Khanh:~\sf #1}\}} % Highlight text.
+
+\newcommand{\smallHead}[1]{%
+    \par\vspace{.35cm}\noindent\textbf{#1}%
+    \par\noindent\ignorespaces%
+}
+
+\newcommand\TTTT{%
+ \textsf{T\kern-0.2em\raisebox{-0.3em}T\kern-0.2emT\kern-0.2em\raisebox{-0.3em}2}%
+}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\begin{document}
+%
+% paper title
+% can use linebreaks \\ within to get better formatting as desired
+% Do not put math or special symbols in the title.
+\title{{\bf raSAT 0.2} for SMT-COMP 2015}
+
+\author{Vu Xuan Tung\inst{1}, To Van Khanh\inst{2}, and Mizuhito Ogawa\inst{1}} 
+\institute{
+Japan Advanced Institute of Science and Technology\\
+\email{\{tungvx,mizuhito\}@jaist.ac.jp}
+\and 
+University of Engineering and Technology, Vietnam National 
+University, Hanoi \\
+\email{khanhtv@vnu.edu.vn}
+}
+
+%\tableofcontents
+
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract
+{\bf raSAT} is an SMT solver for polynomial constraints. 
+It consists of a simple iterative approximation refinement, called {\bf raSAT} loop~\cite{VanKhanh201227}, 
+which is an extension of the standard ICP (Interval Constraint Propagation) with Testing. 
+Two approximation schemes consist of Interval Arithmetic (IA) and 
+Testing, to accelerate SAT detection. 
+If both fails, input intervals are refined by decomposition.  
+
+raSAT loop is extended with the use of the Intermediate Value Theorem to show the satisfiability of equations. 
+
+To avoid soundless bugs due to round-off error of floating arithmetic operations, \textbf{raSAT} applies outward rounding in Interval Arithmetic and implements SAT confirmation step by an error-bound guaranteed floating point package {\bf iRRAM}\footnote{% 
+\tt http://irram.uni-trier.de}. 
+
+\textbf{raSAT} takes advantages from the following packages/libraries.
+\begin{itemize}
+\item {\bf miniSAT}\footnote{http://minisat.se/} as the back-end SAT solver.
+\item {\bf iRRAM} for confirmation of SAT instances.
+\item The library in \cite{Al2012.14} for
+round-down/up in each Interval Arithmetics.
+\item The OCaml parser for SMT-LIB 2.0 scripts from \url{http://smtlib.cs.uiowa.edu/utilities.shtml}.
+\end{itemize}
+
+\section*{Package Distribution:} Source code and a precompiled version of \textbf{raSAT} can be downloaded from \url{http://www.jaist.ac.jp/~s1310007/raSAT/}.
+
+
+
+%\balance
+\bibliographystyle{splncs03}
+\bibliography{generic}
+
+
+\end{document}
