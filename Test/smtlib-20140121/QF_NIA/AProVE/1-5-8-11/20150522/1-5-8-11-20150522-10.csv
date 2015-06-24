@@ -1,0 +1,11 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+AProVE/10/889969/aproveSMT3412805535993565916.smt2,6,2,15,0.006999,0.0,0.003,0.0,0.0,0.000999,0.003,23.0,3.0,2.0,4.0,4.0,0.0,0.0,sat,sat,0,3
+AProVE/10/889973/aproveSMT5382728580524078773.smt2,7,2,25,0.009999,0.0,0.006,0.0,0.0,0.0,0.003999,36.0,5.0,3.0,8.0,8.0,0.0,0.0,sat,sat,0,6
+AProVE/10/889972/aproveSMT4914592621518474752.smt2,6,2,18,0.004,0.001,0.002,0.0,0.0,0.0,0.001,26.0,3.0,2.0,4.0,4.0,0.0,0.0,sat,sat,0,4
+AProVE/10/889974/aproveSMT5846901902205706754.smt2,6,2,18,0.008999,0.001,0.005999,0.0,0.0,0.0,0.002,30.0,9.0,4.0,12.0,12.0,0.0,0.0,sat,sat,0,4
+AProVE/10/889970/aproveSMT8701444287644785464.smt2,64,12,413,500.003,416.758,68.3866,0.363944,14.2318,0.017999,2.31265,875.0,44847.0,39207.0,45033.0,917.0,44116.0,0.0,sat,Timeout,50,42
+AProVE/10/889968/aproveSMT6646390976614138005.smt2,4,2,10,0.004,0.002,0.002,0.0,0.0,0.0,0.0,18.0,5.0,3.0,8.0,8.0,0.0,0.0,sat,sat,0,2
+AProVE/10/889975/aproveSMT7862288338449015464.smt2,8,2,18,0.005999,0.001,0.004998,0.0,0.0,0.0,1e-06,30.0,5.0,3.0,8.0,8.0,0.0,0.0,sat,sat,0,3
+AProVE/10/889971/aproveSMT3411771372276390306.smt2,16,6,32,500.0,242.4273,1.962672,5.57811,46.7,0.101991,203.2299,5986.0,786818.0,1108577.0,1142858.0,13645.0,1129213.0,0.0,unknown,Timeout,2,2
+AProVE/10/889967/aproveSMT8311732611060682903.smt2,7,2,25,0.012998,0.003999,0.006999,0.0,0.0,0.0,0.002,40.0,13.0,5.0,16.0,16.0,0.0,0.0,sat,sat,0,6
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,7,EQ,NEQ

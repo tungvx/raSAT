@@ -10,9 +10,9 @@ extern "C" {
 #include <caml/fail.h>
 }
 
-value caml_genSatForm(char* fileName, double lb, double ub, const char *logic) {
+value caml_genSatForm(char* fileName, double lb, double ub, const char *logic, char* inFile) {
 	CAMLparam0();
-	CAMLlocalN(ml_args, 4);
+	CAMLlocalN(ml_args, 5);
 	//printf("0\n");
 	ml_args[0] = caml_copy_string(fileName);
 	//printf("1\n");
@@ -22,13 +22,14 @@ value caml_genSatForm(char* fileName, double lb, double ub, const char *logic) {
 	//printf("3\n");
 	ml_args[3] = caml_copy_string(logic);
 	//printf("4\n");
+	ml_args[4] = caml_copy_string(inFile);
 
 	static value * caml_gen_closure = NULL;
 	if (caml_gen_closure == NULL) {
 	  //printf("5\n");
 		caml_gen_closure = caml_named_value("caml_genSatForm");
 	}
-	CAMLreturn(caml_callbackN(*caml_gen_closure, 4, ml_args));
+	CAMLreturn(caml_callbackN(*caml_gen_closure, 5, ml_args));
 	/* We copy the C string returned by String_val to the C heap
 	 so that it remains valid after garbage collection. */
 }

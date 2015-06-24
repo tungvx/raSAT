@@ -2,7 +2,6 @@
 
 open Variable
 
-
 (* |============================== START getLeftBound ==========================================| *)	
 (* | get the lower bounds of assignments intervals			            	                          | *)
 (* | . assIntv: is the list of intervals of variables.			                                    | *)

@@ -16,7 +16,7 @@ bool checkingResult = false;
 int testIRRAM(const int& arg) {
   REAL skoY = REAL(0.999999999355);
   REAL skoX = REAL(0.999999995475);
-  cout << REAL(-2.)*skoX*skoY+skoX*skoX*skoY*skoY+REAL(1.) << std::endl;
+  //cout << REAL(-2.)*skoX*skoY+skoX*skoX*skoY*skoY+REAL(1.) << std::endl;
   if (REAL(-2.)*skoX*skoY+skoX*skoX*skoY*skoY+REAL(1.) == REAL(0)) cout << "false\n";
   /*cout << REAL(2) + REAL(0.1e+0309) - REAL(0.1e+0309) << std::endl;
   if (REAL(2) + REAL(0.1e+0309) - REAL(0.1e+0309) > REAL(1)) {

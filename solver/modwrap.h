@@ -7,7 +7,7 @@ extern "C" {
 #include <iostream>
 using namespace std;
 
-value caml_genSatForm(char* fileName, double lb, double ub, const char *logic);
+value caml_genSatForm(char* fileName, double lb, double ub, const char *logic, char* inFile);
 value caml_isTheoConsis(char *sIntv, char *sCons, char *sCheck, int ia);
 char* caml_logResult(char * sIntv, char *sCons, char *sCheck, int ia);
 value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia);
