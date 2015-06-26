@@ -354,18 +354,19 @@ module Make(Ord: OrderedType) =
           
     let rec compare_aux l1 l2 =
       match (l1, l2) with
-          ([], []) -> 0
-  | ([], _)  -> -1
-  | (_, []) -> 1
-  | (Empty :: t1, Empty :: t2) ->
-            compare_aux t1 t2
-      | (Node(Empty, (v1, m1), r1, _) :: t1, Node(Empty, (v2, m2), r2, _) :: t2) ->
-          let c = Ord.compare v1 v2 in
-            if c <> 0 then c else compare_aux (r1::t1) (r2::t2)
-      | (Node(l1, v1, r1, _) :: t1, t2) ->
-          compare_aux (l1 :: Node(Empty, v1, r1, 0) :: t1) t2
-      | (t1, Node(l2, v2, r2, _) :: t2) ->
-          compare_aux t1 (l2 :: Node(Empty, v2, r2, 0) :: t2)
+        ([], []) -> 0
+        | ([], _)  -> -1
+        | (_, []) -> 1
+        | (Empty :: t1, Empty :: t2) -> compare_aux t1 t2
+        | (Node(Empty, (v1, m1), r1, _) :: t1, Node(Empty, (v2, m2), r2, _) :: t2) ->
+            let c = Ord.compare v1 v2 in
+            if c <> 0 then c 
+            else if m1 <> m2 then compare m1 m2
+            else compare_aux (r1::t1) (r2::t2)
+        | (Node(l1, v1, r1, _) :: t1, t2) ->
+            compare_aux (l1 :: Node(Empty, v1, r1, 0) :: t1) t2
+        | (t1, Node(l2, v2, r2, _) :: t2) ->
+            compare_aux t1 (l2 :: Node(Empty, v2, r2, 0) :: t2)
       
     let compare s1 s2 =
       compare_aux [s1] [s2]

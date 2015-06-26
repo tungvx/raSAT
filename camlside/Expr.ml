@@ -18,9 +18,19 @@ type poly =
   | MonoAdd of poly * poly 
   | MonoSub of poly * poly 
   | MonoMul of poly * poly 
-  | MonoDiv of poly * poly 
+  | MonoDiv of poly * poly  
 
-let sort vars = List.sort String.compare vars  
+
+
+let print_monomials p =
+  let print_monomial vars coefficient =
+    MultiVarSet.print_tree print_string vars;
+    print_string (": " ^ string_of_float coefficient);
+    print_endline "";
+    flush stdout;
+  in
+  Poly.iter print_monomial p
+
 
 (* evaluate expressions into values *) 
 let rec eval = function 
@@ -60,7 +70,17 @@ and default d = function
 
 and plus p1 p2 =
   let add_opt _vars c1 c2 = 
-    Some (default 0. c1 +. default 0. c2) in
+    (* MultiVarSet.print_tree print_string _vars;
+    print_endline "";
+    flush stdout; *)
+    Some (default 0. c1 +. default 0. c2) 
+  in
+  (* print_endline "\n\nAdding ";
+  print_monomials p1;
+  print_endline "\nwith ";
+  print_monomials p2;
+  print_endline "\nResult ";
+  print_monomials (Poly.merge add_opt p1 p2 ); *)
   Poly.merge add_opt p1 p2 
 
 and minus p1 p2 =
@@ -72,7 +92,17 @@ and times p1 p2 = (* naive implementation *)
   let p2_times_monome vars coeff acc = 
     let add_monome v c acc = 
       let monome = Poly.singleton (MultiVarSet.add_sets v vars) (c *. coeff) in 
-      plus monome acc in 
+      (* print_endline "Multiplying";
+      MultiVarSet.print_tree print_string v;
+      print_endline "";
+      MultiVarSet.print_tree print_string vars;
+      print_endline "";
+      print_endline "Result:";
+      MultiVarSet.print_tree print_string (MultiVarSet.add_sets v vars);
+      print_endline "";
+      flush stdout; *)
+      plus monome acc 
+    in 
     Poly.fold add_monome p2 acc in 
   Poly.fold p2_times_monome p1 Poly.empty 
 
@@ -95,6 +125,9 @@ let rec reify = function
             | _ -> Mul(currentMulExpr, tmpVarExpr, {low=neg_infinity;high=infinity}) 
           )
         in
+        (* MultiVarSet.print_tree print_string vars;
+        print_endline "";
+        flush stdout; *)
         let newPolyExpr = List.fold_left createMulExpr (Real (coefficient, {low=neg_infinity;high=infinity})) (MultiVarSet.elements_packed vars) in
         (
         match currentPolyExpr with 
@@ -120,5 +153,9 @@ let rec reify = function
     let polyExpr2 = reify poly2 in
     Div (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
 (*Simplify an expression*)  
-let reduce e = reify (eval e)
+let reduce e = 
+  let newE = reify (eval e) in 
+  (* print_endline ("Simplified " ^ string_infix_of_polyExpr e ^ " to " ^ string_infix_of_polyExpr newE);
+  flush stdout; *)
+  newE
 

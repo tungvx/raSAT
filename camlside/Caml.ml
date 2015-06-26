@@ -610,7 +610,8 @@ module Caml = struct
     flush stdout;*)
     let boolCons = List.nth constraints 0 in
     (* print_endline (string_infix_of_constraints boolCons);
-    flush stdout; *)
+    flush stdout;
+    raise (Failure "Tung dep trai"); *)
     let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation, _) = miniSATExpr_of_constraints boolCons 1 IntMap.empty logic StringMap.empty in 
     (*print_endline "finished getting miniSAT constraints";
     flush stdout;*)
@@ -1282,8 +1283,8 @@ module Caml = struct
     let polyConstraints = getConsAndIntv solution miniSATCodesConstraintsMap [] in
 
     (*let polyConstraints = List.rev polyConstraints in*)
-    print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
-    flush stdout;
+    (* print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
+    flush stdout; *)
     (* print_endline ("\nIntervals: \n" ^ log_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout; *)
     let parsingTime = parsingTime +. Sys.time() -. startTime in
