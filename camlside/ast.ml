@@ -699,6 +699,8 @@ let check_sat_af_two_ci_get_satLength_boolExpr boolExpr varsSet varsNum varsIntv
 let check_contract oldIntv intv esl = 
   oldIntv.low +. esl < intv.low || oldIntv.high > intv.high +. esl
 
+let contain_zero intv = intv.low <= 0. && intv.high >= 0.
+
 let get_intv_ofPolyExpr = function
   | Real (_, intv) -> intv
   | Var (_, intv) -> intv
@@ -747,11 +749,17 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
         let vIntv = get_intv_ofPolyExpr v in
 
         (* try to contract u *)
-        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv /$ vIntv) varsIntvsMap esl in
+        let (uContracted, varsIntvsMap) = 
+          if contain_zero vIntv then (false, varsIntvsMap)
+          else contract_polyExpr u (newIntv /$ vIntv) varsIntvsMap esl 
+        in
         if uContracted && StringMap.is_empty varsIntvsMap then 
           (uContracted, StringMap.empty)
         else
-          let (vContracted, varsIntvsMap) = contract_polyExpr v (newIntv /$ uIntv) varsIntvsMap esl in
+          let (vContracted, varsIntvsMap) = 
+            if contain_zero uIntv then (false, varsIntvsMap) 
+            else contract_polyExpr v (newIntv /$ uIntv) varsIntvsMap esl 
+          in
           (uContracted || vContracted, varsIntvsMap)
       | Div (u, v, _) ->
         let uIntv = get_intv_ofPolyExpr u in
@@ -765,15 +773,32 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
           let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv /$ newIntv) varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
       | Pow (var, multiplicity, _) -> 
-        let varIntv = newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
+        (* print_endline ("Start constracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr);
+        flush stdout;
+        print_endline ("Finished constracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr); *)
         let varIntv = 
-          if multiplicity mod 2 = 0 then {low = -.(varIntv.high);high=varIntv.high}
-          else varIntv
+          if multiplicity mod 2 = 0 then 
+            let tmpIntv = newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
+            {low = -.(tmpIntv.high);high=tmpIntv.high}
+          else 
+            if newIntv.low >= 0. then newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity)
+            else
+              let lowerIntv = {low=abs_float newIntv.low; high=abs_float newIntv.low} **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
+              if newIntv.high >= 0. then 
+                let upperIntv = {low=newIntv.high; high=newIntv.high} **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
+                {low= -.(lowerIntv.high); high=upperIntv.high}
+              else 
+                let upperIntv = {low=abs_float newIntv.high; high=abs_float newIntv.high} **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
+                {low= -.(lowerIntv.high); high= -.(upperIntv.low)}
         in
         (* print_endline ("Contracted " ^ var ^ " from " ^ sprintf_I "%f" newIntv
       ^ " to " ^ sprintf_I "%f" varIntv); *)
         if check_contract (StringMap.find var varsIntvsMap) varIntv esl then (contracted, StringMap.add var varIntv varsIntvsMap)
         else (false, varsIntvsMap)
-      | _ -> raise (Failure "Wrong implementation in contraction operation")
+      | _ -> (
+        (* print_endline "Error";
+        flush stdout; *)
+        raise (Failure "Wrong implementation in contraction operation")
+      )
     else (contracted, StringMap.empty)  
   else (false, varsIntvsMap)

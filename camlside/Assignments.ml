@@ -75,11 +75,11 @@ let rec string_of_varsIntvsPrioritiesMap varsIntvsPrioritiesMap =
 
 (* =================================== START log_intervals =========================================== *)
 (* This functions converts the list of intervals of variables into the string format*)
-let rec log_intervals varsIntvsMaps =
+let rec log_intervals varsIntvsMap =
   let add_string_of_newInterval var intv oldString =
     var ^ " in " ^ sprintf_I "%f" intv ^ "\n" ^ oldString
   in 
-  StringMap.fold add_string_of_newInterval varsIntvsMaps ""
+  StringMap.fold add_string_of_newInterval varsIntvsMap ""
 (* =================================== END log_intervals ============================================== *)
  
 

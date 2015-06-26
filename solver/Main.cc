@@ -633,7 +633,7 @@ int main(int argc, char* argv[]) {
 //					cout << endl << "logResult: " << logResult << endl;
 
 					//dynamic interval decomposition
-					intvInfo = Field(theoCheck, 4);
+					// intvInfo = Field(theoCheck, 4);
 //					cout << endl << "str_dIntv: " << str_dIntv << endl;
 
 					//cout <<endl<<"checkVarID: "<<tmp<<endl;
