@@ -1054,8 +1054,8 @@ module Caml = struct
           flush stdout; *)
           let startTestingTime = Sys.time() in
           let (tc, sTest, clTest_US, a, b) = 
-            (* test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
-            test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+            test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+            (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
             
           in
           (*print_endline ("UNSAT constraints num: " ^ string_of_int b);
