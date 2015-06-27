@@ -181,7 +181,13 @@ class polynomialConstraint boolExprInit =
         | [] -> []
         | (var, varSen, isPositiveSen)::t ->
           if n >= 1 then 
-            if VariablesSet.mem var varsSet then (var, varSen, isPositiveSen) :: (get_n_first t (n - 1))
+            if VariablesSet.mem var varsSet then 
+              let isVarPositiveDirected = 
+                if varSen = 0. then 0
+                else if isPositiveSen = isPositiveDirected then 1
+                else -1
+              in
+              (var, varSen, isVarPositiveDirected) :: (get_n_first t (n - 1))
             else get_n_first t n
           else []
       in
@@ -215,6 +221,8 @@ class polynomialConstraint boolExprInit =
       let varsDiff = VariablesSet.diff varsSet otherVarsSet in
       VariablesSet.cardinal varsDiff
       
+    method get_varsDiff otherVarsSet = VariablesSet.diff varsSet otherVarsSet
+
     method check_SAT varsTCsMap =
       (*print_endline (self#to_string_infix); 
       flush stdout;*)
@@ -272,7 +280,7 @@ class polynomialConstraint boolExprInit =
       backward_propagate_boolExpr var intv varsIntvsMap polyExpr polyExprInterval false*)
       
     method log_test = 
-      let testValueString = string_of_float testValue in
+      let testValueString = sprintf_I "%f" iaValue in
       match boolExpr with
       |Eq e -> 
 		    (string_infix_of_polyExpr e) ^ " = 0"
@@ -303,6 +311,42 @@ class polynomialConstraint boolExprInit =
 	    |Gr e -> 
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " > 0"  
     
+    method generate_tc_var intv isVarPositiveDirected = 
+      let lowerBound = intv.low in
+      let upperBound = intv.high in   
+      if isVarPositiveDirected = -1 then lowerBound
+      else if isVarPositiveDirected = 1 then upperBound
+      else
+        if lowerBound = neg_infinity then 
+          if upperBound = infinity then 0.
+          else upperBound
+        else if upperBound = infinity then lowerBound
+        else
+          let lowerBase = 
+            if lowerBound = neg_infinity then min_float
+            else lowerBound
+          in
+          let bound = upperBound -. lowerBound in
+          let bound = 
+            if bound = infinity then max_float
+            else bound
+          in
+          Random.self_init();
+          let randomNum = Random.float bound in (* random number from 0 to bound *)
+          if logic = "QF_NIA" then (
+            Random.self_init();
+            if Random.bool() then 
+              let testcase = ceil(lowerBase +. randomNum) in
+              if testcase > upperBound then floor(lowerBase +. randomNum)
+              else testcase
+            else 
+              let testcase = floor(lowerBase +. randomNum) in
+              if testcase < lowerBound then ceil(lowerBase +. randomNum)
+              else testcase
+          )
+          else 
+            lowerBase +. randomNum
+
     method generateTCs assignedVarsSet (varsIntvsMap:(Interval.interval Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) = 
       (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)

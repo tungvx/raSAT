@@ -5,6 +5,7 @@ open Assignments
 open PolynomialConstraint  
 open Util
 open Interval
+open Icp
 
 (* This function get a random element from a list, return it and the remaining list *)
 let get_element inputList =
@@ -173,6 +174,35 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
           in
           test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons polyConstraintsNum varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
       
+
+let rec test_icp polyConstraints varsIntvsMap varsTCsMap testedVars esl remainingTime =
+  match polyConstraints with 
+  | [] -> ([], 1, [], varsTCsMap, 0)
+  | _ -> 
+    (* Get information about SAT direction of variables *)
+    let startTime = Sys.time() in
+    (* let add_sat_direction currentMap polyCons =
+      (*print_endline ("Testing: " ^ polyCons#to_string_infix);
+      flush stdout;*)
+      polyCons#add_sat_direction currentMap
+    in
+    let varsSATDirectionMap = List.fold_left add_sat_direction StringMap.empty polyConstraints in *)
+    let (firstPolyCons, remainingPolyConstraints) = get_element polyConstraints in
+    let varDiff = firstPolyCons#get_varsDiff testedVars in
+    if VariablesSet.is_empty varDiff then ([],-1, [firstPolyCons],StringMap.empty, 0)
+    else 
+      let [(var, _, isVarPositiveDirected)] = firstPolyCons#get_n_varsSen_fromSet 1 varDiff in
+      let intv = StringMap.find var varsIntvsMap in
+      (* let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in *)
+      let tc = firstPolyCons#generate_tc_var intv isVarPositiveDirected in
+      if intv.low <= tc && tc <= intv.high then 
+        let varsTCsMap = StringMap.add var tc varsTCsMap in
+        let varsIntvsMap = StringMap.add var {low=tc;high=tc} varsIntvsMap in
+        let (res, _, uk_cl, _, varsIntvsMap, _, _) = icp 1 IntSet.empty [] [] polyConstraints varsIntvsMap esl 0. 0. (remainingTime -. Sys.time() +. startTime) in
+        if res = 1 then ([], 1, [], varsTCsMap, 0)
+        else if res = -1 then ([],-1, [firstPolyCons], StringMap.empty, 0)
+        else test_icp uk_cl varsIntvsMap varsTCsMap (VariablesSet.add var testedVars) esl (remainingTime -. Sys.time() +. startTime)
+      else ([],-1, [firstPolyCons],StringMap.empty, 0)
 
 (* This function test the list of unknow clauses, trying to find an SAT instance *)
 let rec test polyConstraints varsIntvsMaps remainingTime =

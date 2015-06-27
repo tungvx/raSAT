@@ -12,6 +12,7 @@ open PolynomialConstraint
 open Interval
 open Smtlib_syntax
 open InfiniteList
+open Icp
 
 module Caml = struct
   let inf_I = {low=neg_infinity;high=infinity}
@@ -661,103 +662,7 @@ module Caml = struct
     in*)
     (*let sTrivialClause = "-" ^ string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in*)
     (nVars, "", varsIntvsMap, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)
-    
-  let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraints with
-    | [] -> [polyCons]
-    | h :: t -> 
-      let currentEasiness = h#get_easiness in
-      let newEasiness = polyCons#get_easiness in
-      
-      (* (1) (2) needs to change (10) *)
-      (*(* (2) need to change (1) *)
-      if currentEasiness < newEasiness then polyCons :: polyConstraints
-      else if currentEasiness > newEasiness then h :: (insertionSort_byEasiness polyCons t)*)
-      
-      (* (1) need to change (2) *)
-      if currentEasiness < newEasiness then h :: (insertionSort_byEasiness polyCons t)
-      else if currentEasiness > newEasiness then polyCons :: polyConstraints
-      
-      else (
-        Random.self_init();
-        if Random.bool() then h :: (insertionSort_byEasiness polyCons t)
-        else polyCons :: polyConstraints
-      )
-      
-      (*(* (10) need to change (1) and (2) *)
-      Random.self_init();
-      if Random.bool() then h :: (insertionSort_byEasiness polyCons t)
-      else polyCons :: polyConstraints*)
-   
-  (*Rewrite eval_all for UNSAT cores computations*)
-  let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime remainingTime =
-    match polyConstraints with
-     |[] -> (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)
-     |h::t -> 
-        let startTime = Sys.time() in
-        (* print_endline ("\nStart check sat: " ^ h#to_string_infix);
-        print_endline ("\n With " ^ string_of_intervals varsIntvsMap);
-        flush stdout; *)
-        (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
-        flush stdout;*)
-        let res1 = h#check_sat_varsSen_setIsInfinite_setBounds_setEasiness varsIntvsMap in
-        (* print_endline ("Bounds: " ^ h#get_iaValue#to_string);
-        print_endline ("Easiness: " ^ string_of_float h#get_easiness);
-        flush stdout; *)
-        (*print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
 
-        flush stdout;*)
-        let iaTime = iaTime +. Sys.time() -. startTime in
-        if (res1 = 1) then 
-          eval_all res unsatPolyConstraintsCodes uk_cl (h::validPolyConstraints) t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-        else if (res1 = -1) then (
-          eval_all (-1) (IntSet.add (h#get_miniSATCode) unsatPolyConstraintsCodes) [] [] t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-        )
-        else ( (*res1 = 0*)     
-          if res = -1 then
-            eval_all (-1) unsatPolyConstraintsCodes [] [] t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-          else (
-            eval_all 0 unsatPolyConstraintsCodes ((*h::uk_cl*) insertionSort_byEasiness h uk_cl) validPolyConstraints t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
-          )
-        )
-
-
-  let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl contracted = match uk_cl with
-    | [] -> (contracted, unsatPolyConstraintsCodes, varsIntvsMap)
-    | h :: t ->    
-      let (newContracted, varsIntvsMap) = contract_polyExpr h#get_polyExpr h#get_contractedIntv varsIntvsMap esl in
-      if newContracted && StringMap.is_empty varsIntvsMap then 
-        (true, IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes, varsIntvsMap)
-      else
-        let unsatPolyConstraintsCodes =
-          if newContracted then IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes
-          else unsatPolyConstraintsCodes
-        in
-        (* if newContracted then 
-        (
-          print_endline ("Contracted using " ^ string_infix_of_polyExpr h#get_polyExpr ^ " to " ^ log_intervals varsIntvsMap);
-    flush stdout;
-        ); *)
-        contract_polyConstraints t unsatPolyConstraintsCodes varsIntvsMap esl (contracted || newContracted)
-
-  let rec icp res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap esl iaTime usTime remainingTime =
-    let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime) = 
-      eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime remainingTime
-    in
-    if res <> 0 then (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
-    else (* implement ICP here *) (
-      (* print_endline ("Contracting \n" ^ log_intervals varsIntvsMap);
-      flush stdout; *)
-      let (contracted, unsatPolyConstraintsCodes, varsIntvsMap) = contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl false in
-      (* print_endline ("Finished contracting");
-      flush stdout; *)
-      if contracted then (
-        (* print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
-        flush stdout; *)
-        if StringMap.is_empty varsIntvsMap then (-1, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
-        else icp 1 unsatPolyConstraintsCodes [] validPolyConstraints uk_cl varsIntvsMap esl iaTime usTime remainingTime
-      )  
-      else (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
-    )
 
   (*Binary balance decomposition on intervals*)
   let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
@@ -1065,7 +970,7 @@ module Caml = struct
       (*print_endline (string_of_bool polyCons#isInfinite);
       flush stdout;*)
       let decomposedVarsList = 
-        if infVar <> "" then [(infVar, 0., false)]
+        if infVar <> "" then [(infVar, 0., 0)]
         else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
       in
       let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
@@ -1149,7 +1054,9 @@ module Caml = struct
           flush stdout; *)
           let startTestingTime = Sys.time() in
           let (tc, sTest, clTest_US, a, b) = 
-            test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+            (* test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
+            test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+            
           in
           (*print_endline ("UNSAT constraints num: " ^ string_of_int b);
           flush stdout;*)
@@ -1283,8 +1190,9 @@ module Caml = struct
     let polyConstraints = getConsAndIntv solution miniSATCodesConstraintsMap [] in
 
     (*let polyConstraints = List.rev polyConstraints in*)
-    (* print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
-    flush stdout; *)
+    print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
+    flush stdout;
+    (* raise (Failure "Tung dep trai"); *)
     (* print_endline ("\nIntervals: \n" ^ log_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout; *)
     let parsingTime = parsingTime +. Sys.time() -. startTime in

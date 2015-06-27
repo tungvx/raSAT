@@ -701,9 +701,9 @@ let check_contract oldIntv intv esl =
 
 let contain_zero intv = intv.low <= 0. && intv.high >= 0.
 
-let get_intv_ofPolyExpr = function
+let get_intv_ofPolyExpr varsIntvsMap = function
   | Real (_, intv) -> intv
-  | Var (_, intv) -> intv
+  | Var (var, _) -> StringMap.find var varsIntvsMap
   | Add (_, _, intv) -> intv
   | Sub (_, _, intv) -> intv
   | Mul (_, _, intv) -> intv
@@ -711,7 +711,7 @@ let get_intv_ofPolyExpr = function
   | Pow (_, _, intv) -> intv
 
 let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
-  let oldIntv = get_intv_ofPolyExpr polyExpr in
+  let oldIntv = get_intv_ofPolyExpr varsIntvsMap polyExpr in
   let contracted = check_contract oldIntv intv esl in
   if contracted then 
     let newIntv = inter_I_I oldIntv intv in 
@@ -721,8 +721,8 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
     if newIntv.low <= newIntv.high then match polyExpr with 
       | Var (var, _) -> (contracted, StringMap.add var newIntv varsIntvsMap)
       | Add (u, v, _) -> 
-        let uIntv = get_intv_ofPolyExpr u in
-        let vIntv = get_intv_ofPolyExpr v in
+        let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
+        let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
         (* print_endline ("Contracting " ^ string_infix_of_polyExpr u ^ " from " ^ sprintf_I "%f" uIntv
           ^ " to " ^ sprintf_I "%f" (newIntv -$ vIntv));
         flush stdout;   *)
@@ -734,8 +734,8 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
           let (vContracted, varsIntvsMap) = contract_polyExpr v (newIntv -$ uIntv) varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
       | Sub (u, v, _) -> 
-        let uIntv = get_intv_ofPolyExpr u in
-        let vIntv = get_intv_ofPolyExpr v in
+        let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
+        let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
 
         (* try to contract u *)
         let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv +$ vIntv) varsIntvsMap esl in 
@@ -745,8 +745,8 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
           let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv -$ newIntv) varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
       | Mul (u, v, _) -> 
-        let uIntv = get_intv_ofPolyExpr u in
-        let vIntv = get_intv_ofPolyExpr v in
+        let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
+        let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
 
         (* try to contract u *)
         let (uContracted, varsIntvsMap) = 
@@ -762,8 +762,8 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
           in
           (uContracted || vContracted, varsIntvsMap)
       | Div (u, v, _) ->
-        let uIntv = get_intv_ofPolyExpr u in
-        let vIntv = get_intv_ofPolyExpr v in
+        let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
+        let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
 
         (* try to contract u *)
         let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv *$ vIntv) varsIntvsMap esl in
@@ -793,7 +793,8 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
         in
         (* print_endline ("Contracted " ^ var ^ " from " ^ sprintf_I "%f" newIntv
       ^ " to " ^ sprintf_I "%f" varIntv); *)
-        if check_contract (StringMap.find var varsIntvsMap) varIntv esl then (contracted, StringMap.add var varIntv varsIntvsMap)
+        let oldVarIntv = StringMap.find var varsIntvsMap in
+        if check_contract oldVarIntv varIntv esl then (contracted, StringMap.add var (inter_I_I oldVarIntv varIntv) varsIntvsMap)
         else (false, varsIntvsMap)
       | _ -> (
         (* print_endline "Error";
