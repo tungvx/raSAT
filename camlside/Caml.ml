@@ -1024,10 +1024,10 @@ module Caml = struct
       let startTime = Sys.time() in 
       let (esl, varsIntvsMaps) = FloatMap.max_binding varsIntvsMapPrioritiesMaps in
       let varsIntvsMap = List.hd varsIntvsMaps in
-      print_endline "---------------------------NEW----------------------";
+      (* print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout;
+      flush stdout; *)
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
         | [] -> FloatMap.remove esl varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
@@ -1190,8 +1190,8 @@ module Caml = struct
     let polyConstraints = getConsAndIntv solution miniSATCodesConstraintsMap [] in
 
     (*let polyConstraints = List.rev polyConstraints in*)
-    print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
-    flush stdout;
+    (* print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
+    flush stdout; *)
     (* raise (Failure "Tung dep trai"); *)
     (* print_endline ("\nIntervals: \n" ^ log_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout; *)
