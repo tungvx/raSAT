@@ -211,8 +211,8 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = false;
-	bool statistics = false;
+	bool debug = true;
+	bool statistics = true;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -655,10 +655,11 @@ int main(int argc, char* argv[]) {
 					// cout << "Run53" << endl;
 
 					//check timeout occurs
-					if ((cpuTime() - initial_time) >= timeout) {
-						check = false;
-						finalRes = -2;
-					} else if (sat == 1) {
+					// if ((cpuTime() - initial_time) >= timeout) {
+					// 	check = false;
+					// 	finalRes = -2;
+					// } else 
+					if (sat == 1) {
 #ifdef iRRAM_INC
 						// get the assignments of testing.
 						assignments = String_val(Field(theoCheck, 1));

@@ -73,11 +73,11 @@ let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap es
         if newContracted then IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes
         else unsatPolyConstraintsCodes
       in
-      (* if newContracted then 
+      if newContracted then 
       (
         print_endline ("Contracted using " ^ h#to_string_infix ^ " to\n" ^ log_intervals varsIntvsMap);
   flush stdout;
-      ); *)
+      );
       contract_polyConstraints t unsatPolyConstraintsCodes varsIntvsMap esl (contracted || newContracted)
 
 

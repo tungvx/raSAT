@@ -672,11 +672,12 @@ module Caml = struct
         FloatMap.add priority (addedVarsIntvsMap::varsIntvsMaps) currentvarsIntvsMapPrioritiesMaps
       with Not_found -> FloatMap.add priority ([addedVarsIntvsMap]) currentvarsIntvsMapPrioritiesMaps
     in
-    (*print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
-    flush stdout;*)
+    print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
+    flush stdout;
     let startTime = Sys.time() in
-    let add_varsSet currentVarsSet polyCons = VariablesSet.union polyCons#get_varsSet currentVarsSet in
-    let varsSet = List.fold_left add_varsSet VariablesSet.empty unkownPolyConstraints in
+    (* let add_varsSet currentVarsSet polyCons = VariablesSet.union polyCons#get_varsSet currentVarsSet in
+    let varsSet = List.fold_left add_varsSet VariablesSet.empty unkownPolyConstraints in *)
+    let varsSet = polyCons#get_varsSet in
 
     let not_smallIntv intv =
 
@@ -700,8 +701,8 @@ module Caml = struct
         in
         (VariablesSet.add var reducedVarsSet, newInfVar)
       else (
-        (*print_endline ("small interval: " ^ var ^ ": [" ^ string_of_float intv#l ^ ", " ^ string_of_float intv#h ^ "]");
-        flush stdout;*)
+        print_endline ("small interval: " ^ var ^ ": " ^ sprintf_I "%f" intv);
+        flush stdout;
         (reducedVarsSet, infVar)
       )
     in
@@ -717,7 +718,7 @@ module Caml = struct
       in
       let learntClauses = VariablesSet.fold add_learnt_var varsSet (polysMiniSATCodeString ^ " 0") in
       ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false) *)
-      (* add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap  *)varsIntvsMapPrioritiesMaps
+      add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps
     else (*Continue decomposition*)
       let decompose_var var (intv, varSen, isPositiveSen) varsIntvsMapPrioritiesMaps =
         (*let (narrowed, newIntv) = polyCons#backward_interval_propagate var intv varsIntvsMiniSATCodesMap in*)
@@ -1024,10 +1025,10 @@ module Caml = struct
       let startTime = Sys.time() in 
       let (esl, varsIntvsMaps) = FloatMap.max_binding varsIntvsMapPrioritiesMaps in
       let varsIntvsMap = List.hd varsIntvsMaps in
-      (* print_endline "---------------------------NEW----------------------";
+      print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout; *)
+      flush stdout;
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
         | [] -> FloatMap.remove esl varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
