@@ -738,8 +738,8 @@ module Caml = struct
           flush stdout; *)
           let startTestingTime = Sys.time() in
           let (tc, sTest, clTest_US, a, b) = 
-            test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
-            (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
+            (* test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
+            test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
             
           in
           (*print_endline ("UNSAT constraints num: " ^ string_of_int b);
@@ -807,6 +807,9 @@ module Caml = struct
                   else*)
                     dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
                                   uk_cl maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime) in
+
+                    (* dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
+                                  uk_cl maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime) in *)
                 (*print_endline "after decomposed";
                 flush stdout;*)
                 (* print_endline ("New Boxes: \n" ^ string_of_varsIntvsPrioritiesMap varsIntvsMapPrioritiesMaps);

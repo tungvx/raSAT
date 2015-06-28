@@ -155,35 +155,16 @@ let dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unk
   let add_varsSet currentVarsSet polyCons = VariablesSet.union polyCons#get_varsSet currentVarsSet in
   let varsSet = List.fold_left add_varsSet VariablesSet.empty unkownPolyConstraints in
 
-  let (var, intv) = String
 
-  let (reducedVarsSet, infVar) = (*varsSet*) VariablesSet.fold add_notSmallInterval varsSet (VariablesSet.empty, "") in
-  if VariablesSet.is_empty reducedVarsSet then (*Stop decomposition*) 
-    (* let add_learnt_var var learntVars = 
-      let (_, varId) = StringMap.find var varsIntvsMiniSATCodesMap in
-      "-" ^ string_of_int varId ^ " " ^ learntVars
-    in
-    let polysMiniSATCodeString = 
-      if polyCons#get_miniSATCode > 0 then "-" ^ string_of_int polyCons#get_miniSATCode
-      else string_of_int (polyCons#get_miniSATCode)
-    in
-    let learntClauses = VariablesSet.fold add_learnt_var varsSet (polysMiniSATCodeString ^ " 0") in
-    ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false) *)
-    add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps
-  else (*Continue decomposition*)
-    (*print_endline (string_of_bool polyCons#isInfinite);
-    flush stdout;*)
-    let decomposedVarsList = 
-      if infVar <> "" then [(infVar, 0., 0)]
-      else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
-    in
-    let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
-      let intvMiniSATCode = StringMap.find var varsIntvsMap in
-      StringMap.add var (intvMiniSATCode, varSen, isPositiveSen) currentVarsIntvsMiniSATCodesIsPositiveSenMap
-    in
-    let decomposedVarsIntvsMiniSATCodesIsPositiveMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
+  let get_largest var intv (currentVar, currentIntv) = 
+    if currentIntv.high -. currentIntv.low < intv.high -. intv.low then (var, intv)
+    else (currentVar, currentIntv)
+  in
+  let (var, intv) = StringMap.fold get_largest varsIntvsMap ("", {low=0.;high=0.}) in
+  if intv.high -. intv.low < esl then add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps
+  else
     let varType =
       if polyCons#get_logic = "QF_NIA" then "Int"
       else "Real"
     in 
-    StringMap.fold (decompose_var varType esl varsIntvsMap polyCons) decomposedVarsIntvsMiniSATCodesIsPositiveMap varsIntvsMapPrioritiesMaps
+    decompose_var varType esl varsIntvsMap polyCons var (intv, 0., false) varsIntvsMapPrioritiesMaps
