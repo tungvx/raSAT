@@ -295,18 +295,17 @@ very large problems (e.g., with several hundred variables) with the combination 
 
 \sloppy
 
-Our target problems is a nonlinear constraint, especially over real numbers. 
-That over integer numbers will be briefly shown in Section~\ref{sec:NIA}.
-We mainly discuss on polynomial inequations, and later in Section~\ref{sec:eq},
+Our target problem is solving nonlinear constraints.
+We mainly discuss on polynomial inequalities, and later in Section~\ref{sec:eq},
 we show an extension to cover polynomial equations based on the
-Intermediate Value Theorem. 
+Intermediate Value Theorem. From now on, we use the following notations without redefine it. Let $\mathbb{R}$ be the set of real numbers, $\mathbb{R}^\infty = \mathbb{R} \cup \{-\infty, \infty \}$. The normal arithmetics on $\mathbb{R}$ is extended to those on $\mathbb{R}^\infty$ as in~\cite{moore}. The set of all intervals is defined as $\mathbb{I} = \{[l, h] \mid l \le h \in \mathbb{R}^\infty \}$.
 
 \begin{definition}
 A polynomial inequality constraint is
 \[\varphi: \exists x_1 \in I_1 \cdots x_n \in I_n. \bigwedge
 \limits_{j=1}^m \psi_j(x_1,\cdots,x_n)\]
-where $\psi_j(x_1,\cdots,x_n)$ is an atomic polynomial inequation (API) of
-the form $p_j(x_1,...,x_n) > 0$. % with $p_j(x_1,...,x_n)$ is a polynomial.
+where $\psi_j(x_1,\cdots,x_n)$ is an atomic polynomial inequality (API) of
+the form $p_j(x_1,...,x_n) > 0$ and $I_1, \cdots, I_n \in \mathbb{I}$. % with $p_j(x_1,...,x_n)$ is a polynomial.
 We denote the set of variables appearing in $p_j$ by $var(p_j)$. 
 \end{definition}
 
@@ -682,7 +681,6 @@ such that $\mathbb{S}(g_j \ge 0)$ and $\mathbb{S}(g_k \ge 0)$ are separated.
 \end{comment}
 %%%%%%%%%%%%%%
 
-\vspace{-1cm}
 
 
 \subsection{raSAT loop}
@@ -931,7 +929,7 @@ Note that if $\delta_i = \infty$, we cannot use an Affine interval
 For instance, $(-\infty,\infty) = \infty \epsilon$ does not make sense.
 In {\bf raSAT}, $AF_2$ is used if $\delta_i < \infty$, and $CI$ is used otherwise.
 
-\vspace{-0.7cm}
+
 
 \begin{figure}[ht]
 \begin{minipage}[b]{1.0\linewidth}
@@ -946,8 +944,6 @@ In {\bf raSAT}, $AF_2$ is used if $\delta_i < \infty$, and $CI$ is used otherwis
 \label{fig:incwid}
 \end{minipage}
 \end{figure}
-
-\vspace{-1cm}
 
 \subsubsection*{Incremental deepening}
 
@@ -1076,17 +1072,6 @@ III. Selecting box:
 We implement \textbf{raSAT} loop as an SMT solver {\bf raSAT}, 
 based on MiniSat 2.2 as a backbone SAT solver and the library in \cite{Al2012.14} for
 outward rounding in the IAs. 
-Various combinations of strategies of {\bf raSAT} (in Section~\ref{sec:strategy})
-and random strategies are compared on {\em Zankl} and {\em Meti-Tarski} in NRA  
-and {\em AProVE} in NIA  from SMT-LIB. 
-The best combination of choices are 
-\begin{enumerate}
-\item an test-UNSAT API  (API that cannot be satisfied by any test cases in testing) choice by the least SAT-likelihood, 
-\item a variable choice by the largest sensitivity, and 
-\item a box choice by the largest SAT-likelihood. 
-\end{enumerate} 
-Sometimes a random choice of a test-UNSAT API (instead of the least SAT-likelihood) 
-shows an equally good result. 
 They are also compared with \textbf{Z3 4.3}, \textbf{iSAT3} and \textbf{dReal-2.15.01}
 where the former is considered to be the state of the art~(\cite{Jovanovic13}), and 
 the remaining ones are a popular ICP based tools. 
@@ -1104,20 +1089,6 @@ on Zankl and Meti-Tarski families of QF\_NRA.
 The timeout is set to 500s, and time shows the total of successful cases 
 (either SAT or UNSAT). %Our combinations of strategies are,
 
-
-%Experiments in Table~\ref{tab:rasat-experiments} are performed 
-%with random generation ($k$-random tick) and the balanced decomposition 
-%(dividing at the exact middle). 
-
-%\subsection*{Experiments with test case generation using variable sensitivity}
-\noindent
-{\bf Experiments with test case generation using variable sensitivity} \\
-%From above section, we can see that the combination (1)-(5)-(8) shows the best performance on benchmarks.
-%
-We also examine the effectiveness of the sensitivity in test case generation, 
-which is referred by (11).
-Table~\ref{tab:test-sen} presents the results on QF\_NRA/Zankl and Meti-tarski, 
-which show the improvement by the strategy (11) in SAT detection. 
 
 
 
@@ -1152,9 +1123,9 @@ which show the improvement by the strategy (11) in SAT detection.
 \end{table}
 
 
-\vspace{-1cm}
 
 
+\begin{comment}
 \subsection{Comparison with other SMT solvers}
 
 We compare {\bf raSAT} with other SMT solvers in Table~\ref{tab:comparison}.
@@ -1217,25 +1188,36 @@ This is because SMT solvers find small UNSAT cores, without tracing all APIs.
 Otherwise, it leads timeout. 
 However, for SAT detection with large problems, 
 SMT solvers need to trace all APIs. Thus, it takes much longer time. 
+\end{comment}
 
+\subsection{Results on SMT-COMP 2015}
+The \textbf{raSAT} loop is implemented in an SMT solver \textbf{raSAT} with the following extension to handle polynomial constraints over the integers:
 
-\subsection{Polynomial Constraints Over Integers} \label{sec:NIA}
+%\subsection{Polynomial Constraints Over Integers} \label{sec:NIA}
 
-The {\bf raSAT} loop is easily modified to QF\_NIA (nonlinear arithmetic over
-integer numbers) from QF\_NRA.
-We obtain SAT detection over integers by setting $\gamma_0 = 1$ in
-the incremental deepening in Section~\ref{sec:incsearch} 
-and restricting test data generation on integer numbers,
-where UNSAT detection is the same as for QF\_NIA benchmarks. 
-We compare {\bf raSAT} with {\bf Z3 4.3} on benchmarks of QF\_NIA/AProVE, 
-which consists of 6850 inequality and 1979 equality problems. 
-Some has several hundred variables, but each API has few variables
-(mostly just 2 variables).
+%The {\bf raSAT} loop is easily modified to QF\_NIA (nonlinear arithmetic over
+%integer numbers) from QF\_NRA.
+\begin{itemize}
+\item setting $\gamma_0 = 1$ in
+the incremental deepening, and
+\item restricting test data generation on integer numbers. 
+\end{itemize}
+
+\textbf{raSAT} participated the SMT Competition 2015 on two logic divisions, namely QF\_NRA and QF\_NIA. The result is available at \url{http://smtcomp.sourceforge.net/2015/results-toc.shtml}. Briefly summarized,
+\begin{itemize}
+\item on QF\_NRA, \textbf{raSAT} solved $7952$ benchmarks over 10184, ending with the third place; and
+\item on QF\_NIA, \textbf{raSAT} solved $7917$ benchmarks over $8475$, ending with the second place.
+\end{itemize}
+%We compare {\bf raSAT} with {\bf Z3 4.3} on benchmarks of QF\_NIA/AProVE, 
+%which consists of 6850 inequality and 1979 equality problems. 
+%Some has several hundred variables, but each API has few variables
+%(mostly just 2 variables).
 %Note that the use of the Intermediate Value Theorem cannot be applied
 %for QF\_NIA constraints since the polynomials are not continuous.
 %For SAT benchmarks (both inequalities and equalities), \textbf{raSAT}
 %concludes satisfiability only by testing.
-The preliminary results (with the time out $500s$) are presented in
+%The preliminary results (with the time out $500s$) are presented in
+\begin{comment}
 Table~\ref{tab:aprove}. 
 \suppress{
 \begin{itemize}
@@ -1268,7 +1250,7 @@ equality (1979) & 891 & 33721.37 (s) & 16 & 27.34 (s) &
 \medskip 
 \caption{Comparison on NIA/AProVE} \label{tab:aprove}
 \end{table*}
-\vspace{-1cm}
+\end{comment}
 
 
 \section{Extension for Equality Handling} \label{sec:eq}
@@ -1337,7 +1319,7 @@ If neither (i) nor (ii) holds, \textbf{raSAT} continues the decomposition.
   then the constraint is satisfiable by Lemma~\ref{lemma:ivt}. 
 \end{example}
 
-\vspace{-0.5cm}
+
 \begin{figure}
 \centering
 \begin{subfigure}{0.4\textwidth}
@@ -1425,6 +1407,7 @@ the number of variables must be greater than or equal to the number of equations
   a continuous (red) line $EF$ must have an intersection by Jordan curve theorem. 
 \end{example}
 
+\begin{comment}
 Current {\bf raSAT} for polynomial constraints with equations is implemented in a naive way. 
 For instance, for each $g_j = 0$, \textbf{raSAT} checks all possible subsets of its variables
 as candidates for $V_j$. Thus, in the worst case \textbf{raSAT} checks
@@ -1433,8 +1416,9 @@ It also does not prepare a strategy to find a box that makes all inequations IA-
 Preliminary experiments on problems with equations from QF\_NRA/Zankl and QF\_NRA/Meti-tarski
 are summarized in Table~\ref{tab:equations}.
 We hope that the sensitivity will give effective strategies. 
+\end{comment}
 
-\vspace{-0.5cm}
+
 \begin{table*}[hbt]
 \centering
 \adjustbox{max width=\columnwidth}{
@@ -1459,7 +1443,6 @@ Keymaera (612) & 0 & 0.00 (s)& 312 & 66.63 (s) & 0 & 0.00 (s) & \textbf{610} & 2
 \caption{Comparison among SMT solvers with equations} \label{tab:equations}
 \end{table*}
 
-\vspace{-1.5cm}
 
 %%%%%%
 \suppress{
