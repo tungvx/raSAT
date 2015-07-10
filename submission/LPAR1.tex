@@ -288,6 +288,289 @@ very large problems (e.g., with several hundred variables) with the combination 
 \end{comment}
 %%%%%%%%%%%%
 
+\subsection{Polynomial Constraints Over Integers} \label{sec:NIA}
+
+The {\bf raSAT} loop is easily modified to QF\_NIA (nonlinear arithmetic over
+integer numbers) from QF\_NRA.
+We obtain SAT detection over integers by setting $\gamma_0 = 1$ in
+the incremental deepening in Section~\ref{sec:incsearch} 
+and restricting test data generation on integer numbers,
+where UNSAT detection is the same as for QF\_NIA benchmarks.
+
+\subsection{Results} \label{sec:experiment}
+
+%\subsection{{\bf raSAT} Implementation} 
+We implement \textbf{raSAT} loop as an SMT solver {\bf raSAT}, 
+based on MiniSat 2.2 as a backbone SAT solver and the library in \cite{Al2012.14} for
+outward rounding in the IAs. \textbf{raSAT} can be downloaded from \url{http://www.jaist.ac.jp/~s1310007/raSAT/}.
+
+
+
+\begin{comment}
+\subsection{Comparison with other SMT solvers}
+
+We compare {\bf raSAT} with other SMT solvers in Table~\ref{tab:comparison}.
+%on NRA benchmarks: Zankl, Meti-Tarski and Keymaera. 
+The timeout is $500s$. 
+For {\bf iSAT3}, the ranges of all variables are uniformly set to be in the bounded interval
+$[-1000, 1000]$ (otherwise, it often causes segmentation fault). 
+Thus, UNSAT detection of {\bf iSAT3} means UNSAT in the range $[-1000, 1000]$, 
+while that of {\bf raSAT}, \textbf{dReal-2.15.01} and {\bf Z3 4.3} means UNSAT over $[-\infty, \infty]$.
+Another note is that SAT statements by \textbf{dReal-2.15.01} means $\delta$-SAT, which allows
+$\delta$ deviation. Thus, it does not mean really SAT, and a number of UNSAT problems in
+Zankl, \textbf{dReal} concludes SAT.
+%For instances, with a number of UNSAT problems in Zankl, \textbf{dReal} still concludes SAT.
+
+Among these SMT solvers, {\bf Z3 4.3} shows the best performance. 
+However, if we closely observe, there are certain tendency. 
+{\bf Z3 4.3} is very quick for small constraints, i.e., with 
+short APIs (up to $5$) and a small number of variables (up to $10$). 
+{\bf raSAT} shows comparable performance on SAT detection with 
+longer APIs (larger than $5$) and a larger number of variables (more than $10$), 
+and sometimes outperforms on SAT detection of vary long constraints 
+(APIs longer than $40$ and/or more than $20$ variables). 
+Such examples appear in Zankl/matrix-3-all-*, matrix-4-all-*, and matrix-5-all-* 
+(total 74 problems), and {\bf raSAT} solely solves 
+\begin{itemize}
+\item {\em matrix-3-all-2} (47 variables, 87 APIs, and max length of an API is 27), 
+\item {\em matrix-3-all-5} (81 variables, 142 APIs, and max length of an API is 20), 
+\item {\em matrix-4-all-3} (139 variables, 244 APIs, and max length of an API is 73), %and 
+\item {\em matrix-5-all-01} (132 variables, 276 APIs, and max length of an API is 47). 
+\end{itemize}
+
+\begin{table*}[hbt]
+\centering
+\adjustbox{max width=\columnwidth}{
+\begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r | r | r | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} & \multicolumn{4}{c|}{\bf dReal}\\
+\hline
+    & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
+    & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{$\delta-$SAT} & \multicolumn{2}{|c|}{UNSAT}\\
+\hline
+Zankl/matrix-1 (53) & 25 & 414.99 (s) & 2 & 0.01 (s) & \textbf{41} & 2.17 (s) & 12 & 0.00 (s) & 11 & 4.68 (s) & 3 & 0.00 (s) & 46 & 3573.43 (s) & 0 & 0.00 (s)\\
+\hline
+Zankl/matrix-2,3,4,5 (98) & 11 & 1264.77 (s) & 8 & 0.38 (s) & \textbf{13} & 1031.68 (s) & 11 & 0.57 (s) & 3 & 196.40 (s) & 12 & 8.06 (s) & 19& 2708.89 (s) & 0 & 0.00 (s) \\
+\hline 
+Meti-Tarski (5101) & 3473 & 419.25 (s) & 1052 & 821.85 (s) & \textbf{3528} & 51.22 (s) & 1568 & 78.56 (s) & 2916 & 811.53 (s) & 
+1225 & 73.83 (s) & 3523 & 441.35 (s) & 1197 & 55.39 (s) \\
+\hline
+Keymaera (68) & 0 & 0.00 (s) & 16 & 0.06 (s) & 0 & 0.00 (s) & 68 & 0.36 (s) & 0 & 0.00 (s) & 
+16 & 0.07 (s) & 8 & 0.18 (s) & 0 & 0.00 (s) \\
+\hline
+\end{tabular}
+}
+\medskip 
+\caption{Comparison among SMT solvers over polynomial inequality} \label{tab:comparison}
+\end{table*}
+Note that, for Zankl, when UNSAT is detected, it is detected very quickly. 
+This is because SMT solvers find small UNSAT cores, without tracing all APIs.
+Otherwise, it leads timeout. 
+However, for SAT detection with large problems, 
+SMT solvers need to trace all APIs. Thus, it takes much longer time. 
+\end{comment}
+
+\subsection{Results on SMT-COMP 2015}
+\textbf{raSAT} participated the SMT Competition 2015 on two logic divisions, namely QF\_NRA and QF\_NIA. The result is available at \url{http://smtcomp.sourceforge.net/2015/results-toc.shtml}. Briefly summarized,
+\begin{itemize}
+\item on QF\_NRA, \textbf{raSAT} solved $7952$ benchmarks over 10184, ending with the third place; and
+\item on QF\_NIA, \textbf{raSAT} solved $7917$ benchmarks over $8475$, ending with the second place.
+\end{itemize}
+By the Competition-Wide Scoring, \textbf{raSAT} ranked $8^{th}$ among $19$ solvers.
+%We compare {\bf raSAT} with {\bf Z3 4.3} on benchmarks of QF\_NIA/AProVE, 
+%which consists of 6850 inequality and 1979 equality problems. 
+%Some has several hundred variables, but each API has few variables
+%(mostly just 2 variables).
+%Note that the use of the Intermediate Value Theorem cannot be applied
+%for QF\_NIA constraints since the polynomials are not continuous.
+%For SAT benchmarks (both inequalities and equalities), \textbf{raSAT}
+%concludes satisfiability only by testing.
+%The preliminary results (with the time out $500s$) are presented in
+\begin{comment}
+Table~\ref{tab:aprove}. 
+\suppress{
+\begin{itemize}
+\item {\bf raSAT} detects 6773 SAT in 90.22s, and 2 UNSAT in 378.04s. 
+\item {\bf Z3 4.3} detects 6784 SAT in 97.70s, and 36 UNSAT in 32.08s. 
+\end{itemize}
+where the timeout is $500s$. 
+}
+{\bf raSAT} does not detect UNSAT well since UNSAT problems
+have quite large coefficients, which lead exhaustive search on quite large area.
+\begin{table*}[ht]
+\centering
+\begin{tabular}{ | l | r | r | r | r  | r | r | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & 
+    \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3}\\
+\hline
+    & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} 
+    & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
+\hline
+inequality (6850) & \textbf{6784} & 65.60 (s) & 0 & 0.00 (s) &
+\textbf{6784} & 97.77 (s) & \textbf{36} & 32.46 (s) 
+\\
+\hline
+equality (1979) & 891 & 33721.37 (s) & 16 & 27.34 (s) &
+\textbf{900} & 1951.01(s) & \textbf{250} & 3104.74(s) 
+\\
+\hline
+\end{tabular}
+\medskip 
+\caption{Comparison on NIA/AProVE} \label{tab:aprove}
+\end{table*}
+\end{comment}
+
+
+\subsection{Related Work} \label{sec:relate}
+
+%Non-linear constraints are still under investigation, and 
+There are many techniques appearing in various SMT solvers. 
+\begin{description}
+\item[QE-CAD] RAHD \cite{Passmore09combineddecision} and 
+Z3 4.3 (nlsat in~\cite{Jovanovic13}) include QE-CAD. 
+%such as QEPCAD-B, Reduce/Redlog, and Mathematica. 
+%QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions), 
+%scalability is still challenging, since it is DEXPTIME. 
+%Since QE-CAD is DEXPTIME wrt the number of variables, 
+
+\item[Virtual substitution (VS)]
+%Virtual substitution is an EXPTIME algorithm 
+%applicable when the degree of each variable does not exceed 4. 
+SMT-RAT toolbox \cite{smtrat} combines 
+VS, incremental DPLL, and %less lazy and 
+eager theory propagation. 
+Z3 3.1 %, the winner of QF\_NRA in SMT competition 2011, 
+combines VS, ICP, and linearization.
+
+\item[Bit-blasting] %Bit-blasting in bounded bit width is often used in SMTs for QF\_NIA. 
+UCLID~\cite{Bryant07decidingbit-vector} and MiniSmt~\cite{Zankl:2010:SNR:1939141.1939168} give a bound on the number of bits 
+%(i.e., narrowing bounds for SAT instances) 
+%as an under-approximation, and removes clauses as an over-approximation. 
+%They refine each other, which shares a similar sprit with {\bf raSAT} loop. 
+%the winner of QF\_NRA in SMT competition 2010, 
+%applies it 
+to encode integers and rationals, respectively. %with symbolic representations for prefixed algebraic numbers. 
+%MiniSmt can show SAT quickly with small degree polynomials, but due to the bounded bit encoding, 
+%it cannot conclude UNSAT.
+%Bit-blasting also suffers a lot when the degree of polynomials increases. 
+
+\item[Linearization] %Linearization of polynomials is often used over integers, such as
+%Barcelogic~\cite{Borralleras:2009:SNP:1614530.1614561}, 
+%substitutes all possible integers in a given-bound to an argument of a multiplication. 
+%Then, multiplications are reduced to an exhaustive search on linear constraints. 
+CORD \cite{cordic} %uses another 
+linearizes multiplications of reals by CORDIC encoding. 
+%Both Barcelogic and CORD apply Yices for solving linear constraints.
+Linearization suffers from the increase of the polynomial degrees. 
+%\mizuhito{Check CORD is whether bit-blasting or linearization}. 
+\end{description}
+
+
+ICP-based SMT solvers are \text{iSAT3} and \text{dReal}, adding to \textbf{raSAT}. 
+%Because \textbf{raSAT} in the same category of using ICP with 
+%next part is going to take a look at details of methodologies used in these solvers.
+\begin{description}
+\item[iSAT3] has tighter integration between DPLL procedure~\cite{dpll} and ICP. 
+Fresh variables are introduced to decompose a polynomial to atomic representations, 
+and each of them is assigned to an atomic proposition. 
+A data structure is prepared to store intervals such that 
+they correspond to the decision level one in DPLL. 
+Its unit propagation is strengthened by combining with eager theory propagation. 
+In a clause, if all except one literals are falsified, the remaining literal causes unit propagation 
+and it becomes a candidate when next decomposition occurs. 
+Note that \textbf{iSAT3} uses only CI as an IA. 
+
+\item[dReal] has different judgments on SAT, called $\delta$-SAT, which allows the deviation of the width $\delta$. 
+Thus, $\delta$-SAT does not imply really SAT. This is the reason why dReal quite often concludes SAT (actually $\delta$-SAT) 
+for UNSAT problems in SMT-LIB benchmarks. With the weakening of SAT to $\delta$-SAT, it obtains the completeness of 
+$\delta$-SAT and $\delta$-UNSAT~\cite{Gao:2012:9DP:2352896.2352921}. 
+Note that \textbf{dReal} uses only CI as an IA, and lazy theory propagation as {\bf raSAT}. 
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\suppress{
+\subsection*{iSAT3}
+Although \textbf{iSAT3} also uses Interval Arithmetic (IA), its algorithm integrates IA with 
+DPLL procedure~\cite{dpll} tighter than that of \textbf{raSAT}. 
+During DPLL procedure, in addition to an assignment of literals, \textbf{iSAT3} also prepares 
+a data structure to store interval boxes where each box corresponds to one decision level of DPLL procedure's assignment. 
+In \textbf{UnitPropagation} rule, instead of using standard rule, 
+\textbf{iSAT3} searches for clauses that have all but one atoms being inconsistent with the current interval box. 
+When some atom are selected for the literals assignment, this tool tries to use the selected atoms to contract 
+the corresponding box to make it smaller. In order to do this, \textbf{iSAT3} convert each inequation/equation 
+in the given constraints into the conjunction of the atoms of the following form by introducing additional variables:
+\begin{center}
+\begin{tabular}{l c l}
+atom &::=& bound $\mid$ equation \\
+bound &::=& variable relation rational\_constant \\
+relation &::=& $< \mid \le \mid = \mid \ge \mid >$ \\
+equation &::=& variable = variable bop variable \\
+bop &::=& $+ \mid - \mid \times$
+\end{tabular}
+\end{center}
+In other words, the resulting atoms are of the form, e.g., either $x > 10$ or $x = y + z$. 
+For example, the constraint \[x^2 + y^2 < 1\] is converted into:
+\[\left\{ 
+  \begin{array}{l}
+    x_1 = x^2\\
+    x_2 = y^2\\
+    x_3 = x_1 + x_2\\
+    x_3 < 1
+   \end{array}
+    \right.\]
+From the atoms of these form, the contraction can be easily done for interval boxes:
+\begin{itemize}
+\item[$\bullet$] For the bound atom of the form, e.g., $x > 10$, if the bound is $x \in [0, 100]$, 
+then the contracted box contain $x \in [10, 100]$.
+\item[$\bullet$] For the equations of three variables $x = y \text{ bop } z$, from bounds of any two variables, 
+we can infer the bound for the remaining one. For example, from
+\[\left\{ 
+  \begin{array}{l}
+    x = y.z\\
+    x \in [1, 10]\\
+    y \in [3, 7]\\
+   \end{array}
+    \right.\]
+we can infer that \[z \in [\frac{1}{7}, \frac{10}{3}] \]
+\end{itemize}
+When the \textbf{UnitPropagation} and contraction can not be done, \textbf{iSAT3} split one interval (decomposition) 
+in the current box and select one decomposed interval to explore which corresponds to \textbf{decide} step. 
+If the contraction yields an empty box, a conflict is detected and the complement of the bound selection 
+in the last split needs to be asserted. This is done via \textbf{learn} the causes of the conflict and 
+\textbf{backjump} to the previous bound selection of the last bound selection. In order to reason about causes of a conflict, 
+\textbf{iSAT3} maintains an implication graph to represents which atoms lead to the asserting of one atom. 
+
+\subsection*{dReal}
+In stead of showing satisfiability/unsatisfiability of the polynomial constraints $\varphi$ over reals, 
+\textbf{dReal} proves that either
+\begin{itemize}
+\item [$\bullet$] $\varphi$ is unsatisfiable, or 
+\item [$\bullet$] $\varphi^\delta$ is satisfiable. 
+\end{itemize}
+Here, $\varphi^\delta$ is the $\delta$-weakening of $\varphi$. For instance, the $\delta$-weakening of $x = 0$ is 
+$|x| \le \delta$. Any constraint with operators in $\{<, \le, > , \ge, =, \not=\}$ can be converted into constraints 
+that contains only $=$ by the following transformations.
+\begin{itemize}
+\item [$\bullet$] \textbf{Removing $\not=$}: Each formula of the form $f \not= 0$ is transformed into $f > 0 \vee f < 0$.
+\item [$\bullet$] \textbf{Removing $<$ and $\le$}: Each formula of the form $f < 0$ or $f \le 0$ is transformed into 
+$-f \ge 0$ or $-f > 0$ respectively.
+\item [$\bullet$] \textbf{Removing $>$ and $\ge$}: Each formula of the form $f > 0$ or $f \ge 0$ is transformed into 
+$f - x = 0$ by introducing an auxiliary variable $x$ that has bound $[0, m]$ or $(0, m]$ respectively. 
+Here, $m$ is any rational number which is greater than the maximum of $f$ over intervals of variables. 
+As the result, \textbf{dReal} requires the input that ranges of variables must be compact.
+\end{itemize}
+
+Note that the satisfiability of $\varphi^\delta$ does not imply that of $\varphi$. 
+\textbf{dReal}'s methodology~\cite{Gao:2012:9DP:2352896.2352921} also cooperates DPLL with ICP 
+in the lazy manner as in \textbf{raSAT}.
+
+\medskip 
+%{\bf raSAT} applies SAT confirmation to avoid soundness errors caused by roundoff/overflow errors. 
+%Another static analysis based approach is found in~\cite{SilvaTACAS12}. 
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{ICP overview and \textbf{raSAT} loop}
 \label{sec:raSATloop} 
@@ -924,7 +1207,6 @@ At the decomposition, {\bf raSAT} also examines the choice of the box.
 We define the {\em SAT-likelihood} of a box $B$ by 
 the least SAT-likelihood of APIs. After decomposition, {\bf raSAT} simply compares SAT-likelihood of newly decomposed boxes with the those of previous ones to select one box to explore.
 
-
 \subsubsection*{Test case generation strategy}
 \sloppy
 The sensitivity of variables is also used for test case generation.
@@ -936,51 +1218,54 @@ the sign of the coefficients of noise symbols.
 If positive, it takes the upper bound of possible values as the first test case; 
 otherwise, the lower bound. The second test case is generated randomly. 
 
-\begin{example}
-  Let $g = -x_{15}*x_8+x_{15}*x_2-x_{10}*x_{16}$ and consider a constraint $g > 0$. 
-  For ${x_2 \in [9.9, 10]}, {x_8 \in [0, 0.1]}, {x_{10} \in [0, 0.1]}, {x_{15} \in [0, 10]},$ and
-  $ x_{16} \in [0, 10]$, 
-  ${0.25 \epsilon_2 - 0.25 \epsilon_8 - 0.25 \epsilon_{10} + 49.5\epsilon_{15} - 0.25\epsilon_{16}
-    + 0.75\epsilon_{+-} + 49.25}$ is the estimation of $g$ by $AF_2$. 
-  The coefficient of $\epsilon_2$ is $0.25$, which is positive. 
-  Thus, the value of $g$ is likely to increase if $x_2$ increases. 
-  We take the upper bound of possible values of $x_2$ as a test case, i.e. $10$. 
-  %As a result, the test case of $x_2$ is expected as high as possible in order to satisfy $g>0$.
-  Similarly, we take the test cases for others, $x_8=0, x_{10}=0, x_{15}=10, x_{16}=0$, which lead $g=100 > 0$. 
-\end{example}
-\suppress{
-I. Selecting API for testing:
-  (1) Difficulty first by SAT-likelihood.   
-  (2) Easy first by SAT-likelihood
-  (10) Random.,
-II. Selecting Variable:
-  (8) With sensitivity
-  (9) Without sensitivity - Random: 
-III. Selecting box:
-  (3) SAT-directed using IA-testing.
-  (4) UNSAT-directed using IA-testing.
-  (5) SAT-directed using SAT-likelihood
-  (6) UNSAT-directed using SAT-likelihood
-  (7) Random
-}
+%We perform experiments only on inequations of Zankl, and Meti-Tarski families. 
+The effects of designed strategies are examined on Zankl and Meti-Tarski families of QF\_NRA, which are illustrated in
+Table~\ref{tab:rasat-experiments}. 
+The experiments are done on a machine with Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. The timeout is set to 500s, and time shows the total of successful cases 
+(either SAT or UNSAT). %Our combinations of strategies are,
 
-\section{Polynomial Constraints Over Integers} \label{sec:NIA}
 
-The {\bf raSAT} loop is easily modified to QF\_NIA (nonlinear arithmetic over
-integer numbers) from QF\_NRA.
-We obtain SAT detection over integers by setting $\gamma_0 = 1$ in
-the incremental deepening in Section~\ref{sec:incsearch} 
-and restricting test data generation on integer numbers,
-where UNSAT detection is the same as for QF\_NIA benchmarks.
+
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{ | l | r | r | r | r |}
+\hline
+    \multicolumn{1}{|l|}{Benchmark} & \multicolumn{2}{c|}{Random} &
+    \multicolumn{2}{c|}{Strategy} \\
+\hline
+    Matrix-1 (SAT ) & 19 & 230.39 (s) & \textbf{25} & 414.99(s)
+\\
+\hline
+    Matrix-1 (UNSAT) & 2 & 0.01(s) & 2 & 0.01(s)
+\\
+\hline
+	Matrix-2,3,4,5 (SAT) & 1 & 13.43 (s) & \textbf{11} & 1264.77(s)
+\\
+\hline
+    Matrix-2,3,4,5 (UNSAT) & 8 & 0.37(s) & 8 & 0.38(s)
+\\ \hline
+    Meti-Tarski (SAT) & 3451 & 895.14 (s) & \textbf{3473} & 419.25 (s)
+\\
+\hline
+    Meti-Tarski (UNSAT) & 1060 & 233.46 (s) & 1052 & 821.85 (s)
+\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Effectiveness of Heuristics} 
+\label{tab:rasat-experiments}
+\end{table}
 
 
 \section{Extension for Equations Handling} \label{sec:eq}
-
+\begin{comment}
 For a polynomial constraint with equations,
 \[\psi =
 \bigwedge \limits_{j=1}^m g_j > 0 \wedge
 \bigwedge \limits_{j=m+1}^{m'} g_j = 0\]
 one typical way to solve equations is an algebraic method, e.g., Groebner basis.
+\end{comment}
 In this section, we try a simple method based on
 the {\em Intermediate Value Theorem} which is illustrated by cases of single equation and multiple ones.
 
@@ -1126,7 +1411,7 @@ are summarized in Table~\ref{tab:equations}.
 We hope that the sensitivity will give effective strategies. 
 \end{comment}
 
-
+\begin{comment}
 \begin{table*}[hbt]
 \centering
 \adjustbox{max width=\columnwidth}{
@@ -1150,7 +1435,7 @@ Keymaera (612) & 0 & 0.00 (s)& 312 & 66.63 (s) & 0 & 0.00 (s) & \textbf{610} & 2
 \medskip 
 \caption{Comparison among SMT solvers with equations} \label{tab:equations}
 \end{table*}
-
+\end{comment}
 
 %%%%%%
 \suppress{
@@ -1289,326 +1574,7 @@ We also apply the same idea for multiple equations $\bigwedge \limits_{i} g_i = 
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Results} \label{sec:experiment}
 
-%\subsection{{\bf raSAT} Implementation} 
-We implement \textbf{raSAT} loop as an SMT solver {\bf raSAT}, 
-based on MiniSat 2.2 as a backbone SAT solver and the library in \cite{Al2012.14} for
-outward rounding in the IAs. \textbf{raSAT} can be downloaded from \url{http://www.jaist.ac.jp/~s1310007/raSAT/}.
-
-We first examine the effects of designed strategies and then present the result of \textbf{raSAT} in SMT Competition 2015.
-The experiments are with Intel Xeon E5-2680v2 2.80GHz and 4 GB of RAM. 
-
-\subsection{Experiments on Strategy Combinations} \label{sec:expstrategy}
-
-
-%We perform experiments only on inequations of Zankl, and Meti-Tarski families. 
-Table~\ref{tab:rasat-experiments} shows the comparison between random choices and choices with heuristics
-on Zankl and Meti-Tarski families of QF\_NRA. 
-The timeout is set to 500s, and time shows the total of successful cases 
-(either SAT or UNSAT). %Our combinations of strategies are,
-
-
-
-
-\begin{table}[ht]
-\begin{center}
-\begin{tabular}{ | l | r | r | r | r |}
-\hline
-    \multicolumn{1}{|l|}{Benchmark} & \multicolumn{2}{c|}{Random} &
-    \multicolumn{2}{c|}{Strategy} \\
-\hline
-    Matrix-1 (SAT ) & 19 & 230.39 (s) & \textbf{25} & 414.99(s)
-\\
-\hline
-    Matrix-1 (UNSAT) & 2 & 0.01(s) & 2 & 0.01(s)
-\\
-\hline
-	Matrix-2,3,4,5 (SAT) & 1 & 13.43 (s) & \textbf{11} & 1264.77(s)
-\\
-\hline
-    Matrix-2,3,4,5 (UNSAT) & 8 & 0.37(s) & 8 & 0.38(s)
-\\ \hline
-    Meti-Tarski (SAT) & 3451 & 895.14 (s) & \textbf{3473} & 419.25 (s)
-\\
-\hline
-    Meti-Tarski (UNSAT) & 1060 & 233.46 (s) & 1052 & 821.85 (s)
-\\
-\hline
-\end{tabular}
-\end{center}
-\caption{Effectiveness of Heuristics} 
-\label{tab:rasat-experiments}
-\end{table}
-
-
-
-
-\begin{comment}
-\subsection{Comparison with other SMT solvers}
-
-We compare {\bf raSAT} with other SMT solvers in Table~\ref{tab:comparison}.
-%on NRA benchmarks: Zankl, Meti-Tarski and Keymaera. 
-The timeout is $500s$. 
-For {\bf iSAT3}, the ranges of all variables are uniformly set to be in the bounded interval
-$[-1000, 1000]$ (otherwise, it often causes segmentation fault). 
-Thus, UNSAT detection of {\bf iSAT3} means UNSAT in the range $[-1000, 1000]$, 
-while that of {\bf raSAT}, \textbf{dReal-2.15.01} and {\bf Z3 4.3} means UNSAT over $[-\infty, \infty]$.
-Another note is that SAT statements by \textbf{dReal-2.15.01} means $\delta$-SAT, which allows
-$\delta$ deviation. Thus, it does not mean really SAT, and a number of UNSAT problems in
-Zankl, \textbf{dReal} concludes SAT.
-%For instances, with a number of UNSAT problems in Zankl, \textbf{dReal} still concludes SAT.
-
-Among these SMT solvers, {\bf Z3 4.3} shows the best performance. 
-However, if we closely observe, there are certain tendency. 
-{\bf Z3 4.3} is very quick for small constraints, i.e., with 
-short APIs (up to $5$) and a small number of variables (up to $10$). 
-{\bf raSAT} shows comparable performance on SAT detection with 
-longer APIs (larger than $5$) and a larger number of variables (more than $10$), 
-and sometimes outperforms on SAT detection of vary long constraints 
-(APIs longer than $40$ and/or more than $20$ variables). 
-Such examples appear in Zankl/matrix-3-all-*, matrix-4-all-*, and matrix-5-all-* 
-(total 74 problems), and {\bf raSAT} solely solves 
-\begin{itemize}
-\item {\em matrix-3-all-2} (47 variables, 87 APIs, and max length of an API is 27), 
-\item {\em matrix-3-all-5} (81 variables, 142 APIs, and max length of an API is 20), 
-\item {\em matrix-4-all-3} (139 variables, 244 APIs, and max length of an API is 73), %and 
-\item {\em matrix-5-all-01} (132 variables, 276 APIs, and max length of an API is 47). 
-\end{itemize}
-
-\begin{table*}[hbt]
-\centering
-\adjustbox{max width=\columnwidth}{
-\begin{tabular}{ | l | r | r | r | r  | r | r | r | r | r | r |r | r | r | r | r | r |}
-\hline
-    \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3} & \multicolumn{4}{c|}{\bf iSAT3} & \multicolumn{4}{c|}{\bf dReal}\\
-\hline
-    & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} 
-    & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c}{UNSAT} & \multicolumn{2}{|c}{$\delta-$SAT} & \multicolumn{2}{|c|}{UNSAT}\\
-\hline
-Zankl/matrix-1 (53) & 25 & 414.99 (s) & 2 & 0.01 (s) & \textbf{41} & 2.17 (s) & 12 & 0.00 (s) & 11 & 4.68 (s) & 3 & 0.00 (s) & 46 & 3573.43 (s) & 0 & 0.00 (s)\\
-\hline
-Zankl/matrix-2,3,4,5 (98) & 11 & 1264.77 (s) & 8 & 0.38 (s) & \textbf{13} & 1031.68 (s) & 11 & 0.57 (s) & 3 & 196.40 (s) & 12 & 8.06 (s) & 19& 2708.89 (s) & 0 & 0.00 (s) \\
-\hline 
-Meti-Tarski (5101) & 3473 & 419.25 (s) & 1052 & 821.85 (s) & \textbf{3528} & 51.22 (s) & 1568 & 78.56 (s) & 2916 & 811.53 (s) & 
-1225 & 73.83 (s) & 3523 & 441.35 (s) & 1197 & 55.39 (s) \\
-\hline
-Keymaera (68) & 0 & 0.00 (s) & 16 & 0.06 (s) & 0 & 0.00 (s) & 68 & 0.36 (s) & 0 & 0.00 (s) & 
-16 & 0.07 (s) & 8 & 0.18 (s) & 0 & 0.00 (s) \\
-\hline
-\end{tabular}
-}
-\medskip 
-\caption{Comparison among SMT solvers over polynomial inequality} \label{tab:comparison}
-\end{table*}
-Note that, for Zankl, when UNSAT is detected, it is detected very quickly. 
-This is because SMT solvers find small UNSAT cores, without tracing all APIs.
-Otherwise, it leads timeout. 
-However, for SAT detection with large problems, 
-SMT solvers need to trace all APIs. Thus, it takes much longer time. 
-\end{comment}
-
-\subsection{Results on SMT-COMP 2015}
-\textbf{raSAT} participated the SMT Competition 2015 on two logic divisions, namely QF\_NRA and QF\_NIA. The result is available at \url{http://smtcomp.sourceforge.net/2015/results-toc.shtml}. Briefly summarized,
-\begin{itemize}
-\item on QF\_NRA, \textbf{raSAT} solved $7952$ benchmarks over 10184, ending with the third place; and
-\item on QF\_NIA, \textbf{raSAT} solved $7917$ benchmarks over $8475$, ending with the second place.
-\end{itemize}
-By the Competition-Wide Scoring, \textbf{raSAT} ranked $8^{th}$ among $19$ solvers.
-%We compare {\bf raSAT} with {\bf Z3 4.3} on benchmarks of QF\_NIA/AProVE, 
-%which consists of 6850 inequality and 1979 equality problems. 
-%Some has several hundred variables, but each API has few variables
-%(mostly just 2 variables).
-%Note that the use of the Intermediate Value Theorem cannot be applied
-%for QF\_NIA constraints since the polynomials are not continuous.
-%For SAT benchmarks (both inequalities and equalities), \textbf{raSAT}
-%concludes satisfiability only by testing.
-%The preliminary results (with the time out $500s$) are presented in
-\begin{comment}
-Table~\ref{tab:aprove}. 
-\suppress{
-\begin{itemize}
-\item {\bf raSAT} detects 6773 SAT in 90.22s, and 2 UNSAT in 378.04s. 
-\item {\bf Z3 4.3} detects 6784 SAT in 97.70s, and 36 UNSAT in 32.08s. 
-\end{itemize}
-where the timeout is $500s$. 
-}
-{\bf raSAT} does not detect UNSAT well since UNSAT problems
-have quite large coefficients, which lead exhaustive search on quite large area.
-\begin{table*}[ht]
-\centering
-\begin{tabular}{ | l | r | r | r | r  | r | r | r | r |}
-\hline
-    \multicolumn{1}{|l|}{Benchmark} & 
-    \multicolumn{4}{c|}{\bf raSAT} & \multicolumn{4}{c|}{\bf Z3 4.3}\\
-\hline
-    & \multicolumn{2}{c}{SAT} & \multicolumn{2}{|c}{UNSAT} 
-    & \multicolumn{2}{|c}{SAT} & \multicolumn{2}{|c|}{UNSAT} \\
-\hline
-inequality (6850) & \textbf{6784} & 65.60 (s) & 0 & 0.00 (s) &
-\textbf{6784} & 97.77 (s) & \textbf{36} & 32.46 (s) 
-\\
-\hline
-equality (1979) & 891 & 33721.37 (s) & 16 & 27.34 (s) &
-\textbf{900} & 1951.01(s) & \textbf{250} & 3104.74(s) 
-\\
-\hline
-\end{tabular}
-\medskip 
-\caption{Comparison on NIA/AProVE} \label{tab:aprove}
-\end{table*}
-\end{comment}
-
-
-\section{Related Work} \label{sec:relate}
-
-%Non-linear constraints are still under investigation, and 
-There are many techniques appearing in various SMT solvers. 
-\begin{description}
-\item[QE-CAD] RAHD \cite{Passmore09combineddecision} and 
-Z3 4.3 (nlsat in~\cite{Jovanovic13}) include QE-CAD. 
-%such as QEPCAD-B, Reduce/Redlog, and Mathematica. 
-%QE-CAD is precise and detects beyond SAT instances (e.g., SAT regions), 
-%scalability is still challenging, since it is DEXPTIME. 
-%Since QE-CAD is DEXPTIME wrt the number of variables, 
-
-\item[Virtual substitution (VS)]
-%Virtual substitution is an EXPTIME algorithm 
-%applicable when the degree of each variable does not exceed 4. 
-SMT-RAT toolbox \cite{smtrat} combines 
-VS, incremental DPLL, and %less lazy and 
-eager theory propagation. 
-Z3 3.1 %, the winner of QF\_NRA in SMT competition 2011, 
-combines VS, ICP, and linearization.
-
-\item[Bit-blasting] %Bit-blasting in bounded bit width is often used in SMTs for QF\_NIA. 
-UCLID~\cite{Bryant07decidingbit-vector} and MiniSmt~\cite{Zankl:2010:SNR:1939141.1939168} give a bound on the number of bits 
-%(i.e., narrowing bounds for SAT instances) 
-%as an under-approximation, and removes clauses as an over-approximation. 
-%They refine each other, which shares a similar sprit with {\bf raSAT} loop. 
-%the winner of QF\_NRA in SMT competition 2010, 
-%applies it 
-to encode integers and rationals, respectively. %with symbolic representations for prefixed algebraic numbers. 
-%MiniSmt can show SAT quickly with small degree polynomials, but due to the bounded bit encoding, 
-%it cannot conclude UNSAT.
-%Bit-blasting also suffers a lot when the degree of polynomials increases. 
-
-\item[Linearization] %Linearization of polynomials is often used over integers, such as
-%Barcelogic~\cite{Borralleras:2009:SNP:1614530.1614561}, 
-%substitutes all possible integers in a given-bound to an argument of a multiplication. 
-%Then, multiplications are reduced to an exhaustive search on linear constraints. 
-CORD \cite{cordic} %uses another 
-linearizes multiplications of reals by CORDIC encoding. 
-%Both Barcelogic and CORD apply Yices for solving linear constraints.
-Linearization suffers from the increase of the polynomial degrees. 
-%\mizuhito{Check CORD is whether bit-blasting or linearization}. 
-\end{description}
-
-
-ICP-based SMT solvers are \text{iSAT3} and \text{dReal}, adding to \textbf{raSAT}. 
-%Because \textbf{raSAT} in the same category of using ICP with 
-%next part is going to take a look at details of methodologies used in these solvers.
-\begin{description}
-\item[iSAT3] has tighter integration between DPLL procedure~\cite{dpll} and ICP. 
-Fresh variables are introduced to decompose a polynomial to atomic representations, 
-and each of them is assigned to an atomic proposition. 
-A data structure is prepared to store intervals such that 
-they correspond to the decision level one in DPLL. 
-Its unit propagation is strengthened by combining with eager theory propagation. 
-In a clause, if all except one literals are falsified, the remaining literal causes unit propagation 
-and it becomes a candidate when next decomposition occurs. 
-Note that \textbf{iSAT3} uses only CI as an IA. 
-
-\item[dReal] has different judgments on SAT, called $\delta$-SAT, which allows the deviation of the width $\delta$. 
-Thus, $\delta$-SAT does not imply really SAT. This is the reason why dReal quite often concludes SAT (actually $\delta$-SAT) 
-for UNSAT problems in SMT-LIB benchmarks. With the weakening of SAT to $\delta$-SAT, it obtains the completeness of 
-$\delta$-SAT and $\delta$-UNSAT~\cite{Gao:2012:9DP:2352896.2352921}. 
-Note that \textbf{dReal} uses only CI as an IA, and lazy theory propagation as {\bf raSAT}. 
-\end{description}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\suppress{
-\subsection*{iSAT3}
-Although \textbf{iSAT3} also uses Interval Arithmetic (IA), its algorithm integrates IA with 
-DPLL procedure~\cite{dpll} tighter than that of \textbf{raSAT}. 
-During DPLL procedure, in addition to an assignment of literals, \textbf{iSAT3} also prepares 
-a data structure to store interval boxes where each box corresponds to one decision level of DPLL procedure's assignment. 
-In \textbf{UnitPropagation} rule, instead of using standard rule, 
-\textbf{iSAT3} searches for clauses that have all but one atoms being inconsistent with the current interval box. 
-When some atom are selected for the literals assignment, this tool tries to use the selected atoms to contract 
-the corresponding box to make it smaller. In order to do this, \textbf{iSAT3} convert each inequation/equation 
-in the given constraints into the conjunction of the atoms of the following form by introducing additional variables:
-\begin{center}
-\begin{tabular}{l c l}
-atom &::=& bound $\mid$ equation \\
-bound &::=& variable relation rational\_constant \\
-relation &::=& $< \mid \le \mid = \mid \ge \mid >$ \\
-equation &::=& variable = variable bop variable \\
-bop &::=& $+ \mid - \mid \times$
-\end{tabular}
-\end{center}
-In other words, the resulting atoms are of the form, e.g., either $x > 10$ or $x = y + z$. 
-For example, the constraint \[x^2 + y^2 < 1\] is converted into:
-\[\left\{ 
-  \begin{array}{l}
-    x_1 = x^2\\
-    x_2 = y^2\\
-    x_3 = x_1 + x_2\\
-    x_3 < 1
-   \end{array}
-    \right.\]
-From the atoms of these form, the contraction can be easily done for interval boxes:
-\begin{itemize}
-\item[$\bullet$] For the bound atom of the form, e.g., $x > 10$, if the bound is $x \in [0, 100]$, 
-then the contracted box contain $x \in [10, 100]$.
-\item[$\bullet$] For the equations of three variables $x = y \text{ bop } z$, from bounds of any two variables, 
-we can infer the bound for the remaining one. For example, from
-\[\left\{ 
-  \begin{array}{l}
-    x = y.z\\
-    x \in [1, 10]\\
-    y \in [3, 7]\\
-   \end{array}
-    \right.\]
-we can infer that \[z \in [\frac{1}{7}, \frac{10}{3}] \]
-\end{itemize}
-When the \textbf{UnitPropagation} and contraction can not be done, \textbf{iSAT3} split one interval (decomposition) 
-in the current box and select one decomposed interval to explore which corresponds to \textbf{decide} step. 
-If the contraction yields an empty box, a conflict is detected and the complement of the bound selection 
-in the last split needs to be asserted. This is done via \textbf{learn} the causes of the conflict and 
-\textbf{backjump} to the previous bound selection of the last bound selection. In order to reason about causes of a conflict, 
-\textbf{iSAT3} maintains an implication graph to represents which atoms lead to the asserting of one atom. 
-
-\subsection*{dReal}
-In stead of showing satisfiability/unsatisfiability of the polynomial constraints $\varphi$ over reals, 
-\textbf{dReal} proves that either
-\begin{itemize}
-\item [$\bullet$] $\varphi$ is unsatisfiable, or 
-\item [$\bullet$] $\varphi^\delta$ is satisfiable. 
-\end{itemize}
-Here, $\varphi^\delta$ is the $\delta$-weakening of $\varphi$. For instance, the $\delta$-weakening of $x = 0$ is 
-$|x| \le \delta$. Any constraint with operators in $\{<, \le, > , \ge, =, \not=\}$ can be converted into constraints 
-that contains only $=$ by the following transformations.
-\begin{itemize}
-\item [$\bullet$] \textbf{Removing $\not=$}: Each formula of the form $f \not= 0$ is transformed into $f > 0 \vee f < 0$.
-\item [$\bullet$] \textbf{Removing $<$ and $\le$}: Each formula of the form $f < 0$ or $f \le 0$ is transformed into 
-$-f \ge 0$ or $-f > 0$ respectively.
-\item [$\bullet$] \textbf{Removing $>$ and $\ge$}: Each formula of the form $f > 0$ or $f \ge 0$ is transformed into 
-$f - x = 0$ by introducing an auxiliary variable $x$ that has bound $[0, m]$ or $(0, m]$ respectively. 
-Here, $m$ is any rational number which is greater than the maximum of $f$ over intervals of variables. 
-As the result, \textbf{dReal} requires the input that ranges of variables must be compact.
-\end{itemize}
-
-Note that the satisfiability of $\varphi^\delta$ does not imply that of $\varphi$. 
-\textbf{dReal}'s methodology~\cite{Gao:2012:9DP:2352896.2352921} also cooperates DPLL with ICP 
-in the lazy manner as in \textbf{raSAT}.
-
-\medskip 
-%{\bf raSAT} applies SAT confirmation to avoid soundness errors caused by roundoff/overflow errors. 
-%Another static analysis based approach is found in~\cite{SilvaTACAS12}. 
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Conclusion} \label{sec:conclusion and Future Work}
 
@@ -1616,7 +1582,9 @@ This paper presented {\bf raSAT} loop, which extends ICP with testing to acceler
 SAT detection and implemented as an SMT solver \textbf{raSAT}. 
 With experiments on benchmarks from QF\_NRA of SMT-LIB, we found two heuristic measures, 
 {\em SAT-likelihood} and {\em sensitivity}, which lead an effective strategy for SAT detection. 
-Currently, {\bf raSAT} is in proto-type status, and lots of future work remain. 
+%Currently, {\bf raSAT} is in proto-type status, and lots of future work remain. 
+
+We have some ideas for the future works.
 
 %
 \suppress{
@@ -1659,10 +1627,10 @@ UNSAT detection, the target is to find a small UNSAT core in a large problem.
 
 \medskip \noindent 
 {\bf Equations handling}. 
-Section~\ref{sec:eq} shows equations handling, but current implementation has no effective strategies
-on finding a decomposition $V_j$'s. 
-We hope to find one based on the sensitivity.
-We also would like to additionally apply Groebner basis,
+Section~\ref{sec:eq} shows incomplete equations handling, %but current implementation has no effective strategies
+%on finding a decomposition $V_j$'s. 
+%We hope to find one based on the sensitivity.
+we would like to additionally apply Groebner basis
 to overcome the limitation that
 the number of variables is greater-than-equal to that of equations.
 
@@ -1676,10 +1644,10 @@ Groebner basis in addition to the current use of the Intermediate Value Theorem.
 }
 %%%%
 
-\medskip \noindent 
-{\bf Further strategy refinement}. 
-Currently, raSAT uses information only from IA. We hope to refine strategies such that previous
-IA and testing results mutually guide. For instance, a box decomposition strategy can be a target.
+%\medskip \noindent 
+%{\bf Further strategy refinement}. 
+%Currently, raSAT uses information only from IA. We hope to refine strategies such that previous
+%IA and testing results mutually guide. For instance, a box decomposition strategy can be a target.
 
 %%%
 \suppress{
