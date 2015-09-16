@@ -22,6 +22,12 @@ class polynomialConstraint boolExprInit =
   object (self)
     val mutable boolExpr = boolExprInit
     val varsSet = varsSetInit
+    val varsIndicesMap = 
+      let addVarsIndex var (currentvarsIndicesMap, nextIndex) = 
+        (StringMap.add var nextIndex currentvarsIndicesMap, nextIndex + 1)
+      in
+      let (finalVarsIndicesMap, _) = VariablesSet.fold addVarsIndex varsSetInit (StringMap.empty, 1) in 
+      finalVarsIndicesMap
     val varsNum = varsNumInit
     val varsList = varsListInit
     val mutable varsSen =
@@ -106,26 +112,29 @@ class polynomialConstraint boolExprInit =
     (*method private check_sat_getBound_ici (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap*)
     
     (* check sat of this polynomial using combination of af2 and ci*)
-    method private check_sat_af_two_ci (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap
+    (* method private check_sat_af_two_ci (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap *)
         
     (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
-    method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = 
-      let (newPolyExpr, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
+    method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(Interval.interval Variable.StringMap.t)) 
+                                                         = 
+      let (newPolyExpr, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens 
+                                                                                  boolExpr varsSet varsNum varsIntvsMap varsIndicesMap in
       self#set_polyExpr newPolyExpr;
       varsSen <- sortedVarsSen;
       satLength <- computedSatLength;
       (sat, bound, computedSatLength)
     
     (* This method does not update isInfinite field, and varsSen is not computed *)
-    method check_sat (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = 
-        self#check_sat_af_two_ci varsIntvsMap
+    (* method check_sat (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = 
+        self#check_sat_af_two_ci varsIntvsMap *)
     
-    method check_sat_varsSen_setIsInfinite_setBounds_setEasiness (varsIntvsMap:(Interval.interval Variable.StringMap.t)) =
-      let exist_infinity var intv =
+    method check_sat_varsSen_setIsInfinite_setBounds_setEasiness (varsIntvsMap:(Interval.interval Variable.StringMap.t)) 
+                                                                    =
+      (* let exist_infinity var intv =
         intv.high = infinity || intv.low = neg_infinity
       in
       let isInfiniteTmp = StringMap.exists exist_infinity varsIntvsMap in
-      isInfinite <- isInfiniteTmp;
+      isInfinite <- isInfiniteTmp; *)
       let (sat, bound, satLength) =
         (*if isInfinite then 
           self#check_sat_getBound_ici varsIntvsMap
@@ -140,19 +149,21 @@ class polynomialConstraint boolExprInit =
       iaValue <- bound;
       sat
     
-    method get_bound (varsIntvsMap:(Interval.interval Variable.StringMap.t)) =
-      let (_, bound, _) =
-          self#check_sat_getBound_af_two_ci_varsSens varsIntvsMap
-      in
+    method get_bound (varsIntvsMap:(Interval.interval Variable.StringMap.t))
+             = 
+      let (_, _, _, _, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens 
+                                                                                  boolExpr varsSet varsNum varsIntvsMap varsIndicesMap in
+      
       bound
     
     (* get length of SAT by af2 and ci *)
-    method check_sat_get_satLength (varsIntvsMap:(Interval.interval Variable.StringMap.t)) =
+    method check_sat_get_satLength (varsIntvsMap:(Interval.interval Variable.StringMap.t))  =
       let (sat, bound, satLength) =
         (*if isInfiniteTmp then 
           self#check_sat_getBound_ici varsIntvsMap
         else *)
-          let (_, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum varsIntvsMap in
+          let (_, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum 
+                  varsIntvsMap varsIndicesMap in
           (sat, bound, computedSatLength)
       in
       (sat, satLength, satLength /. (bound.high -. bound.low))
@@ -240,7 +251,7 @@ class polynomialConstraint boolExprInit =
       in
       let varsIntvsMap = StringMap.fold convert_toIntv varsTCsMap StringMap.empty in
       let polyExpr = get_exp boolExpr in
-      let (_, ciBound)  = poly_eval_ci polyExpr varsIntvsMap in
+      let (_,_, ciBound, _)  = poly_eval_ci polyExpr varsIntvsMap in
       (*print_endline ("Bound" ^ ciBound#to_string);
       flush stdout;*)
       check_sat_providedBounds boolExpr ciBound

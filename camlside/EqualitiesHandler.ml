@@ -81,7 +81,7 @@ let rec check_equalities polyConstraints varsIntvsMap consideredVarsSet =
   | h::t -> (
     let varsList = h#get_varsList in
     let varsSetCandidates = power_set varsList in
-    check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet
+    check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet 
   )
   
 

@@ -45,12 +45,16 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
         {low=newPoint;high=upperBound}
     in
     (* Compute the SAT length of lower interval by IA *)
+    (* print_string ("Decomposing var " ^ var ^ " in ");
+    print_I intv;
+    print_endline (" with " ^ string_of_float newPoint);
+    flush stdout; *)
     let lowerVarsIntvsMap = StringMap.add var lowerIntv varsIntvsMap in
-    (*print_endline "Start Computing for lower interval";
-    flush stdout;*)
+    (* print_endline "Start Computing for lower interval";
+    flush stdout; *)
     let (lowerSAT, lowerSatLength, lowerEasiness) = polyCons#check_sat_get_satLength lowerVarsIntvsMap in
-    (*print_endline ("Lower: " ^ string_of_int lowerSAT ^ " - " ^ string_of_float lowerSatLength ^ " - easiness: " ^ string_of_float lowerEasiness);
-    flush stdout;*)
+    (* print_endline ("Lower: " ^ string_of_int lowerSAT ^ " - " ^ string_of_float lowerSatLength ^ " - easiness: " ^ string_of_float lowerEasiness);
+    flush stdout; *)
     
     (* Compute the SAT length of upper interval by IA *)
     let upperVarsIntvsMap = StringMap.add var upperIntv varsIntvsMap in
@@ -80,8 +84,8 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
 
 (*Binary balance decomposition on intervals*)
 let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
-  print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
-  flush stdout;
+  (* print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
+  flush stdout; *)
   let startTime = Sys.time() in
   (* let add_varsSet currentVarsSet polyCons = VariablesSet.union polyCons#get_varsSet currentVarsSet in
   let varsSet = List.fold_left add_varsSet VariablesSet.empty unkownPolyConstraints in *)
@@ -147,7 +151,7 @@ let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyCons
     StringMap.fold (decompose_var varType esl varsIntvsMap polyCons) decomposedVarsIntvsMiniSATCodesIsPositiveMap varsIntvsMapPrioritiesMaps
 
 
-(*Binary balance decomposition on intervals*)
+(* (*Binary balance decomposition on intervals*)
 let dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime =
   print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
   flush stdout;
@@ -167,4 +171,4 @@ let dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unk
       if polyCons#get_logic = "QF_NIA" then "Int"
       else "Real"
     in 
-    decompose_var varType esl varsIntvsMap polyCons var (intv, 0., false) varsIntvsMapPrioritiesMaps
+    decompose_var varType esl varsIntvsMap polyCons var (intv, 0., false) varsIntvsMapPrioritiesMaps *)

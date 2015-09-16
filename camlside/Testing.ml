@@ -175,7 +175,7 @@ let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons poly
           test_extra newAbstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons polyConstraintsNum varsSATDirectionMap miniSATCodesSATPolyConstraintsMap (remainingTime -. Sys.time() +. startTime)
       
 
-let rec test_icp polyConstraints varsIntvsMap varsTCsMap testedVars esl remainingTime =
+(* let rec test_icp polyConstraints varsIntvsMap varsTCsMap testedVars esl remainingTime =
   match polyConstraints with 
   | [] -> ([], 1, [], varsTCsMap, 0)
   | _ -> 
@@ -202,7 +202,7 @@ let rec test_icp polyConstraints varsIntvsMap varsTCsMap testedVars esl remainin
         if res = 1 then ([], 1, [], varsTCsMap, 0)
         else if res = -1 then ([],-1, [firstPolyCons], StringMap.empty, 0)
         else test_icp uk_cl varsIntvsMap varsTCsMap (VariablesSet.add var testedVars) esl (remainingTime -. Sys.time() +. startTime)
-      else ([],-1, [firstPolyCons],StringMap.empty, 0)
+      else ([],-1, [firstPolyCons],StringMap.empty, 0) *)
 
 (* This function test the list of unknow clauses, trying to find an SAT instance *)
 let rec test polyConstraints varsIntvsMaps remainingTime =

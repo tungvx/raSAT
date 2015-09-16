@@ -1,5 +1,6 @@
 (*Infinite float domains*)
 open Interval
+open Variable
 
 type bound = Float of float | Neg_inf | Pos_inf
 
@@ -823,7 +824,7 @@ class af2 size = object (self)
       (* self#evaluate#printForm; *)
       flush stdout;
     
-    method extract_sortedVarsSens varsIndicesList = 
+    method extract_sortedVarsSens varsIndicesMap = 
       let rec insert_sort_varSen sortedVarsSensList (var, sen, isPositiveSen) =
         match sortedVarsSensList with 
           | [] -> [(var, sen, isPositiveSen)]
@@ -834,24 +835,20 @@ class af2 size = object (self)
               if Random.bool () then (var, sen, isPositiveSen) :: sortedVarsSensList
               else (otherVar, otherSen, otherIsPositiveSen) :: (insert_sort_varSen remainings (var, sen, isPositiveSen))
       in
-      let rec rec_extract_varsSen varsIndicesList sortedSensVarsList = 
-        match varsIndicesList with
-          | [] -> sortedSensVarsList
-          | ((var:string), index)::remaining ->
-            (*print_endline ("Start getting sen at: " ^ string_of_int index);
+      let rec rec_extract_varsSen var index sortedSensVarsList =
+        (*print_endline ("Start getting sen at: " ^ string_of_int index);
 
-            flush stdout;*)
-            let intv = Array.get ar index in
-            let varSen = (intv.low +. intv.high) /. 2. in
-            (*print_string (var ^ ": ");
-            print_I intv;
-            flush stdout;*)
-            let positiveVarSen = abs_float varSen in
-            let isPositiveSen = varSen > 0. in
-            (*print_string (string_of_bool isPositiveSen);
-            flush stdout;*)
-            let newSortedVarsSensList = insert_sort_varSen sortedSensVarsList (var, positiveVarSen, isPositiveSen) in
-            rec_extract_varsSen remaining newSortedVarsSensList
+        flush stdout;*)
+        let intv = Array.get ar (index-1) in
+        let varSen = (intv.low +. intv.high) /. 2. in
+        (*print_string (var ^ ": ");
+        print_I intv;
+        flush stdout;*)
+        let positiveVarSen = abs_float varSen in
+        let isPositiveSen = varSen > 0. in
+        (*print_string (string_of_bool isPositiveSen);
+        flush stdout;*)
+        insert_sort_varSen sortedSensVarsList (var, positiveVarSen, isPositiveSen)
       in
       (*let add_string_of_varSen oldString (var, sen) = 
         oldString ^ " " ^ var ^ ": " ^ string_of_float sen
@@ -859,7 +856,7 @@ class af2 size = object (self)
       in
       print_endline ("VarsSens: " ^ List.fold_left add_string_of_varSen "" (rec_extract_varsSen varsIndicesList []));
       flush stdout;*)
-      rec_extract_varsSen varsIndicesList []
+      StringMap.fold rec_extract_varsSen varsIndicesMap []
 end 
 
 module AF2 = struct

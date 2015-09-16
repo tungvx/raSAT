@@ -68,11 +68,12 @@ module Caml = struct
     |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
 
   and get_poly_specReal = function 
-    |SpecConstsDec (_ , str1) ->  SPoly (Real (float_of_string str1, inf_I))
-    |SpecConstNum (_ , str1) ->  SPoly(Real (float_of_string str1, inf_I))
+    |SpecConstsDec (_ , str1) ->  
+      SPoly (Real (float_of_string str1, false, inf_I, new IA.af2 0))
+    |SpecConstNum (_ , str1) ->  SPoly(Real (float_of_string str1, false, inf_I, new IA.af2 0))
     |SpecConstString (_ , str1) ->  raise (Failure "Not supported syntax line 159")
-    |SpecConstsHex (_ , str1) ->  SPoly(Real (float_of_string str1, inf_I)) 
-    |SpecConstsBinary (_ , str1) ->  SPoly(Real (float_of_string str1, inf_I)) 
+    |SpecConstsHex (_ , str1) ->  SPoly(Real (float_of_string str1, false, inf_I, new IA.af2 0)) 
+    |SpecConstsBinary (_ , str1) ->  SPoly(Real (float_of_string str1, false, inf_I, new IA.af2 0)) 
 
 
 
@@ -88,7 +89,7 @@ module Caml = struct
         with Not_found -> 
           (try
             let varSort = StringMap.find str1 variables in
-            if (varSort = "Real" || varSort = "Int") then SPoly(Var (str1, inf_I))
+            if (varSort = "Real" || varSort = "Int") then SPoly(Var (str1, inf_I, new IA.af2 0, false))
             else raise (Failure "Wrong input")
           with Not_found -> raise (Failure "Need Real/Int variable"))
         )
@@ -104,7 +105,7 @@ module Caml = struct
         with Not_found -> 
           (try
             let varSort = StringMap.find str1 variables in
-            if (varSort = "Real" || varSort = "Int") then SPoly(Var (str1, inf_I))
+            if (varSort = "Real" || varSort = "Int") then SPoly(Var (str1, inf_I, new IA.af2 0, false))
             else raise (Failure "Wrong input")
           with Not_found -> raise (Failure "Need Real/Int variable")
           )
@@ -177,10 +178,10 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_mul_poly ((get_mul_poly_extra poly1 poly2) :: remainingPolys)
     
   and get_mul_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Mul(poly1, poly2, inf_I))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Mul(poly1, poly2, inf_I))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Mul(poly1, poly2, inf_I))
-    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Mul(poly1, poly2, inf_I))
+    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Mul(poly1, poly2, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Mul(poly1, poly2, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Mul(poly1, poly2, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Mul(poly1, poly2, inf_I, new IA.af2 0))
     | (POr(smtPoly11, smtPoly12), _) -> POr (get_mul_poly_extra smtPoly11 smtPoly2, get_mul_poly_extra smtPoly12 smtPoly2)
     | (_, POr(smtPoly21, smtPoly22)) -> POr (get_mul_poly_extra smtPoly1 smtPoly21, get_mul_poly_extra smtPoly1 smtPoly22)
 
@@ -190,10 +191,10 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_add_poly((get_add_poly_extra poly1 poly2) :: remainingPolys)
 
   and get_add_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Add(poly1, poly2, inf_I))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Add(poly1, poly2, inf_I))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Add(poly1, poly2, inf_I))
-    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Add(poly1, poly2, inf_I))
+    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Add(poly1, poly2, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Add(poly1, poly2, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Add(poly1, poly2, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Add(poly1, poly2, inf_I, new IA.af2 0))
     | (POr(smtPoly11, smtPoly12), _) -> POr (get_add_poly_extra smtPoly11 smtPoly2, get_add_poly_extra smtPoly12 smtPoly2)
     | (_, POr(smtPoly21, smtPoly22)) -> POr (get_add_poly_extra smtPoly1 smtPoly21, get_add_poly_extra smtPoly1 smtPoly22)
     
@@ -203,20 +204,20 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_div_poly((get_div_poly_extra poly1 poly2) :: remainingPolys)
 
   and get_div_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Div(poly1, poly2, inf_I))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Div(poly1, poly2, inf_I))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Div(poly1, poly2, inf_I))
+    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Div(poly1, poly2, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Div(poly1, poly2, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Div(poly1, poly2, inf_I, new IA.af2 0))
     | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) 
-      -> Poly(And(boolConstraint1, boolConstraint2), Div(poly1, poly2, inf_I))
+      -> Poly(And(boolConstraint1, boolConstraint2), Div(poly1, poly2, inf_I, new IA.af2 0))
     | (POr(smtPoly11, smtPoly12), _) -> POr (get_div_poly_extra smtPoly11 smtPoly2, get_div_poly_extra smtPoly12 smtPoly2)
     | (_, POr(smtPoly21, smtPoly22)) -> POr (get_div_poly_extra smtPoly1 smtPoly21, get_div_poly_extra smtPoly1 smtPoly22)
 
   and get_minus_poly = function
     | [] -> raise (Failure "Need arguments for Subtraction") 
-    | [SPoly(Real (f, _))] -> SPoly(Real ((~-.) f, inf_I))
-    | [SPoly(poly)] -> SPoly(Sub(Real (0., inf_I), poly, inf_I))
-    | [Poly(boolConstraint, Real (f, _))] -> Poly(boolConstraint, Real ((~-.) f, inf_I))
-    | [Poly(boolConstraint, poly)] -> Poly(boolConstraint, Sub (Real (0., inf_I), poly, inf_I))
+    | [SPoly(Real (f, _, _, _))] -> SPoly(Real ((~-.) f, false, inf_I, new IA.af2 0))
+    | [SPoly(poly)] -> SPoly(Sub(Real (0., false, inf_I, new IA.af2 0), poly, inf_I, new IA.af2 0))
+    | [Poly(boolConstraint, Real (f, _, _, _))] -> Poly(boolConstraint, Real ((~-.) f, false, inf_I, new IA.af2 0))
+    | [Poly(boolConstraint, poly)] -> Poly(boolConstraint, Sub (Real (0., false, inf_I, new IA.af2 0), poly, inf_I, new IA.af2 0))
     | polys -> get_minus_poly_extra polys
 
   and get_minus_poly_extra = function 
@@ -225,11 +226,11 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_minus_poly_extra((get_minus_poly_extra_extra poly1 poly2) :: remainingPolys)     
 
   and get_minus_poly_extra_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Sub(poly1, poly2, inf_I))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Sub(poly1, poly2, inf_I))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Sub(poly1, poly2, inf_I))
+    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Sub(poly1, poly2, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Sub(poly1, poly2, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Sub(poly1, poly2, inf_I, new IA.af2 0))
     | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) 
-      -> Poly(And(boolConstraint1, boolConstraint2), Sub(poly1, poly2, inf_I))
+      -> Poly(And(boolConstraint1, boolConstraint2), Sub(poly1, poly2, inf_I, new IA.af2 0))
     | (POr(smtPoly11, smtPoly12), _) 
       -> POr (get_minus_poly_extra_extra smtPoly11 smtPoly2, get_minus_poly_extra_extra smtPoly12 smtPoly2)
     | (_, POr(smtPoly21, smtPoly22)) 
@@ -326,9 +327,9 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_le_constraint_extra smtPoly11 smtPoly2, get_le_constraint_extra smtPoly12 smtPoly2)
 
   and get_le_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., inf_I)) -> Single (new polynomialConstraint (Le (reduce poly1)))
-    | (Real (0., inf_I), _) -> Single (new polynomialConstraint (Gr (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Le (reduce (Sub(poly1, poly2, inf_I)))))
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Le (reduce poly1)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Gr (reduce poly2)))
+    | _ -> Single (new polynomialConstraint (Le (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))
 
   and get_leq_constraint polys = match polys with
     | [] ->  raise (Failure "Wrong Input") 
@@ -343,9 +344,9 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_leq_constraint_extra smtPoly11 smtPoly2, get_leq_constraint_extra smtPoly12 smtPoly2)
 
   and get_leq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., inf_I)) -> Single (new polynomialConstraint (Leq (reduce poly1)))
-    | (Real (0., inf_I), _) -> Single (new polynomialConstraint (Geq (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, inf_I)))))  
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Leq (reduce poly1)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Geq (reduce poly2)))
+    | _ -> Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))  
 
   and get_gr_constraint polys = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -360,9 +361,9 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_gr_constraint_extra smtPoly11 smtPoly2, get_gr_constraint_extra smtPoly12 smtPoly2)
 
   and get_gr_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., inf_I)) -> Single (new polynomialConstraint (Gr (reduce poly1)))
-    | (Real (0., inf_I), _) -> Single (new polynomialConstraint (Le (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, inf_I)))))    
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Gr (reduce poly1)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Le (reduce poly2)))
+    | _ -> Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))    
 
   and get_geq_constraint polys = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -377,9 +378,9 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_geq_constraint_extra smtPoly11 smtPoly2, get_geq_constraint_extra smtPoly12 smtPoly2)
 
   and get_geq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., inf_I)) -> Single (new polynomialConstraint (Geq (reduce poly1)))
-    | (Real (0., inf_I), _) -> Single (new polynomialConstraint (Leq (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, inf_I)))))   
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Geq (reduce poly1)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Leq (reduce poly2)))
+    | _ -> Single (new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))   
 
   and get_eq_constraint polys = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -394,9 +395,9 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_eq_constraint_extra smtPoly11 smtPoly2, get_eq_constraint_extra smtPoly12 smtPoly2)
 
   and get_eq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., inf_I)) -> Single (new polynomialConstraint (Eq (reduce poly1)))
-    | (Real (0., inf_I), _) -> Single (new polynomialConstraint (Eq (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, inf_I)))))   
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Eq (reduce poly1)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Eq (reduce poly2)))
+    | _ -> Single (new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))   
 
   and get_constraint_term varTermMap functions variables varBindings = function 
     |TermQualIdentifier (_ , qualidentifier1) -> 
@@ -613,7 +614,7 @@ module Caml = struct
     (* print_endline (string_infix_of_constraints boolCons);
     flush stdout;
     raise (Failure "Tung dep trai"); *)
-    let (miniSATExpr, index, miniSATCodesConstraintsMap, maxVarsNum, isEquation, isNotEquation, _) = miniSATExpr_of_constraints boolCons 1 IntMap.empty logic StringMap.empty in 
+    let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = miniSATExpr_of_constraints boolCons 1 IntMap.empty logic StringMap.empty in 
     (*print_endline "finished getting miniSAT constraints";
     flush stdout;*)
     (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
@@ -661,7 +662,8 @@ module Caml = struct
       else index + 2* nVars * (sum_total_var 1 para)
     in*)
     (*let sTrivialClause = "-" ^ string_of_int totalVars ^ " " ^string_of_int totalVars^ " 0" in*)
-    (nVars, "", varsIntvsMap, miniSATCodesConstraintsMap, index-1, maxVarsNum, isEquation, isNotEquation)
+
+    (nVars, "", varsIntvsMap, miniSATCodesConstraintsMap, index-1, ma, isEquation, isNotEquation)
 
   
   (* compute the list of chosen constraints and *)
@@ -695,32 +697,35 @@ module Caml = struct
       with Not_found -> getConsAndIntv t miniSATCodesConstraintsMap chosenPolyConstraints
       
 
-  let rec check_procedure varsIntvsMapPrioritiesMaps (polyConstraints:PolynomialConstraint.polynomialConstraint list) unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
+  let rec check_procedure varsIntvsMapPrioritiesMaps (polyConstraints:PolynomialConstraint.polynomialConstraint list) 
+              unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
     if FloatMap.is_empty varsIntvsMapPrioritiesMaps then
       let get_unsatcore miniSATCode currentUnsatCore = 
         "-" ^ string_of_int miniSATCode ^ " " ^ currentUnsatCore
       in
       let unsatCore = IntSet.fold get_unsatcore unsatPolyConstraintsCodes "0" in
-      print_endline unsatCore;
-      flush stdout;
+      (* print_endline unsatCore;
+      flush stdout; *)
       (-1, unsatCore, "", "", "", "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime) 
     else
       let startTime = Sys.time() in 
       let (esl, varsIntvsMaps) = FloatMap.max_binding varsIntvsMapPrioritiesMaps in
       let varsIntvsMap = List.hd varsIntvsMaps in
-      print_endline "---------------------------NEW----------------------";
+      (* print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout;
+      flush stdout; *)
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
         | [] -> FloatMap.remove esl varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
       in
-      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = icp 1 unsatPolyConstraintsCodes [] [] polyConstraints varsIntvsMap esl iaTime usTime (remainingTime -. Sys.time() +. startTime) in
+      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = icp 1 unsatPolyConstraintsCodes [] [] 
+                                                          polyConstraints varsIntvsMap esl iaTime usTime (remainingTime -. Sys.time() +. startTime) in
       (* print_endline ("EndICP, result: " ^ string_of_int res);
       flush stdout; *)
       if (res = -1) then 
-        check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime
+        check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS
+                                                     iaTime testingTime usTime parsingTime decompositionTime remainingTime
       else if (res = 1) then (*if all clauses are satisfiable*)
         let intvLog = log_intervals varsIntvsMap in
         let validPolyConstraints = List.rev validPolyConstraints in
@@ -738,8 +743,8 @@ module Caml = struct
           flush stdout; *)
           let startTestingTime = Sys.time() in
           let (tc, sTest, clTest_US, a, b) = 
-            (* test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
-            test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+            test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+            (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
             
           in
           (*print_endline ("UNSAT constraints num: " ^ string_of_int b);
@@ -798,7 +803,7 @@ module Caml = struct
                 flush stdout;*)
                 (*let testUNSATPolyCons = List.hd clTest_US in
                 let decomposedPolyConstraints = testUNSATPolyCons :: uk_cl in*)
-                let maxDecomposedVarsNum = 1 in (* only $maxDecomposedVarsNum are allowed to decomposed, the priority is based on sensitivity *)
+                let maxDecompose = 1 in (* only $maxDecompose are allowed to decomposed, the priority is based on sensitivity *)
                 let varsIntvsMapPrioritiesMaps = 
                   (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
                   (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID nextMiniSATCode esl in
@@ -806,17 +811,18 @@ module Caml = struct
                     (newInterval, newLearn, newBumpVars, isDecomposed)
                   else*)
                     dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
-                                  uk_cl maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime) in
+                                  uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in
 
                     (* dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
-                                  uk_cl maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime) in *)
+                                  uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in *)
                 (*print_endline "after decomposed";
                 flush stdout;*)
                 (* print_endline ("New Boxes: \n" ^ string_of_varsIntvsPrioritiesMap varsIntvsMapPrioritiesMaps);
                 flush stdout; *)
                 (* let varsIntvsMapPrioritiesMaps = FloatMap.empty in *)
                 let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
-                check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime                
+                check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS
+                                                            iaTime testingTime usTime parsingTime decompositionTime remainingTime                
              )
           )
         )
@@ -824,7 +830,8 @@ module Caml = struct
 
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
-  let dynTest varsIntvsMap miniSATCodesConstraintsMap clausesNum strCheck ia esl strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
+  let dynTest varsIntvsMap miniSATCodesConstraintsMap clausesNum strCheck ia esl strTestUS iaTime 
+                                          testingTime usTime parsingTime decompositionTime remainingTime =
   (* 
     let add_intv var currentVarsIntvsMap = 
       StringMap.add var {low = neg_infinity; high = infinity} currentVarsIntvsMap
@@ -885,7 +892,8 @@ module Caml = struct
     let parsingTime = parsingTime +. Sys.time() -. startTime in
     (*print_endline "Start IA";
     flush stdout;*)
-    check_procedure varsIntvsMapPrioritiesMaps polyConstraints IntSet.empty strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime
+    check_procedure varsIntvsMapPrioritiesMaps polyConstraints IntSet.empty strTestUS 
+              iaTime testingTime usTime parsingTime decompositionTime remainingTime
     
   (* ================================= END OF DYNTEST ==========================================*) 
 end

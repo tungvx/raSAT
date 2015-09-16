@@ -1,6 +1,7 @@
 open Ast
 open Multiset
 open Interval
+open Util
 
 
 module MultiVar = struct 
@@ -34,9 +35,9 @@ let print_monomials p =
 
 (* evaluate expressions into values *) 
 let rec eval = function 
-  | Real (c, _) -> Monomials (Poly.singleton MultiVarSet.empty c)
-  | Var (v, _)  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
-  | Add(e1, e2, _) -> 
+  | Real (c, _, _, _) -> Monomials (Poly.singleton MultiVarSet.empty c)
+  | Var (v, _, _, _)  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
+  | Add(e1, e2, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -44,7 +45,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (plus m1 m2)
       | _ -> MonoAdd (newE1, newE2)
     )
-  | Sub(e1, e2, _) -> 
+  | Sub(e1, e2, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -52,7 +53,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (minus m1 m2)
       | _ -> MonoSub (newE1, newE2)
     )
-  | Mul(e1, e2, _) -> 
+  | Mul(e1, e2, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -60,7 +61,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (times m1 m2)
       | _ -> MonoMul (newE1, newE2)
     )
-  | Div(e1, e2, _) -> MonoDiv ((eval e1), (eval e2))
+  | Div(e1, e2, _, _) -> MonoDiv ((eval e1), (eval e2))
   | _ -> raise (Failure "Unsupported SMT2 function symbols")
 
 (* BatOption.default *) 
@@ -117,41 +118,43 @@ let rec reify = function
       else 
         let createMulExpr currentMulExpr (var, multiplicity) = 
           let tmpVarExpr = 
-            if multiplicity = 1 then Var (var, {low=neg_infinity;high=infinity})
-            else Pow(var, multiplicity, {low=neg_infinity;high=infinity}) 
+            if multiplicity = 1 then Var (var, {low=infinity;high=neg_infinity}, new IA.af2 0 , false)
+            else Pow(var, multiplicity, {low=infinity;high=neg_infinity}, false, {low=neg_infinity;high=infinity}, new IA.af2 0) 
           in
           (match currentMulExpr with
-            | Real (1., _) -> tmpVarExpr
-            | _ -> Mul(currentMulExpr, tmpVarExpr, {low=neg_infinity;high=infinity}) 
+            | Real (1., _, _, _) -> tmpVarExpr
+            | _ -> Mul(currentMulExpr, tmpVarExpr, {low=neg_infinity;high=infinity}, new IA.af2 0) 
           )
         in
         (* MultiVarSet.print_tree print_string vars;
         print_endline "";
         flush stdout; *)
-        let newPolyExpr = List.fold_left createMulExpr (Real (coefficient, {low=neg_infinity;high=infinity})) (MultiVarSet.elements_packed vars) in
+        let cIntv = {low=coefficient;high=coefficient} in
+        let newPolyExpr = List.fold_left createMulExpr (Real (coefficient, false, cIntv, new IA.af2 0)) 
+                                                (MultiVarSet.elements_packed vars) in
         (
         match currentPolyExpr with 
-          | Real (0., _) -> newPolyExpr
-          | _ -> Add (currentPolyExpr, newPolyExpr, {low=neg_infinity;high=infinity})
+          | Real (0., _, _, _) -> newPolyExpr
+          | _ -> Add (currentPolyExpr, newPolyExpr, {low=neg_infinity;high=infinity}, new IA.af2 0)
         )
     in
-    Poly.fold addMonomial p (Real (0., {low=neg_infinity;high=infinity}))
+    Poly.fold addMonomial p (Real (0., false, {low=0.;high=0.}, new IA.af2 0))
   | MonoAdd (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Add (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
+    Add (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
   | MonoSub (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Sub (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
+    Sub (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
   | MonoMul (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Mul (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
+    Mul (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
   | MonoDiv (poly1, poly2) -> 
     let polyExpr1 = reify poly1 in
     let polyExpr2 = reify poly2 in
-    Div (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity})
+    Div (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
 (*Simplify an expression*)  
 let reduce e = 
   let newE = reify (eval e) in 

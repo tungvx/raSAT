@@ -49,6 +49,7 @@ solver/raSAT
 solver/iRRAM_2013_01/
 solver/iRRAM
 to be sent/
+releases/
 *.zip
 *.gz
 *.smt2

@@ -40,12 +40,12 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
       let res1 = h#check_sat_varsSen_setIsInfinite_setBounds_setEasiness varsIntvsMap in
-      (* print_endline ("Bounds: " ^ h#get_iaValue#to_string);
+      (* print_endline (h#log_ia);
       print_endline ("Easiness: " ^ string_of_float h#get_easiness);
+      flush stdout;
+      print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
+      (* print_endline ("\nIntervals1: " ^ string_of_intervals varsIntvsMap); *)
       flush stdout; *)
-      (*print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
-
-      flush stdout;*)
       let iaTime = iaTime +. Sys.time() -. startTime in
       if (res1 = 1) then 
         eval_all res unsatPolyConstraintsCodes uk_cl (h::validPolyConstraints) t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
@@ -56,7 +56,9 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
         if res = -1 then
           eval_all (-1) unsatPolyConstraintsCodes [] [] t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
         else (
-          eval_all 0 unsatPolyConstraintsCodes ((*h::uk_cl*) insertionSort_byEasiness h uk_cl) validPolyConstraints t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
+          (* print_endline ("\nIntervals2: " ^ string_of_intervals varsIntvsMap); *)
+          eval_all 0 unsatPolyConstraintsCodes ((*h::uk_cl*) insertionSort_byEasiness h uk_cl) 
+              validPolyConstraints t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
         )
       )
 
@@ -73,11 +75,11 @@ let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap es
         if newContracted then IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes
         else unsatPolyConstraintsCodes
       in
-      if newContracted then 
+      (* if newContracted then 
       (
         print_endline ("Contracted using " ^ h#to_string_infix ^ " to\n" ^ log_intervals varsIntvsMap);
   flush stdout;
-      );
+      ); *)
       contract_polyConstraints t unsatPolyConstraintsCodes varsIntvsMap esl (contracted || newContracted)
 
 
@@ -90,7 +92,7 @@ let rec icp res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstra
     (* print_endline ("Contracting \n" ^ log_intervals varsIntvsMap);
     flush stdout; *)
     let (contracted, unsatPolyConstraintsCodes, varsIntvsMap) = contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl false in
-    (* print_endline ("Finished contracting");
+    (* print_endline ("Finished contracting \n" ^ log_intervals varsIntvsMap);
     flush stdout; *)
     if contracted then (
       (* print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
