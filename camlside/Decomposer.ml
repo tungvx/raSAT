@@ -113,8 +113,8 @@ let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyCons
       in
       (VariablesSet.add var reducedVarsSet, newInfVar)
     else (
-      print_endline ("small interval: " ^ var ^ ": " ^ sprintf_I "%f" intv);
-      flush stdout;
+      (* print_endline ("small interval: " ^ var ^ ": " ^ sprintf_I "%f" intv);
+      flush stdout; *)
       (reducedVarsSet, infVar)
     )
   in

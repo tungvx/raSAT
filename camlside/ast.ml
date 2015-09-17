@@ -1016,9 +1016,9 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
           let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv /$ newIntv) varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
       | Pow (var, multiplicity, _, _, _, _) -> 
-        (* print_endline ("Start constracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr);
-        flush stdout;
-        print_endline ("Finished constracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr); *)
+        (* print_endline ("Start contracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr);
+        flush stdout; *)
+        (* print_endline ("Finished constracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr); *)
         let varIntv = 
           if multiplicity mod 2 = 0 then 
             let tmpIntv = newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
@@ -1034,10 +1034,16 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
                 let upperIntv = {low=abs_float newIntv.high; high=abs_float newIntv.high} **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
                 {low= -.(lowerIntv.high); high= -.(upperIntv.low)}
         in
-        (* print_endline ("Contracted " ^ var ^ " from " ^ sprintf_I "%f" newIntv
-      ^ " to " ^ sprintf_I "%f" varIntv); *)
         let oldVarIntv = StringMap.find var varsIntvsMap in
-        if check_contract oldVarIntv varIntv esl then (contracted, StringMap.add var (inter_I_I oldVarIntv varIntv) varsIntvsMap)
+        if check_contract oldVarIntv varIntv esl then 
+          let newVarIntv = inter_I_I oldVarIntv varIntv in
+          (* print_endline ("Contracted " ^ var ^ " from " ^ sprintf_I "%f" oldVarIntv
+          ^ " to " ^ sprintf_I "%f" newVarIntv);
+          flush stdout; *)
+          if newVarIntv.low <= newVarIntv.high then
+            (true, StringMap.add var newVarIntv varsIntvsMap)
+          else
+            (true, StringMap.empty)
         else (false, varsIntvsMap)
       | _ -> (
         (* print_endline "Error";

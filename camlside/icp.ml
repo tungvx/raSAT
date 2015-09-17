@@ -89,7 +89,7 @@ let rec icp res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstra
   in
   if res <> 0 then (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
   else (* implement ICP here *) (
-    (* print_endline ("Contracting \n" ^ log_intervals varsIntvsMap);
+    (* print_endline ("\nContracting \n" ^ log_intervals varsIntvsMap ^ "\n with esl: " ^ string_of_float esl);
     flush stdout; *)
     let (contracted, unsatPolyConstraintsCodes, varsIntvsMap) = contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl false in
     (* print_endline ("Finished contracting \n" ^ log_intervals varsIntvsMap);
