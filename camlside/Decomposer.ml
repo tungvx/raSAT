@@ -9,7 +9,7 @@ let add_new_varsIntvsPriority priority addedVarsIntvsMap currentvarsIntvsMapPrio
   with Not_found -> FloatMap.add priority ([addedVarsIntvsMap]) currentvarsIntvsMapPrioritiesMaps
 
 
-let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) varsIntvsMapPrioritiesMaps =
+let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps) =
   (*let (narrowed, newIntv) = polyCons#backward_interval_propagate var intv varsIntvsMiniSATCodesMap in*)
   let lowerBound = intv.low in
   let upperBound = intv.high in
@@ -26,7 +26,7 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
     else newPoint < lowerBound || newPoint > upperBound
   in
   if unknown then
-    add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps
+    (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps)
   else
     let lowerIntv = 
       if varType = "Int" then
@@ -48,6 +48,7 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
     (* print_string ("Decomposing var " ^ var ^ " in ");
     print_I intv;
     print_endline (" with " ^ string_of_float newPoint);
+    print_endline ("Within " ^ polyCons#to_string_infix);
     flush stdout; *)
     let lowerVarsIntvsMap = StringMap.add var lowerIntv varsIntvsMap in
     (* print_endline "Start Computing for lower interval";
@@ -62,28 +63,37 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
     (*print_endline ("Upper: " ^ string_of_int upperSAT ^ " - satLength: " ^ string_of_float upperSatLength ^ " - easiness: " ^ string_of_float upperEasiness);
     flush stdout;*)
 
-    if lowerSAT = -1 then 
-      if upperSAT = -1 then varsIntvsMapPrioritiesMaps
-      else add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
-    else if lowerSAT = 1 then add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
-    else if upperSAT = -1 then add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
-    else if upperSAT = 1 then add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
-    else if lowerBound = neg_infinity then
-      let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (esl /. 10.) lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
-      add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
-    else if upperBound = infinity then 
-      let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (esl /. 10.) upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
-      add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
-    else if lowerEasiness < upperEasiness then 
-      let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
-      add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
-    else
-      let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
-      add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
+    let unsatPolyConstraintsCodes = 
+      if lowerSAT = -1 || upperSAT = -1 then IntSet.add (polyCons#get_miniSATCode) unsatPolyConstraintsCodes 
+      else unsatPolyConstraintsCodes
+    in
+
+    let varsIntvsMapPrioritiesMaps =
+      if lowerSAT = -1 && upperSAT = -1 then 
+        varsIntvsMapPrioritiesMaps
+      else if lowerSAT = -1 then 
+        add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
+      else if upperSAT = -1 then 
+        add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
+      else if lowerBound = neg_infinity then 
+        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (esl /. 10.) lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
+        add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps  
+      else if upperBound = infinity then 
+        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (esl /. 10.) upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
+        add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps  
+      else if lowerEasiness < upperEasiness then 
+        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
+        add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
+      else
+        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
+        add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
+    in
+    (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps)
+    
 
 
 (*Binary balance decomposition on intervals*)
-let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
+let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
   (* print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
   flush stdout; *)
   let startTime = Sys.time() in
@@ -130,7 +140,7 @@ let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyCons
     in
     let learntClauses = VariablesSet.fold add_learnt_var varsSet (polysMiniSATCodeString ^ " 0") in
     ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false) *)
-    add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps
+    (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps)
   else (*Continue decomposition*)
     
     (*print_endline (string_of_bool polyCons#isInfinite);
@@ -148,7 +158,7 @@ let dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps polyCons unkownPolyCons
       if polyCons#get_logic = "QF_NIA" then "Int"
       else "Real"
     in 
-    StringMap.fold (decompose_var varType esl varsIntvsMap polyCons) decomposedVarsIntvsMiniSATCodesIsPositiveMap varsIntvsMapPrioritiesMaps
+    StringMap.fold (decompose_var varType esl varsIntvsMap polyCons) decomposedVarsIntvsMiniSATCodesIsPositiveMap (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps)
 
 
 (* (*Binary balance decomposition on intervals*)

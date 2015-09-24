@@ -255,7 +255,7 @@ class polynomialConstraint boolExprInit =
       in
       let varsIntvsMap = StringMap.fold convert_toIntv varsTCsMap StringMap.empty in
       let polyExpr = get_exp boolExpr in
-      let (_,_, ciBound, _)  = poly_eval_ci polyExpr varsIntvsMap in
+      let (_,_, ciBound, _)  = poly_eval_ci polyExpr varsIntvsMap varsNum in
       (*print_endline ("Bound" ^ ciBound#to_string);
       flush stdout;*)
       check_sat_providedBounds boolExpr ciBound

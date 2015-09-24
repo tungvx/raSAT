@@ -704,8 +704,9 @@ module Caml = struct
         "-" ^ string_of_int miniSATCode ^ " " ^ currentUnsatCore
       in
       let unsatCore = IntSet.fold get_unsatcore unsatPolyConstraintsCodes "0" in
-      (* print_endline unsatCore;
-      flush stdout; *)
+      print_string "UNSAT core: ";
+      print_endline unsatCore;
+      flush stdout;
       (-1, unsatCore, "", "", "", "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime) 
     else
       let startTime = Sys.time() in 
@@ -804,13 +805,13 @@ module Caml = struct
                 (*let testUNSATPolyCons = List.hd clTest_US in
                 let decomposedPolyConstraints = testUNSATPolyCons :: uk_cl in*)
                 let maxDecompose = 1 in (* only $maxDecompose are allowed to decomposed, the priority is based on sensitivity *)
-                let varsIntvsMapPrioritiesMaps = 
+                let (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps) = 
                   (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
                   (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID nextMiniSATCode esl in
                   if isDecomposed then 
                     (newInterval, newLearn, newBumpVars, isDecomposed)
                   else*)
-                    dynamicDecom varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
+                    dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
                                   uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in
 
                     (* dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
