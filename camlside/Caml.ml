@@ -720,7 +720,7 @@ module Caml = struct
         | [] -> FloatMap.remove esl varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
       in
-      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = icp 1 unsatPolyConstraintsCodes [] [] 
+      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = icp unsatPolyConstraintsCodes [] [] 
                                                           polyConstraints varsIntvsMap esl iaTime usTime (remainingTime -. Sys.time() +. startTime) in
       (* print_endline ("EndICP, result: " ^ string_of_int res);
       flush stdout; *)

@@ -258,6 +258,7 @@ class polynomialConstraint boolExprInit =
       let (_,_, ciBound, _)  = poly_eval_ci polyExpr varsIntvsMap varsNum in
       (*print_endline ("Bound" ^ ciBound#to_string);
       flush stdout;*)
+      iaValue <- ciBound;
       check_sat_providedBounds boolExpr ciBound
       
     method add_sat_direction currentVarSATDirectionMap = 
