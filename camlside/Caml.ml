@@ -704,9 +704,9 @@ module Caml = struct
         "-" ^ string_of_int miniSATCode ^ " " ^ currentUnsatCore
       in
       let unsatCore = IntSet.fold get_unsatcore unsatPolyConstraintsCodes "0" in
-      print_string "UNSAT core: ";
+      (* print_string "UNSAT core: ";
       print_endline unsatCore;
-      flush stdout;
+      flush stdout; *)
       (-1, unsatCore, "", "", "", "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime) 
     else
       let startTime = Sys.time() in 

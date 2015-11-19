@@ -35,8 +35,8 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
    |[] -> (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)
    |h::t -> 
       let startTime = Sys.time() in
-      print_endline ("\nStart check sat: " ^ h#to_string_infix);
-      flush stdout;
+      (* print_endline ("\nStart check sat: " ^ h#to_string_infix);
+      flush stdout; *)
       (* print_endline ("\n\n\n With " ^ string_of_intervals varsIntvsMap);
       flush stdout; *)
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
@@ -45,9 +45,9 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
       (* print_endline (h#log_ia);
       print_endline ("Easiness: " ^ string_of_float h#get_easiness);
       flush stdout; *)
-      print_endline ("End check sat IA of " ^ (* h#to_string_infix ^ *) ", result: " ^ string_of_int res1);
+      (* print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1); *)
       (* print_endline ("\nIntervals1: " ^ string_of_intervals varsIntvsMap); *)
-      flush stdout;
+      (* flush stdout; *)
       let iaTime = iaTime +. Sys.time() -. startTime in
       if (res1 = 1) then 
         eval_all res unsatPolyConstraintsCodes uk_cl (h::validPolyConstraints) t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
@@ -90,9 +90,9 @@ let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints
   print_endline printString;
   flush stdout; *)
   let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime) = 
-    let printString = "\n\n\n With " ^ string_of_intervals varsIntvsMap in
+    (* let printString = "\n\n\n With " ^ string_of_intervals varsIntvsMap in
     print_endline printString;
-    flush stdout;
+    flush stdout; *)
     eval_all 1 unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime remainingTime
   in
   (* raise (Failure "Tung dep trai tinh tao"); *)
