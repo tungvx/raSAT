@@ -36,16 +36,16 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
    |h::t -> 
       let startTime = Sys.time() in
       (* print_endline ("\nStart check sat: " ^ h#to_string_infix);
-      flush stdout; *)
-      (* print_endline ("\n\n\n With " ^ string_of_intervals varsIntvsMap);
+      flush stdout;
+      print_endline ("\n\n\n With " ^ string_of_intervals varsIntvsMap);
       flush stdout; *)
       (* print_varsSet (get_vars_set_boolExp h); (* print_varsSet is in Variable.ml and get_vars_set_boolExp is in ast.ml *)
       flush stdout;*)
       let res1 = h#check_sat_varsSen_setIsInfinite_setBounds_setEasiness varsIntvsMap in
       (* print_endline (h#log_ia);
       print_endline ("Easiness: " ^ string_of_float h#get_easiness);
-      flush stdout; *)
-      (* print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1); *)
+      flush stdout;
+      print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1); *)
       (* print_endline ("\nIntervals1: " ^ string_of_intervals varsIntvsMap); *)
       (* flush stdout; *)
       let iaTime = iaTime +. Sys.time() -. startTime in

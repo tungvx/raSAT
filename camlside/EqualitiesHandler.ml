@@ -15,8 +15,8 @@ let check_equality polyCons varsSet varsIntvsMap =
   in
   let firstPoint = VariablesSet.fold getFirstPoint varsSet varsIntvsMap in
   let firstBound = polyCons#get_bound firstPoint in
-  (* print_endline ("First Bound: " ^ log_intervals firstPoint ^ sprintf_I "%f" firstBound);
-  flush stdout; *)
+  print_endline ("First Bound: " ^ log_intervals firstPoint ^ sprintf_I "%f" firstBound);
+  flush stdout;
 
   let getSecondPoint var varsIntvsMap = 
     let intv = StringMap.find var varsIntvsMap in
@@ -24,8 +24,8 @@ let check_equality polyCons varsSet varsIntvsMap =
   in
   let secondPoint = VariablesSet.fold getSecondPoint varsSet varsIntvsMap in
   let secondBound = polyCons#get_bound secondPoint in
-  (* print_endline ("Second Bound: "^ log_intervals secondPoint  ^ sprintf_I "%f" secondBound);
-  flush stdout; *)
+  print_endline ("Second Bound: "^ log_intervals secondPoint  ^ sprintf_I "%f" secondBound);
+  flush stdout;
  
   (* Intermediate theorem f(a) . f(b) < 0 ==> f(x) has a root between a and b *)
   if (firstBound.high <= 0. && secondBound.low >= 0.) || (firstBound.low >= 0. && secondBound.high <= 0.) then (
@@ -79,6 +79,8 @@ let rec check_equalities polyConstraints varsIntvsMap consideredVarsSet =
   match polyConstraints with 
   | [] -> (true, [])
   | h::t -> (
+    print_endline "Checking Equations";
+    flush stdout;
     let varsList = h#get_varsList in
     let varsSetCandidates = power_set varsList in
     check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet 

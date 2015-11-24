@@ -712,10 +712,10 @@ module Caml = struct
       let startTime = Sys.time() in 
       let (esl, varsIntvsMaps) = FloatMap.max_binding varsIntvsMapPrioritiesMaps in
       let varsIntvsMap = List.hd varsIntvsMaps in
-      (* print_endline "---------------------------NEW----------------------";
+      print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout; *)
+      flush stdout;
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
         | [] -> FloatMap.remove esl varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
@@ -735,15 +735,15 @@ module Caml = struct
               iaTime, testingTime, usTime, parsingTime, decompositionTime)
       else (*if unknown, testing will be implemented here*)(
         (*let uk_cl = List.rev uk_cl in (* reverse the list so that the apis are sorted based on variables dependency *)*)
-        (*print_endline("IA Unkown constraints: " ^ string_infix_of_polynomialConstraints uk_cl); (* string_infix_of_polynomialConstraints is defined in polynomialConstraint.ml *)
-        dflush stdout;*)
+        (* print_endline("IA Unkown constraints: " ^ string_infix_of_polynomialConstraints uk_cl); string_infix_of_polynomialConstraints is defined in polynomialConstraint.ml
+        flush stdout; *)
         if (uk_cl = []) then (*This case will never happen*)
           (res, "", "", "", "", "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
         else (
           (* print_endline "Start Testing";
           flush stdout; *)
           let startTestingTime = Sys.time() in
-          let (tc, sTest, clTest_US, a, b) = 
+          let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
             test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
             (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
             
@@ -761,9 +761,9 @@ module Caml = struct
            let validPolyConstraints = List.rev validPolyConstraints in
            let iaLog = log_ia validPolyConstraints in
 
-           let assignmentsLog = log_assignment a in (* log_assignment is in Assignments.ml *)
+           let assignmentsLog = log_assignment satVarsTCsMap in (* log_assignment is in Assignments.ml *)
            let testLog = log_test uk_cl in
-           let assignmentsString = string_of_assignment a in
+           let assignmentsString = string_of_assignment satVarsTCsMap in
            let uk_cl_string = string_postfix_of_polyConstraints uk_cl in
            (sTest, assignmentsString , uk_cl_string, intvLog ^ iaLog ^ assignmentsLog ^ testLog, "", "", "", "", 
                 string_postfix_of_polyConstraints validPolyConstraints ^ " ; " ^ string_of_intervals varsIntvsMap
@@ -773,31 +773,40 @@ module Caml = struct
           (
            let startDecompositionTime = Sys.time() in
            (* If the uk_cl are equalities, then we implement some tricks for solving them. *)
+           (* print_endline (string_of_bool (can_apply_imvt clTest_US && is_all_equations clTest_US));
+           flush stdout;
+           raise (Failure "Tung"); *)
            let (isEqualitiesSAT, unsatPolyConstraints) = 
-             if can_apply_imvt uk_cl && is_all_equations uk_cl then (* is_all_equalities is defined in ast.ml *)
-               check_equalities uk_cl varsIntvsMap VariablesSet.empty (* check_equalities is defined in Equalities_handler.ml *)
-             else (false, uk_cl)
+             if can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints then (* is_all_equalities is defined in ast.ml *)
+               (* Verify SAT instances for testSATPolyConstraints *)
+               check_equalities testUNSATPolyConstraints varsIntvsMap VariablesSet.empty (* check_equalities is defined in Equalities_handler.ml *)
+             else (false, testUNSATPolyConstraints)
            in
              if isEqualitiesSAT then 
                let intvLog = log_intervals varsIntvsMap in
                let validPolyConstraints = List.rev validPolyConstraints in
                let iaLog = log_ia validPolyConstraints in
-               let assignmentsLog = log_assignment a in (* log_assignment is in Assignments.ml *)
-               let testLog = log_test uk_cl in
+               let assignmentsLog = log_assignment satVarsTCsMap in (* log_assignment is in Assignments.ml *)
+               let testLog = log_test testSATPolyConstraints in
                (1, "", "", intvLog ^ iaLog ^ assignmentsLog ^ testLog ^ (get_allLogs uk_cl), "", 
                      "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
              else (
                 (*Applied for Dynamic interval decomposition*)
                 (*Balance interval decomposition*)
                 (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
-
+                let rec get_hardest_polyCons result = function
+                  | [] -> result
+                  | polyCons :: remainingConstraints -> 
+                    let result = 
+                      if result#get_easiness <= polyCons#get_easiness then 
+                        result
+                      else
+                        polyCons
+                    in 
+                    get_hardest_polyCons result remainingConstraints
+                in
                 let decomposedExpr = 
-                  (*if (is_boolExpr_equation (List.hd clTest_US)#get_constraint) then
-                    let firstInequation = first_inequation uk_cl in
-                    match firstInequation with
-                    |[] -> [List.hd unsatPolyConstraints]
-                    | _ -> firstInequation
-                  else*) clTest_US
+                  get_hardest_polyCons (List.hd testUNSATPolyConstraints) (List.tl testUNSATPolyConstraints)
                 in
                 (*print_endline "decomposing";
                 (*print_endline(bool_expr_list_to_infix_string decomposedExpr);*)
@@ -811,7 +820,7 @@ module Caml = struct
                   if isDecomposed then 
                     (newInterval, newLearn, newBumpVars, isDecomposed)
                   else*)
-                    dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
+                    dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps decomposedExpr
                                   uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in
 
                     (* dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
@@ -887,6 +896,7 @@ module Caml = struct
     (*let polyConstraints = List.rev polyConstraints in*)
     (* print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
     flush stdout; *)
+    (* raise (Failure "Tung dep trai 1"); *)
     (* raise (Failure "Tung dep trai"); *)
     (* print_endline ("\nIntervals: \n" ^ log_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
     flush stdout; *)
