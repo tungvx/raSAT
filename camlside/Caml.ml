@@ -712,10 +712,10 @@ module Caml = struct
       let startTime = Sys.time() in 
       let (esl, varsIntvsMaps) = FloatMap.max_binding varsIntvsMapPrioritiesMaps in
       let varsIntvsMap = List.hd varsIntvsMaps in
-      print_endline "---------------------------NEW----------------------";
+      (* print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout;
+      flush stdout; *)
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
         | [] -> FloatMap.remove esl varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
@@ -778,8 +778,7 @@ module Caml = struct
            raise (Failure "Tung"); *)
            let (isEqualitiesSAT, unsatPolyConstraints) = 
              if can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints then (* is_all_equalities is defined in ast.ml *)
-               (* Verify SAT instances for testSATPolyConstraints *)
-               check_equalities testUNSATPolyConstraints varsIntvsMap VariablesSet.empty (* check_equalities is defined in Equalities_handler.ml *)
+               check_equalities testUNSATPolyConstraints varsIntvsMap generatedVarsSet (* check_equalities is defined in Equalities_handler.ml *)
              else (false, testUNSATPolyConstraints)
            in
              if isEqualitiesSAT then 

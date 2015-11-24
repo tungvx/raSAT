@@ -248,8 +248,8 @@ class polynomialConstraint boolExprInit =
       sat
    
     method verify_SAT varsTCsMap = 
-      print_endline ("verifying " ^ self#to_string_infix);
-      flush stdout;
+      (* print_endline ("verifying " ^ self#to_string_infix);
+      flush stdout; *)
       let convert_toIntv var tc currentVarsIntvsMap = 
         StringMap.add var {low=tc;high=tc} currentVarsIntvsMap 
       in
