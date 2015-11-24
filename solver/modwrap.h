@@ -30,7 +30,7 @@ value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia);
  * =========================================================================================================================|*/
 value caml_dynTest(value *intvInfo, value *miniSATCodesConstraintsMap, int nCons, const char *sCheck, int ia,
 		double esl, char *sTestUS, double iaTime, double testingTime,
-		double USTime, double parsingTime, double decompositionTime, double remainingTime);
+		double USTime, double parsingTime, double decompositionTime);
 int caml_InfCheck(char * sIntv, char* sAss);
 //double caml_divide(int a, int b);
 

@@ -698,7 +698,7 @@ module Caml = struct
       
 
   let rec check_procedure varsIntvsMapPrioritiesMaps (polyConstraints:PolynomialConstraint.polynomialConstraint list) 
-              unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime remainingTime =
+              unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime =
     if FloatMap.is_empty varsIntvsMapPrioritiesMaps then
       let get_unsatcore miniSATCode currentUnsatCore = 
         "-" ^ string_of_int miniSATCode ^ " " ^ currentUnsatCore
@@ -721,12 +721,12 @@ module Caml = struct
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
       in
       let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = icp unsatPolyConstraintsCodes [] [] 
-                                                          polyConstraints varsIntvsMap esl iaTime usTime (remainingTime -. Sys.time() +. startTime) in
+                                                          polyConstraints varsIntvsMap esl iaTime usTime in
       (* print_endline ("EndICP, result: " ^ string_of_int res);
       flush stdout; *)
       if (res = -1) then 
         check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS
-                                                     iaTime testingTime usTime parsingTime decompositionTime remainingTime
+                                                     iaTime testingTime usTime parsingTime decompositionTime
       else if (res = 1) then (*if all clauses are satisfiable*)
         let intvLog = log_intervals varsIntvsMap in
         let validPolyConstraints = List.rev validPolyConstraints in
@@ -744,7 +744,7 @@ module Caml = struct
           flush stdout; *)
           let startTestingTime = Sys.time() in
           let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
-            test uk_cl varsIntvsMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+            test uk_cl varsIntvsMap(* test is defined in Testing.ml *)
             (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
             
           in
@@ -820,7 +820,7 @@ module Caml = struct
                     (newInterval, newLearn, newBumpVars, isDecomposed)
                   else*)
                     dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps decomposedExpr
-                                  uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in
+                                  uk_cl maxDecompose esl in
 
                     (* dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
                                   uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in *)
@@ -831,7 +831,7 @@ module Caml = struct
                 (* let varsIntvsMapPrioritiesMaps = FloatMap.empty in *)
                 let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
                 check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS
-                                                            iaTime testingTime usTime parsingTime decompositionTime remainingTime                
+                                                            iaTime testingTime usTime parsingTime decompositionTime                
              )
           )
         )
@@ -840,7 +840,7 @@ module Caml = struct
   (*=========================== START DYNTEST =======================================*)  
   (*dynTest: Interval arithmetic, Testing and Dynamic interval decomposition*)
   let dynTest varsIntvsMap miniSATCodesConstraintsMap clausesNum strCheck ia esl strTestUS iaTime 
-                                          testingTime usTime parsingTime decompositionTime remainingTime =
+                                          testingTime usTime parsingTime decompositionTime =
   (* 
     let add_intv var currentVarsIntvsMap = 
       StringMap.add var {low = neg_infinity; high = infinity} currentVarsIntvsMap
@@ -903,7 +903,7 @@ module Caml = struct
     (*print_endline "Start IA";
     flush stdout;*)
     check_procedure varsIntvsMapPrioritiesMaps polyConstraints IntSet.empty strTestUS 
-              iaTime testingTime usTime parsingTime decompositionTime remainingTime
+              iaTime testingTime usTime parsingTime decompositionTime
     
   (* ================================= END OF DYNTEST ==========================================*) 
 end

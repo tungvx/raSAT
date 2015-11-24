@@ -603,8 +603,7 @@ int main(int argc, char* argv[]) {
 					theoCheck = caml_dynTest(&intvInfo,
 							&miniSATCodesConstraintsMap, nCons, sSAT.c_str(),
 							ia, esl, c_strTestUS, iaTime, testingTime, usTime,
-							parsingTime, decompositionTime,
-							timeout - (cpuTime() - initial_time));
+							parsingTime, decompositionTime);
 					delete[] c_dIntv;
 					if (needDeleted)
 						delete[] c_strTestUS;

@@ -93,7 +93,7 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
 
 
 (*Binary balance decomposition on intervals*)
-let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl remainingTime = 
+let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl = 
   (* print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
   flush stdout; *)
   let startTime = Sys.time() in

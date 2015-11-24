@@ -88,12 +88,11 @@ value caml_doTest(char *sIntv, char *sCons, char *sCheck, int ia) {
 //including dynamic interval decomposition and testing
 value caml_dynTest(value *intvInfo, value *miniSATCodesConstraintsMap, int nCons, const char *sCheck, int ia,
 		double esl, char *sTestUS, double iaTime, double testingTime,
-		double USTime, double parsingTime, double decompositionTime,
-		double remainingTime) {
+		double USTime, double parsingTime, double decompositionTime) {
 //	cout << "dynTest\n";
 	CAMLparam0();
 	//cout << "dynTest1\n";
-	int const ARGS_NUM = 13;
+	int const ARGS_NUM = 12;
 	int index = 0;
 	//cout << "dynTest2\n";
 	CAMLlocalN(ml_args, ARGS_NUM);
@@ -124,8 +123,6 @@ value caml_dynTest(value *intvInfo, value *miniSATCodesConstraintsMap, int nCons
 	//cout << "dynTest15\n";
 	ml_args[index++] = caml_copy_double(decompositionTime);
 	//cout << "dynTest16\n";
-	ml_args[index++] = caml_copy_double(remainingTime);
-//	cout << "dynTest17\n";
 
 	static value *caml_is_closure = NULL;
 	//cout << "dynTest18\n";

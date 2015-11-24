@@ -30,7 +30,7 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
     else polyCons :: polyConstraints*)
 
 (*Rewrite eval_all for UNSAT cores computations*)
-let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime remainingTime =
+let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime =
   match polyConstraints with
    |[] -> (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)
    |h::t -> 
@@ -50,14 +50,14 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
       (* flush stdout; *)
       let iaTime = iaTime +. Sys.time() -. startTime in
       if (res1 = 1) then 
-        eval_all res unsatPolyConstraintsCodes uk_cl (h::validPolyConstraints) t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
+        eval_all res unsatPolyConstraintsCodes uk_cl (h::validPolyConstraints) t varsIntvsMap iaTime usTime
       else if (res1 = -1) then
         let newUnsatPolyConstraintsCodes = IntSet.add (h#get_miniSATCode) unsatPolyConstraintsCodes in
         (-1, newUnsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)  
       else
         (* print_endline ("\nIntervals2: " ^ string_of_intervals varsIntvsMap); *)
         eval_all 0 unsatPolyConstraintsCodes ((*h::uk_cl*) insertionSort_byEasiness h uk_cl) 
-            validPolyConstraints t varsIntvsMap iaTime usTime (remainingTime -. Sys.time() +. startTime)
+            validPolyConstraints t varsIntvsMap iaTime usTime
 
 
 
@@ -85,7 +85,7 @@ let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap es
       contract_polyConstraints t unsatPolyConstraintsCodes varsIntvsMap esl (contracted || newContracted)
 
 
-let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap esl iaTime usTime remainingTime =
+let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap esl iaTime usTime =
   (* let printString = "\nEpsilon: " ^ string_of_float esl in
   print_endline printString;
   flush stdout; *)
@@ -93,7 +93,7 @@ let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints
     (* let printString = "\n\n\n With " ^ string_of_intervals varsIntvsMap in
     print_endline printString;
     flush stdout; *)
-    eval_all 1 unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime remainingTime
+    eval_all 1 unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime
   in
   (* raise (Failure "Tung dep trai tinh tao"); *)
   if res <> 0 then (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
@@ -109,7 +109,7 @@ let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints
       flush stdout; *)
 
       if StringMap.is_empty varsIntvsMap then (-1, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
-      else icp unsatPolyConstraintsCodes [] validPolyConstraints uk_cl varsIntvsMap esl iaTime usTime remainingTime
+      else icp unsatPolyConstraintsCodes [] validPolyConstraints uk_cl varsIntvsMap esl iaTime usTime
     )  
     else (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
   )
