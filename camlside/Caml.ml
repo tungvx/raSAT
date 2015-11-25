@@ -748,9 +748,6 @@ module Caml = struct
             (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
             
           in
-          (*print_endline ("UNSAT constraints num: " ^ string_of_int b);
-          flush stdout;*)
-          (*print_endline ("SAT: " ^ assignments_toString tc);*)
           (*let (sTest, clTest_US, a) = evalTest assIntv uk_cl checkVarID strTestUS in*)
           (*let (tc, sTest, clTest_US, a) =  search_tc2 uk_cl assIntv strTestUS esl in *)
           (* print_endline ("End Testing, result: " ^ string_of_int sTest);
@@ -758,6 +755,8 @@ module Caml = struct
           let testingTime = testingTime +. Sys.time() -. startTestingTime in
           if (sTest = 1) then (
            let intvLog = log_intervals varsIntvsMap in
+           (* print_endline ("SAT: " ^ log_assignment satVarsTCsMap);
+           flush stdout; *)
            let validPolyConstraints = List.rev validPolyConstraints in
            let iaLog = log_ia validPolyConstraints in
 
@@ -773,9 +772,9 @@ module Caml = struct
           (
            let startDecompositionTime = Sys.time() in
            (* If the uk_cl are equalities, then we implement some tricks for solving them. *)
-           (* print_endline (string_of_bool (can_apply_imvt clTest_US && is_all_equations clTest_US));
-           flush stdout;
-           raise (Failure "Tung"); *)
+           (* print_endline (string_of_bool (can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints));
+           flush stdout; *)
+           (* raise (Failure "Tung"); *)
            let (isEqualitiesSAT, unsatPolyConstraints) = 
              if can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints then (* is_all_equalities is defined in ast.ml *)
                check_equalities testUNSATPolyConstraints varsIntvsMap generatedVarsSet (* check_equalities is defined in Equalities_handler.ml *)

@@ -79,8 +79,8 @@ let rec check_equalities polyConstraints varsIntvsMap consideredVarsSet =
   match polyConstraints with 
   | [] -> (true, [])
   | h::t -> (
-    print_endline "Checking Equations";
-    flush stdout;
+    (* print_endline "Checking Equations";
+    flush stdout; *)
     let varsList = h#get_varsList in
     let varsSetCandidates = power_set varsList in
     check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet 
