@@ -89,7 +89,7 @@ module Caml = struct
         with Not_found -> 
           (try
             let varSort = StringMap.find str1 variables in
-            if (varSort = "Real" || varSort = "Int") then SPoly(Var (str1, inf_I, new IA.af2 0, false))
+            if varSort = intType || varSort = realType then SPoly(Var (str1, varSort, inf_I, new IA.af2 0, false))
             else raise (Failure "Wrong input")
           with Not_found -> raise (Failure "Need Real/Int variable"))
         )
@@ -105,7 +105,7 @@ module Caml = struct
         with Not_found -> 
           (try
             let varSort = StringMap.find str1 variables in
-            if (varSort = "Real" || varSort = "Int") then SPoly(Var (str1, inf_I, new IA.af2 0, false))
+            if (varSort = intType || varSort = realType) then SPoly(Var (str1, varSort, inf_I, new IA.af2 0, false))
             else raise (Failure "Wrong input")
           with Not_found -> raise (Failure "Need Real/Int variable")
           )
@@ -121,7 +121,7 @@ module Caml = struct
         Not_found -> 
           ( try
               let varSort = StringMap.find str1 variables in
-              if varSort = "Bool" then [BVar str1]
+              if varSort = boolType then [BVar str1]
               else raise (Failure "Wrong input")
             with Not_found -> 
               (try
@@ -142,7 +142,7 @@ module Caml = struct
         Not_found -> 
           ( try
               let varSort = StringMap.find str1 variables in
-              if varSort = "Bool" then [BVar str1]
+              if varSort = boolType then [BVar str1]
               else raise (Failure "Wrong input")
             with Not_found -> 
               (try
@@ -272,7 +272,7 @@ module Caml = struct
      |TermExclimationPt (_ , term3 , termexclimationpt_term_attribute644) ->  print_string "(";print_string " "; print_string "!";print_string " "; pp_term term3;print_string " "; pp_termexclimationpt_term_attribute64 termexclimationpt_term_attribute644;print_string " "; print_string ")"; () 
      *)
 
-  and get_ite_polys_termqualidterm_term_term56 varTermMap functions variables varBindings = function
+  and get_ite_polys_termqualidterm_term_term56 varTermMap functions (variables:(int Variable.StringMap.t)) varBindings = function
     |(_,[]) -> raise (Failure "Wrong number of arguments for ite")
     | (d , (term1)::termqualidterm_term_term562) -> 
       let boolConstraints = get_constraint_term varTermMap functions variables varBindings term1 in
@@ -314,112 +314,112 @@ module Caml = struct
           StringMap.add var term1 varTermMap
       )      
 
-  and get_le_constraint polys = match polys with
+  and get_le_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
     | [poly] -> []
-    | poly1::poly2::remainingPolys -> (get_le_constraint_extra poly1 poly2) :: (get_le_constraint (poly2::remainingPolys))
+    | poly1::poly2::remainingPolys -> (get_le_constraint_extra poly1 poly2 variables) :: (get_le_constraint (poly2::remainingPolys) variables)
 
-  and get_le_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> get_le_constraint_extra_extra poly1 poly2
-    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_le_constraint_extra_extra poly1 poly2)
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_le_constraint_extra_extra poly1 poly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_le_constraint_extra smtPoly1 smtPoly21, get_le_constraint_extra smtPoly1 smtPoly22)
-    | (POr(smtPoly11, smtPoly12), _) -> Or(get_le_constraint_extra smtPoly11 smtPoly2, get_le_constraint_extra smtPoly12 smtPoly2)
+  and get_le_constraint_extra smtPoly1 smtPoly2 variables = match smtPoly1, smtPoly2 with
+    | (SPoly(poly1), SPoly(poly2)) -> get_le_constraint_extra_extra poly1 poly2  variables
+    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_le_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_le_constraint_extra_extra poly1 poly2  variables)
+    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_le_constraint_extra smtPoly1 smtPoly21 variables, get_le_constraint_extra smtPoly1 smtPoly22 variables)
+    | (POr(smtPoly11, smtPoly12), _) -> Or(get_le_constraint_extra smtPoly11 smtPoly2 variables, get_le_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_le_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Le (reduce poly1)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Gr (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Le (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))
+  and get_le_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Le (reduce poly1  variables)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Gr (reduce poly2  variables)))
+    | _ -> Single (new polynomialConstraint (Le (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0))  variables)))
 
-  and get_leq_constraint polys = match polys with
+  and get_leq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input") 
     | [poly] -> []
-    | poly1::poly2::remainingPolys -> (get_leq_constraint_extra poly1 poly2) :: (get_leq_constraint (poly2::remainingPolys))
+    | poly1::poly2::remainingPolys -> (get_leq_constraint_extra poly1 poly2 variables) :: (get_leq_constraint (poly2::remainingPolys) variables)
 
-  and get_leq_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> get_leq_constraint_extra_extra poly1 poly2
-    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_leq_constraint_extra_extra poly1 poly2)
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_leq_constraint_extra_extra poly1 poly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_leq_constraint_extra smtPoly1 smtPoly21, get_leq_constraint_extra smtPoly1 smtPoly22)
-    | (POr(smtPoly11, smtPoly12), _) -> Or(get_leq_constraint_extra smtPoly11 smtPoly2, get_leq_constraint_extra smtPoly12 smtPoly2)
+  and get_leq_constraint_extra smtPoly1 smtPoly2 variables = match smtPoly1, smtPoly2 with
+    | (SPoly(poly1), SPoly(poly2)) -> get_leq_constraint_extra_extra poly1 poly2  variables
+    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_leq_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_leq_constraint_extra_extra poly1 poly2 variables)
+    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_leq_constraint_extra smtPoly1 smtPoly21 variables, get_leq_constraint_extra smtPoly1 smtPoly22 variables)
+    | (POr(smtPoly11, smtPoly12), _) -> Or(get_leq_constraint_extra smtPoly11 smtPoly2 variables, get_leq_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_leq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Leq (reduce poly1)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Geq (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))  
+  and get_leq_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Leq (reduce poly1 variables)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Geq (reduce poly2 variables)))
+    | _ -> Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))  
 
-  and get_gr_constraint polys = match polys with
+  and get_gr_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
     | [poly] -> []
-    | poly1::poly2::remainingPolys -> (get_gr_constraint_extra poly1 poly2) :: (get_gr_constraint (poly2::remainingPolys))
+    | poly1::poly2::remainingPolys -> (get_gr_constraint_extra poly1 poly2 variables) :: (get_gr_constraint (poly2::remainingPolys) variables)
 
-  and get_gr_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> get_gr_constraint_extra_extra poly1 poly2
-    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_gr_constraint_extra_extra poly1 poly2)
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_gr_constraint_extra_extra poly1 poly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_gr_constraint_extra smtPoly1 smtPoly21, get_gr_constraint_extra smtPoly1 smtPoly22)
-    | (POr(smtPoly11, smtPoly12), _) -> Or(get_gr_constraint_extra smtPoly11 smtPoly2, get_gr_constraint_extra smtPoly12 smtPoly2)
+  and get_gr_constraint_extra smtPoly1 smtPoly2 variables = match smtPoly1, smtPoly2 with
+    | (SPoly(poly1), SPoly(poly2)) -> get_gr_constraint_extra_extra poly1 poly2 variables
+    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_gr_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_gr_constraint_extra_extra poly1 poly2 variables)
+    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_gr_constraint_extra smtPoly1 smtPoly21 variables, get_gr_constraint_extra smtPoly1 smtPoly22 variables)
+    | (POr(smtPoly11, smtPoly12), _) -> Or(get_gr_constraint_extra smtPoly11 smtPoly2 variables, get_gr_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_gr_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Gr (reduce poly1)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Le (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))    
+  and get_gr_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Gr (reduce poly1 variables)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Le (reduce poly2 variables)))
+    | _ -> Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))    
 
-  and get_geq_constraint polys = match polys with
+  and get_geq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
     | [poly] ->  []
-    | poly1::poly2::remainingPolys -> (get_geq_constraint_extra poly1 poly2) :: (get_geq_constraint (poly2::remainingPolys))
+    | poly1::poly2::remainingPolys -> (get_geq_constraint_extra poly1 poly2 variables) :: (get_geq_constraint (poly2::remainingPolys) variables)
 
-  and get_geq_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> get_geq_constraint_extra_extra poly1 poly2
-    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_geq_constraint_extra_extra poly1 poly2)
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_geq_constraint_extra_extra poly1 poly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_geq_constraint_extra smtPoly1 smtPoly21, get_geq_constraint_extra smtPoly1 smtPoly22)
-    | (POr(smtPoly11, smtPoly12), _) -> Or(get_geq_constraint_extra smtPoly11 smtPoly2, get_geq_constraint_extra smtPoly12 smtPoly2)
+  and get_geq_constraint_extra smtPoly1 smtPoly2 variables = match smtPoly1, smtPoly2 with
+    | (SPoly(poly1), SPoly(poly2)) -> get_geq_constraint_extra_extra poly1 poly2 variables
+    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_geq_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_geq_constraint_extra_extra poly1 poly2 variables)
+    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_geq_constraint_extra smtPoly1 smtPoly21 variables, get_geq_constraint_extra smtPoly1 smtPoly22 variables)
+    | (POr(smtPoly11, smtPoly12), _) -> Or(get_geq_constraint_extra smtPoly11 smtPoly2 variables, get_geq_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_geq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Geq (reduce poly1)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Leq (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))   
+  and get_geq_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Geq (reduce poly1 variables)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Leq (reduce poly2 variables)))
+    | _ -> Single (new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))   
 
-  and get_eq_constraint polys = match polys with
+  and get_eq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
     | [poly] -> []
-    | poly1::poly2::remainingPolys -> (get_eq_constraint_extra poly1 poly2) :: (get_eq_constraint (poly2::remainingPolys))
+    | poly1::poly2::remainingPolys -> (get_eq_constraint_extra poly1 poly2 variables) :: (get_eq_constraint (poly2::remainingPolys) variables)
 
-  and get_eq_constraint_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> get_eq_constraint_extra_extra poly1 poly2
-    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_eq_constraint_extra_extra poly1 poly2)
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_eq_constraint_extra_extra poly1 poly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_eq_constraint_extra smtPoly1 smtPoly21, get_eq_constraint_extra smtPoly1 smtPoly22)
-    | (POr(smtPoly11, smtPoly12), _) -> Or(get_eq_constraint_extra smtPoly11 smtPoly2, get_eq_constraint_extra smtPoly12 smtPoly2)
+  and get_eq_constraint_extra smtPoly1 smtPoly2 variables = match smtPoly1, smtPoly2 with
+    | (SPoly(poly1), SPoly(poly2)) -> get_eq_constraint_extra_extra poly1 poly2 variables
+    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_eq_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_eq_constraint_extra_extra poly1 poly2 variables)
+    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_eq_constraint_extra smtPoly1 smtPoly21 variables, get_eq_constraint_extra smtPoly1 smtPoly22 variables)
+    | (POr(smtPoly11, smtPoly12), _) -> Or(get_eq_constraint_extra smtPoly11 smtPoly2 variables, get_eq_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_eq_constraint_extra_extra poly1 poly2 = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Eq (reduce poly1)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Eq (reduce poly2)))
-    | _ -> Single (new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)))))   
+  and get_eq_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
+    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Eq (reduce poly1 variables)))
+    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Eq (reduce poly2 variables)))
+    | _ -> Single (new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))   
 
-  and get_constraint_term varTermMap functions variables varBindings = function 
+  and get_constraint_term varTermMap functions (variables:(int Variable.StringMap.t)) varBindings = function 
     |TermQualIdentifier (_ , qualidentifier1) -> 
       get_constraint_qualidentifier varTermMap  functions variables varBindings qualidentifier1
     |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) ->
       let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
       if qualidentifier_string = "<" then 
         let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
-        get_le_constraint polys
+        get_le_constraint polys variables
       else if qualidentifier_string = "<=" then
         let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
-        get_leq_constraint polys 
+        get_leq_constraint polys variables
       else if qualidentifier_string = ">" then
         let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
-        get_gr_constraint polys
+        get_gr_constraint polys variables
       else if qualidentifier_string = ">=" then
         let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
-        get_geq_constraint polys
+        get_geq_constraint polys variables
       else if qualidentifier_string = "=" then
         try 
           let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
-          get_eq_constraint polys
+          get_eq_constraint polys variables
         with Failure _ -> 
           let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
           let iffConstraint = get_iff_constraint constraints in
@@ -546,7 +546,12 @@ module Caml = struct
     | CommandDeclareFun (_ , symbol3 , commanddeclarefun_command_sort135 , sort7) ->  
       let variable = get_string_symbol symbol3 in
       let varSort = get_sort sort7 in 
-      StringMap.singleton variable varSort
+      let varType = match varSort with 
+        | "Int" -> intType
+        | "Real" -> realType
+        | "Bool" -> boolType
+      in
+      StringMap.singleton variable varType
     | _  -> StringMap.empty
 
   and get_functions_command = function 

@@ -2,6 +2,7 @@ open Ast
 open Multiset
 open Interval
 open Util
+open Variable
 
 
 module MultiVar = struct 
@@ -36,7 +37,7 @@ let print_monomials p =
 (* evaluate expressions into values *) 
 let rec eval = function 
   | Real (c, _, _, _) -> Monomials (Poly.singleton MultiVarSet.empty c)
-  | Var (v, _, _, _)  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
+  | Var (v, _, _, _, _)  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
   | Add(e1, e2, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
@@ -111,14 +112,16 @@ and times p1 p2 = (* naive implementation *)
 let show p = Poly.fold (fun vars coeff acc -> (vars, coeff)::acc) p [] 
 
 (* translate values back into expressions *) 
-let rec reify = function
+let rec reify variables = function
   | Monomials p ->
     let addMonomial vars coefficient currentPolyExpr =
       if coefficient = 0. then currentPolyExpr
       else 
         let createMulExpr currentMulExpr (var, multiplicity) = 
           let tmpVarExpr = 
-            if multiplicity = 1 then Var (var, {low=infinity;high=neg_infinity}, new IA.af2 0 , false)
+            if multiplicity = 1 then 
+              let varType = StringMap.find var variables in
+              Var (var, varType, {low=infinity;high=neg_infinity}, new IA.af2 0 , false)
             else Pow(var, multiplicity, {low=infinity;high=neg_infinity}, false, {low=neg_infinity;high=infinity}, new IA.af2 0) 
           in
           (match currentMulExpr with
@@ -140,24 +143,24 @@ let rec reify = function
     in
     Poly.fold addMonomial p (Real (0., false, {low=0.;high=0.}, new IA.af2 0))
   | MonoAdd (poly1, poly2) -> 
-    let polyExpr1 = reify poly1 in
-    let polyExpr2 = reify poly2 in
+    let polyExpr1 = reify variables poly1 in
+    let polyExpr2 = reify variables poly2 in
     Add (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
   | MonoSub (poly1, poly2) -> 
-    let polyExpr1 = reify poly1 in
-    let polyExpr2 = reify poly2 in
+    let polyExpr1 = reify variables poly1 in
+    let polyExpr2 = reify variables poly2 in
     Sub (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
   | MonoMul (poly1, poly2) -> 
-    let polyExpr1 = reify poly1 in
-    let polyExpr2 = reify poly2 in
+    let polyExpr1 = reify variables poly1 in
+    let polyExpr2 = reify variables poly2 in
     Mul (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
   | MonoDiv (poly1, poly2) -> 
-    let polyExpr1 = reify poly1 in
-    let polyExpr2 = reify poly2 in
+    let polyExpr1 = reify variables poly1 in
+    let polyExpr2 = reify variables poly2 in
     Div (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
 (*Simplify an expression*)  
-let reduce e = 
-  let newE = reify (eval e) in 
+let reduce e variables = 
+  let newE = reify variables (eval e) in 
   (* print_endline ("Simplified " ^ string_infix_of_polyExpr e ^ " to " ^ string_infix_of_polyExpr newE);
   flush stdout; *)
   newE
