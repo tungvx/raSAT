@@ -16,7 +16,6 @@ open Icp
 
 module Caml = struct
   let inf_I = {low=neg_infinity;high=infinity}
-   
 
   (*toIntList convert a string to an int list*)
   let rec toIntList str = 
@@ -54,6 +53,8 @@ module Caml = struct
     (*==================================================*)
     (* C++ - OCaml interface *)
     (*==================================================*)
+  
+  let miniSATIndex = ref 1;;  
 
   let rec get_string_symbol = function
     |Symbol (_ , str1) -> str1
@@ -326,10 +327,15 @@ module Caml = struct
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_le_constraint_extra smtPoly1 smtPoly21 variables, get_le_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_le_constraint_extra smtPoly11 smtPoly2 variables, get_le_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_le_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Le (reduce poly1  variables)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Gr (reduce poly2  variables)))
-    | _ -> Single (new polynomialConstraint (Le (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0))  variables)))
+  and get_le_constraint_extra_extra poly1 poly2 variables = 
+    let polyCons = match poly1, poly2 with
+      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Le (reduce poly1  variables))
+      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Gr (reduce poly2  variables))
+      | _ -> new polynomialConstraint (Le (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0))  variables))
+    in
+      polyCons#set_miniSATCode !miniSATIndex;
+      miniSATIndex := !miniSATIndex + 1;
+      Single (polyCons)
 
   and get_leq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input") 
@@ -343,10 +349,15 @@ module Caml = struct
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_leq_constraint_extra smtPoly1 smtPoly21 variables, get_leq_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_leq_constraint_extra smtPoly11 smtPoly2 variables, get_leq_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_leq_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Leq (reduce poly1 variables)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Geq (reduce poly2 variables)))
-    | _ -> Single (new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))  
+  and get_leq_constraint_extra_extra poly1 poly2 variables = 
+    let polyCons = match poly1, poly2 with
+      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Leq (reduce poly1 variables))
+      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Geq (reduce poly2 variables))
+      | _ -> new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+    in
+      polyCons#set_miniSATCode !miniSATIndex;
+      miniSATIndex := !miniSATIndex + 1;
+      Single (polyCons)
 
   and get_gr_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -360,10 +371,15 @@ module Caml = struct
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_gr_constraint_extra smtPoly1 smtPoly21 variables, get_gr_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_gr_constraint_extra smtPoly11 smtPoly2 variables, get_gr_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_gr_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Gr (reduce poly1 variables)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Le (reduce poly2 variables)))
-    | _ -> Single (new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))    
+  and get_gr_constraint_extra_extra poly1 poly2 variables = 
+    let polyCons = match poly1, poly2 with
+      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Gr (reduce poly1 variables))
+      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Le (reduce poly2 variables))
+      | _ -> new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+    in
+      polyCons#set_miniSATCode !miniSATIndex;
+      miniSATIndex := !miniSATIndex + 1;
+      Single (polyCons)
 
   and get_geq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -377,10 +393,15 @@ module Caml = struct
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_geq_constraint_extra smtPoly1 smtPoly21 variables, get_geq_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_geq_constraint_extra smtPoly11 smtPoly2 variables, get_geq_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_geq_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Geq (reduce poly1 variables)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Leq (reduce poly2 variables)))
-    | _ -> Single (new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))   
+  and get_geq_constraint_extra_extra poly1 poly2 variables = 
+    let polyCons = match poly1, poly2 with
+      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Geq (reduce poly1 variables))
+      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Leq (reduce poly2 variables))
+      | _ -> new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+    in
+      polyCons#set_miniSATCode !miniSATIndex;
+      miniSATIndex := !miniSATIndex + 1;
+      Single (polyCons)
 
   and get_eq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -394,15 +415,20 @@ module Caml = struct
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_eq_constraint_extra smtPoly1 smtPoly21 variables, get_eq_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_eq_constraint_extra smtPoly11 smtPoly2 variables, get_eq_constraint_extra smtPoly12 smtPoly2 variables)
 
-  and get_eq_constraint_extra_extra poly1 poly2 variables = match poly1, poly2 with
-    | (_, Real (0., _, inf_I, _)) -> Single (new polynomialConstraint (Eq (reduce poly1 variables)))
-    | (Real (0., _, inf_I, _), _) -> Single (new polynomialConstraint (Eq (reduce poly2 variables)))
-    | _ -> Single (new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables)))   
+  and get_eq_constraint_extra_extra poly1 poly2 variables = 
+    let polyCons = match poly1, poly2 with
+      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Eq (reduce poly1 variables))
+      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Eq (reduce poly2 variables))
+      | _ -> new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+    in
+      polyCons#set_miniSATCode !miniSATIndex;
+      miniSATIndex := !miniSATIndex + 1;
+      Single (polyCons)
 
   and get_constraint_term varTermMap functions (variables:(int Variable.StringMap.t)) varBindings = function 
     |TermQualIdentifier (_ , qualidentifier1) -> 
       get_constraint_qualidentifier varTermMap  functions variables varBindings qualidentifier1
-    |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) ->
+    |TermQualIdTerm (_ , qualidentifier2, termqualidterm_term_term563) ->
       let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
       if qualidentifier_string = "<" then 
         let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
