@@ -78,11 +78,12 @@ module Caml = struct
 
 
 
-  and get_poly_symbol varTermMap functions variables varBindings = function 
+  and get_poly_symbol varTermMap functions variables varsPolysMap = function 
     |Symbol (_ , str1) -> 
       (try
-        let term = StringMap.find str1 varBindings in
-        get_poly_term varTermMap functions variables varBindings term
+        StringMap.find str1 varsPolysMap
+        (* let term = StringMap.find str1 varBindings in
+        get_poly_term varTermMap functions variables varBindings term *)
       with Not_found -> 
         (try
           let term = StringMap.find str1 varTermMap in
@@ -113,11 +114,12 @@ module Caml = struct
         )
       )
 
-  and get_constraint_symbol varTermMap functions variables varBindings = function 
+  and get_constraint_symbol varTermMap functions variables varsConstraintsMap = function 
     |Symbol (_ , str1) -> 
       (try
-        let term = StringMap.find str1 varBindings in
-        get_constraint_term varTermMap functions variables varBindings term
+        StringMap.find str1 varsConstraintsMap
+        (* let term = StringMap.find str1 varBindings in
+        get_constraint_term varTermMap functions variables varBindings term *)
       with  
         Not_found -> 
           ( try
@@ -157,20 +159,20 @@ module Caml = struct
           )
       )
 
-  and get_poly_identifier varTermMap functions variables varBindings = function 
-    |IdSymbol (_ , symbol1) ->  get_poly_symbol varTermMap functions variables varBindings symbol1 
+  and get_poly_identifier varTermMap functions variables varsPolysMap = function 
+    |IdSymbol (_ , symbol1) ->  get_poly_symbol varTermMap functions variables varsPolysMap symbol1 
     |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 165")
 
-  and get_constraint_identifier varTermMap functions variables varBindings = function 
-    |IdSymbol (_ , symbol1) ->  get_constraint_symbol varTermMap functions variables varBindings symbol1 
+  and get_constraint_identifier varTermMap functions variables varsConstraintsMap = function 
+    |IdSymbol (_ , symbol1) ->  get_constraint_symbol varTermMap functions variables varsConstraintsMap symbol1 
     |IdUnderscoreSymNum (_ , symbol3 , idunderscoresymnum_identifier_numeral334) -> raise (Failure "Not supported syntax line 200")  
 
-  and get_poly_qualidentifier varTermMap functions variables varBindings = function 
-    |QualIdentifierId (_ , identifier1) ->  get_poly_identifier varTermMap functions variables varBindings identifier1
+  and get_poly_qualidentifier varTermMap functions variables varsPolysMap = function 
+    |QualIdentifierId (_ , identifier1) ->  get_poly_identifier varTermMap functions variables varsPolysMap identifier1
     |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
 
-  and get_constraint_qualidentifier varTermMap functions variables varBindings = function 
-    |QualIdentifierId (_ , identifier1) ->  get_constraint_identifier varTermMap functions variables varBindings identifier1
+  and get_constraint_qualidentifier varTermMap functions variables varsConstraintsMap = function 
+    |QualIdentifierId (_ , identifier1) ->  get_constraint_identifier varTermMap functions variables varsConstraintsMap identifier1
     |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 204")  
 
   and get_mul_poly = function
@@ -237,27 +239,32 @@ module Caml = struct
     | (_, POr(smtPoly21, smtPoly22)) 
       -> POr (get_minus_poly_extra_extra smtPoly1 smtPoly21, get_minus_poly_extra_extra smtPoly1 smtPoly22)
 
-  and get_poly_term varTermMap functions variables varBindings = function
+  and get_poly_term varTermMap functions variables varsPolysMap varsConstraintsMap = function
     |TermSpecConst (_ , specReal1) ->  
       get_poly_specReal specReal1
     |TermQualIdentifier (_ , qualidentifier1) -> 
-      get_poly_qualidentifier varTermMap functions variables varBindings qualidentifier1
+      get_poly_qualidentifier varTermMap functions variables varsPolysMap qualidentifier1
     |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) -> 
       let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
       if qualidentifier_string = "*" then
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
+                            varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
         get_mul_poly polys
       else if qualidentifier_string = "+" then
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
+                            varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
         get_add_poly polys  
       else if qualidentifier_string = "/" then
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
+                            varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
         get_div_poly polys
       else if qualidentifier_string = "-" then
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
+                            varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
         get_minus_poly polys
       else if qualidentifier_string = "ite" then
-        get_ite_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563
+        get_ite_polys_termqualidterm_term_term56 varTermMap functions variables 
+                            varsPolysMap varsConstraintsMap termqualidterm_term_term563
       else if StringMap.mem qualidentifier_string functions then
         let (arguments, funcSort, funcDef) = StringMap.find qualidentifier_string functions in
         if funcSort = "Real" || funcSort = "Int" then
@@ -273,12 +280,15 @@ module Caml = struct
      |TermExclimationPt (_ , term3 , termexclimationpt_term_attribute644) ->  print_string "(";print_string " "; print_string "!";print_string " "; pp_term term3;print_string " "; pp_termexclimationpt_term_attribute64 termexclimationpt_term_attribute644;print_string " "; print_string ")"; () 
      *)
 
-  and get_ite_polys_termqualidterm_term_term56 varTermMap functions (variables:(int Variable.StringMap.t)) varBindings = function
+  and get_ite_polys_termqualidterm_term_term56 varTermMap functions (variables:(int Variable.StringMap.t)) 
+               varsPolysMap varsConstraintsMap = function
     |(_,[]) -> raise (Failure "Wrong number of arguments for ite")
     | (d , (term1)::termqualidterm_term_term562) -> 
-      let boolConstraints = get_constraint_term varTermMap functions variables varBindings term1 in
+      let boolConstraints = get_constraint_term varTermMap functions variables 
+                                         varsPolysMap varsConstraintsMap term1 in
       let boolConstraint = get_boolExp_from_list boolConstraints in  
-      let smtPolys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings (d,termqualidterm_term_term562) in 
+      let smtPolys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
+               varsPolysMap varsConstraintsMap (d,termqualidterm_term_term562) in 
       (match smtPolys with 
         | [smtPoly1; smtPoly2] -> 
           (let rec get_ite_polys boolConstraint2 smtPoly = match smtPoly with
@@ -291,11 +301,12 @@ module Caml = struct
         | _ -> raise (Failure "Wrong number of arguments for ite")
       )
 
-  and get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings = function
+  and get_polys_termqualidterm_term_term56 varTermMap functions variables varsPolysMap varsConstraintsMap = function
     |(_,[]) ->   [] 
     | (d , (term1)::termqualidterm_term_term562) -> 
-      let poly = get_poly_term varTermMap functions variables varBindings term1 in
-      let remainingPolys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings (d,termqualidterm_term_term562) in 
+      let poly = get_poly_term varTermMap functions variables varsPolysMap varsConstraintsMap term1 in
+      let remainingPolys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
+                                    varsPolysMap varsConstraintsMap (d,termqualidterm_term_term562) in 
       poly :: remainingPolys 
 
   and get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings = function
@@ -425,26 +436,27 @@ module Caml = struct
       miniSATIndex := !miniSATIndex + 1;
       Single (polyCons)
 
-  and get_constraint_term varTermMap functions (variables:(int Variable.StringMap.t)) varBindings = function 
+  and get_constraint_term varTermMap functions (variables:(int Variable.StringMap.t))
+                                                      varsPolysMap varsConstraintsMap = function 
     |TermQualIdentifier (_ , qualidentifier1) -> 
-      get_constraint_qualidentifier varTermMap  functions variables varBindings qualidentifier1
+      get_constraint_qualidentifier varTermMap  functions variables varsConstraintsMap qualidentifier1
     |TermQualIdTerm (_ , qualidentifier2, termqualidterm_term_term563) ->
       let qualidentifier_string = get_string_qualidentifier qualidentifier2 in
       if qualidentifier_string = "<" then 
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varsPolysMap termqualidterm_term_term563 in
         get_le_constraint polys variables
       else if qualidentifier_string = "<=" then
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varsPolysMap termqualidterm_term_term563 in
         get_leq_constraint polys variables
       else if qualidentifier_string = ">" then
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varsPolysMap termqualidterm_term_term563 in
         get_gr_constraint polys variables
       else if qualidentifier_string = ">=" then
-        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varsPolysMap termqualidterm_term_term563 in
         get_geq_constraint polys variables
       else if qualidentifier_string = "=" then
         try 
-          let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
+          let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables varsPolysMap termqualidterm_term_term563 in
           get_eq_constraint polys variables
         with Failure _ -> 
           let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varBindings termqualidterm_term_term563 in
