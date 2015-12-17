@@ -211,8 +211,9 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = true;
-	bool statistics = true;
+	bool debug = false;
+	bool statistics = false;
+	bool smtComp = true;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
 	//caml_main(argv);
@@ -905,6 +906,7 @@ int main(int argc, char* argv[]) {
 					//cout <<"UNSAT";
 					//cout << "unsat";
 					final_result << "unsat\n"; // output the result to final compact result.
+					if (smtComp) cout << "unsat\n";
 					if (debug) sta += "Result                : UNSAT			\n\n";
 					if (debug)
 						cout << sta;
@@ -914,6 +916,7 @@ int main(int argc, char* argv[]) {
 					//cout <<"SAT\n";
 					//cout << "sat";
 					final_result << "sat\n"; // output the result to final compact result.
+					if (smtComp) cout << "sat\n";
 					if (debug) sta += "Result                : SAT\n\n";
 					if (debug)
 						cout << sta;	

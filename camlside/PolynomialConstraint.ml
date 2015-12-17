@@ -20,7 +20,10 @@ class polynomialConstraint boolExprInit =
   let varsNumInit = VariablesSet.cardinal varsSetInit in
   let varsListInit = VariablesSet.elements varsSetInit in
   object (self)
-    val mutable boolExpr = boolExprInit
+    val boolExpr = boolExprInit
+    val neg_boolExpr = not_of_polyConstraint boolExprInit
+    val is_negated = false
+
     val varsSet = varsSetInit
     val varsIndicesMap = 
       let addVarsIndex var (currentvarsIndicesMap, nextIndex) = 
@@ -590,6 +593,7 @@ class polynomialConstraint boolExprInit =
   
 type bool_constraint =
   | Single of polynomialConstraint
+  | NSingle of polynomialConstraint
   | BVar of string
   | NBVar of string
   | And of bool_constraint * bool_constraint
@@ -603,6 +607,7 @@ type smt_poly_expr =
 
 let rec get_varsSet_boolCons = function
   | Single polyCons -> polyCons#get_varsSet
+  | NSingle polyCons -> polyCons#get_varsSet
   | And (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
   | Or (boolCons1, boolCons2) -> VariablesSet.union (get_varsSet_boolCons boolCons1) (get_varsSet_boolCons boolCons2)
   | BVar var -> VariablesSet.empty
@@ -610,8 +615,13 @@ let rec get_varsSet_boolCons = function
 
 and not_of_boolCons = function
   | Single polyCons ->
-    let polyConstraint = not_of_polyConstraint polyCons#get_constraint in
-    Single (new polynomialConstraint(polyConstraint))
+    (* let polyConstraint = not_of_polyConstraint polyCons#get_constraint in
+    Single (new polynomialConstraint(polyConstraint)) *)
+    NSingle polyCons
+  | NSingle polyCons ->
+    (* let polyConstraint = not_of_polyConstraint polyCons#get_constraint in
+    Single (new polynomialConstraint(polyConstraint)) *)
+    Single polyCons
   | And (boolCons1, boolCons2) -> Or (not_of_boolCons boolCons1, not_of_boolCons boolCons2)
   | Or (boolCons1, boolCons2) -> And (not_of_boolCons boolCons1, not_of_boolCons boolCons2)
   | BVar var -> NBVar var
@@ -628,10 +638,16 @@ let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap 
     let (mB2, index2, miniSATCodesConstraintsMap2, maxVarsNum2, isEquation2, isNotEquation2, bVarMiniSatCodeMap2) = miniSATExpr_of_constraints b2 index1 miniSATCodesConstraintsMap1 logic bVarMiniSatCodeMap1 in
     (MOr (mB1, mB2), index2, miniSATCodesConstraintsMap2, max maxVarsNum1 maxVarsNum2, isEquation1 + isEquation2, isNotEquation1 + isNotEquation2, bVarMiniSatCodeMap2)
   | Single polyCons -> (
-    polyCons#set_miniSATCode index;
+    (* polyCons#set_miniSATCode index; *)
     polyCons#set_logic logic;
-    let newMiniSATCodesConstraintsMap = IntMap.add index polyCons miniSATCodesConstraintsMap in
-    (Lit index, index + 1, newMiniSATCodesConstraintsMap, polyCons#get_varsNum, polyCons#isEquation, polyCons#isNotEquation, bVarMiniSatCodeMap) 
+    let newMiniSATCodesConstraintsMap = IntMap.add polyCons#get_miniSATCode polyCons miniSATCodesConstraintsMap in
+    (Lit polyCons#get_miniSATCode, index, newMiniSATCodesConstraintsMap, polyCons#get_varsNum, polyCons#isEquation, polyCons#isNotEquation, bVarMiniSatCodeMap) 
+    )
+  | NSingle polyCons -> (
+    (* polyCons#set_miniSATCode index; *)
+    polyCons#set_logic logic;
+    let newMiniSATCodesConstraintsMap = IntMap.add polyCons#get_miniSATCode polyCons miniSATCodesConstraintsMap in
+    (Lit (-polyCons#get_miniSATCode), index, newMiniSATCodesConstraintsMap, polyCons#get_varsNum, polyCons#isEquation, polyCons#isNotEquation, bVarMiniSatCodeMap) 
     )
   | BVar var ->
     (try
@@ -649,6 +665,7 @@ let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap 
 (* Function for converting constraints into infix string *)    
 let rec string_infix_of_constraints constraints = match constraints with 
   | Single polyCons ->  polyCons#to_string_infix
+  | NSingle polyCons -> "not" ^ polyCons#to_string_infix
   | And(c1, c2)  -> 
 	  "( " ^ string_infix_of_constraints c1 ^ " And\n" ^ string_infix_of_constraints c2 ^ ")"
 	| Or(c1, c2) -> 
@@ -658,12 +675,12 @@ let rec string_infix_of_constraints constraints = match constraints with
 	  
 
 (* Function for converting constraints into infix string for mapple input *)    
-let rec string_infix_of_constraints_maple constraints = match constraints with 
+(* let rec string_infix_of_constraints_maple constraints = match constraints with 
   | Single polyCons ->  polyCons#to_string_infix
   | And(c1, c2)  -> 
 	  string_infix_of_constraints_maple c1 ^ ", " ^ string_infix_of_constraints_maple c2
 	| Or(c1, c2) -> 
-	  string_infix_of_constraints_maple c1 ^ ", " ^ string_infix_of_constraints_maple c2	  
+	  string_infix_of_constraints_maple c1 ^ ", " ^ string_infix_of_constraints_maple c2	   *)
 	
 	
 (*==================== START string_infix_of_polynomialConstraints ==============================*)		
@@ -680,6 +697,7 @@ let rec string_infix_of_polynomialConstraints polyConses =
 (* prefix string format of constraints *)      
 let rec string_prefix_of_constraints  = function
   | Single polyCons -> string_prefix_of_boolExpr polyCons#get_constraint
+  | NSingle polyCons -> "not" ^ string_prefix_of_boolExpr polyCons#get_constraint
   | And(e1, e2) -> "(and "^(string_prefix_of_constraints e1)^" " ^ (string_prefix_of_constraints e2)^")"
   | Or(e1, e2) -> "(or "^(string_prefix_of_constraints e1)^" " ^ (string_prefix_of_constraints e2)^")"
 (*==================== END string_prefix_of_constraints ==============================*)
@@ -689,6 +707,7 @@ let rec string_prefix_of_constraints  = function
 (* postfix string format of a boolean expression *)      
 let rec string_postfix_of_constraints  = function
   | Single polyCons -> string_postfix_of_boolExpr polyCons#get_constraint
+  | NSingle polyCons -> string_postfix_of_boolExpr polyCons#get_constraint ^ "not "
   | And(e1, e2) -> (string_postfix_of_constraints e1) ^ (string_postfix_of_constraints e2) ^ "and "
   | Or(e1, e2) -> (string_postfix_of_constraints e1) ^ (string_postfix_of_constraints e2) ^ "or "
 (*==================== START string_postfix_of_constraints ==============================*)

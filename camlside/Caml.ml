@@ -486,7 +486,7 @@ module Caml = struct
           raise (Failure ("Undefined predicate symbols: " ^ qualidentifier_string))
       else raise (Failure ("Undefined predicate symbols: " ^ qualidentifier_string))
     |TermLetTerm (_ , termletterm_term_varbinding584 , term6) ->  
-      let (varsPolysMap, varsConstraintsMap) = get_let_termletterm_term_varbinding58 varTermMap functions varsPolysMap varsConstraintsMap termletterm_term_varbinding584 in
+      let (varsPolysMap, varsConstraintsMap) = get_let_termletterm_term_varbinding58 varTermMap functions variables varsPolysMap varsConstraintsMap termletterm_term_varbinding584 in
       get_constraint_term varTermMap functions variables varsPolysMap varsConstraintsMap term6
     | _ -> [] (*raise (Failure "Not supported syntax line 138")*)
 
@@ -523,7 +523,7 @@ module Caml = struct
     |(_,[]) -> (varsPolysMap, varsConstraintsMap)
     | (d , (varbinding1)::termletterm_term_varbinding582) ->  
       let (varsPolysMap, varsConstraintsMap) = get_let_varbinding varTermMap functions variables varsPolysMap varsConstraintsMap varbinding1 in
-      get_let_termletterm_term_varbinding58 varTermMap functions varsPolysMap varsConstraintsMap (d,termletterm_term_varbinding582)
+      get_let_termletterm_term_varbinding58 varTermMap functions variables varsPolysMap varsConstraintsMap (d,termletterm_term_varbinding582)
       
   and get_let_varbinding varTermMap functions variables varsPolysMap varsConstraintsMap = function 
     | VarBindingSymTerm (_ , symbol2 , term3) -> 
@@ -540,7 +540,7 @@ module Caml = struct
         
 
   and get_constraints_command varTermMap functions variables = function 
-    | CommandAssert (_ , term3) -> get_constraint_term varTermMap functions variables StringMap.empty term3
+    | CommandAssert (_ , term3) -> get_constraint_term varTermMap functions variables StringMap.empty StringMap.empty term3
     | _  -> []  
 
   and get_constraints_commands varTermMap functions variables = function  
@@ -664,7 +664,7 @@ module Caml = struct
     (* print_endline (string_infix_of_constraints boolCons);
     flush stdout;
     raise (Failure "Tung dep trai"); *)
-    let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = miniSATExpr_of_constraints boolCons 1 IntMap.empty logic StringMap.empty in 
+    let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = miniSATExpr_of_constraints boolCons (!miniSATIndex) IntMap.empty logic StringMap.empty in 
     (*print_endline "finished getting miniSAT constraints";
     flush stdout;*)
     (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
