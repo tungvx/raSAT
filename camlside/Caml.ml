@@ -664,13 +664,15 @@ module Caml = struct
     (* print_endline (string_infix_of_constraints boolCons);
     flush stdout;
     raise (Failure "Tung dep trai"); *)
-    let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = miniSATExpr_of_constraints boolCons (!miniSATIndex) IntMap.empty logic StringMap.empty in 
+    let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = 
+        miniSATExpr_of_constraints boolCons (!miniSATIndex) IntMap.empty logic StringMap.empty 
+    in 
     (*print_endline "finished getting miniSAT constraints";
     flush stdout;*)
     (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
     
     (* convert miniSATExpr into CNF *)
-    let cnfMiniSATExpr = cnf_of_miniSATExpr miniSATExpr in
+    let (index, cnfMiniSATExpr) = cnf_of_miniSATExpr miniSATExpr index in
     (*print_endline "finished getting cnf constraints";
     flush stdout;*)
     let varsSet = get_varsSet_boolCons boolCons in
@@ -721,26 +723,27 @@ module Caml = struct
     |[] -> chosenPolyConstraints
     |h::t ->
       let absH = abs h in
-      (*print_endline ("Getting constraint number: " ^ string_of_int h);
-      flush stdout;*)
+      (* print_endline ("Getting constraint number: " ^ string_of_int h);
+      flush stdout; *)
       try
         let nextChosenPolyConstraint = IntMap.find absH miniSATCodesConstraintsMap in
         
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
+        nextChosenPolyConstraint#set_negated (h < 0);
         let newChosenPolyConstraints = (*insertion_sort_polyCons nextChosenPolyConstraint chosenPolyConstraints in (* insertion_sort_polyCons is defined in PolynomialConstraint.ml *)*)
-          if h > 0 then                                
+          (* if h > 0 then                                 *)
             nextChosenPolyConstraint::chosenPolyConstraints 
-          else 
-            (print_int h;
+          (* else 
+            ((* print_int h;
             print_endline "";
-            flush stdout;
+            flush stdout; *)
             let newPolyConstraint = not_of_polyConstraint nextChosenPolyConstraint#get_constraint in
             let polyCons = new polynomialConstraint(newPolyConstraint) in
             polyCons#set_miniSATCode h;
             polyCons#set_logic nextChosenPolyConstraint#get_logic;
-            polyCons::chosenPolyConstraints)
-          in
+            polyCons::chosenPolyConstraints) *)
+        in
         (*print_endline "Finish adding constraint";
         flush stdout;*)
         getConsAndIntv t miniSATCodesConstraintsMap newChosenPolyConstraints
@@ -750,8 +753,8 @@ module Caml = struct
   let rec check_procedure varsIntvsMapPrioritiesMaps (polyConstraints:PolynomialConstraint.polynomialConstraint list) 
               unsatPolyConstraintsCodes strTestUS iaTime testingTime usTime parsingTime decompositionTime =
     if FloatMap.is_empty varsIntvsMapPrioritiesMaps then
-      let get_unsatcore miniSATCode currentUnsatCore = 
-        "-" ^ string_of_int miniSATCode ^ " " ^ currentUnsatCore
+      let get_unsatcore unsatCode currentUnsatCore = 
+        string_of_int (-unsatCode) ^ " " ^ currentUnsatCore
       in
       let unsatCore = IntSet.fold get_unsatcore unsatPolyConstraintsCodes "0" in
       (* print_string "UNSAT core: ";
@@ -929,8 +932,8 @@ module Caml = struct
     
     Random.self_init();
 		let startTime = Sys.time() in
-		(*print_endline ("Solution: " ^ strCheck);
-		flush stdout;*)
+		(* print_endline ("Solution: " ^ strCheck);
+		flush stdout; *)
     let solution = toIntList strCheck in
 
     (*print_endline "Start get constraints and intervals";

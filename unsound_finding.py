@@ -17,6 +17,7 @@ def run(directory, timeout):
   for root, dirnames, filenames in os.walk(directory):
     for filename in fnmatch.filter(filenames, '*.smt2'):
       index += 1
+      print index, '.', os.path.join(root, filename),
       try:
         f = open(os.path.join(root, filename))
         for line in f:
@@ -26,6 +27,8 @@ def run(directory, timeout):
       except IOError:
         result = 'unknown'
 
+      print result,
+      
       raSAT_result = 'unknown'
       signal.signal(signal.SIGALRM, alarm_handler)
       signal.alarm(timeout)
@@ -37,7 +40,7 @@ def run(directory, timeout):
         raSAT_result = 'timeout'
         pass
 
-      print index, '.', os.path.join(root, filename), result, raSAT_result
+      print raSAT_result
       if result != 'unknown' and  raSAT_result != 'unknown' and raSAT_result != 'timeout' and raSAT_result != result:
         print 'unsound problem at: ', os.path.join(root, filename)
         sys.exit()

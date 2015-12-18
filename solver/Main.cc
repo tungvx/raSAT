@@ -550,7 +550,7 @@ int main(int argc, char* argv[]) {
 //					cout << "Run45" << endl;
 					bool firstSolution = true;
 					for (int i = 0; i < S.nVars(); i++) {
-						if (/*i < nCons ||*/ S.model[i] == l_True) {
+						// if (i < nCons || S.model[i] == l_True) {
 							char numstr[21];
 							sprintf(numstr, "%s%d", firstSolution ? "" : " ", S.model[i] == l_True ? i+1 : -(i+1));
 							sSAT.append(numstr);
@@ -559,7 +559,7 @@ int main(int argc, char* argv[]) {
 //							if (!firstSolution) sSAT.append(" ");
 //							sSAT.append(ss.str());
 							firstSolution = false;
-						}
+						// }
 					}
 //					cout << "Run46" << endl;
 //					cout << "clauses: " << S.nClauses() << endl;
@@ -597,7 +597,7 @@ int main(int argc, char* argv[]) {
 					 cout << endl << "esl:" << esl << endl;
 					 cout << endl << "c_strTestUS: " << c_strTestUS << endl;
 					 */
-//					cout << endl << "sSAT:" << sSAT << endl;
+					// cout << endl << "sSAT:" << sSAT << endl;
 					double startCheck = cpuTime();
 //					cout << "START SEARCH:\n";
 					// cout << "Run49" << endl;

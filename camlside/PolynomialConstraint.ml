@@ -20,9 +20,9 @@ class polynomialConstraint boolExprInit =
   let varsNumInit = VariablesSet.cardinal varsSetInit in
   let varsListInit = VariablesSet.elements varsSetInit in
   object (self)
-    val boolExpr = boolExprInit
-    val neg_boolExpr = not_of_polyConstraint boolExprInit
-    val is_negated = false
+    val mutable boolExpr = boolExprInit
+    val mutable neg_boolExpr = not_of_polyConstraint boolExprInit
+    val mutable is_negated = false
 
     val varsSet = varsSetInit
     val varsIndicesMap = 
@@ -48,7 +48,13 @@ class polynomialConstraint boolExprInit =
     method get_log = log
     method set_log setLog = log <- setLog
     
-    method get_constraint = boolExpr
+    method get_constraint = 
+      if is_negated then neg_boolExpr
+      else boolExpr
+
+    method is_negated = is_negated
+    method set_negated set_is_negated = is_negated <- set_is_negated
+
     method set_polyExpr polyExpr =
       let newBoolExpr = match boolExpr with
       | Eq _ -> Eq polyExpr
@@ -58,8 +64,10 @@ class polynomialConstraint boolExprInit =
       | Gr _ -> Gr polyExpr
       | Le _ -> Le polyExpr
       in 
-      boolExpr <- newBoolExpr
-    method get_polyExpr = get_exp boolExpr
+      let new_neg_boolExpr = not_of_polyConstraint newBoolExpr in
+      boolExpr <- newBoolExpr;
+      neg_boolExpr <- new_neg_boolExpr
+    method get_polyExpr = get_exp self#get_constraint
     
     method get_varsSet = varsSet
     
@@ -68,7 +76,9 @@ class polynomialConstraint boolExprInit =
     method get_varsSen = varsSen
     method set_varsSen setVarsSen = varsSen <- setVarsSen
     
-    method get_miniSATCode = miniSATCode
+    method get_miniSATCode = 
+      if is_negated then -miniSATCode
+      else miniSATCode
     method set_miniSATCode code = miniSATCode <- code
     
     method get_satLength = satLength
@@ -85,7 +95,7 @@ class polynomialConstraint boolExprInit =
     method get_logic = logic
     
     method get_iaValue = iaValue
-    method get_contractedIntv = match boolExpr with
+    method get_contractedIntv = match self#get_constraint with
       | Eq _ -> {low=0.; high=0.}
       | Neq _ -> iaValue
       | Geq _ -> inter_I_I iaValue {low=0.;high=infinity}
@@ -96,7 +106,7 @@ class polynomialConstraint boolExprInit =
     method get_easiness = easiness
     
     (* convert the constraint into infix string *)
-    method to_string_infix = string_infix_of_boolExp boolExpr
+    method to_string_infix = string_infix_of_boolExp self#get_constraint
     
     (* convert the varsSen into string *)
     method string_of_varsSen = 
@@ -121,7 +131,7 @@ class polynomialConstraint boolExprInit =
     method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(Interval.interval Variable.StringMap.t)) 
                                                          = 
       let (newPolyExpr, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens 
-                                                                                  boolExpr varsSet varsNum varsIntvsMap varsIndicesMap in
+                                                                                  self#get_constraint varsSet varsNum varsIntvsMap varsIndicesMap in
       self#set_polyExpr newPolyExpr;
       varsSen <- sortedVarsSen;
       satLength <- computedSatLength;
@@ -159,7 +169,7 @@ class polynomialConstraint boolExprInit =
     method get_bound (varsIntvsMap:(Interval.interval Variable.StringMap.t))
              = 
       let (_, _, _, _, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens 
-                                                                                  boolExpr varsSet varsNum varsIntvsMap varsIndicesMap in
+                                        self#get_constraint varsSet varsNum varsIntvsMap varsIndicesMap in
       
       bound
     
@@ -169,8 +179,10 @@ class polynomialConstraint boolExprInit =
         (*if isInfiniteTmp then 
           self#check_sat_getBound_ici varsIntvsMap
         else *)
-          let (_, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum 
-                  varsIntvsMap varsIndicesMap in
+          let (_, sat, computedSatLength, sortedVarsSen, bound) = 
+                    check_sat_getBound_af_two_ci_boolExpr_varsSens self#get_constraint varsSet varsNum 
+                                    varsIntvsMap varsIndicesMap 
+          in
           (sat, bound, computedSatLength)
       in
       (sat, satLength, satLength /. (bound.high -. bound.low))
@@ -244,7 +256,7 @@ class polynomialConstraint boolExprInit =
     method check_SAT varsTCsMap =
       (*print_endline (self#to_string_infix); 
       flush stdout;*)
-      let (sat, value) = checkSAT_computeValues boolExpr varsTCsMap in
+      let (sat, value) = checkSAT_computeValues self#get_constraint varsTCsMap in
       (* print_endline ("Test case: " ^ log_assignment varsTCsMap);
       flush stdout; *)
       testValue <- value; 
@@ -257,12 +269,12 @@ class polynomialConstraint boolExprInit =
         StringMap.add var {low=tc;high=tc} currentVarsIntvsMap 
       in
       let varsIntvsMap = StringMap.fold convert_toIntv varsTCsMap StringMap.empty in
-      let polyExpr = get_exp boolExpr in
+      let polyExpr = self#get_polyExpr in
       let (_,_, ciBound, _)  = poly_eval_ci polyExpr varsIntvsMap varsNum in
       (*print_endline ("Bound" ^ ciBound#to_string);
       flush stdout;*)
       iaValue <- ciBound;
-      check_sat_providedBounds boolExpr ciBound
+      check_sat_providedBounds self#get_constraint ciBound
       
     method add_sat_direction currentVarSATDirectionMap = 
       let add_sat_direction_extra currentMap (var, varSen, isPositiveSen) =
@@ -300,7 +312,7 @@ class polynomialConstraint boolExprInit =
       
     method log_test = 
       let testValueString = sprintf_I "%f" iaValue in
-      match boolExpr with
+      match self#get_constraint with
       |Eq e -> 
 		    (string_infix_of_polyExpr e) ^ " = 0"
 	    |Neq e -> 
@@ -316,7 +328,7 @@ class polynomialConstraint boolExprInit =
 		    
 		method log_ia = 
       let iaString = sprintf_I "%f" iaValue in
-      match boolExpr with
+      match self#get_constraint with
       |Eq e -> 
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " = 0"
 	    |Neq e -> 
