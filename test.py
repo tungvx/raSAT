@@ -2,6 +2,14 @@ import fnmatch
 import os
 import subprocess
 import csv
+import signal
+import sys
+
+class Alarm(Exception):
+    pass
+
+def alarm_handler(signum, frame):
+    raise Alarm
 
 matches = []
 def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile):
@@ -15,6 +23,28 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
     csvfile.close()
   for root, dirnames, filenames in os.walk(directory):
     for filename in fnmatch.filter(filenames, '*.smt2'):
+      # Remove temp files
+      try:
+        os.remove(os.path.join(root, filename) + '.tmp')
+      except OSError:
+        pass
+        
+      try:
+        os.remove(os.path.join(root, filename)[:-5] + '.in')
+      except OSError:
+        pass
+     
+      try:
+        os.remove(os.path.join(root, filename)[:-5] + '.out')
+      except OSError:
+        pass
+        
+      try:
+        os.remove(os.path.join(root, filename)[:-5] + '.rs')
+      except OSError:
+        pass
+
+
       sbox = initSbox * 10
       nVars = 0
       maxVars = 0
@@ -45,9 +75,80 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
         f.close()
       except IOError:
         result = 'unknown'
-      while (time < timeout and raSATResult == 'unknown'):
-        sbox = sbox / 10
-        subprocess.call(["./raSAT", os.path.join(root, filename), 'lb=' + str(lowerBound) + ' ' + str(upperBound), 'sbox=' + str(sbox), 'tout=' + str(timeout-time)])
+
+
+      signal.signal(signal.SIGALRM, alarm_handler)
+      signal.alarm(timeout)
+      try:
+        proc = subprocess.Popen(["./raSAT", os.path.join(root, filename), 'lb=' + str(lowerBound) + ' ' + str(upperBound)])
+        proc.wait()
+        signal.alarm(0)
+      except Alarm:
+        proc.kill()
+        raSAT_result = 'timeout'
+        pass  
+      try:
+        with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
+          reader = csv.reader(csvfile)
+          output = reader.next()
+          nVars = output[1]
+          maxVars = output[2]
+          nAPIs = output[3]
+          time += float(output[4])
+          iaTime += float(output[5])
+          testingTime += float(output[6])
+          usTime += float(output[7])
+          parsingTime += float(output[8])
+          decompositionTime += float(output[9])
+          miniSATTime += float(output[10])
+          miniSATVars += float(output[11])
+          miniSATClauses += float(output[12])
+          miniSATCalls += float(output[13])
+          raSATClauses += float(output[14])
+          decomposedLearnedClauses += float(output[15])
+          UNSATLearnedClauses += float(output[16])
+          unknownLearnedClauses += float(output[17])
+          isEquation = output[18]
+          isNotEquation = output[19]
+          raSATResult = output[20]
+          csvfile.close()
+      except IOError:
+        raSATResult = 'timeout'
+        
+      if raSATResult == 'unsat':
+
+        # Remove temp files
+        try:
+          os.remove(os.path.join(root, filename) + '.tmp')
+        except OSError:
+          pass
+          
+        try:
+          os.remove(os.path.join(root, filename)[:-5] + '.in')
+        except OSError:
+          pass
+       
+        try:
+          os.remove(os.path.join(root, filename)[:-5] + '.out')
+        except OSError:
+          pass
+          
+        try:
+          os.remove(os.path.join(root, filename)[:-5] + '.rs')
+        except OSError:
+          pass
+
+        signal.signal(signal.SIGALRM, alarm_handler)
+        signal.alarm(timeout)
+        try:
+          proc = subprocess.Popen(["./raSAT", os.path.join(root, filename), 'lb=' + str(lowerBound) + ' ' + str(upperBound)])
+          proc.wait()
+          signal.alarm(0)
+        except Alarm:
+          proc.kill()
+          raSAT_result = 'timeout'
+          pass
+
         try:
           with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
             reader = csv.reader(csvfile)
@@ -75,36 +176,6 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
             csvfile.close()
         except IOError:
           raSATResult = 'timeout'
-        
-        if raSATResult == 'unsat':
-          subprocess.call(["./raSAT", os.path.join(root, filename), 'lb=-inf inf', 'sbox=' + str(sbox), 'tout=' + str(timeout-time)])
-          try:
-            with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
-              reader = csv.reader(csvfile)
-              output = reader.next()
-              nVars = output[1]
-              maxVars = output[2]
-              nAPIs = output[3]
-              time += float(output[4])
-              iaTime += float(output[5])
-              testingTime += float(output[6])
-              usTime += float(output[7])
-              parsingTime += float(output[8])
-              decompositionTime += float(output[9])
-              miniSATTime += float(output[10])
-              miniSATVars += float(output[11])
-              miniSATClauses += float(output[12])
-              miniSATCalls += float(output[13])
-              raSATClauses += float(output[14])
-              decomposedLearnedClauses += float(output[15])
-              UNSATLearnedClauses += float(output[16])
-              unknownLearnedClauses += float(output[17])
-              isEquation = output[18]
-              isNotEquation = output[19]
-              raSATResult = output[20]
-              csvfile.close()
-          except IOError:
-            raSATResult = 'timeout'
       
       if raSATResult == 'sat' or raSATResult == 'unsat':
         solvedProblems += 1     
@@ -112,6 +183,12 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
         spamwriter = csv.writer(csvfile)
         spamwriter.writerow([os.path.join(root, filename), nVars, maxVars, nAPIs, time, iaTime, testingTime, usTime, parsingTime, decompositionTime, miniSATTime, miniSATVars, miniSATClauses, miniSATCalls, raSATClauses, decomposedLearnedClauses, UNSATLearnedClauses, unknownLearnedClauses, result, raSATResult, isEquation, isNotEquation])
         csvfile.close()
+
+
+      # if (raSATResult == 'timeout'):
+      #   sys.exit()
+
+      # print os.path.join(root, filename), raSATResult
      
       try:
         os.remove(os.path.join(root, filename) + '.tmp')
@@ -132,12 +209,12 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
         os.remove(os.path.join(root, filename)[:-5] + '.rs')
       except OSError:
         pass
-
   with open(os.path.join(directory, resultFile), 'a') as csvfile:
     spamwriter = csv.writer(csvfile)
     spamwriter.writerow(['Problem', 'nVars', 'maxVars', 'nAPIs', 'time', 'iaTime', 'testingTime', 'usCoreTime', 'parsingTime', 'decompositionTime', 'miniSATTime', 'miniSATVars', 'miniSATClauses', 'miniSATCalls', 'raSATClauses', 'decomposedLearnedClauses', 'UNSATLearnedClauses', 'unknownLearnedClauses', 'result', solvedProblems, 'EQ', 'NEQ'])
     csvfile.close()
 
+run ('Test/smtlib-20140121/QF_NRA/zankl', -10, 10, 0.1, 10, '1-5-8-11_zankl.csv')
 #run ('zankl', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('QF_NRA/meti-tarski', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')
