@@ -37,6 +37,7 @@ def run(directory, timeout):
         raSAT_result=proc.stdout.readline().strip()
         signal.alarm(0)
       except Alarm:
+        proc.kill()
         raSAT_result = 'timeout'
         pass
 

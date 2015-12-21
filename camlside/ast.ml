@@ -104,13 +104,49 @@ let rec distributeOr m1 m2 = match m1 with
   | _ -> distributeLeft m1 m2
 
 (* convert a miniSAT expression into conjunctive normal form *)  
-let rec cnf_of_miniSATExpr miniSATExpr = match miniSATExpr with 
-  | MAnd (m1, m2) -> MAnd (cnf_of_miniSATExpr m1, cnf_of_miniSATExpr m2)
+let rec cnf_of_miniSATExpr miniSATExpr index = match miniSATExpr with 
+  | MAnd (m1, m2) -> 
+    let (index, cnfM1) = cnf_of_miniSATExpr m1 index in
+    let (index, cnfM2) = cnf_of_miniSATExpr m2 index in
+    (index, MAnd (cnfM1, cnfM2))
   | MOr (m1, m2) -> 
-    let cnfM1 = cnf_of_miniSATExpr m1 in
-    let cnfM2 = cnf_of_miniSATExpr m2 in
-    distributeOr cnfM1 cnfM2    
-  | _ -> miniSATExpr
+    let (index, df, cnf) = cnf_of_orExpr miniSATExpr index in 
+    (match cnf with
+      | None -> (index, df)
+      | Some cnf1 -> (index, MAnd(df, cnf1))
+    )
+    
+  | _ -> (index, miniSATExpr)
+and cnf_of_orExpr df index = match df with
+  | MAnd (m1, m2) ->
+    let l = Lit (index) in
+    let neg_l = Lit (-index) in
+    let (index, tmp_cnf1) = cnf_of_miniSATExpr (MOr (neg_l, m1)) (index + 1) in
+    let (index, tmp_cnf2) = cnf_of_miniSATExpr (MOr(neg_l, m2)) index in
+    let (index, tmp_cnf3) = cnf_of_miniSATExpr (MOr(MOr(negate m1, negate m2), l)) index in
+    (index, l, Some (MAnd(MAnd(tmp_cnf1, tmp_cnf2), tmp_cnf3)))
+  | MOr (m1, m2) ->
+    let (index, df1, cnf1) = cnf_of_orExpr m1 index in
+    let (index, df2, cnf2) = cnf_of_orExpr m2 index in
+    let cnf = cnf_from_options_cnfs cnf1 cnf2 in 
+    (index, MOr(df1, df2), cnf) 
+  | Lit l -> (index, df, None)
+and cnf_from_options_cnfs oCnf1 oCnf2 = match oCnf1, oCnf2 with
+  | (None, None) -> None  
+  | (None, Some cnf2) -> Some cnf2
+  | (Some cnf1, None) -> Some cnf1
+  | (Some cnf1, Some cnf2) -> Some (MAnd(cnf1, cnf2))
+and negate = function
+  | MAnd(m1, m2) -> MOr(negate m1, negate m2)
+  | MOr(m1, m2) -> MAnd (negate m1, negate m2)
+  | Lit (l) -> Lit (-l)
+
+and string_prefix_of_miniSATExpr = function 
+  | MAnd (m1, m2) -> "And (" ^ string_prefix_of_miniSATExpr m1 ^ ", " 
+                     ^ string_prefix_of_miniSATExpr m2 ^ ")"
+  | MOr (m1, m2) -> "Or (" ^ string_prefix_of_miniSATExpr m1 ^ ", " 
+                     ^ string_prefix_of_miniSATExpr m2 ^ ")"
+  | Lit l -> string_of_int l
   
 
 (* compute derivative of a polynomial by a variable *)

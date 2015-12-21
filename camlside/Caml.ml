@@ -667,12 +667,16 @@ module Caml = struct
     let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = 
         miniSATExpr_of_constraints boolCons (!miniSATIndex) IntMap.empty logic StringMap.empty 
     in 
+    (* print_endline ("MiniSAT expr: " ^ string_prefix_of_miniSATExpr miniSATExpr);
+    flush stdout; *)
     (*print_endline "finished getting miniSAT constraints";
     flush stdout;*)
     (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
     
     (* convert miniSATExpr into CNF *)
     let (index, cnfMiniSATExpr) = cnf_of_miniSATExpr miniSATExpr index in
+    (* print_endline ("CNF MiniSAT expr: " ^ string_prefix_of_miniSATExpr cnfMiniSATExpr);
+    flush stdout; *)
     (*print_endline "finished getting cnf constraints";
     flush stdout;*)
     let varsSet = get_varsSet_boolCons boolCons in
