@@ -401,9 +401,9 @@ let rec evalCI_extra varsIntvsMap varsNum = function
     flush stdout;
     let (uChanged, u', uIntv, changedVarsU) = evalCI_extra varsIntvsMap varsNum u in 
     let (vChanged, v', vIntv, changedVarsV) = evalCI_extra varsIntvsMap varsNum v in
-    let testString = "After Checking " ^ string_infix_of_polyExpr (Add (u', v', oldIntv, af2Form)) in 
+    (* let testString = "After Checking " ^ string_infix_of_polyExpr (Add (u', v', oldIntv, af2Form)) in 
     print_endline testString;
-    flush stdout;
+    flush stdout; *)
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
     (* print_string ("\nInterval of " ^ string_infix_of_polyExpr (Add (u, v, oldIntv, af2Form)) ^ "is "); *)
     if uChanged || vChanged then 
@@ -413,10 +413,10 @@ let rec evalCI_extra varsIntvsMap varsNum = function
       flush stdout; *)
       print_endline ("Estimating " ^ string_infix_of_polyExpr (Add(u, v, newIntv, af2Form)) ^ " as " ^ sprintf_I "%f" newIntv);
       flush stdout;
-      if (compare_intv newIntv oldIntv) then 
+      (* if (compare_intv newIntv oldIntv) then 
         (false, Add(u', v', newIntv, af2Form), newIntv, changedVars)
-      else
-        (true, Add(u', v', newIntv, af2Form), newIntv, changedVars)
+      else *)
+      (true, Add(u', v', newIntv, af2Form), newIntv, changedVars)
     else
       (false, Add(u', v', oldIntv, af2Form), oldIntv, changedVars)
   | Sub (u, v, oldIntv, af2Form) -> 
@@ -426,9 +426,9 @@ let rec evalCI_extra varsIntvsMap varsNum = function
     if uChanged || vChanged then 
       let intv = uIntv -$ vIntv in
       let newIntv = (* inter_I_I oldIntv *) intv in
-      if (compare_intv newIntv oldIntv) then
+      (* if (compare_intv newIntv oldIntv) then
         (false, Sub(u', v', newIntv, af2Form), newIntv, changedVars)
-      else
+      else *)
         (true, Sub(u', v', newIntv, af2Form), newIntv, changedVars)
     else
       ((* print_I oldIntv;
@@ -452,9 +452,9 @@ let rec evalCI_extra varsIntvsMap varsNum = function
       let newIntv = (* inter_I_I oldIntv *) intv in
       print_I newIntv;
       flush stdout;
-      if (compare_intv newIntv oldIntv) then 
+      (* if (compare_intv newIntv oldIntv) then 
         (false, Mul(u', v', newIntv, af2Form), newIntv, changedVars)
-      else 
+      else  *)
         (true, Mul(u', v', newIntv, af2Form), newIntv, changedVars)
     else 
       (print_I oldIntv;
@@ -467,9 +467,9 @@ let rec evalCI_extra varsIntvsMap varsNum = function
     if uChanged || vChanged then 
       let intv = uIntv /$ vIntv in
       let newIntv = (* inter_I_I oldIntv *) intv in
-      if (compare_intv newIntv oldIntv) then 
+      (* if (compare_intv newIntv oldIntv) then 
         (false, Div(u', v', newIntv, af2Form), newIntv, changedVars)
-      else 
+      else *) 
         (true, Div(u', v', newIntv, af2Form), newIntv, changedVars)
     else 
       (false, Div(u', v', oldIntv, af2Form), oldIntv, changedVars)
@@ -573,9 +573,22 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     flush stdout  ;
     if (uAF2Changed || vAF2changed) && usingAF2U && usingAF2V then
       let af2Form = IA.AF2.(af2FormU + af2FormV) in
-      (* print_endline "Computing AF2";
-      flush stdout; *)
       let af2Intv = af2Form#evaluate in
+      print_string ("AF2 of " ^ string_infix_of_polyExpr u ^ " is ");
+      af2FormU#print_form;
+      print_endline "";
+
+      print_string ("AF2 of " ^ string_infix_of_polyExpr v ^ " is ");
+      af2FormV#print_form;
+      print_endline "";
+
+      print_string ("Added AF2 is ");
+      af2Form#print_form;
+      print_endline "";
+      print_string "Computed AF2: ";
+      print_I af2Intv;
+      print_endline "";
+      flush stdout;
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
