@@ -35,19 +35,25 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
    |[] -> (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, iaTime, usTime)
    |h::t -> 
       let startTime = Sys.time() in
-      print_endline ("\nStart check sat: " ^ h#to_string_infix);
+      
+      (* print_endline ("\nStart check sat: " ^ h#to_string_infix);
       flush stdout;
       print_endline ("\n\n\n With " ^ string_of_intervals varsIntvsMap);
-      flush stdout;
+      flush stdout; *)
       (* print_varsSet (get_vars_set_boolExp h);
       flush stdout; *)
+      
       let res1 = h#check_sat_varsSen_setIsInfinite_setBounds_setEasiness varsIntvsMap in
-      print_endline (h#log_ia);
+      
+
+      (* print_endline (h#log_ia);
       print_endline ("Easiness: " ^ string_of_float h#get_easiness);
       flush stdout;
-      print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
+      print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1); *)
       (* print_endline ("\nIntervals1: " ^ string_of_intervals varsIntvsMap); *)
       (* flush stdout; *)
+      
+
       let iaTime = iaTime +. Sys.time() -. startTime in
       if (res1 = 1) then 
         eval_all res unsatPolyConstraintsCodes uk_cl (h::validPolyConstraints) t varsIntvsMap iaTime usTime
@@ -105,8 +111,8 @@ let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints
     flush stdout; *)
     (* raise (Failure "Tung dep trai"); *)
     if contracted then (
-      print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
-      flush stdout;
+      (* print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
+      flush stdout; *)
 
       if StringMap.is_empty varsIntvsMap then (-1, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
       else icp unsatPolyConstraintsCodes [] validPolyConstraints uk_cl varsIntvsMap esl iaTime usTime

@@ -4,7 +4,7 @@ OCAMLDIR:= "$(shell ocamlc -where)"
 
 OCAML_LIB=camllib.a
 
-CC=g++
+CC=gcc
 OC=ocamlopt
 #CFLAGS=-I $(OCAMLDIR)/caml
 #------------------------------------------------------------------------------
