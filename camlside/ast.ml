@@ -178,7 +178,7 @@ let rec evalFloat varsTCMap = function
 	| Sub (u,v, _, _, _) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
 	| Mul (u,v, _, _, _) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
 	| Div (u, v, _, _, _) -> evalFloat varsTCMap u /. evalFloat varsTCMap v
-  | Pow (var, multiplicity, _, _, _, _) -> StringMap.find var varsTCMap ** (float_of_int multiplicity)
+  | Pow (var, multiplicity, _, _, _, _, _) -> StringMap.find var varsTCMap ** (float_of_int multiplicity)
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
@@ -210,12 +210,12 @@ let checkSAT_computeValues boolExp varsTCsMap =
 (* This function converts a polynomial expression into infix string form *)
 let rec string_infix_of_polyExpr = function
   | Var (x, _, _, _, changed) -> x (* "(" ^ x ^ ", " ^ string_of_bool changed ^ ")" *)
-	| Add(e1, e2, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") + (" ^ (string_infix_of_polyExpr e2) ^ ")" 
-	| Sub(e1, e2, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") - (" ^ (string_infix_of_polyExpr e2) ^ ")"
-	| Mul(e1, e2, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") * (" ^ (string_infix_of_polyExpr e2) ^ ")"
-	| Div(e1, e2, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") / (" ^ (string_infix_of_polyExpr e2) ^ ")"
-	| Real (c, _, _, _) -> string_of_float c
-  | Pow (var, multiplicity, _, _, _, _) -> var ^ " ^ " ^ string_of_int multiplicity
+	| Add(e1, e2, _, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") + (" ^ (string_infix_of_polyExpr e2) ^ ")" 
+	| Sub(e1, e2, _, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") - (" ^ (string_infix_of_polyExpr e2) ^ ")"
+	| Mul(e1, e2, _, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") * (" ^ (string_infix_of_polyExpr e2) ^ ")"
+	| Div(e1, e2, _, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") / (" ^ (string_infix_of_polyExpr e2) ^ ")"
+	| Cons (c, _, _, _, _) -> string_of_float c
+  | Pow (var, multiplicity, _, _, _, _, _) -> var ^ " ^ " ^ string_of_int multiplicity
 (*==================== END string_infix_of_polyExpr ==============================*)	
 
 (*==================== START string_infix_of_polyExprs ==============================*)	
@@ -249,13 +249,13 @@ let rec string_infix_of_boolExp boolExpr =
 (*==================== START string_prefix_of_polyExp ==============================*)
 (*polynomial functions to prefix representation*)
 let rec string_prefix_of_polyExp = function
-  | Real (c, _, _, _) -> string_of_float c
+  | Cons (c, _, _, _, _) -> string_of_float c
   | Var (x, _, _, _, _) -> x
-  | Add (e1, e2, _, _) -> "(+ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
-  | Sub (e1, e2, _, _) -> "(- " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
-  | Mul (e1, e2, _, _) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
-  | Div (e1, e2, _, _) -> "(/ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
-  | Pow (var, multiplicity, _, _, _, _) -> "( " ^ "** " ^ var ^ " " ^ string_of_int multiplicity ^ ")"
+  | Add (e1, e2, _, _, _) -> "(+ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Sub (e1, e2, _, _, _) -> "(- " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Mul (e1, e2, _, _, _) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Div (e1, e2, _, _, _) -> "(/ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
+  | Pow (var, multiplicity, _, _, _, _, _) -> "( " ^ "** " ^ var ^ " " ^ string_of_int multiplicity ^ ")"
 (*==================== END string_prefix_of_polyExp ==============================*)
 
 
@@ -274,13 +274,13 @@ let rec string_prefix_of_boolExpr  = function
 (*==================== START string_postfix_of_polyExpr ==============================*)
 (* postfix string format of a polynomial expression *)
 let rec string_postfix_of_polyExpr = function
-  | Real (c, _, _, _) -> " real " ^ string_of_float c ^ " "
+  | Cons (c, _, _, _, _) -> " real " ^ string_of_float c ^ " "
   | Var (x, _, _, _, _) -> " var " ^ x ^ " "
-  | Add (e1, e2, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "+ " 
-  | Sub (e1, e2, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "- "
-  | Mul (e1, e2, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
-  | Div (e1, e2, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "/ "
-  | Pow (var, multiplicity, _, _, _, _) -> var ^ " " ^ string_of_int multiplicity ^ " ** "
+  | Add (e1, e2, _, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "+ " 
+  | Sub (e1, e2, _, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "- "
+  | Mul (e1, e2, _, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
+  | Div (e1, e2, _, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "/ "
+  | Pow (var, multiplicity, _, _, _, _, _) -> var ^ " " ^ string_of_int multiplicity ^ " ** "
 (*==================== END string_postfix_of_polyExpr ==============================*)
 
 
@@ -361,7 +361,7 @@ let rec compare_intv intv1 intv2 =
 let rec check_infinity intv = intv.low = neg_infinity || intv.high = infinity  
 
 let rec poly_eval_ci varsIntvsMap varsNum cached = function
-  | Real (c, initialized, oldIntv, af2Form) -> 
+  | Cons (c, initialized, PolType, oldIntv, af2Form) -> 
     
     (* print_string "\nReal: ";
     print_float c;
@@ -370,10 +370,10 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
     
 
     if initialized then 
-      (false, (Real (c, true, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
+      (false, (Cons (c, true, PolType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
     else 
       let af2Form = Util.toAf2 {low=c;high=c} 0 varsNum in
-      (true, (Real (c, true, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
+      (true, (Cons (c, true, PolType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
   | Var (var, varType, oldIntv, af2Form, af2Changed) -> 
     let intv = StringMap.find var varsIntvsMap in
     
@@ -406,7 +406,7 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       else
         (true, Var (var, varType, intv, af2Form, true), intv, VariablesSet.singleton var)
     )
-  | Add (u, v, oldIntv, af2Form) -> 
+  | Add (u, v, _, oldIntv, af2Form) -> 
     
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Add (u, v, oldIntv, af2Form)) in 
     print_endline testString;
@@ -437,7 +437,7 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       
       (false, Add(u', v', oldIntv, af2Form), oldIntv, changedVars)
     )
-  | Sub (u, v, oldIntv, af2Form) -> 
+  | Sub (u, v, _, oldIntv, af2Form) -> 
     let (uChanged, u', uIntv, changedVarsU) = poly_eval_ci varsIntvsMap varsNum cached u in 
     let (vChanged, v', vIntv, changedVarsV) = poly_eval_ci varsIntvsMap varsNum cached v in
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
@@ -452,7 +452,7 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       ((* print_I oldIntv;
             flush stdout; *)
             (false, Sub(u', v', oldIntv, af2Form), oldIntv, changedVars))
-  | Mul (u, v, oldIntv, af2Form) -> 
+  | Mul (u, v, _, oldIntv, af2Form) -> 
     
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Mul (u, v, oldIntv, af2Form)) in 
     print_endline testString;
@@ -489,7 +489,7 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
         flush stdout; *)
 
         (false, Mul(u', v', oldIntv, af2Form), oldIntv, changedVars))
-  | Div (u, v, oldIntv, af2Form) -> 
+  | Div (u, v, _, oldIntv, af2Form) -> 
     let (uChanged, u', uIntv, changedVarsU) = poly_eval_ci varsIntvsMap varsNum cached u in 
     let (vChanged, v', vIntv, changedVarsV) = poly_eval_ci varsIntvsMap varsNum cached v in
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
@@ -502,7 +502,7 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
         (true, Div(u', v', newIntv, af2Form), newIntv, changedVars)
     else 
       (false, Div(u', v', oldIntv, af2Form), oldIntv, changedVars)
-  | Pow (var, multiplicity, oldVarIntv, af2Changed, oldIntv, af2Form) -> 
+  | Pow (var, multiplicity, _, oldVarIntv, af2Changed, oldIntv, af2Form) -> 
     let varIntv = StringMap.find var varsIntvsMap in
     if compare_intv varIntv oldVarIntv then
       if af2Changed then 
