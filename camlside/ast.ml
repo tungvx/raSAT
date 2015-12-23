@@ -18,13 +18,13 @@ type miniSAT_expr =
 
 (*raSAT expression*)
 type poly_expr = 
-  | Add of poly_expr * poly_expr * Interval.interval * IA.af2
-  | Sub of poly_expr * poly_expr * Interval.interval * IA.af2
-  | Mul of poly_expr * poly_expr * Interval.interval * IA.af2
-  | Div of poly_expr * poly_expr * Interval.interval * IA.af2
-  | Real of float * bool * Interval.interval * IA.af2
+  | Add of poly_expr * poly_expr * int * Interval.interval * IA.af2
+  | Sub of poly_expr * poly_expr * int * Interval.interval * IA.af2
+  | Mul of poly_expr * poly_expr * int * Interval.interval * IA.af2
+  | Div of poly_expr * poly_expr * int * Interval.interval * IA.af2
+  | Cons of float * bool * string * Interval.interval * IA.af2
   | Var of string * int * Interval.interval * IA.af2 * bool (* name * type * interval * AF2Form * isChanged *)
-  | Pow of string * int * Interval.interval * bool * Interval.interval  * IA.af2
+  | Pow of string * int * int * Interval.interval * bool * Interval.interval  * IA.af2
 
 type poly_constraint = 
   | Eq of poly_expr
@@ -45,13 +45,13 @@ let rec get_varsSet_polyCons = function
   | Le polyExpr -> get_varsSet_polyExpr polyExpr
 
 and get_varsSet_polyExpr = function
-  | Add (polyExpr1, polyExpr2, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
-  | Sub (polyExpr1, polyExpr2, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
-  | Mul (polyExpr1, polyExpr2, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
-  | Div (polyExpr1, polyExpr2, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
-  | Real (f, _, _, _) -> VariablesSet.empty
+  | Add (polyExpr1, polyExpr2, _, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Sub (polyExpr1, polyExpr2, _, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Mul (polyExpr1, polyExpr2, _, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Div (polyExpr1, polyExpr2, _, _, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
+  | Cons (f, _, _, _, _) -> VariablesSet.empty
   | Var (var, _, _, _, _) -> VariablesSet.singleton var
-  | Pow(var, _, _, _, _, _) -> VariablesSet.singleton var
+  | Pow(var, _, _, _, _, _, _) -> VariablesSet.singleton var
 
 let not_of_polyConstraint = function 
   | Eq polyExpr -> Neq polyExpr
@@ -172,12 +172,12 @@ let get_exp = function
 
 (* evalFloat compute the value of a polynomial function from an assignment*)
 let rec evalFloat varsTCMap = function
-	| Real (c, _, _, _) -> c
+	| Cons (c, _, _, _, _) -> c
 	| Var (v, _, _, _, _) -> StringMap.find v varsTCMap
-	| Add (u,v, _, _) -> evalFloat varsTCMap u +. evalFloat varsTCMap v
-	| Sub (u,v, _, _) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
-	| Mul (u,v, _, _) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
-	| Div (u, v, _, _) -> evalFloat varsTCMap u /. evalFloat varsTCMap v
+	| Add (u,v, _, _, _) -> evalFloat varsTCMap u +. evalFloat varsTCMap v
+	| Sub (u,v, _, _, _) -> evalFloat varsTCMap u -. evalFloat varsTCMap v
+	| Mul (u,v, _, _, _) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
+	| Div (u, v, _, _, _) -> evalFloat varsTCMap u /. evalFloat varsTCMap v
   | Pow (var, multiplicity, _, _, _, _) -> StringMap.find var varsTCMap ** (float_of_int multiplicity)
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
