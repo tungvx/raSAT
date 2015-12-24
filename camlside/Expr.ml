@@ -50,32 +50,43 @@ let rec eval = function
     let newE2 = eval e2 in
     let polType1 = get_type newE1 in
     let polType2 = get_type newE2 in
-    if polType1 != poltype2 then
+    if polType1 != polType2 then
       raise (Failure "Wrong types of expressions")
     else
       (
       match (newE1, newE2) with
         | (Monomials (m1, _), Monomials (m2, _)) -> 
-          Monomials (plus m1 m2 polType1)
-        | _ -> MonoAdd (newE1, newE2)
+          Monomials ((plus m1 m2), polType1)
+        | _ -> MonoAdd (newE1, newE2, polType1)
       )
-  | Sub(e1, e2, _, _, _) -> 
+  | Sub(e1, e2, polType, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
-    (
-    match (newE1, newE2) with
-      | (Monomials m1, Monomials m2) -> Monomials (minus m1 m2)
-      | _ -> MonoSub (newE1, newE2)
-    )
-  | Mul(e1, e2, _, _, _) -> 
+    let polType1 = get_type newE1 in
+    let polType2 = get_type newE2 in
+    if polType1 != polType2 then
+      raise (Failure "Wrong types of expressions")
+    else
+      (
+      match (newE1, newE2) with
+        | (Monomials (m1, _), Monomials (m2, _)) -> Monomials ((minus m1 m2), polType1)
+        | _ -> MonoSub (newE1, newE2, polType1)
+      )
+  | Mul(e1, e2, polType, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
-    (
-    match (newE1, newE2) with
-      | (Monomials m1, Monomials m2) -> Monomials (times m1 m2)
-      | _ -> MonoMul (newE1, newE2)
-    )
-  | Div(e1, e2, _, _, _) -> MonoDiv ((eval e1), (eval e2))
+    let polType1 = get_type newE1 in
+    let polType2 = get_type newE2 in
+    if polType1 != polType2 then
+      raise (Failure "Wrong types of expressions")
+    else
+      (
+      match (newE1, newE2) with
+        | (Monomials (m1, _), Monomials (m2, _)) -> Monomials ((times m1 m2), polType1)
+        | _ -> MonoMul (newE1, newE2, polType1)
+      )
+  | Div(e1, e2, polType, _, _) -> 
+    MonoDiv ((eval e1), (eval e2), polType)
   | _ -> raise (Failure "Unsupported SMT2 function symbols")
 
 (* BatOption.default *) 
@@ -126,7 +137,7 @@ let show p = Poly.fold (fun vars coeff acc -> (vars, coeff)::acc) p []
 
 (* translate values back into expressions *) 
 let rec reify variables = function
-  | Monomials p ->
+  | Monomials (p, polType) ->
     let addMonomial vars coefficient currentPolyExpr =
       if coefficient = 0. then currentPolyExpr
       else 
@@ -139,38 +150,70 @@ let rec reify variables = function
           in
           (match currentMulExpr with
             | Cons (1., _, _, _, _) -> tmpVarExpr
-            | _ -> Mul(currentMulExpr, tmpVarExpr, {low=neg_infinity;high=infinity}, new IA.af2 0) 
+            | _ -> Mul(currentMulExpr, tmpVarExpr, polType, {low=neg_infinity;high=infinity}, new IA.af2 0) 
           )
         in
         (* MultiVarSet.print_tree print_string vars;
         print_endline "";
         flush stdout; *)
         let cIntv = {low=coefficient;high=coefficient} in
-        let newPolyExpr = List.fold_left createMulExpr (Cons (coefficient, false, cIntv, new IA.af2 0)) 
+        let newPolyExpr = List.fold_left createMulExpr (Cons (coefficient, false, polType, cIntv, new IA.af2 0)) 
                                                 (MultiVarSet.elements_packed vars) in
         (
         match currentPolyExpr with 
-          | Cons (0., _, _, _) -> newPolyExpr
-          | _ -> Add (currentPolyExpr, newPolyExpr, {low=neg_infinity;high=infinity}, new IA.af2 0)
+          | Cons (0., _, _, _, _) -> newPolyExpr
+          | _ -> Add (currentPolyExpr, newPolyExpr, polType, {low=neg_infinity;high=infinity}, new IA.af2 0)
         )
     in
-    Poly.fold addMonomial p (Cons (0., false, {low=0.;high=0.}, new IA.af2 0))
-  | MonoAdd (poly1, poly2) -> 
+    Poly.fold addMonomial p (Cons (0., false, polType, {low=0.;high=0.}, new IA.af2 0))
+  | MonoAdd (poly1, poly2, polType) -> 
     let polyExpr1 = reify variables poly1 in
     let polyExpr2 = reify variables poly2 in
-    Add (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
-  | MonoSub (poly1, poly2) -> 
+    let polType1 = get_type poly1 in
+    let polType2 = get_type poly2 in
+    if polType1 != polType2 or polType1 != polType then
+      let errorMessage = "Wrong implementation in un-folding polynomials" in
+      print_endline errorMessage;
+      flush stdout;
+      raise (Failure errorMessage)
+    else
+      Add (polyExpr1, polyExpr2, polType, {low=neg_infinity;high=infinity}, new IA.af2 0)
+  | MonoSub (poly1, poly2, polType) -> 
     let polyExpr1 = reify variables poly1 in
     let polyExpr2 = reify variables poly2 in
-    Sub (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
-  | MonoMul (poly1, poly2) -> 
+    let polType1 = get_type poly1 in
+    let polType2 = get_type poly2 in
+    if polType1 != polType2 or polType1 != polType then
+      let errorMessage = "Wrong implementation in un-folding polynomials" in
+      print_endline errorMessage;
+      flush stdout;
+      raise (Failure errorMessage)
+    else
+      Sub (polyExpr1, polyExpr2, polType, {low=neg_infinity;high=infinity}, new IA.af2 0)
+  | MonoMul (poly1, poly2, polType) -> 
     let polyExpr1 = reify variables poly1 in
     let polyExpr2 = reify variables poly2 in
-    Mul (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
-  | MonoDiv (poly1, poly2) -> 
+    let polType1 = get_type poly1 in
+    let polType2 = get_type poly2 in
+    if polType1 != polType2 or polType1 != polType then
+      let errorMessage = "Wrong implementation in un-folding polynomials" in
+      print_endline errorMessage;
+      flush stdout;
+      raise (Failure errorMessage)
+    else
+      Mul (polyExpr1, polyExpr2, polType, {low=neg_infinity;high=infinity}, new IA.af2 0)
+  | MonoDiv (poly1, poly2, polType) -> 
     let polyExpr1 = reify variables poly1 in
     let polyExpr2 = reify variables poly2 in
-    Div (polyExpr1, polyExpr2, {low=neg_infinity;high=infinity}, new IA.af2 0)
+    let polType1 = get_type poly1 in
+    let polType2 = get_type poly2 in
+    if polType1 != polType2 or polType1 != polType then
+      let errorMessage = "Wrong implementation in un-folding polynomials" in
+      print_endline errorMessage;
+      flush stdout;
+      raise (Failure errorMessage)
+    else
+      Div (polyExpr1, polyExpr2, polType, {low=neg_infinity;high=infinity}, new IA.af2 0)
 (*Simplify an expression*)  
 let reduce e variables = 
   let newE = reify variables (eval e) in 

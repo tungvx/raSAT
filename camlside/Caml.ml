@@ -55,6 +55,7 @@ module Caml = struct
     (*==================================================*)
   
   let miniSATIndex = ref 1;;  
+  let theory = ref "QF_NRA";;
 
   let rec get_string_symbol = function
     |Symbol (_ , str1) -> str1
@@ -68,13 +69,35 @@ module Caml = struct
     |QualIdentifierId (_ , identifier1) ->  get_string_identifier identifier1
     |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
 
-  and get_poly_specReal = function 
+  and get_poly_specCons = function 
     |SpecConstsDec (_ , str1) ->  
-      SPoly (Real (float_of_string str1, false, inf_I, new IA.af2 0))
-    |SpecConstNum (_ , str1) ->  SPoly(Real (float_of_string str1, false, inf_I, new IA.af2 0))
-    |SpecConstString (_ , str1) ->  raise (Failure "Not supported syntax line 159")
-    |SpecConstsHex (_ , str1) ->  SPoly(Real (float_of_string str1, false, inf_I, new IA.af2 0)) 
-    |SpecConstsBinary (_ , str1) ->  SPoly(Real (float_of_string str1, false, inf_I, new IA.af2 0)) 
+      if !theory = intTheory then
+        let errorMessage = "Int theory does not accept a decimal constant" in
+        print_endline errorMessage;
+        flush stdout;
+        raise (Failure errorMessage);
+      else
+        SPoly (Cons (float_of_string str1, false, realType, inf_I, new IA.af2 0))
+    |SpecConstNum (_ , str1) ->  
+      if !theory = realTheory then
+        SPoly(Cons (float_of_string str1, false, realType, inf_I, new IA.af2 0))
+      else 
+        SPoly(Cons (float_of_string str1, false, intType, inf_I, new IA.af2 0))
+    |SpecConstString (_ , str1) ->  
+      let errorMessage = "Int/Real theories do not accept string constants" in
+      print_endline errorMessage;
+      flush stdout;
+      raise (Failure errorMessage)
+    |SpecConstsHex (_ , str1) ->  
+      let errorMessage = "Int/Real theories do not accept hex constants" in
+      print_endline errorMessage;
+      flush stdout;
+      raise (Failure errorMessage)
+    |SpecConstsBinary (_ , str1) ->  
+      let errorMessage = "Int/Real theories do not accept binary constants" in
+      print_endline errorMessage;
+      flush stdout;
+      raise (Failure errorMessage)
 
 
 
@@ -179,12 +202,22 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_mul_poly ((get_mul_poly_extra poly1 poly2) :: remainingPolys)
     
   and get_mul_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Mul(poly1, poly2, inf_I, new IA.af2 0))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Mul(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Mul(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Mul(poly1, poly2, inf_I, new IA.af2 0))
-    | (POr(smtPoly11, smtPoly12), _) -> POr (get_mul_poly_extra smtPoly11 smtPoly2, get_mul_poly_extra smtPoly12 smtPoly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> POr (get_mul_poly_extra smtPoly1 smtPoly21, get_mul_poly_extra smtPoly1 smtPoly22)
+    | (SPoly(poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in 
+      SPoly (Mul(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint2, Mul(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint1, Mul(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly(And(boolConstraint1, boolConstraint2), Mul(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (POr(smtPoly11, smtPoly12), _) -> 
+      POr (get_mul_poly_extra smtPoly11 smtPoly2, get_mul_poly_extra smtPoly12 smtPoly2)
+    | (_, POr(smtPoly21, smtPoly22)) -> 
+      POr (get_mul_poly_extra smtPoly1 smtPoly21, get_mul_poly_extra smtPoly1 smtPoly22)
 
   and get_add_poly = function
     | [] -> raise (Failure "Need arguments for addition") 
@@ -192,12 +225,22 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_add_poly((get_add_poly_extra poly1 poly2) :: remainingPolys)
 
   and get_add_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Add(poly1, poly2, inf_I, new IA.af2 0))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Add(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Add(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> Poly(And(boolConstraint1, boolConstraint2), Add(poly1, poly2, inf_I, new IA.af2 0))
-    | (POr(smtPoly11, smtPoly12), _) -> POr (get_add_poly_extra smtPoly11 smtPoly2, get_add_poly_extra smtPoly12 smtPoly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> POr (get_add_poly_extra smtPoly1 smtPoly21, get_add_poly_extra smtPoly1 smtPoly22)
+    | (SPoly(poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      SPoly (Add(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint2, Add(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint1, Add(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly(And(boolConstraint1, boolConstraint2), Add(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (POr(smtPoly11, smtPoly12), _) -> 
+      POr (get_add_poly_extra smtPoly11 smtPoly2, get_add_poly_extra smtPoly12 smtPoly2)
+    | (_, POr(smtPoly21, smtPoly22)) -> 
+      POr (get_add_poly_extra smtPoly1 smtPoly21, get_add_poly_extra smtPoly1 smtPoly22)
     
   and get_div_poly = function
     | [] -> raise (Failure "Need arguments for addition")
@@ -205,20 +248,34 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_div_poly((get_div_poly_extra poly1 poly2) :: remainingPolys)
 
   and get_div_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Div(poly1, poly2, inf_I, new IA.af2 0))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Div(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Div(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) 
-      -> Poly(And(boolConstraint1, boolConstraint2), Div(poly1, poly2, inf_I, new IA.af2 0))
-    | (POr(smtPoly11, smtPoly12), _) -> POr (get_div_poly_extra smtPoly11 smtPoly2, get_div_poly_extra smtPoly12 smtPoly2)
-    | (_, POr(smtPoly21, smtPoly22)) -> POr (get_div_poly_extra smtPoly1 smtPoly21, get_div_poly_extra smtPoly1 smtPoly22)
+    | (SPoly(poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      SPoly (Div(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint2, Div(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint1, Div(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly(And(boolConstraint1, boolConstraint2), Div(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (POr(smtPoly11, smtPoly12), _) -> 
+      POr (get_div_poly_extra smtPoly11 smtPoly2, get_div_poly_extra smtPoly12 smtPoly2)
+    | (_, POr(smtPoly21, smtPoly22)) -> 
+      POr (get_div_poly_extra smtPoly1 smtPoly21, get_div_poly_extra smtPoly1 smtPoly22)
 
   and get_minus_poly = function
     | [] -> raise (Failure "Need arguments for Subtraction") 
-    | [SPoly(Real (f, _, _, _))] -> SPoly(Real ((~-.) f, false, inf_I, new IA.af2 0))
-    | [SPoly(poly)] -> SPoly(Sub(Real (0., false, inf_I, new IA.af2 0), poly, inf_I, new IA.af2 0))
-    | [Poly(boolConstraint, Real (f, _, _, _))] -> Poly(boolConstraint, Real ((~-.) f, false, inf_I, new IA.af2 0))
-    | [Poly(boolConstraint, poly)] -> Poly(boolConstraint, Sub (Real (0., false, inf_I, new IA.af2 0), poly, inf_I, new IA.af2 0))
+    | [SPoly(Cons (f, _, polType, _, _))] -> SPoly(Cons ((~-.) f, false, polType, inf_I, new IA.af2 0))
+    | [SPoly(poly)] -> 
+      let polType = get_type_polyExpr poly in 
+      SPoly(Sub(Cons (0., false, polType, inf_I, new IA.af2 0), poly, polType, inf_I, new IA.af2 0))
+    | [Poly(boolConstraint, Cons (f, _, polType, _, _))] -> 
+      Poly(boolConstraint, Cons ((~-.) f, false, polType, inf_I, new IA.af2 0))
+    | [Poly(boolConstraint, poly)] -> 
+      let polType = get_type_polyExpr poly in
+      Poly(boolConstraint, Sub (Cons (0., false, polType, inf_I, new IA.af2 0), poly, polType, inf_I, new IA.af2 0))
     | polys -> get_minus_poly_extra polys
 
   and get_minus_poly_extra = function 
@@ -227,19 +284,26 @@ module Caml = struct
     | poly1::poly2::remainingPolys -> get_minus_poly_extra((get_minus_poly_extra_extra poly1 poly2) :: remainingPolys)     
 
   and get_minus_poly_extra_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
-    | (SPoly(poly1), SPoly(poly2)) -> SPoly (Sub(poly1, poly2, inf_I, new IA.af2 0))
-    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> Poly (boolConstraint2, Sub(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> Poly (boolConstraint1, Sub(poly1, poly2, inf_I, new IA.af2 0))
-    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) 
-      -> Poly(And(boolConstraint1, boolConstraint2), Sub(poly1, poly2, inf_I, new IA.af2 0))
+    | (SPoly(poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      SPoly (Sub(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint2, Sub(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly (boolConstraint1, Sub(poly1, poly2, polType, inf_I, new IA.af2 0))
+    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> 
+      let polType = get_type_polyExprs poly1 poly2 in
+      Poly(And(boolConstraint1, boolConstraint2), Sub(poly1, poly2, polType, inf_I, new IA.af2 0))
     | (POr(smtPoly11, smtPoly12), _) 
       -> POr (get_minus_poly_extra_extra smtPoly11 smtPoly2, get_minus_poly_extra_extra smtPoly12 smtPoly2)
     | (_, POr(smtPoly21, smtPoly22)) 
       -> POr (get_minus_poly_extra_extra smtPoly1 smtPoly21, get_minus_poly_extra_extra smtPoly1 smtPoly22)
 
   and get_poly_term varTermMap functions variables varsPolysMap varsConstraintsMap = function
-    |TermSpecConst (_ , specReal1) ->  
-      get_poly_specReal specReal1
+    |TermSpecConst (_ , specCons1) ->  
+      get_poly_specCons specCons1
     |TermQualIdentifier (_ , qualidentifier1) -> 
       get_poly_qualidentifier varTermMap functions variables varsPolysMap varsConstraintsMap qualidentifier1
     |TermQualIdTerm (_ , qualidentifier2 , termqualidterm_term_term563) -> 
@@ -339,9 +403,11 @@ module Caml = struct
 
   and get_le_constraint_extra_extra poly1 poly2 variables = 
     let polyCons = match poly1, poly2 with
-      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Le (reduce poly1  variables))
-      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Gr (reduce poly2  variables))
-      | _ -> new polynomialConstraint (Le (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0))  variables))
+      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Le (reduce poly1  variables))
+      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Gr (reduce poly2  variables))
+      | _ -> 
+        let polType = get_type_polyExprs poly1 poly2 in
+        new polynomialConstraint (Le (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0))  variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
       miniSATIndex := !miniSATIndex + 1;
@@ -361,9 +427,11 @@ module Caml = struct
 
   and get_leq_constraint_extra_extra poly1 poly2 variables = 
     let polyCons = match poly1, poly2 with
-      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Leq (reduce poly1 variables))
-      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Geq (reduce poly2 variables))
-      | _ -> new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Leq (reduce poly1 variables))
+      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Geq (reduce poly2 variables))
+      | _ -> 
+        let polType = get_type_polyExprs poly1 poly2 in
+        new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
       miniSATIndex := !miniSATIndex + 1;
@@ -383,9 +451,11 @@ module Caml = struct
 
   and get_gr_constraint_extra_extra poly1 poly2 variables = 
     let polyCons = match poly1, poly2 with
-      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Gr (reduce poly1 variables))
-      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Le (reduce poly2 variables))
-      | _ -> new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Gr (reduce poly1 variables))
+      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Le (reduce poly2 variables))
+      | _ -> 
+        let polType = get_type_polyExprs poly1 poly2 in
+        new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
       miniSATIndex := !miniSATIndex + 1;
@@ -405,9 +475,11 @@ module Caml = struct
 
   and get_geq_constraint_extra_extra poly1 poly2 variables = 
     let polyCons = match poly1, poly2 with
-      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Geq (reduce poly1 variables))
-      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Leq (reduce poly2 variables))
-      | _ -> new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Geq (reduce poly1 variables))
+      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Leq (reduce poly2 variables))
+      | _ -> 
+        let polType = get_type_polyExprs poly1 poly2 in
+        new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
       miniSATIndex := !miniSATIndex + 1;
@@ -427,9 +499,11 @@ module Caml = struct
 
   and get_eq_constraint_extra_extra poly1 poly2 variables = 
     let polyCons = match poly1, poly2 with
-      | (_, Real (0., _, inf_I, _)) -> new polynomialConstraint (Eq (reduce poly1 variables))
-      | (Real (0., _, inf_I, _), _) -> new polynomialConstraint (Eq (reduce poly2 variables))
-      | _ -> new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, inf_I, new IA.af2 0)) variables))
+      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Eq (reduce poly1 variables))
+      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Eq (reduce poly2 variables))
+      | _ -> 
+        let polType = get_type_polyExprs poly1 poly2 in
+        new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
       miniSATIndex := !miniSATIndex + 1;
@@ -637,6 +711,7 @@ module Caml = struct
   (*get miniSat form of interval constraints*)
   let genSatForm fileName lb ub logic inFile =
     let ic = open_in fileName in
+    theory := logic;
     let lexbuf = Lexing.from_channel ic in  
     let parsed =  Smtlib_parse.main Smtlib_lex.token lexbuf in
     let functions = match parsed with

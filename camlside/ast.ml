@@ -9,6 +9,11 @@ let intType = 0
 let realType = 1
 let boolType = 2
 
+let realTheory = "QF_NRA"
+let intTheory = "QF_NIA"
+let intRealTheory = "QF_NIRA"
+
+
 (* miniSAT expressions *)
 type miniSAT_expr =
   | Lit of int
@@ -33,6 +38,27 @@ type poly_constraint =
   | Leq of poly_expr
   | Gr of poly_expr
   | Le of poly_expr
+
+
+let get_type_polyExpr = function
+  | Add (_,_, polType, _, _) -> polType
+  | Sub (_,_, polType, _, _) -> polType
+  | Mul (_,_, polType, _, _) -> polType
+  | Div (_,_, polType, _, _) -> polType
+  | Cons (_,_, polType, _, _) -> polType
+  | Var (_, polType, _, _, _) -> polType
+  | Pow (_,_, polType, _, _,_,_) -> polType 
+
+let get_type_polyExprs poly1 poly2 = 
+  let polType1 = get_type_polyExpr poly1 in
+  let polType2 = get_type_polyExpr poly2 in
+  if polType1 != polType2 then
+    let errorMessage = "Type mismatched" in
+    print_endline errorMessage;
+    flush stdout;
+    raise (Failure errorMessage);
+  else 
+    polType1
 
 
 (* get varsSet of a polynomial constraint*)
@@ -360,6 +386,8 @@ let rec compare_intv intv1 intv2 =
 
 let rec check_infinity intv = intv.low = neg_infinity || intv.high = infinity  
 
+let contract_integer intv = {low = ceil intv.low; high = floor intv.high}
+
 let rec poly_eval_ci varsIntvsMap varsNum cached = function
   | Cons (c, initialized, polType, oldIntv, af2Form) -> 
     
@@ -421,7 +449,13 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
     
     if uChanged || vChanged then 
       let intv = uIntv +$ vIntv in
-      let newIntv = (* inter_I_I oldIntv *) intv in
+      let newIntv = 
+        if polType = intType then 
+          contract_integer intv 
+        else 
+          intv
+      in
+
       
       (* print_I newIntv;
       flush stdout; *)
@@ -443,7 +477,12 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
     if uChanged || vChanged then 
       let intv = uIntv -$ vIntv in
-      let newIntv = (* inter_I_I oldIntv *) intv in
+      let newIntv = 
+        if polType = intType then 
+          contract_integer intv 
+        else 
+          intv
+      in
       (* if (compare_intv newIntv oldIntv) then
         (false, Sub(u', v', newIntv, af2Form), newIntv, changedVars)
       else *)
@@ -473,7 +512,12 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
 
     if uChanged || vChanged then 
       let intv = uIntv *$ vIntv in
-      let newIntv = (* inter_I_I oldIntv *) intv in
+      let newIntv = 
+        if polType = intType then 
+          contract_integer intv 
+        else 
+          intv
+      in
       
       (* print_I newIntv;
       flush stdout; *)
@@ -495,7 +539,12 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
     if uChanged || vChanged then 
       let intv = uIntv /$ vIntv in
-      let newIntv = (* inter_I_I oldIntv *) intv in
+      let newIntv = 
+        if polType = intType then 
+          contract_integer intv 
+        else 
+          intv
+      in
       (* if (compare_intv newIntv oldIntv) then 
         (false, Div(u', v', newIntv, af2Form), newIntv, changedVars)
       else *) 
@@ -511,7 +560,12 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
         (false, Pow(var, multiplicity, polType, varIntv, false, oldIntv, af2Form), oldIntv, VariablesSet.empty)
     else
       let intv = pow_I_i varIntv multiplicity in
-      let newIntv = (* inter_I_I oldIntv *) intv in
+      let newIntv = 
+        if polType = intType then 
+          contract_integer intv 
+        else 
+          intv
+      in
       if check_infinity newIntv then 
         (true, Pow(var, multiplicity, polType, varIntv, false, newIntv, af2Form), newIntv, VariablesSet.empty)
       else 
@@ -588,7 +642,11 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     flush stdout; *)
     let newIntv =
       if uIntvChanged || vIntvChanged then 
-        let tmpIntv = uIntv +$ vIntv in
+        let tmpIntv = 
+          if polType = intType then 
+            contract_integer(uIntv +$ vIntv) 
+          else uIntv +$ vIntv
+        in
         inter_I_I oldIntv tmpIntv
       else 
         oldIntv
@@ -599,7 +657,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     flush stdout  ; *)
     if (uAF2Changed || vAF2changed) && usingAF2U && usingAF2V then
       let af2Form = IA.AF2.(af2FormU + af2FormV) in
-      let af2Intv = af2Form#evaluate in
+      let af2Intv = 
+        if polType = intType then 
+          contract_integer(af2Form#evaluate) 
+        else 
+          af2Form#evaluate
+      in
       (* print_string ("AF2 of " ^ string_infix_of_polyExpr u ^ " is ");
       af2FormU#print_form;
       print_endline ""; *)
@@ -621,8 +684,8 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       (intvChanged, true, true, Add(u', v', polType, newIntv, af2Form), newIntv, af2Form)
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
-      (intvChanged, false, usingAF2U && usingAF2V, Add (u', v', polType, oldIntv, oldAf2Form), 
-          oldIntv, oldAf2Form)
+      (intvChanged, false, usingAF2U && usingAF2V, Add (u', v', polType, newIntv, oldAf2Form), 
+          newIntv, oldAf2Form)
       
   | Sub (u, v, polType, oldIntv, oldAf2Form) -> 
     let (uIntvChanged, uAF2Changed, usingAF2U, u', uIntv, af2FormU) = evalAf2 varsIntvsMap varsAf2sMap varsNum u in
@@ -632,7 +695,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     flush stdout; *)
     let newIntv =
       if uIntvChanged || vIntvChanged then 
-        let tmpIntv = uIntv -$ vIntv in
+        let tmpIntv = 
+          if polType = intType then
+            contract_integer(uIntv -$ vIntv) 
+          else 
+            uIntv -$ vIntv
+        in
         inter_I_I oldIntv tmpIntv
       else 
         oldIntv
@@ -641,15 +709,20 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       let af2Form = IA.AF2.(af2FormU - af2FormV) in
       (* print_endline "Computing AF2";
       flush stdout; *)
-      let af2Intv = af2Form#evaluate in
+      let af2Intv = 
+        if polType = intType then 
+          contract_integer(af2Form#evaluate) 
+        else 
+          af2Form#evaluate
+      in
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
       (intvChanged, true, true, Sub(u', v', polType, newIntv, af2Form), newIntv, af2Form)
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
-      (intvChanged, false, usingAF2U && usingAF2V, Sub (u', v', polType, oldIntv, oldAf2Form), 
-          oldIntv, oldAf2Form)
+      (intvChanged, false, usingAF2U && usingAF2V, Sub (u', v', polType, newIntv, oldAf2Form), 
+          newIntv, oldAf2Form)
   | Mul (u, v, polType, oldIntv, oldAf2Form) -> 
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Mul (u, v, oldIntv, oldAf2Form)) in 
     print_endline testString;
@@ -673,7 +746,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     flush stdout; *)
     let newIntv =
       if uIntvChanged || vIntvChanged then 
-        let tmpIntv = uIntv *$ vIntv in
+        let tmpIntv = 
+          if polType = intType then
+            contract_integer(uIntv *$ vIntv)
+          else 
+            uIntv *$ vIntv
+        in
         inter_I_I oldIntv tmpIntv
       else 
         oldIntv
@@ -682,15 +760,20 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       let af2Form = IA.AF2.(af2FormU * af2FormV) in
       (* print_endline "Computing AF2";
       flush stdout; *)
-      let af2Intv = af2Form#evaluate in
+      let af2Intv = 
+        if polType = intType then 
+          contract_integer(af2Form#evaluate) 
+        else 
+          af2Form#evaluate
+      in
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
       (intvChanged, true, true, Mul(u', v', polType, newIntv, af2Form), newIntv, af2Form)
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
-      (intvChanged, false, usingAF2U && usingAF2V, Mul (u', v', polType, oldIntv, oldAf2Form), 
-          oldIntv, oldAf2Form)
+      (intvChanged, false, usingAF2U && usingAF2V, Mul (u', v', polType, newIntv, oldAf2Form), 
+          newIntv, oldAf2Form)
   | Div (u, Cons (c, initialized, cPolType, fBound, fAF2Form), polType, oldIntv, oldAf2Form) -> 
     let (uIntvChanged, uAF2Changed, usingAF2U, u', uIntv, af2FormU) = evalAf2 varsIntvsMap varsAf2sMap varsNum u in
     (* let testString = "AF2 result of " ^ string_infix_of_polyExpr u ^ " is " in 
@@ -698,7 +781,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     flush stdout; *)
     let newIntv =
       if uIntvChanged then 
-        let tmpIntv = uIntv /$. c in
+        let tmpIntv = 
+          if polType = intType then 
+            contract_integer(uIntv /$. c) 
+          else 
+            uIntv /$. c
+        in
         inter_I_I oldIntv tmpIntv
       else 
         oldIntv
@@ -707,7 +795,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       let af2Form = IA.AF2.(af2FormU / c) in
       (* print_endline "Computing AF2";
       flush stdout; *)
-      let af2Intv = af2Form#evaluate in
+      let af2Intv = 
+        if polType = intType then
+          contract_integer(af2Form#evaluate) 
+        else
+          af2Form#evaluate
+      in
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
@@ -715,7 +808,7 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
       (intvChanged, false, usingAF2U, Div (u', Cons (c, initialized, cPolType, fBound, fAF2Form), polType, 
-          oldIntv, oldAf2Form), oldIntv, oldAf2Form)
+          newIntv, oldAf2Form), newIntv, oldAf2Form)
 
   | Div(u, v, polType, oldIntv, oldAf2Form) ->
     let (uIntvChanged, _, _, u', uIntv, _) = evalAf2 varsIntvsMap varsAf2sMap varsNum u in
@@ -725,7 +818,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     flush stdout; *)
     let newIntv =
       if uIntvChanged || vIntvChanged then 
-        let tmpIntv = uIntv /$ vIntv in
+        let tmpIntv = 
+          if polType = intType then
+            contract_integer(uIntv /$ vIntv) 
+          else
+            uIntv /$ vIntv
+        in
         inter_I_I oldIntv tmpIntv
       else 
         oldIntv
@@ -749,7 +847,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
         let newPowExpr = Pow (var, newMultiplicity, polType, varIntv, true, {low=neg_infinity;high=infinity}, oldAf2Form) in
         let (_, _, _, _, _, tmpAf2Result) = evalAf2 varsIntvsMap varsAf2sMap varsNum newPowExpr in
         let af2Form = IA.AF2.(tmpAf2Result * tmpAf2Result) in
-        let af2Intv = af2Form#evaluate in
+        let af2Intv = 
+          if polType = intType then
+            contract_integer(af2Form#evaluate) 
+          else 
+            af2Form#evaluate
+        in
         let newIntv = inter_I_I af2Intv oldIntv in
         let intvChanged = not (compare_intv newIntv oldIntv) in
         (intvChanged, true, true, Pow(var, multiplicity, polType, varIntv, false, newIntv, af2Form), newIntv, af2Form)
@@ -757,7 +860,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
         let newPowExpr = Pow (var, multiplicity - 1, polType, varIntv, true, {low=neg_infinity;high=infinity}, oldAf2Form) in
         let (_, _, _, _, _ ,powExprAf2) = evalAf2 varsIntvsMap varsAf2sMap varsNum newPowExpr in
         let af2Form = IA.AF2.(varAF2Form * powExprAf2) in
-        let af2Intv = af2Form#evaluate in
+        let af2Intv = 
+          if polType = intType then
+            contract_integer(af2Form#evaluate) 
+          else 
+            af2Form#evaluate
+        in
         let newIntv = inter_I_I af2Intv oldIntv in
         let intvChanged = not (compare_intv newIntv oldIntv) in 
         (intvChanged, true, true, Pow(var, multiplicity, polType, varIntv, false, newIntv, af2Form), newIntv, af2Form)
@@ -1147,75 +1255,127 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
     flush stdout; *)
     if newIntv.low <= newIntv.high then match polyExpr with 
       | Var (var, varType, _,_,_) -> 
-        let newIntv = 
-          if varType = realType then newIntv
-          else {low = ceil newIntv.low; high = floor newIntv.high}
-        in
         (contracted, StringMap.add var newIntv varsIntvsMap)
-      | Add (u, v, _, _,_) -> 
+      | Add (u, v, polType, _,_) -> 
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
         (* print_endline ("Contracting " ^ string_infix_of_polyExpr u ^ " from " ^ sprintf_I "%f" uIntv
           ^ " to " ^ sprintf_I "%f" (newIntv -$ vIntv));
         flush stdout;   *)
         (* try to contract u *)
-        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv -$ vIntv) varsIntvsMap esl in
+        let newUIntv = 
+          if polType = intType then
+            contract_integer(newIntv -$ vIntv)
+          else 
+            newIntv -$ vIntv
+        in
+        let (uContracted, varsIntvsMap) = contract_polyExpr u newUIntv varsIntvsMap esl in
         if uContracted && StringMap.is_empty varsIntvsMap then 
           (true, StringMap.empty)
         else 
-          let (vContracted, varsIntvsMap) = contract_polyExpr v (newIntv -$ uIntv) varsIntvsMap esl in
+          let newVIntv = 
+            if polType = intType then
+              contract_integer(newIntv -$ uIntv)
+            else 
+              newIntv -$ uIntv
+          in
+          let (vContracted, varsIntvsMap) = contract_polyExpr v newVIntv varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
-      | Sub (u, v, _, _, _) -> 
+      | Sub (u, v, polType, _, _) -> 
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
         (* print_endline ("Interval of " ^ string_infix_of_polyExpr u ^ " is " ^ sprintf_I "%f" uIntv
           ^ " and of " ^ string_infix_of_polyExpr v ^ " is " ^ sprintf_I "%f" vIntv);
         flush stdout; *)  
         (* try to contract u *)
-        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv +$ vIntv) varsIntvsMap esl in 
+        let newUIntv = 
+          if polType = intType then
+            contract_integer(newIntv +$ vIntv)
+          else 
+            newIntv +$ vIntv
+        in
+        let (uContracted, varsIntvsMap) = contract_polyExpr u newUIntv varsIntvsMap esl in 
         if uContracted && StringMap.is_empty varsIntvsMap then 
           (true, StringMap.empty)
         else
-          let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv -$ newIntv) varsIntvsMap esl in
+          let newVIntv = 
+            if polType = intType then
+              contract_integer(uIntv -$ newIntv)
+            else 
+              uIntv -$ newIntv
+          in
+          let (vContracted, varsIntvsMap) = contract_polyExpr v newVIntv varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
-      | Mul (u, v, _, _, _) -> 
+      | Mul (u, v, polType, _, _) -> 
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
 
         (* try to contract u *)
+        let newUIntv = 
+          if polType = intType then
+            contract_integer(newIntv /$ vIntv)
+          else 
+            newIntv /$ vIntv
+        in
         let (uContracted, varsIntvsMap) = 
           if contain_zero vIntv then (false, varsIntvsMap)
-          else contract_polyExpr u (newIntv /$ vIntv) varsIntvsMap esl 
+          else contract_polyExpr u newUIntv varsIntvsMap esl 
         in
         if uContracted && StringMap.is_empty varsIntvsMap then 
           (true, StringMap.empty)
         else
           let (vContracted, varsIntvsMap) = 
             if contain_zero uIntv then (false, varsIntvsMap) 
-            else contract_polyExpr v (newIntv /$ uIntv) varsIntvsMap esl 
+            else 
+              let newVIntv = 
+                if polType = intType then
+                  contract_integer(newIntv /$ uIntv)
+                else 
+                  newIntv /$ uIntv
+              in
+              contract_polyExpr v newVIntv varsIntvsMap esl 
           in
           (uContracted || vContracted, varsIntvsMap)
-      | Div (u, v, _, _, _) ->
+      | Div (u, v, polType, _, _) ->
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
 
         (* try to contract u *)
-        let (uContracted, varsIntvsMap) = contract_polyExpr u (newIntv *$ vIntv) varsIntvsMap esl in
+        let newUIntv = 
+          if polType = intType then
+            contract_integer(newIntv *$ vIntv)
+          else 
+            newIntv *$ vIntv
+        in
+        let (uContracted, varsIntvsMap) = contract_polyExpr u newUIntv varsIntvsMap esl in
         if uContracted && StringMap.is_empty varsIntvsMap then 
           (true, StringMap.empty)
         else
-          let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv /$ newIntv) varsIntvsMap esl in
+          let newVIntv = 
+            if polType = intType then
+              contract_integer(uIntv /$ newIntv)
+            else 
+              uIntv /$ newIntv
+          in
+          let (vContracted, varsIntvsMap) = contract_polyExpr v newVIntv varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
-      | Pow (var, multiplicity, _, _, _, _, _) -> 
+      | Pow (var, multiplicity, polType, _, _, _, _) -> 
         (* print_endline ("Start contracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr);
         flush stdout; *)
         (* print_endline ("Finished constracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr); *)
         let varIntv = 
           if multiplicity mod 2 = 0 then 
             let tmpIntv = newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
-            {low = -.(tmpIntv.high);high=tmpIntv.high}
+            if polType = intType then
+              contract_integer {low = -.(tmpIntv.high);high=tmpIntv.high}
+            else 
+              {low = -.(tmpIntv.high);high=tmpIntv.high}
           else 
-            if newIntv.low >= 0. then newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity)
+            if newIntv.low >= 0. then 
+              if polType = intType then
+                contract_integer(newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity))
+              else 
+                newIntv **$ ({low=1.;high=1.} /$. float_of_int multiplicity)
             else
               let lowerIntv = {low=abs_float newIntv.low; high=abs_float newIntv.low} **$ ({low=1.;high=1.} /$. float_of_int multiplicity) in
               if newIntv.high >= 0. then 
