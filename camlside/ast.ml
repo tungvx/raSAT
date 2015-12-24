@@ -22,7 +22,7 @@ type poly_expr =
   | Sub of poly_expr * poly_expr * int * Interval.interval * IA.af2
   | Mul of poly_expr * poly_expr * int * Interval.interval * IA.af2
   | Div of poly_expr * poly_expr * int * Interval.interval * IA.af2
-  | Cons of float * bool * string * Interval.interval * IA.af2
+  | Cons of float * bool * int * Interval.interval * IA.af2
   | Var of string * int * Interval.interval * IA.af2 * bool (* name * type * interval * AF2Form * isChanged *)
   | Pow of string * int * int * Interval.interval * bool * Interval.interval  * IA.af2
 
@@ -361,7 +361,7 @@ let rec compare_intv intv1 intv2 =
 let rec check_infinity intv = intv.low = neg_infinity || intv.high = infinity  
 
 let rec poly_eval_ci varsIntvsMap varsNum cached = function
-  | Cons (c, initialized, PolType, oldIntv, af2Form) -> 
+  | Cons (c, initialized, polType, oldIntv, af2Form) -> 
     
     (* print_string "\nReal: ";
     print_float c;
@@ -370,10 +370,10 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
     
 
     if initialized then 
-      (false, (Cons (c, true, PolType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
+      (false, (Cons (c, true, polType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
     else 
       let af2Form = Util.toAf2 {low=c;high=c} 0 varsNum in
-      (true, (Cons (c, true, PolType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
+      (true, (Cons (c, true, polType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
   | Var (var, varType, oldIntv, af2Form, af2Changed) -> 
     let intv = StringMap.find var varsIntvsMap in
     
@@ -406,7 +406,7 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       else
         (true, Var (var, varType, intv, af2Form, true), intv, VariablesSet.singleton var)
     )
-  | Add (u, v, _, oldIntv, af2Form) -> 
+  | Add (u, v, polType, oldIntv, af2Form) -> 
     
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Add (u, v, oldIntv, af2Form)) in 
     print_endline testString;
@@ -429,15 +429,15 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       (* if (compare_intv newIntv oldIntv) then 
         (false, Add(u', v', newIntv, af2Form), newIntv, changedVars)
       else *)
-      (true, Add(u', v', newIntv, af2Form), newIntv, changedVars)
+      (true, Add(u', v', polType, newIntv, af2Form), newIntv, changedVars)
     else (
       
       (* print_I oldIntv;
       flush stdout; *)
       
-      (false, Add(u', v', oldIntv, af2Form), oldIntv, changedVars)
+      (false, Add(u', v', polType, oldIntv, af2Form), oldIntv, changedVars)
     )
-  | Sub (u, v, _, oldIntv, af2Form) -> 
+  | Sub (u, v, polType, oldIntv, af2Form) -> 
     let (uChanged, u', uIntv, changedVarsU) = poly_eval_ci varsIntvsMap varsNum cached u in 
     let (vChanged, v', vIntv, changedVarsV) = poly_eval_ci varsIntvsMap varsNum cached v in
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
@@ -447,12 +447,12 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       (* if (compare_intv newIntv oldIntv) then
         (false, Sub(u', v', newIntv, af2Form), newIntv, changedVars)
       else *)
-        (true, Sub(u', v', newIntv, af2Form), newIntv, changedVars)
+        (true, Sub(u', v', polType, newIntv, af2Form), newIntv, changedVars)
     else
       ((* print_I oldIntv;
             flush stdout; *)
-            (false, Sub(u', v', oldIntv, af2Form), oldIntv, changedVars))
-  | Mul (u, v, _, oldIntv, af2Form) -> 
+            (false, Sub(u', v', polType, oldIntv, af2Form), oldIntv, changedVars))
+  | Mul (u, v, polType, oldIntv, af2Form) -> 
     
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Mul (u, v, oldIntv, af2Form)) in 
     print_endline testString;
@@ -481,15 +481,15 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       (* if (compare_intv newIntv oldIntv) then 
         (false, Mul(u', v', newIntv, af2Form), newIntv, changedVars)
       else  *)
-        (true, Mul(u', v', newIntv, af2Form), newIntv, changedVars)
+        (true, Mul(u', v', polType, newIntv, af2Form), newIntv, changedVars)
     else 
       (
 
         (* print_I oldIntv;
         flush stdout; *)
 
-        (false, Mul(u', v', oldIntv, af2Form), oldIntv, changedVars))
-  | Div (u, v, _, oldIntv, af2Form) -> 
+        (false, Mul(u', v', polType, oldIntv, af2Form), oldIntv, changedVars))
+  | Div (u, v, polType, oldIntv, af2Form) -> 
     let (uChanged, u', uIntv, changedVarsU) = poly_eval_ci varsIntvsMap varsNum cached u in 
     let (vChanged, v', vIntv, changedVarsV) = poly_eval_ci varsIntvsMap varsNum cached v in
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
@@ -499,32 +499,32 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
       (* if (compare_intv newIntv oldIntv) then 
         (false, Div(u', v', newIntv, af2Form), newIntv, changedVars)
       else *) 
-        (true, Div(u', v', newIntv, af2Form), newIntv, changedVars)
+        (true, Div(u', v', polType, newIntv, af2Form), newIntv, changedVars)
     else 
-      (false, Div(u', v', oldIntv, af2Form), oldIntv, changedVars)
-  | Pow (var, multiplicity, _, oldVarIntv, af2Changed, oldIntv, af2Form) -> 
+      (false, Div(u', v', polType, oldIntv, af2Form), oldIntv, changedVars)
+  | Pow (var, multiplicity, polType, oldVarIntv, af2Changed, oldIntv, af2Form) -> 
     let varIntv = StringMap.find var varsIntvsMap in
     if compare_intv varIntv oldVarIntv then
       if af2Changed then 
-        (false, Pow(var, multiplicity, varIntv, true, oldIntv, af2Form), oldIntv, VariablesSet.singleton var)
+        (false, Pow(var, multiplicity, polType, varIntv, true, oldIntv, af2Form), oldIntv, VariablesSet.singleton var)
       else 
-        (false, Pow(var, multiplicity, varIntv, false, oldIntv, af2Form), oldIntv, VariablesSet.empty)
+        (false, Pow(var, multiplicity, polType, varIntv, false, oldIntv, af2Form), oldIntv, VariablesSet.empty)
     else
       let intv = pow_I_i varIntv multiplicity in
       let newIntv = (* inter_I_I oldIntv *) intv in
       if check_infinity newIntv then 
-        (true, Pow(var, multiplicity, varIntv, false, newIntv, af2Form), newIntv, VariablesSet.empty)
+        (true, Pow(var, multiplicity, polType, varIntv, false, newIntv, af2Form), newIntv, VariablesSet.empty)
       else 
-        (true, Pow(var, multiplicity, varIntv, true, newIntv, af2Form), newIntv, VariablesSet.singleton var)
+        (true, Pow(var, multiplicity, polType, varIntv, true, newIntv, af2Form), newIntv, VariablesSet.singleton var)
   
  
 (* evalAf2 compute the bound of a polynomial function from an assignment ass by AF2 form*)
 let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
-  | Real (c, initialized, oldIntv, oldAf2Form) -> 
+  | Cons (c, initialized, polType, oldIntv, oldAf2Form) -> 
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Real (c, initialized, oldIntv, oldAf2Form)) in 
     print_endline testString;
     flush stdout; *)
-    (false, true, true, Real(c, true, oldIntv, oldAf2Form), oldIntv, oldAf2Form)
+    (false, true, true, Cons(c, true, polType, oldIntv, oldAf2Form), oldIntv, oldAf2Form)
   | Var (var, varType, intv, oldAf2Form, af2Changed) -> 
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Var (var, intv, oldAf2Form, af2Changed)) ^ " Changed?: " ^ string_of_bool af2Changed in 
     print_endline testString;
@@ -562,7 +562,7 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
         flush stdout;
           ); *)
       (false, false, usingAF2, Var (var, varType, intv, oldAf2Form, false), intv, oldAf2Form)
-  | Add (u, v, oldIntv, oldAf2Form) -> 
+  | Add (u, v, polType, oldIntv, oldAf2Form) -> 
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Add (u, v, oldIntv, oldAf2Form)) ^ " oldIntv " in 
     print_string testString;
     print_I oldIntv;
@@ -618,13 +618,13 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
-      (intvChanged, true, true, Add(u', v', newIntv, af2Form), newIntv, af2Form)
+      (intvChanged, true, true, Add(u', v', polType, newIntv, af2Form), newIntv, af2Form)
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
-      (intvChanged, false, usingAF2U && usingAF2V, Add (u', v', oldIntv, oldAf2Form), 
+      (intvChanged, false, usingAF2U && usingAF2V, Add (u', v', polType, oldIntv, oldAf2Form), 
           oldIntv, oldAf2Form)
       
-  | Sub (u, v, oldIntv, oldAf2Form) -> 
+  | Sub (u, v, polType, oldIntv, oldAf2Form) -> 
     let (uIntvChanged, uAF2Changed, usingAF2U, u', uIntv, af2FormU) = evalAf2 varsIntvsMap varsAf2sMap varsNum u in
     let (vIntvChanged, vAF2changed, usingAF2V, v', vIntv, af2FormV) = evalAf2 varsIntvsMap varsAf2sMap varsNum v in
     (* let testString = "AF2 result of " ^ string_infix_of_polyExpr u ^ " is " in 
@@ -645,12 +645,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
-      (intvChanged, true, true, Sub(u', v', newIntv, af2Form), newIntv, af2Form)
+      (intvChanged, true, true, Sub(u', v', polType, newIntv, af2Form), newIntv, af2Form)
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
-      (intvChanged, false, usingAF2U && usingAF2V, Sub (u', v', oldIntv, oldAf2Form), 
+      (intvChanged, false, usingAF2U && usingAF2V, Sub (u', v', polType, oldIntv, oldAf2Form), 
           oldIntv, oldAf2Form)
-  | Mul (u, v, oldIntv, oldAf2Form) -> 
+  | Mul (u, v, polType, oldIntv, oldAf2Form) -> 
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Mul (u, v, oldIntv, oldAf2Form)) in 
     print_endline testString;
     flush stdout; *)
@@ -686,12 +686,12 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
-      (intvChanged, true, true, Mul(u', v', newIntv, af2Form), newIntv, af2Form)
+      (intvChanged, true, true, Mul(u', v', polType, newIntv, af2Form), newIntv, af2Form)
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
-      (intvChanged, false, usingAF2U && usingAF2V, Mul (u', v', oldIntv, oldAf2Form), 
+      (intvChanged, false, usingAF2U && usingAF2V, Mul (u', v', polType, oldIntv, oldAf2Form), 
           oldIntv, oldAf2Form)
-  | Div (u, Real (c, initialized, fBound, fAF2Form), oldIntv, oldAf2Form) -> 
+  | Div (u, Cons (c, initialized, cPolType, fBound, fAF2Form), polType, oldIntv, oldAf2Form) -> 
     let (uIntvChanged, uAF2Changed, usingAF2U, u', uIntv, af2FormU) = evalAf2 varsIntvsMap varsAf2sMap varsNum u in
     (* let testString = "AF2 result of " ^ string_infix_of_polyExpr u ^ " is " in 
     print_string testString;
@@ -711,13 +711,13 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
       let newIntv = inter_I_I af2Intv newIntv in
       let intvChanged = not (compare_intv newIntv oldIntv)
       in
-      (intvChanged, true, true, Div(u', Real (c, initialized, fBound, fAF2Form), newIntv, af2Form), newIntv, af2Form)
+      (intvChanged, true, true, Div(u', Cons (c, initialized, cPolType, fBound, fAF2Form), polType, newIntv, af2Form), newIntv, af2Form)
     else
       let intvChanged = not (compare_intv newIntv oldIntv) in
-      (intvChanged, false, usingAF2U, Div (u', Real (c, initialized, fBound, fAF2Form), 
+      (intvChanged, false, usingAF2U, Div (u', Cons (c, initialized, cPolType, fBound, fAF2Form), polType, 
           oldIntv, oldAf2Form), oldIntv, oldAf2Form)
 
-  | Div(u, v, oldIntv, oldAf2Form) ->
+  | Div(u, v, polType, oldIntv, oldAf2Form) ->
     let (uIntvChanged, _, _, u', uIntv, _) = evalAf2 varsIntvsMap varsAf2sMap varsNum u in
     let (vIntvChanged, _, _, v', vIntv, _) = evalAf2 varsIntvsMap varsAf2sMap varsNum v in
     (* let testString = "AF2 result of " ^ string_infix_of_polyExpr u ^ " is " in 
@@ -731,9 +731,9 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
         oldIntv
     in
     let intvChanged = not (compare_intv newIntv oldIntv) in
-    (intvChanged, false, false, Div(u', v', newIntv, oldAf2Form), newIntv, oldAf2Form)
+    (intvChanged, false, false, Div(u', v', polType, newIntv, oldAf2Form), newIntv, oldAf2Form)
     
-  | Pow (var, multiplicity, varIntv, af2Changed, oldIntv, oldAf2Form) -> 
+  | Pow (var, multiplicity, polType, varIntv, af2Changed, oldIntv, oldAf2Form) -> 
     (* let testString = "Checking " ^ string_infix_of_polyExpr (Pow (var, multiplicity, varIntv, af2Changed, oldIntv, oldAf2Form)) ^ " oldIntv " in 
     print_string testString;
     print_I oldIntv;
@@ -743,27 +743,27 @@ let rec evalAf2 varsIntvsMap varsAf2sMap varsNum = function
     if af2Changed then
       let varAF2Form = StringMap.find var varsAf2sMap in
       if multiplicity = 1 then  
-        (false, true, true, Pow(var, multiplicity, varIntv, false, varIntv, varAF2Form), varIntv, varAF2Form)
+        (false, true, true, Pow(var, multiplicity, polType, varIntv, false, varIntv, varAF2Form), varIntv, varAF2Form)
       else if multiplicity mod 2 = 0 then 
         let newMultiplicity = multiplicity / 2 in 
-        let newPowExpr = Pow (var, newMultiplicity, varIntv, true, {low=neg_infinity;high=infinity}, oldAf2Form) in
+        let newPowExpr = Pow (var, newMultiplicity, polType, varIntv, true, {low=neg_infinity;high=infinity}, oldAf2Form) in
         let (_, _, _, _, _, tmpAf2Result) = evalAf2 varsIntvsMap varsAf2sMap varsNum newPowExpr in
         let af2Form = IA.AF2.(tmpAf2Result * tmpAf2Result) in
         let af2Intv = af2Form#evaluate in
         let newIntv = inter_I_I af2Intv oldIntv in
         let intvChanged = not (compare_intv newIntv oldIntv) in
-        (intvChanged, true, true, Pow(var, multiplicity, varIntv, false, newIntv, af2Form), newIntv, af2Form)
+        (intvChanged, true, true, Pow(var, multiplicity, polType, varIntv, false, newIntv, af2Form), newIntv, af2Form)
       else 
-        let newPowExpr = Pow (var, multiplicity - 1, varIntv, true, {low=neg_infinity;high=infinity}, oldAf2Form) in
+        let newPowExpr = Pow (var, multiplicity - 1, polType, varIntv, true, {low=neg_infinity;high=infinity}, oldAf2Form) in
         let (_, _, _, _, _ ,powExprAf2) = evalAf2 varsIntvsMap varsAf2sMap varsNum newPowExpr in
         let af2Form = IA.AF2.(varAF2Form * powExprAf2) in
         let af2Intv = af2Form#evaluate in
         let newIntv = inter_I_I af2Intv oldIntv in
         let intvChanged = not (compare_intv newIntv oldIntv) in 
-        (intvChanged, true, true, Pow(var, multiplicity, varIntv, false, newIntv, af2Form), newIntv, af2Form)
+        (intvChanged, true, true, Pow(var, multiplicity, polType, varIntv, false, newIntv, af2Form), newIntv, af2Form)
     else 
       let usingAF2 = not (check_infinity varIntv) in
-      (false, false, usingAF2, Pow (var, multiplicity, varIntv, false, oldIntv, oldAf2Form), oldIntv, oldAf2Form)
+      (false, false, usingAF2, Pow (var, multiplicity, polType, varIntv, false, oldIntv, oldAf2Form), oldIntv, oldAf2Form)
 
 (* (* evalICI compute the bound of a polynomial function from an assignment ass by ICI form*)
 let rec evalICI varsIntvsMap = function
@@ -1129,13 +1129,13 @@ let check_contract oldIntv intv esl =
 let contain_zero intv = intv.low <= 0. && intv.high >= 0.
 
 let get_intv_ofPolyExpr varsIntvsMap = function
-  | Real (_, _, intv, _) -> intv
+  | Cons (_, _, _, intv, _) -> intv
   | Var (var, _, _, _, _) -> StringMap.find var varsIntvsMap
-  | Add (_, _, intv, _) -> intv
-  | Sub (_, _, intv, _) -> intv
-  | Mul (_, _, intv, _) -> intv
-  | Div (_, _, intv, _) -> intv
-  | Pow (_, _, _, _, intv, _) -> intv
+  | Add (_, _, _, intv, _) -> intv
+  | Sub (_, _, _, intv, _) -> intv
+  | Mul (_, _, _, intv, _) -> intv
+  | Div (_, _, _, intv, _) -> intv
+  | Pow (_, _, _, _, _, intv, _) -> intv
 
 let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
   let oldIntv = get_intv_ofPolyExpr varsIntvsMap polyExpr in
@@ -1152,7 +1152,7 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
           else {low = ceil newIntv.low; high = floor newIntv.high}
         in
         (contracted, StringMap.add var newIntv varsIntvsMap)
-      | Add (u, v, _,_) -> 
+      | Add (u, v, _, _,_) -> 
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
         (* print_endline ("Contracting " ^ string_infix_of_polyExpr u ^ " from " ^ sprintf_I "%f" uIntv
@@ -1165,7 +1165,7 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
         else 
           let (vContracted, varsIntvsMap) = contract_polyExpr v (newIntv -$ uIntv) varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
-      | Sub (u, v, _, _) -> 
+      | Sub (u, v, _, _, _) -> 
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
         (* print_endline ("Interval of " ^ string_infix_of_polyExpr u ^ " is " ^ sprintf_I "%f" uIntv
@@ -1178,7 +1178,7 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
         else
           let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv -$ newIntv) varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
-      | Mul (u, v, _, _) -> 
+      | Mul (u, v, _, _, _) -> 
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
 
@@ -1195,7 +1195,7 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
             else contract_polyExpr v (newIntv /$ uIntv) varsIntvsMap esl 
           in
           (uContracted || vContracted, varsIntvsMap)
-      | Div (u, v, _, _) ->
+      | Div (u, v, _, _, _) ->
         let uIntv = get_intv_ofPolyExpr varsIntvsMap u in
         let vIntv = get_intv_ofPolyExpr varsIntvsMap v in
 
@@ -1206,7 +1206,7 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
         else
           let (vContracted, varsIntvsMap) = contract_polyExpr v (uIntv /$ newIntv) varsIntvsMap esl in
           (uContracted || vContracted, varsIntvsMap)
-      | Pow (var, multiplicity, _, _, _, _) -> 
+      | Pow (var, multiplicity, _, _, _, _, _) -> 
         (* print_endline ("Start contracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr);
         flush stdout; *)
         (* print_endline ("Finished constracting " ^ var ^ " in " ^ string_infix_of_polyExpr polyExpr); *)

@@ -16,11 +16,18 @@ module MultiVarSet = Multiset.Make(MultiVar)
 module Poly = Map.Make(MultiVarSet) 
 
 type poly = 
-  | Monomials of float Poly.t
-  | MonoAdd of poly * poly 
-  | MonoSub of poly * poly 
-  | MonoMul of poly * poly 
-  | MonoDiv of poly * poly  
+  | Monomials of float Poly.t * int
+  | MonoAdd of poly * poly * int
+  | MonoSub of poly * poly * int
+  | MonoMul of poly * poly * int
+  | MonoDiv of poly * poly  * int
+
+let get_type = function
+  | Monomials(_, polType) -> polType
+  | MonoAdd (_, _, polType) -> polType
+  | MonoSub (_, _, polType) -> polType
+  | MonoMul (_, _, polType) -> polType
+  | MonoDiv (_, _, polType) -> polType
 
 
 
@@ -36,17 +43,23 @@ let print_monomials p =
 
 (* evaluate expressions into values *) 
 let rec eval = function 
-  | Real (c, _, _, _) -> Monomials (Poly.singleton MultiVarSet.empty c)
-  | Var (v, _, _, _, _)  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1.)
-  | Add(e1, e2, _, _) -> 
+  | Cons (c, _, polType, _, _) -> Monomials (Poly.singleton MultiVarSet.empty c, polType)
+  | Var (v, polType, _, _, _)  -> Monomials (Poly.singleton (MultiVarSet.add v MultiVarSet.empty)  1., polType)
+  | Add(e1, e2, polType, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
-    (
-    match (newE1, newE2) with
-      | (Monomials m1, Monomials m2) -> Monomials (plus m1 m2)
-      | _ -> MonoAdd (newE1, newE2)
-    )
-  | Sub(e1, e2, _, _) -> 
+    let polType1 = get_type newE1 in
+    let polType2 = get_type newE2 in
+    if polType1 != poltype2 then
+      raise (Failure "Wrong types of expressions")
+    else
+      (
+      match (newE1, newE2) with
+        | (Monomials (m1, _), Monomials (m2, _)) -> 
+          Monomials (plus m1 m2 polType1)
+        | _ -> MonoAdd (newE1, newE2)
+      )
+  | Sub(e1, e2, _, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -54,7 +67,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (minus m1 m2)
       | _ -> MonoSub (newE1, newE2)
     )
-  | Mul(e1, e2, _, _) -> 
+  | Mul(e1, e2, _, _, _) -> 
     let newE1 = eval e1 in
     let newE2 = eval e2 in
     (
@@ -62,7 +75,7 @@ let rec eval = function
       | (Monomials m1, Monomials m2) -> Monomials (times m1 m2)
       | _ -> MonoMul (newE1, newE2)
     )
-  | Div(e1, e2, _, _) -> MonoDiv ((eval e1), (eval e2))
+  | Div(e1, e2, _, _, _) -> MonoDiv ((eval e1), (eval e2))
   | _ -> raise (Failure "Unsupported SMT2 function symbols")
 
 (* BatOption.default *) 
@@ -119,13 +132,13 @@ let rec reify variables = function
       else 
         let createMulExpr currentMulExpr (var, multiplicity) = 
           let tmpVarExpr = 
+            let varType = StringMap.find var variables in
             if multiplicity = 1 then 
-              let varType = StringMap.find var variables in
               Var (var, varType, {low=infinity;high=neg_infinity}, new IA.af2 0 , false)
-            else Pow(var, multiplicity, {low=infinity;high=neg_infinity}, false, {low=neg_infinity;high=infinity}, new IA.af2 0) 
+            else Pow(var, multiplicity, varType, {low=infinity;high=neg_infinity}, false, {low=neg_infinity;high=infinity}, new IA.af2 0) 
           in
           (match currentMulExpr with
-            | Real (1., _, _, _) -> tmpVarExpr
+            | Cons (1., _, _, _, _) -> tmpVarExpr
             | _ -> Mul(currentMulExpr, tmpVarExpr, {low=neg_infinity;high=infinity}, new IA.af2 0) 
           )
         in
@@ -133,15 +146,15 @@ let rec reify variables = function
         print_endline "";
         flush stdout; *)
         let cIntv = {low=coefficient;high=coefficient} in
-        let newPolyExpr = List.fold_left createMulExpr (Real (coefficient, false, cIntv, new IA.af2 0)) 
+        let newPolyExpr = List.fold_left createMulExpr (Cons (coefficient, false, cIntv, new IA.af2 0)) 
                                                 (MultiVarSet.elements_packed vars) in
         (
         match currentPolyExpr with 
-          | Real (0., _, _, _) -> newPolyExpr
+          | Cons (0., _, _, _) -> newPolyExpr
           | _ -> Add (currentPolyExpr, newPolyExpr, {low=neg_infinity;high=infinity}, new IA.af2 0)
         )
     in
-    Poly.fold addMonomial p (Real (0., false, {low=0.;high=0.}, new IA.af2 0))
+    Poly.fold addMonomial p (Cons (0., false, {low=0.;high=0.}, new IA.af2 0))
   | MonoAdd (poly1, poly2) -> 
     let polyExpr1 = reify variables poly1 in
     let polyExpr2 = reify variables poly2 in
