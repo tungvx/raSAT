@@ -30,7 +30,7 @@ type poly_expr =
   | Mod of poly_expr * poly_expr * Interval.interval
   | Cons of float * bool * int * Interval.interval * IA.af2
   | Var of string * int * Interval.interval * IA.af2 * bool (* name * type * interval * AF2Form * isChanged *)
-  | Pow of string * int * int * Interval.interval * bool * Interval.interval  * IA.af2
+  | Pow of string * int * int * Interval.interval * bool * Interval.interval  * IA.af2  
 
 type poly_constraint = 
   | Eq of poly_expr
@@ -40,6 +40,47 @@ type poly_constraint =
   | Gr of poly_expr
   | Le of poly_expr
 
+let rec pow_to_mul (Pow(var, multiplicity, polType, varIntv, _,_, af2Form)) =
+  if multiplicity == 1 then 
+    Var (var, polType, varIntv , af2Form, false)
+  else if multiplicity > 1 then 
+    Mul(Var (var, polType, varIntv, af2Form, false), 
+        pow_to_mul (Pow(var, multiplicity - 1, polType, varIntv, false, varIntv, af2Form)),
+        polType, varIntv, af2Form)
+  else 
+    raise (Failure "Ill-formed Pow expression")
+
+let rec get_derivative var = function 
+  | Add (polyExpr1, polyExpr2, polType, intv, af2Form) -> 
+    Add (get_derivative var polyExpr1, get_derivative var polyExpr2, polType, intv, af2Form)
+  | Sub (polyExpr1, polyExpr2 , polType, intv, af2Form) -> 
+    Sub (get_derivative var polyExpr1, get_derivative var polyExpr2, polType, intv, af2Form)
+  | Mul (polyExpr1, polyExpr2, polType, intv, af2Form) -> 
+    Add (Mul(get_derivative var polyExpr1, polyExpr2, polType, intv, af2Form), 
+         Mul(polyExpr1, get_derivative var polyExpr2, polType, intv, af2Form), 
+         polType, intv, af2Form)
+  | Div (polyExpr1, polyExpr2, polType, intv, af2Form) -> 
+    Div(Sub(Mul(polyExpr2, get_derivative var polyExpr1, polType, intv, af2Form), 
+            Mul(polyExpr1, get_derivative var polyExpr2, polType, intv, af2Form), 
+            polType, intv, af2Form), 
+        Mul(polyExpr2, polyExpr2, polType, intv, af2Form), 
+        polType, intv, af2Form)
+  | Cons (f, _, polType, _, af2Form) -> Cons (0., false, polType, {low=0.;high=0.}, new IA.af2 0)
+  | Var (var1, polType, _, _, _) -> 
+    if var = var1 then
+      Cons (1., false, polType, {low=1.;high=1.}, new IA.af2 0)
+    else
+      Cons (0., false, polType, {low=0.;high=0.}, new IA.af2 0)
+  | Pow(var1, multiplicity, polType, varIntv, af2Changed, oldIntv, oldAf2Form) -> 
+    if var = var1 then 
+      if multiplicity > 1 then 
+        Pow(var1, multiplicity-1, polType, varIntv, af2Changed, oldIntv, oldAf2Form)
+      else if multiplicity = 1 then 
+        Cons (1., false, polType, {low=1.;high=1.}, new IA.af2 0)
+      else 
+        raise (Failure "Ill-formed Power expression")  
+    else 
+      Cons (0., false, polType, {low=0.;high=0.}, new IA.af2 0)
 
 let get_type_polyExpr = function
   | Add (_,_, polType, _, _) -> polType
@@ -49,6 +90,7 @@ let get_type_polyExpr = function
   | Cons (_,_, polType, _, _) -> polType
   | Var (_, polType, _, _, _) -> polType
   | Pow (_,_, polType, _, _,_,_) -> polType 
+  | Mod (_) -> intType
 
 let get_type_polyExprs poly1 poly2 = 
   let polType1 = get_type_polyExpr poly1 in
@@ -1185,7 +1227,7 @@ let check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum vars
 
 
   (* Verifying AF2 result *)
-  let (_, verifyingPolyExpr, verifyingCiBound, verifyingChangedVars)  = 
+  (* let (_, verifyingPolyExpr, verifyingCiBound, verifyingChangedVars)  = 
     poly_eval_ci varsIntvsMap varsNum false polyExpr 
   in
   let (_, verifiedAfTwoBound, _)  = 
@@ -1210,7 +1252,7 @@ let check_sat_getBound_af_two_ci_boolExpr_varsSens boolExpr varsSet varsNum vars
     print_I verifyingAfTwoBound;
     flush stdout;
     raise (Failure "Wrong implmentation in check_sat_getBound_af_two_ci_boolExpr_varsSens");    
-  );
+  ); *)
 
 
   if sat = 0 then (* AF2 fails to conclude the expression *)

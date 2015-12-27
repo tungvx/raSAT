@@ -28,6 +28,15 @@ let zero_I = {low=0.;high=0.}
 let one_I = {low=1.;high=1.}
 
 
+let get_sign intv =
+  if intv.high < 0. then
+    -1
+  else if intv.low = 0. && intv.high = 0. then
+    0
+  else if intv.low > 0. then 
+    1
+  else -2
+
 let print_I x = Printf.printf "[%f, %f] " x.low x.high
 
 let sprintf_I format i = 

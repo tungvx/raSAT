@@ -87,6 +87,8 @@ let rec eval = function
       )
   | Div(e1, e2, polType, _, _) -> 
     MonoDiv ((eval e1), (eval e2), polType)
+  | Pow(var, multiplicity, polType, varIntv, af2Changed, oldIntv, oldAf2Form) ->
+    eval (pow_to_mul (Pow(var, multiplicity, polType, varIntv, af2Changed, oldIntv, oldAf2Form)))
   | _ -> raise (Failure "Unsupported SMT2 function symbols")
 
 (* BatOption.default *) 

@@ -94,6 +94,9 @@ type interval = {
     high: float (** high bound *)
   }
 
+(* Get sign of interval *)
+val get_sign: interval -> int
+
 (** Neutral element for addition *)
 val zero_I : interval
 

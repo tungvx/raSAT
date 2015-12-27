@@ -3,10 +3,11 @@ open IA
 open Variable
 open Interval
 open Assignments
+open Expr
 
 (* ============================= START of polynomialConstraint class ================================= *)
 (* Class for storing informations of a constraint *)
-class polynomialConstraint boolExprInit =
+class polynomialConstraint boolExprInit variables =
   let varsSetInit = get_varsSet_polyCons boolExprInit in
   let (isPositiveDirected, isEquation, isNotEquation) = 
     match boolExprInit with
@@ -23,6 +24,22 @@ class polynomialConstraint boolExprInit =
     val mutable boolExpr = boolExprInit
     val mutable neg_boolExpr = not_of_polyConstraint boolExprInit
     val mutable is_negated = false
+
+    val mutable derivatives = 
+      
+      (* let printString = "Start getting derivatives of " ^ string_infix_of_polyExpr (get_exp boolExprInit) in
+      print_endline printString;
+      flush stdout; *)
+
+      let add_derivative var currentMap = 
+        let derivative = reduce (get_derivative var (get_exp boolExprInit)) variables in
+        StringMap.add var derivative currentMap
+      in
+
+      (* print_endline "Finished getting derivatives";
+      flush stdout; *)
+
+      VariablesSet.fold add_derivative varsSetInit StringMap.empty
 
     val varsSet = varsSetInit
     val varsIndicesMap = 
@@ -47,6 +64,16 @@ class polynomialConstraint boolExprInit =
     
     method get_log = log
     method set_log setLog = log <- setLog
+
+    method get_derivatives = derivatives
+    method set_derivatives setDerivatives = derivatives <- setDerivatives
+    (* method print_derivatives = 
+      print_endline ("Derivatives of " ^ string_infix_of_polyExpr self#get_polyExpr);
+      let print_derivative var derivative = 
+        print_endline (var ^ ": " ^ derivative#to_string_infix);
+      in
+      flush stdout;
+      StringMap.iter print_derivative self#get_derivatives *)
     
     method get_constraint = 
       if is_negated then neg_boolExpr
@@ -120,6 +147,151 @@ class polynomialConstraint boolExprInit =
       if List.length varsSen = varsNum then self#get_n_varsSen varsNum
       else varsList
 
+    method private check_sat_posDerivative lowerSign upperSign = match boolExpr with
+    | Eq _ -> 
+      if lowerSign = 1 || upperSign = -1 then -1
+      else 0
+    | Neq _ -> 
+      if lowerSign = 1 || upperSign = -1 then 1
+      else 0
+    | Geq _ -> 
+      if lowerSign >= 0 then 1
+      else if upperSign = -1 then -1
+      else 0
+    | Leq _ -> 
+      if upperSign = -1 || upperSign = 0 then 1
+      else if lowerSign = 1 then -1
+      else 0
+    | Gr _ -> 
+      if lowerSign = 1 then 1
+      else if upperSign = 0 || upperSign = -1 then -1
+      else 0
+    | Le _ -> 
+      if upperSign = -1 then 1
+      else if lowerSign >= 0 then -1
+      else 0
+
+    method private check_sat_zeroDerivative lowerSign upperSign = match boolExpr with
+    | Eq _ -> 
+      if lowerSign = 0 then 1
+      else if lowerSign = 1 || lowerSign = -1 then -1
+      else 0
+    | Neq _ -> 
+      if lowerSign = 1 || upperSign = -1 then 1
+      else if lowerSign = 0 then -1
+      else 0
+    | Geq _ -> 
+      if lowerSign >= 0 then 1
+      else if lowerSign = -1 then -1
+      else 0
+    | Leq _ -> 
+      if lowerSign = -1 || lowerSign = 0 then 1
+      else if lowerSign = 1 then -1
+      else 0
+    | Gr _ -> 
+      if lowerSign = 1 then 1
+      else if lowerSign = 0 || lowerSign = -1 then -1
+      else 0
+    | Le _ -> 
+      if lowerSign = -1 then 1
+      else if lowerSign >= 0 then -1
+      else 0
+
+    method private check_sat_negDerivative lowerSign upperSign = match boolExpr with
+    | Eq _ -> 
+      if lowerSign = -1 || upperSign = 1 then -1
+      else 0
+    | Neq _ -> 
+      if lowerSign = -1 || upperSign = 1 then 1
+      else 0
+    | Geq _ -> 
+      if upperSign >= 0 then 1
+      else if lowerSign = -1 then -1
+      else 0
+    | Leq _ -> 
+      if lowerSign = -1 || lowerSign = 0 then 1
+      else if upperSign = 1 then -1
+      else 0
+    | Gr _ -> 
+      if upperSign = 1 then 1
+      else if lowerSign = 0 || lowerSign = -1 then -1
+      else 0
+    | Le _ -> 
+      if lowerSign = -1 then 1
+      else if upperSign >= 0 then -1
+      else 0
+
+    method private check_sat_providedDerivatives derivative lowerSign upperSign =
+      if derivative = 1 then 
+        self#check_sat_posDerivative lowerSign upperSign
+      else if derivative = 0 then 
+        self#check_sat_zeroDerivative lowerSign upperSign
+      else if derivative = -1 then 
+        self#check_sat_negDerivative lowerSign upperSign
+      else 0
+
+    method private check_sat_using_derivatives (varsIntvsMap:(Interval.interval Variable.StringMap.t)) =
+      let check_sat_using_derivative_var var derivative =
+        let varIntv = StringMap.find var varsIntvsMap in
+
+        if varIntv.low = neg_infinity && varIntv.high = infinity then
+          0
+        else
+
+          (* Compute lower value of the poly with the lower one of var *)
+          let lowerBound = 
+            if varIntv.low != neg_infinity then
+              let lowerIntv = StringMap.add var {low=varIntv.low;high=varIntv.low} varsIntvsMap in
+              self#get_bound lowerIntv
+            else {low=neg_infinity;high=infinity}
+          in
+          let lowerSign = get_sign lowerBound in
+
+          (* Compute upper value of the polynomial with the upper one of var *)
+          let upperBound = 
+            if varIntv.high != infinity then
+              let upperIntv = StringMap.add var {low=varIntv.high;high=varIntv.high} varsIntvsMap in
+              self#get_bound upperIntv
+            else {low=neg_infinity;high=infinity}
+          in            
+          let upperSign = get_sign upperBound in
+
+          if lowerSign != -2 || upperSign != -2 then 
+            (* Checking whether the derivative is less than 0 *)
+            let (newDerivative, _, _, _, bound) = 
+                    check_sat_getBound_af_two_ci_boolExpr_varsSens (Eq derivative) varsSet varsNum 
+                                    varsIntvsMap varsIndicesMap 
+            in
+            let sign = get_sign bound in 
+            self#set_derivatives (StringMap.add var newDerivative derivatives);
+            
+            let sat = self#check_sat_providedDerivatives sign lowerSign upperSign in
+
+            (* (if sat != 0 then
+                          let printString = "Detected using derivatives in " ^ self#to_string_infix in
+                          print_endline printString;
+                          flush stdout;); *)
+
+            sat
+
+          else
+            0
+      in 
+      let rec check_sat_using_derivative derivatives =
+        if StringMap.is_empty derivatives then 
+          0
+        else
+          let (var, derivative) = 
+            StringMap.choose derivatives
+          in
+          let sat = check_sat_using_derivative_var var derivative in
+          if sat != 0 then 
+            sat
+          else
+            check_sat_using_derivative (StringMap.remove var derivatives)
+      in
+      check_sat_using_derivative self#get_derivatives
+    
 
     (* check sat of this polynomial using ci*)
     (*method private check_sat_getBound_ici (varsIntvsMap:(IA.interval Variable.StringMap.t)) = check_sat_getBound_getSATLength_ici_boolExpr boolExpr varsIntvsMap*)
@@ -128,13 +300,21 @@ class polynomialConstraint boolExprInit =
     (* method private check_sat_af_two_ci (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = check_sat_af_two_ci_boolExpr boolExpr varsSet varsNum varsIntvsMap *)
         
     (* check sat of this polynomial using combination of af2 and ci, variables sensitivities are also returned *)
-    method private check_sat_getBound_af_two_ci_varsSens (varsIntvsMap:(Interval.interval Variable.StringMap.t)) 
-                                                         = 
-      let (newPolyExpr, sat, computedSatLength, sortedVarsSen, bound) = check_sat_getBound_af_two_ci_boolExpr_varsSens 
-                                                                                  self#get_constraint varsSet varsNum varsIntvsMap varsIndicesMap in
+    method private check_sat_getBound_af_two_ci_varsSens 
+                              (varsIntvsMap:(Interval.interval Variable.StringMap.t)) = 
+      let (newPolyExpr, sat, computedSatLength, sortedVarsSen, bound) = 
+          check_sat_getBound_af_two_ci_boolExpr_varsSens self#get_constraint varsSet varsNum 
+                                      varsIntvsMap varsIndicesMap 
+      in
       self#set_polyExpr newPolyExpr;
       varsSen <- sortedVarsSen;
       satLength <- computedSatLength;
+      let sat = 
+        if sat = 0 then 
+          self#check_sat_using_derivatives varsIntvsMap
+        else 
+          sat
+      in
       (sat, bound, computedSatLength)
     
     (* This method does not update isInfinite field, and varsSen is not computed *)
