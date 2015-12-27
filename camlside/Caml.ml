@@ -138,27 +138,32 @@ module Caml = struct
 
   and get_constraint_symbol varTermMap functions variables varsPolysMap varsConstraintsMap = function 
     |Symbol (_ , str1) -> 
-      (try
-        StringMap.find str1 varsConstraintsMap
-        (* let term = StringMap.find str1 varBindings in
-        get_constraint_term varTermMap functions variables varBindings term *)
-      with  
-        Not_found -> 
-          ( try
-              let varSort = StringMap.find str1 variables in
-              if varSort = boolType then [BVar str1]
-              else raise (Failure "Wrong input")
-            with Not_found -> 
-              (try
-                let term = StringMap.find str1 varTermMap in
-                get_constraint_term StringMap.empty functions variables varsPolysMap varsConstraintsMap term
+      if str1 = "true" then
+        [True]
+      else if str1 = "false" then
+        [False]
+      else
+        (try
+          StringMap.find str1 varsConstraintsMap
+          (* let term = StringMap.find str1 varBindings in
+          get_constraint_term varTermMap functions variables varBindings term *)
+        with  
+          Not_found -> 
+            ( try
+                let varSort = StringMap.find str1 variables in
+                if varSort = boolType then [BVar str1]
+                else raise (Failure ("Unexpected predicate symbol in get_constraint_symbol 1: " ^ str1))
               with Not_found -> 
-                if str1 = "true" then [Or(BVar "true", NBVar "true")]
-                else if str1 = "false" then [And(BVar "false", NBVar "false")]
-                else raise (Failure "Wrong input")
-              )
-          )
-      )
+                (try
+                  let term = StringMap.find str1 varTermMap in
+                  get_constraint_term StringMap.empty functions variables varsPolysMap varsConstraintsMap term
+                with Not_found -> 
+                  if str1 = "true" then [Or(BVar "true", NBVar "true")]
+                  else if str1 = "false" then [And(BVar "false", NBVar "false")]
+                  else raise (Failure "Wrong input  in get_constraint_symbol 2")
+                )
+            )
+        )
     |SymbolWithOr (_ , str1) -> 
       (try
         StringMap.find str1 varsConstraintsMap
@@ -167,7 +172,7 @@ module Caml = struct
           ( try
               let varSort = StringMap.find str1 variables in
               if varSort = boolType then [BVar str1]
-              else raise (Failure "Wrong input")
+              else raise (Failure "Wrong input in get_constraint_symbol 3")
             with Not_found -> 
               (try
                 let term = StringMap.find str1 varTermMap in
@@ -175,7 +180,7 @@ module Caml = struct
               with Not_found -> 
                 if str1 = "true" then [Or(BVar "true", NBVar "true")]
                 else if str1 = "false" then [And(BVar "false", NBVar "false")]
-                else raise (Failure "Wrong input")
+                else raise (Failure "Wrong input in get_constraint_symbol 4")
               )
           )
       )
@@ -241,6 +246,24 @@ module Caml = struct
       POr (get_add_poly_extra smtPoly11 smtPoly2, get_add_poly_extra smtPoly12 smtPoly2)
     | (_, POr(smtPoly21, smtPoly22)) -> 
       POr (get_add_poly_extra smtPoly1 smtPoly21, get_add_poly_extra smtPoly1 smtPoly22)
+
+  and get_mod_poly = function
+    | [poly1; poly2] -> get_mod_poly_extra poly1 poly2
+    | _ -> raise (Failure "Wrong number of arguments for Modulo") 
+
+  and get_mod_poly_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
+    | (SPoly(poly1), SPoly(poly2)) -> 
+      SPoly (Mod(poly1, poly2, inf_I))
+    | (SPoly(poly1), Poly (boolConstraint2, poly2)) -> 
+      Poly (boolConstraint2, Mod(poly1, poly2, inf_I))
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> 
+      Poly (boolConstraint1, Mod(poly1, poly2, inf_I))
+    | (Poly(boolConstraint1, poly1), Poly (boolConstraint2, poly2)) -> 
+      Poly(And(boolConstraint1, boolConstraint2), Mod(poly1, poly2, inf_I))
+    | (POr(smtPoly11, smtPoly12), _) -> 
+      POr (get_mod_poly_extra smtPoly11 smtPoly2, get_mod_poly_extra smtPoly12 smtPoly2)
+    | (_, POr(smtPoly21, smtPoly22)) -> 
+      POr (get_mod_poly_extra smtPoly1 smtPoly21, get_mod_poly_extra smtPoly1 smtPoly22)
     
   and get_div_poly = function
     | [] -> raise (Failure "Need arguments for addition")
@@ -267,21 +290,25 @@ module Caml = struct
 
   and get_minus_poly = function
     | [] -> raise (Failure "Need arguments for Subtraction") 
-    | [SPoly(Cons (f, _, polType, _, _))] -> SPoly(Cons ((~-.) f, false, polType, inf_I, new IA.af2 0))
-    | [SPoly(poly)] -> 
+    | [poly] -> get_minus_single_poly poly
+    | polys -> get_minus_poly_extra polys
+
+  and get_minus_single_poly = function
+    | SPoly(Cons (f, _, polType, _, _)) -> SPoly(Cons ((~-.) f, false, polType, inf_I, new IA.af2 0))
+    | SPoly(poly) -> 
       let polType = get_type_polyExpr poly in 
       SPoly(Sub(Cons (0., false, polType, inf_I, new IA.af2 0), poly, polType, inf_I, new IA.af2 0))
-    | [Poly(boolConstraint, Cons (f, _, polType, _, _))] -> 
+    | Poly(boolConstraint, Cons (f, _, polType, _, _)) -> 
       Poly(boolConstraint, Cons ((~-.) f, false, polType, inf_I, new IA.af2 0))
-    | [Poly(boolConstraint, poly)] -> 
+    | Poly(boolConstraint, poly) -> 
       let polType = get_type_polyExpr poly in
       Poly(boolConstraint, Sub (Cons (0., false, polType, inf_I, new IA.af2 0), poly, polType, inf_I, new IA.af2 0))
-    | polys -> get_minus_poly_extra polys
+    | POr(smtPoly1, smtPoly2) -> POr(get_minus_single_poly smtPoly1, get_minus_single_poly smtPoly2)
 
   and get_minus_poly_extra = function 
     | [] -> raise (Failure "Need arguments for Subtraction") 
     | [poly] -> poly
-    | poly1::poly2::remainingPolys -> get_minus_poly_extra((get_minus_poly_extra_extra poly1 poly2) :: remainingPolys)     
+    | poly1::poly2::remainingPolys -> get_minus_poly_extra((get_minus_poly_extra_extra poly1 poly2) :: remainingPolys)       
 
   and get_minus_poly_extra_extra smtPoly1 smtPoly2 = match smtPoly1, smtPoly2 with
     | (SPoly(poly1), SPoly(poly2)) -> 
@@ -324,6 +351,10 @@ module Caml = struct
         let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
                             varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
         get_minus_poly polys
+      else if qualidentifier_string = "mod" then
+        let polys = get_polys_termqualidterm_term_term56 varTermMap functions variables 
+                            varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
+        get_mod_poly polys
       else if qualidentifier_string = "ite" then
         get_ite_polys_termqualidterm_term_term56 varTermMap functions variables 
                             varsPolysMap varsConstraintsMap termqualidterm_term_term563
@@ -356,9 +387,12 @@ module Caml = struct
           (let rec get_ite_polys boolConstraint2 smtPoly = match smtPoly with
             | SPoly(poly) -> Poly(boolConstraint2, poly)
             | Poly(boolConstraint1, poly1) -> Poly(And (boolConstraint1, boolConstraint2), poly1)
-            | POr(smtPoly11, smtPoly21) -> POr (get_ite_polys boolConstraint2 smtPoly11, get_ite_polys boolConstraint2 smtPoly21)
+            | POr(smtPoly11, smtPoly21) -> POr (get_ite_polys boolConstraint2 smtPoly11, 
+                                        get_ite_polys boolConstraint2 smtPoly21)
           in
-          POr(get_ite_polys boolConstraint smtPoly1, get_ite_polys (not_of_boolCons boolConstraint) smtPoly2)
+
+          POr(get_ite_polys boolConstraint smtPoly1, 
+                get_ite_polys (not_of_boolCons boolConstraint) smtPoly2)
           )
         | _ -> raise (Failure "Wrong number of arguments for ite")
       )
@@ -398,6 +432,8 @@ module Caml = struct
     | (SPoly(poly1), SPoly(poly2)) -> get_le_constraint_extra_extra poly1 poly2  variables
     | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_le_constraint_extra_extra poly1 poly2 variables)
     | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_le_constraint_extra_extra poly1 poly2  variables)
+    | (Poly(boolConstraint1, poly1), Poly(boolConstraint2, poly2)) -> 
+      And(And(boolConstraint1, boolConstraint2), get_le_constraint_extra_extra poly1 poly2  variables)
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_le_constraint_extra smtPoly1 smtPoly21 variables, get_le_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_le_constraint_extra smtPoly11 smtPoly2 variables, get_le_constraint_extra smtPoly12 smtPoly2 variables)
 
@@ -410,6 +446,10 @@ module Caml = struct
         new polynomialConstraint (Le (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0))  variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
+      
+      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
+      flush stdout; *)
+
       miniSATIndex := !miniSATIndex + 1;
       Single (polyCons)
 
@@ -422,6 +462,8 @@ module Caml = struct
     | (SPoly(poly1), SPoly(poly2)) -> get_leq_constraint_extra_extra poly1 poly2  variables
     | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_leq_constraint_extra_extra poly1 poly2 variables)
     | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_leq_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), Poly(boolConstraint2, poly2)) -> 
+      And(And(boolConstraint1, boolConstraint2), get_leq_constraint_extra_extra poly1 poly2 variables)
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_leq_constraint_extra smtPoly1 smtPoly21 variables, get_leq_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_leq_constraint_extra smtPoly11 smtPoly2 variables, get_leq_constraint_extra smtPoly12 smtPoly2 variables)
 
@@ -434,6 +476,10 @@ module Caml = struct
         new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
+
+      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
+      flush stdout; *)
+
       miniSATIndex := !miniSATIndex + 1;
       Single (polyCons)
 
@@ -446,6 +492,8 @@ module Caml = struct
     | (SPoly(poly1), SPoly(poly2)) -> get_gr_constraint_extra_extra poly1 poly2 variables
     | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_gr_constraint_extra_extra poly1 poly2 variables)
     | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_gr_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), Poly(boolConstraint2, poly2)) -> 
+      And(And (boolConstraint1, boolConstraint2), get_gr_constraint_extra_extra poly1 poly2 variables)
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_gr_constraint_extra smtPoly1 smtPoly21 variables, get_gr_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_gr_constraint_extra smtPoly11 smtPoly2 variables, get_gr_constraint_extra smtPoly12 smtPoly2 variables)
 
@@ -458,6 +506,10 @@ module Caml = struct
         new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
+
+      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
+      flush stdout; *)
+
       miniSATIndex := !miniSATIndex + 1;
       Single (polyCons)
 
@@ -470,6 +522,8 @@ module Caml = struct
     | (SPoly(poly1), SPoly(poly2)) -> get_geq_constraint_extra_extra poly1 poly2 variables
     | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_geq_constraint_extra_extra poly1 poly2 variables)
     | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_geq_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), Poly(boolConstraint2, poly2)) -> 
+      And(And(boolConstraint1, boolConstraint2), get_geq_constraint_extra_extra poly1 poly2 variables)
     | (_, POr(smtPoly21, smtPoly22)) -> Or(get_geq_constraint_extra smtPoly1 smtPoly21 variables, get_geq_constraint_extra smtPoly1 smtPoly22 variables)
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_geq_constraint_extra smtPoly11 smtPoly2 variables, get_geq_constraint_extra smtPoly12 smtPoly2 variables)
 
@@ -482,6 +536,10 @@ module Caml = struct
         new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
       polyCons#set_miniSATCode !miniSATIndex;
+
+      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
+      flush stdout; *)
+
       miniSATIndex := !miniSATIndex + 1;
       Single (polyCons)
 
@@ -492,10 +550,38 @@ module Caml = struct
 
   and get_eq_constraint_extra smtPoly1 smtPoly2 variables = match smtPoly1, smtPoly2 with
     | (SPoly(poly1), SPoly(poly2)) -> get_eq_constraint_extra_extra poly1 poly2 variables
-    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> And(boolConstraint2, get_eq_constraint_extra_extra poly1 poly2 variables)
-    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> And(boolConstraint1, get_eq_constraint_extra_extra poly1 poly2 variables)
-    | (_, POr(smtPoly21, smtPoly22)) -> Or(get_eq_constraint_extra smtPoly1 smtPoly21 variables, get_eq_constraint_extra smtPoly1 smtPoly22 variables)
-    | (POr(smtPoly11, smtPoly12), _) -> Or(get_eq_constraint_extra smtPoly11 smtPoly2 variables, get_eq_constraint_extra smtPoly12 smtPoly2 variables)
+    | (SPoly(poly1), Poly(boolConstraint2, poly2)) -> 
+      
+      (* let (miniSATExpr, _, _, _, _, _, _) = 
+        miniSATExpr_of_constraints boolConstraint2 0 IntMap.empty "logic" StringMap.empty  
+      in
+      print_string (string_infix_of_miniSATExpr miniSATExpr ^ " -> ");
+      flush stdout; *)
+
+      And(boolConstraint2, get_eq_constraint_extra_extra poly1 poly2 variables)
+    | (Poly(boolConstraint1, poly1), SPoly(poly2)) -> 
+
+      (* let (miniSATExpr, _, _, _, _, _, _) = 
+        miniSATExpr_of_constraints boolConstraint1 0 IntMap.empty "logic" StringMap.empty  
+      in
+      print_string (string_infix_of_miniSATExpr miniSATExpr ^ " -> ");
+      flush stdout; *)
+
+      And(boolConstraint1, get_eq_constraint_extra_extra poly1 poly2 variables)
+
+    | (Poly(boolConstraint1, poly1), Poly(boolConstraint2, poly2)) -> 
+
+      (* let (miniSATExpr, _, _, _, _, _, _) = 
+        miniSATExpr_of_constraints (And (boolConstraint1, boolConstraint2)) 0 IntMap.empty "logic" StringMap.empty  
+      in
+      print_string (string_infix_of_miniSATExpr miniSATExpr ^ " -> ");
+      flush stdout; *)
+
+      And(And(boolConstraint1, boolConstraint2), get_eq_constraint_extra_extra poly1 poly2 variables)
+    | (_, POr(smtPoly21, smtPoly22)) -> 
+      Or(get_eq_constraint_extra smtPoly1 smtPoly21 variables, get_eq_constraint_extra smtPoly1 smtPoly22 variables)
+    | (POr(smtPoly11, smtPoly12), _) -> 
+      Or(get_eq_constraint_extra smtPoly11 smtPoly2 variables, get_eq_constraint_extra smtPoly12 smtPoly2 variables)
 
   and get_eq_constraint_extra_extra poly1 poly2 variables = 
     let polyCons = match poly1, poly2 with
@@ -505,9 +591,17 @@ module Caml = struct
         let polType = get_type_polyExprs poly1 poly2 in
         new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables))
     in
-      polyCons#set_miniSATCode !miniSATIndex;
-      miniSATIndex := !miniSATIndex + 1;
-      Single (polyCons)
+
+    polyCons#set_miniSATCode !miniSATIndex;
+
+
+    (* print_endline ("Sub between " ^ (string_infix_of_polyExpr poly1) ^ " and "
+                    ^ (string_infix_of_polyExpr poly2));
+    print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
+    flush stdout; *)
+
+    miniSATIndex := !miniSATIndex + 1;
+    Single (polyCons)
 
   and get_constraint_term varTermMap functions (variables:(int Variable.StringMap.t))
                                                       varsPolysMap varsConstraintsMap = function 
@@ -551,6 +645,10 @@ module Caml = struct
         let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
         let iteConstraint = get_ite_constraint constraints in
         [iteConstraint]
+      else if qualidentifier_string = "xor" then
+        let constraints = get_constraints_termqualidterm_term_term56 varTermMap functions variables varsPolysMap varsConstraintsMap termqualidterm_term_term563 in
+        let iteConstraint = get_xor_constraint constraints in
+        [iteConstraint]
       else if StringMap.mem qualidentifier_string functions then
         let (arguments, funcSort, funcDef) = StringMap.find qualidentifier_string functions in
         if funcSort = "Bool" then
@@ -578,20 +676,32 @@ module Caml = struct
   and get_or_constraint = function 
     | [] -> raise (Failure "Need arguments for or") 
     | [constraint1] -> constraint1
-    | constraint1 :: constraint2 :: remainingConstraints -> get_or_constraint((Or(constraint1, constraint2)) :: remainingConstraints)  
+    | constraint1 :: constraint2 :: remainingConstraints -> 
+      get_or_constraint((Or(constraint1, constraint2)) :: remainingConstraints)  
 
   and get_not_constraint = function 
     | [] -> raise (Failure "Need arguments for not") 
     | [constraint1] -> 
-      (*print_endline ("not of " ^ string_infix_of_constraints constraint1);
+      
+      (* print_endline ("not of " ^ string_infix_of_constraints constraint1);
       print_endline ("is " ^ string_infix_of_constraints (not_of_boolCons constraint1));
-      flush stdout;*)
+      flush stdout; *)
+      
+
       not_of_boolCons constraint1
     | _ -> raise (Failure "Extra arguments for not") 
 
   and get_ite_constraint = function 
     | [constraint1; constraint2; constraint3] -> And(Or(constraint1, constraint3), Or(not_of_boolCons constraint1, constraint2))
     | _ -> raise (Failure "wrong number of arguments for ite") 
+
+  and get_xor_constraint = function 
+    | [] -> raise (Failure "Need arguments for xor")
+    | [constraint1] -> constraint1
+    | constraint1:: constraint2:: remainingConstraints -> 
+      let notOfConstraint1 = not_of_boolCons constraint1 in
+      let notOfConstraint2 = not_of_boolCons constraint2 in
+      get_xor_constraint (And(Or(constraint1, constraint2), Or(notOfConstraint1, notOfConstraint2))::remainingConstraints)
 
   and get_let_termletterm_term_varbinding58 varTermMap functions variables varsPolysMap varsConstraintsMap = function
     |(_,[]) -> (varsPolysMap, varsConstraintsMap)
@@ -626,6 +736,9 @@ module Caml = struct
   and get_constraints varTermMap functions variables = function
     |Commands (_ , commands_commands_command301) ->
       let constraints = get_constraints_commands varTermMap functions variables commands_commands_command301 in
+
+      (* let constraints = List.rev constraints in *)
+
       let mergedBoolExp = get_boolExp_from_list constraints in
       (*print_endline (string_prefix_of_constraints mergedBoolExp);
       flush stdout;*)
@@ -739,11 +852,15 @@ module Caml = struct
     (* print_endline (string_infix_of_constraints boolCons);
     flush stdout;
     raise (Failure "Tung dep trai"); *)
+
     let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = 
         miniSATExpr_of_constraints boolCons (!miniSATIndex) IntMap.empty logic StringMap.empty 
     in 
-    (* print_endline ("MiniSAT expr: " ^ string_prefix_of_miniSATExpr miniSATExpr);
-    flush stdout; *)
+    
+    (* exit 0; *)
+    (* print_endline ("MiniSAT expr: " ^ string_infix_of_miniSATExpr miniSATExpr);
+    flush stdout;
+    exit 0; *)
     (*print_endline "finished getting miniSAT constraints";
     flush stdout;*)
     (* miniSATExpr_of_constraints is defined in PolynomialConstraint.ml *)
@@ -806,6 +923,9 @@ module Caml = struct
       flush stdout; *)
       try
         let nextChosenPolyConstraint = IntMap.find absH miniSATCodesConstraintsMap in
+
+        (* print_string (string_of_int h ^ ", ");
+        flush stdout; *)
         
         (*print_endline ("Got constraint: " ^ nextChosenPolyConstraint#to_string_infix);
         flush stdout;*)
@@ -836,9 +956,12 @@ module Caml = struct
         string_of_int (-unsatCode) ^ " " ^ currentUnsatCore
       in
       let unsatCore = IntSet.fold get_unsatcore unsatPolyConstraintsCodes "0" in
+      
       (* print_string "UNSAT core: ";
       print_endline unsatCore;
       flush stdout; *)
+
+
       (-1, unsatCore, "", "", "", "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime) 
     else
       let startTime = Sys.time() in 
@@ -856,10 +979,13 @@ module Caml = struct
         | [] -> FloatMap.remove esl varsIntvsMapPrioritiesMaps
         | _ -> FloatMap.add esl (List.tl varsIntvsMaps) varsIntvsMapPrioritiesMaps
       in
-      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = icp unsatPolyConstraintsCodes [] [] 
-                                                          polyConstraints varsIntvsMap esl iaTime usTime in
+      let (res, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime) = 
+          icp unsatPolyConstraintsCodes [] [] polyConstraints varsIntvsMap esl iaTime usTime 
+      in
+
       (* print_endline ("EndICP, result: " ^ string_of_int res);
       flush stdout; *)
+
       if (res = -1) then 
         check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS
                                                      iaTime testingTime usTime parsingTime decompositionTime
@@ -1015,8 +1141,11 @@ module Caml = struct
     
     Random.self_init();
 		let startTime = Sys.time() in
-		(* print_endline ("Solution: " ^ strCheck);
+
+		(* print_endline ("Solution: " ^ strCheck); *)
+    (* print_string ("Solution: ");
 		flush stdout; *)
+
     let solution = toIntList strCheck in
 
     (*print_endline "Start get constraints and intervals";
@@ -1025,7 +1154,11 @@ module Caml = struct
     flush stdout;*)
     (*print_endline ("Next MiniSAT code: " ^ string_of_int nextMiniSATCode);
     flush stdout;*)
+
     let polyConstraints = getConsAndIntv solution miniSATCodesConstraintsMap [] in
+
+    (* print_endline "";
+    flush stdout; *)
 
     (*let polyConstraints = List.rev polyConstraints in*)
     (* print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)

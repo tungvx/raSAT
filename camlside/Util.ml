@@ -20,8 +20,8 @@ module Util = struct
    let toAf2 (intv: Interval.interval) (id:int) (size: int) = 
       if intv.low = neg_infinity || intv.high = infinity then raise (Failure "AA2 does not support infinity")
       else 
-       let a = ({low=intv.low;high=intv.low} +$ {low=intv.high;high=intv.high}) /$. 2. in
-       let b = ({low=intv.high;high=intv.high} -$ {low=intv.low;high=intv.low}) /$. 2. in
+       let a = {low=intv.low;high=intv.low} /$. 2. +$ {low=intv.high;high=intv.high} /$. 2. in
+       let b = {low=intv.high;high=intv.high} /$. 2. -$ {low=intv.low;high=intv.low} /$. 2. in
        let result = new IA.af2 size in
        result#set_a a;
        result#set_kp 0.0;

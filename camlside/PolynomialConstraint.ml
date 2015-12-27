@@ -610,6 +610,8 @@ type bool_constraint =
   | NBVar of string
   | And of bool_constraint * bool_constraint
   | Or of bool_constraint * bool_constraint 
+  | True
+  | False
 
 type smt_poly_expr =
   | SPoly of poly_expr
@@ -638,6 +640,8 @@ and not_of_boolCons = function
   | Or (boolCons1, boolCons2) -> And (not_of_boolCons boolCons1, not_of_boolCons boolCons2)
   | BVar var -> NBVar var
   | NBVar var -> BVar var
+  | True -> False
+  | False -> True
 
 (* encode the constraints into the form of miniSAT lit *)  
 let rec miniSATExpr_of_constraints constraints index miniSATCodesConstraintsMap logic bVarMiniSatCodeMap = match constraints with

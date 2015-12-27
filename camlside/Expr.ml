@@ -171,7 +171,7 @@ let rec reify variables = function
     let polyExpr2 = reify variables poly2 in
     let polType1 = get_type poly1 in
     let polType2 = get_type poly2 in
-    if polType1 != polType2 or polType1 != polType then
+    if polType1 != polType2 || polType1 != polType then
       let errorMessage = "Wrong implementation in un-folding polynomials" in
       print_endline errorMessage;
       flush stdout;
@@ -183,7 +183,7 @@ let rec reify variables = function
     let polyExpr2 = reify variables poly2 in
     let polType1 = get_type poly1 in
     let polType2 = get_type poly2 in
-    if polType1 != polType2 or polType1 != polType then
+    if polType1 != polType2 || polType1 != polType then
       let errorMessage = "Wrong implementation in un-folding polynomials" in
       print_endline errorMessage;
       flush stdout;
@@ -195,7 +195,7 @@ let rec reify variables = function
     let polyExpr2 = reify variables poly2 in
     let polType1 = get_type poly1 in
     let polType2 = get_type poly2 in
-    if polType1 != polType2 or polType1 != polType then
+    if polType1 != polType2 || polType1 != polType then
       let errorMessage = "Wrong implementation in un-folding polynomials" in
       print_endline errorMessage;
       flush stdout;
@@ -207,7 +207,7 @@ let rec reify variables = function
     let polyExpr2 = reify variables poly2 in
     let polType1 = get_type poly1 in
     let polType2 = get_type poly2 in
-    if polType1 != polType2 or polType1 != polType then
+    if polType1 != polType2 || polType1 != polType then
       let errorMessage = "Wrong implementation in un-folding polynomials" in
       print_endline errorMessage;
       flush stdout;

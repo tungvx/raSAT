@@ -70,12 +70,20 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
 let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl contracted = match uk_cl with
   | [] -> (contracted, unsatPolyConstraintsCodes, varsIntvsMap)
   | h :: t ->    
+    
     (* let printString = "Contracting using " ^ h#to_string_infix ^ " in intervals " in
-    print_endline printString;
+    print_string printString;
     print_I h#get_contractedIntv;
     print_endline "";
     flush stdout; *)
-    let (newContracted, varsIntvsMap) = contract_polyExpr h#get_polyExpr h#get_contractedIntv varsIntvsMap esl in
+
+    let (newContracted, varsIntvsMap) = 
+      contract_polyExpr h#get_polyExpr h#get_contractedIntv varsIntvsMap esl 
+    in
+    
+    (* print_endline "Finished Contracting";
+    flush stdout; *)
+    
     if newContracted && StringMap.is_empty varsIntvsMap then 
       (true, IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes, varsIntvsMap)
     else
@@ -83,11 +91,13 @@ let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap es
         if newContracted then IntSet.add h#get_miniSATCode unsatPolyConstraintsCodes
         else unsatPolyConstraintsCodes
       in
+      
       (* if newContracted then 
       (
         print_endline ("Contracted using " ^ h#to_string_infix ^ " to\n" ^ log_intervals varsIntvsMap);
-  flush stdout;
+        flush stdout;
       ); *)
+
       contract_polyConstraints t unsatPolyConstraintsCodes varsIntvsMap esl (contracted || newContracted)
 
 
@@ -111,6 +121,7 @@ let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints
     flush stdout; *)
     (* raise (Failure "Tung dep trai"); *)
     if contracted then (
+      
       (* print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
       flush stdout; *)
 
