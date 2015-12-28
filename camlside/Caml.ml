@@ -967,10 +967,10 @@ module Caml = struct
       let varsIntvsMap = List.hd varsIntvsMaps in
       
       
-      (* print_endline "---------------------------NEW----------------------";
+      print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout; *)
+      flush stdout;
       
 
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
@@ -1000,8 +1000,10 @@ module Caml = struct
         if (uk_cl = []) then (*This case will never happen*)
           (res, "", "", "", "", "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
         else (
-          (* print_endline "Start Testing";
-          flush stdout; *)
+          
+          print_endline "Start Testing";
+          flush stdout;
+
           let startTestingTime = Sys.time() in
           let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
             test uk_cl varsIntvsMap(* test is defined in Testing.ml *)
@@ -1032,8 +1034,14 @@ module Caml = struct
           (
            let startDecompositionTime = Sys.time() in
            (* If the uk_cl are equalities, then we implement some tricks for solving them. *)
+           
+           print_endline ("unkown constraints: " ^ 
+                            string_infix_of_polynomialConstraints testUNSATPolyConstraints);
+           flush stdout;
+
            (* print_endline (string_of_bool (can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints));
            flush stdout; *)
+
            (* raise (Failure "Tung"); *)
            let (isEqualitiesSAT, unsatPolyConstraints) = 
              if can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints then (* is_all_equalities is defined in ast.ml *)

@@ -65,22 +65,25 @@ let rec get_derivative var = function
             polType, intv, af2Form), 
         Mul(polyExpr2, polyExpr2, polType, intv, af2Form), 
         polType, intv, af2Form)
-  | Cons (f, _, polType, _, af2Form) -> Cons (0., false, polType, {low=0.;high=0.}, new IA.af2 0)
-  | Var (var1, polType, _, _, _) -> 
+  | Cons (f, _, polType, _, af2Form) -> Cons (0., false, polType, {low=0.;high=0.}, af2Form)
+  | Var (var1, polType, _, af2Form, _) -> 
     if var = var1 then
-      Cons (1., false, polType, {low=1.;high=1.}, new IA.af2 0)
+      Cons (1., false, polType, {low=1.;high=1.}, af2Form)
     else
-      Cons (0., false, polType, {low=0.;high=0.}, new IA.af2 0)
-  | Pow(var1, multiplicity, polType, varIntv, af2Changed, oldIntv, oldAf2Form) -> 
+      Cons (0., false, polType, {low=0.;high=0.}, af2Form)
+  | Pow(var1, multiplicity, polType, varIntv, af2Changed, intv, af2Form) -> 
     if var = var1 then 
-      if multiplicity > 1 then 
-        Pow(var1, multiplicity-1, polType, varIntv, af2Changed, oldIntv, oldAf2Form)
+      if multiplicity > 1 then
+        let multiplicity_float = float_of_int multiplicity in 
+        Mul(Cons (multiplicity_float, false, polType, {low=multiplicity_float;high=multiplicity_float}, af2Form),
+            Pow(var1, multiplicity-1, polType, varIntv, af2Changed, intv, af2Form),
+            polType, intv, af2Form)
       else if multiplicity = 1 then 
-        Cons (1., false, polType, {low=1.;high=1.}, new IA.af2 0)
+        Cons (1., false, polType, {low=1.;high=1.}, af2Form)
       else 
         raise (Failure "Ill-formed Power expression")  
     else 
-      Cons (0., false, polType, {low=0.;high=0.}, new IA.af2 0)
+      Cons (0., false, polType, {low=0.;high=0.}, af2Form)
 
 let get_type_polyExpr = function
   | Add (_,_, polType, _, _) -> polType

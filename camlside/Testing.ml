@@ -191,8 +191,10 @@ let rec test_extra_incremental abstractTCInfList varsIntvsMiniSATCodesMap testSA
     match testCases with
     | [] -> (* Testing for some apis are implemented here, or testcases will be generated *)
       let sat = testedPolyCons#check_SAT varsTCsMap in
+      
       (* print_endline ("\nTesting: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
       flush stdout; *)
+
       if sat then (
         (* print_endline ("SAT constraint: " ^ testedPolyCons#to_string_infix ^ " - miniSATCode: " ^ string_of_int testedPolyCons#get_miniSATCode ^ " - easiness: " ^ string_of_float testedPolyCons#get_easiness);
         flush stdout; *)
@@ -259,17 +261,24 @@ let rec test polyConstraints varsIntvsMaps =
   flush stdout; *)
   
   (* Get information about SAT direction of variables *)
-  let add_sat_direction currentMap polyCons =
+  (* let add_sat_direction currentMap polyCons =
     (*print_endline ("Testing: " ^ polyCons#to_string_infix);
     flush stdout;*)
     polyCons#add_sat_direction currentMap
   in
-  let varsSATDirectionMap = List.fold_left add_sat_direction StringMap.empty polyConstraints in
+  let varsSATDirectionMap = List.fold_left add_sat_direction StringMap.empty polyConstraints in *)
+
+  let varsSATDirectionMap = StringMap.empty in
+  
+
   (* let print_varSATDirection var isPositiveDirected =
     print_endline (var ^ ": " ^ string_of_int isPositiveDirected);
     flush stdout;
   in
   StringMap.iter print_varSATDirection varsSATDirectionMap; *)
+
+
+
   (* sort the polynomial constraings using dependency, which make the additional test data generation minimal *)
   (*let rec find_min_additionalTCGen_polyCons checkedVarsSet checkedPolyConstraints remainingPolyConstraints currentResult currentAdditionalTCs = match remainingPolyConstraints with
     | [] -> (currentResult, checkedPolyConstraints)

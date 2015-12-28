@@ -147,7 +147,7 @@ class polynomialConstraint boolExprInit variables =
       if List.length varsSen = varsNum then self#get_n_varsSen varsNum
       else varsList
 
-    method private check_sat_posDerivative lowerSign upperSign = match boolExpr with
+    method private check_sat_posDerivative lowerSign upperSign = match self#get_constraint with
     | Eq _ -> 
       if lowerSign = 1 || upperSign = -1 then -1
       else 0
@@ -171,7 +171,7 @@ class polynomialConstraint boolExprInit variables =
       else if lowerSign >= 0 then -1
       else 0
 
-    method private check_sat_zeroDerivative lowerSign upperSign = match boolExpr with
+    method private check_sat_zeroDerivative lowerSign upperSign = match self#get_constraint with
     | Eq _ -> 
       if lowerSign = 0 then 1
       else if lowerSign = 1 || lowerSign = -1 then -1
@@ -197,7 +197,7 @@ class polynomialConstraint boolExprInit variables =
       else if lowerSign >= 0 then -1
       else 0
 
-    method private check_sat_negDerivative lowerSign upperSign = match boolExpr with
+    method private check_sat_negDerivative lowerSign upperSign = match self#get_constraint with
     | Eq _ -> 
       if lowerSign = -1 || upperSign = 1 then -1
       else 0
@@ -268,9 +268,20 @@ class polynomialConstraint boolExprInit variables =
             let sat = self#check_sat_providedDerivatives sign lowerSign upperSign in
 
             (* (if sat != 0 then
-                          let printString = "Detected using derivatives in " ^ self#to_string_infix in
-                          print_endline printString;
-                          flush stdout;); *)
+              let printString = "\nDetected using derivative of " ^ var ^ 
+                      string_infix_of_polyExpr derivative ^
+                      " in " ^ self#to_string_infix 
+              in
+              print_endline printString;
+              print_I bound;
+              print_endline(": " ^ string_of_int sign);
+              print_I lowerBound;
+              print_endline(": " ^ string_of_int lowerSign);
+              print_I upperBound;
+              print_endline(": " ^ string_of_int upperSign);
+              print_endline ("SAT: " ^ string_of_int sat);
+              flush stdout;
+            ); *)
 
             sat
 
@@ -437,8 +448,10 @@ class polynomialConstraint boolExprInit variables =
       (*print_endline (self#to_string_infix); 
       flush stdout;*)
       let (sat, value) = checkSAT_computeValues self#get_constraint varsTCsMap in
+      
       (* print_endline ("Test case: " ^ log_assignment varsTCsMap);
       flush stdout; *)
+
       testValue <- value; 
       sat
    
@@ -470,7 +483,10 @@ class polynomialConstraint boolExprInit variables =
             else StringMap.add var 0 currentMap
           with Not_found -> StringMap.add var newValue currentMap
       in
-      List.fold_left add_sat_direction_extra currentVarSATDirectionMap varsSen
+      if self#get_logic = realTheory && isEquation then
+        currentVarSATDirectionMap
+      else
+        List.fold_left add_sat_direction_extra currentVarSATDirectionMap varsSen
       
       
     (*method backward_interval_propagate var intv (varsIntvsMiniSATCodesMap:(IA.interval * int) Variable.StringMap.t) =
@@ -755,7 +771,15 @@ class polynomialConstraint boolExprInit variables =
         | (var, varSen, isPositiveSen) :: t ->
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
-          let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
+          let isVarPositiveDirected = 
+            (* try
+              StringMap.find var varsSATDirectionMap 
+            with 
+              | _ ->  0 *)
+            if varSen = 0. then 0
+            else if isPositiveSen == isPositiveDirected then 1
+            else -1
+          in
           (*let isVarPositiveDirected = 0 in (* not (11) *)*)
           let intv = StringMap.find var varsIntvsMap in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
