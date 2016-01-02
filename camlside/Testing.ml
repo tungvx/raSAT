@@ -261,14 +261,12 @@ let rec test polyConstraints varsIntvsMaps =
   flush stdout; *)
   
   (* Get information about SAT direction of variables *)
-  (* let add_sat_direction currentMap polyCons =
+  let add_sat_direction currentMap polyCons =
     (*print_endline ("Testing: " ^ polyCons#to_string_infix);
     flush stdout;*)
     polyCons#add_sat_direction currentMap
   in
-  let varsSATDirectionMap = List.fold_left add_sat_direction StringMap.empty polyConstraints in *)
-
-  let varsSATDirectionMap = StringMap.empty in
+  let varsSATDirectionMap = List.fold_left add_sat_direction StringMap.empty polyConstraints in
   
 
   (* let print_varSATDirection var isPositiveDirected =
@@ -317,7 +315,10 @@ let rec test polyConstraints varsIntvsMaps =
   (*let indicesSortedPolyConstraintsMap = IntMap.add 1 firstPolyCons IntMap.empty in*)
   let priorityNum = 10 in (* only the first $priorityNum variables are allowed to generate 2 test cases, other ones are 1 *)
   let (generatedTCs, newPriorityNum) = firstPolyCons#generateTCs VariablesSet.empty varsIntvsMaps priorityNum varsSATDirectionMap in
-  let abstractTCInfList = Cons((StringMap.empty, generatedTCs, VariablesSet.empty, firstPolyCons, (*1, remainingMiniSATCodesPolyConstraintsMap*) remainingPolyConstraints, newPriorityNum), fun() -> Nil) in 
+  let abstractTCInfList = 
+    Cons((StringMap.empty, generatedTCs, VariablesSet.empty, firstPolyCons, 
+          remainingPolyConstraints, newPriorityNum), fun() -> Nil) 
+  in 
   (*let (tc, sTest, clTest_US, varsTCsMap, b) = test_extra abstractTCInfList varsIntvsMaps firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime) in*)
   let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = test_extra_incremental abstractTCInfList varsIntvsMaps [] [] StringMap.empty VariablesSet.empty (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap in
   if sTest = 1 || (is_all_equations testUNSATPolyConstraints && can_apply_imvt testUNSATPolyConstraints ) then

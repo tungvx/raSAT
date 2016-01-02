@@ -61,6 +61,24 @@ class polynomialConstraint boolExprInit variables =
     val mutable logic = ""
     val mutable easiness = 0.
     val mutable log = ""
+    val mutable varsSATDirectionMap = StringMap.empty
+    val variables = variables
+
+    method get_varType var = StringMap.find var variables
+
+    method get_varsSATDirectionMap = varsSATDirectionMap
+    method get_varSATDirection var = StringMap.find var self#get_varsSATDirectionMap
+    method private set_varSATDirectionMap sortedVarsSen =
+      let add_varSATDirection (var, varSen, isPositiveSen) currentMap =
+        let isVarPositiveDirected = 
+          if varSen = 0. then 0
+          else if isPositiveSen == isPositiveDirected then 1
+          else -1
+        in
+        StringMap.add var isVarPositiveDirected currentMap
+      in
+      varsSATDirectionMap <- List.fold_right add_varSATDirection sortedVarsSen StringMap.empty 
+
     
     method get_log = log
     method set_log setLog = log <- setLog
@@ -318,7 +336,8 @@ class polynomialConstraint boolExprInit variables =
                                       varsIntvsMap varsIndicesMap 
       in
       self#set_polyExpr newPolyExpr;
-      varsSen <- sortedVarsSen;
+      self#set_varsSen sortedVarsSen;
+      self#set_varSATDirectionMap sortedVarsSen;
       satLength <- computedSatLength;
       let sat = 
         if sat = 0 then 
@@ -769,16 +788,17 @@ class polynomialConstraint boolExprInit variables =
       let rec generateTCs_extra_1VarChosen varsSen generatedTCs priorityNum isFirst = match varsSen with
         | [] -> (generatedTCs, priorityNum);
         | (var, varSen, isPositiveSen) :: t ->
-          (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
-          flush stdout;*)
+          
+          (* print_endline (var ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen);
+          flush stdout; *)
+
           let isVarPositiveDirected = 
-            (* try
-              StringMap.find var varsSATDirectionMap 
+            try
+              StringMap.find var varsSATDirectionMap   
             with 
-              | _ ->  0 *)
-            if varSen = 0. then 0
-            else if isPositiveSen == isPositiveDirected then 1
-            else -1
+              | _ ->  0
+
+            (* StringMap.find var self#get_varsSATDirectionMap  *)
           in
           (*let isVarPositiveDirected = 0 in (* not (11) *)*)
           let intv = StringMap.find var varsIntvsMap in

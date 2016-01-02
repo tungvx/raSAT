@@ -967,10 +967,10 @@ module Caml = struct
       let varsIntvsMap = List.hd varsIntvsMaps in
       
       
-      print_endline "---------------------------NEW----------------------";
+      (* print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout;
+      flush stdout; *)
       
 
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
@@ -1001,8 +1001,8 @@ module Caml = struct
           (res, "", "", "", "", "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
         else (
           
-          print_endline "Start Testing";
-          flush stdout;
+          (* print_endline "Start Testing";
+          flush stdout; *)
 
           let startTestingTime = Sys.time() in
           let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
@@ -1035,71 +1035,75 @@ module Caml = struct
            let startDecompositionTime = Sys.time() in
            (* If the uk_cl are equalities, then we implement some tricks for solving them. *)
            
-           print_endline ("unkown constraints: " ^ 
+           (* print_endline ("unkown constraints: " ^ 
                             string_infix_of_polynomialConstraints testUNSATPolyConstraints);
-           flush stdout;
+           flush stdout; *)
 
            (* print_endline (string_of_bool (can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints));
            flush stdout; *)
 
            (* raise (Failure "Tung"); *)
-           let (isEqualitiesSAT, unsatPolyConstraints) = 
+           let (isEqualitiesSAT, unsatPolyConstraints, usedVarsSet) = 
              if can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints then (* is_all_equalities is defined in ast.ml *)
-               check_equalities testUNSATPolyConstraints varsIntvsMap generatedVarsSet (* check_equalities is defined in Equalities_handler.ml *)
-             else (false, testUNSATPolyConstraints)
+                let add_var_tc var tc currentMap =
+                  StringMap.add var {low=tc;high=tc} currentMap
+                in
+                let varsIntvsMap = StringMap.fold add_var_tc satVarsTCsMap varsIntvsMap in
+                check_equalities testUNSATPolyConstraints varsIntvsMap generatedVarsSet (* check_equalities is defined in Equalities_handler.ml *)
+             else (false, testUNSATPolyConstraints, generatedVarsSet)
            in
-             if isEqualitiesSAT then 
-               let intvLog = log_intervals varsIntvsMap in
-               let validPolyConstraints = List.rev validPolyConstraints in
-               let iaLog = log_ia validPolyConstraints in
-               let assignmentsLog = log_assignment satVarsTCsMap in (* log_assignment is in Assignments.ml *)
-               let testLog = log_test testSATPolyConstraints in
-               (1, "", "", intvLog ^ iaLog ^ assignmentsLog ^ testLog ^ (get_allLogs uk_cl), "", 
-                     "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
-             else (
-                (*Applied for Dynamic interval decomposition*)
-                (*Balance interval decomposition*)
-                (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
-                let rec get_hardest_polyCons result = function
-                  | [] -> result
-                  | polyCons :: remainingConstraints -> 
-                    let result = 
-                      if result#get_easiness <= polyCons#get_easiness then 
-                        result
-                      else
-                        polyCons
-                    in 
-                    get_hardest_polyCons result remainingConstraints
-                in
-                let decomposedExpr = 
-                  get_hardest_polyCons (List.hd testUNSATPolyConstraints) (List.tl testUNSATPolyConstraints)
-                in
-                (*print_endline "decomposing";
-                (*print_endline(bool_expr_list_to_infix_string decomposedExpr);*)
-                flush stdout;*)
-                (*let testUNSATPolyCons = List.hd clTest_US in
-                let decomposedPolyConstraints = testUNSATPolyCons :: uk_cl in*)
-                let maxDecompose = 1 in (* only $maxDecompose are allowed to decomposed, the priority is based on sensitivity *)
-                let (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps) = 
-                  (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
-                  (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID nextMiniSATCode esl in
-                  if isDecomposed then 
-                    (newInterval, newLearn, newBumpVars, isDecomposed)
-                  else*)
-                    dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps decomposedExpr
-                                  uk_cl maxDecompose esl in
+           if isEqualitiesSAT then 
+             let intvLog = log_intervals varsIntvsMap in
+             let validPolyConstraints = List.rev validPolyConstraints in
+             let iaLog = log_ia validPolyConstraints in
+             let assignmentsLog = log_assignment satVarsTCsMap in (* log_assignment is in Assignments.ml *)
+             let testLog = log_test testSATPolyConstraints in
+             (1, "", "", intvLog ^ iaLog ^ assignmentsLog ^ testLog ^ (get_allLogs uk_cl), "", 
+                   "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
+           else (
+              (*Applied for Dynamic interval decomposition*)
+              (*Balance interval decomposition*)
+              (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
+              let rec get_hardest_polyCons result = function
+                | [] -> result
+                | polyCons :: remainingConstraints -> 
+                  let result = 
+                    if result#get_easiness <= polyCons#get_easiness then 
+                      result
+                    else
+                      polyCons
+                  in 
+                  get_hardest_polyCons result remainingConstraints
+              in
+              let decomposedExpr = 
+                get_hardest_polyCons (List.hd testUNSATPolyConstraints) (List.tl testUNSATPolyConstraints)
+              in
+              (*print_endline "decomposing";
+              (*print_endline(bool_expr_list_to_infix_string decomposedExpr);*)
+              flush stdout;*)
+              (*let testUNSATPolyCons = List.hd clTest_US in
+              let decomposedPolyConstraints = testUNSATPolyCons :: uk_cl in*)
+              let maxDecompose = 1 in (* only $maxDecompose are allowed to decomposed, the priority is based on sensitivity *)
+              let (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps) = 
+                (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_unsat_detection (List.hd decomposedExpr) assIntv dIntv checkVarID nextMiniSATCode esl in*)
+                (*let (newInterval, newLearn, newBumpVars, isDecomposed) = decompose_list_unsat_detection uk_cl assIntv dIntv checkVarID nextMiniSATCode esl in
+                if isDecomposed then 
+                  (newInterval, newLearn, newBumpVars, isDecomposed)
+                else*)
+                  dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps decomposedExpr
+                                uk_cl maxDecompose esl usedVarsSet in
 
-                    (* dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
-                                  uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in *)
-                (*print_endline "after decomposed";
-                flush stdout;*)
-                (* print_endline ("New Boxes: \n" ^ string_of_varsIntvsPrioritiesMap varsIntvsMapPrioritiesMaps);
-                flush stdout; *)
-                (* let varsIntvsMapPrioritiesMaps = FloatMap.empty in *)
-                let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
-                check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS
-                                                            iaTime testingTime usTime parsingTime decompositionTime                
-             )
+                  (* dynamicDecom_noStrategy varsIntvsMap varsIntvsMapPrioritiesMaps (List.hd decomposedExpr) 
+                                uk_cl maxDecompose esl (remainingTime -. Sys.time() +. startTime) in *)
+              (*print_endline "after decomposed";
+              flush stdout;*)
+              (* print_endline ("New Boxes: \n" ^ string_of_varsIntvsPrioritiesMap varsIntvsMapPrioritiesMaps);
+              flush stdout; *)
+              (* let varsIntvsMapPrioritiesMaps = FloatMap.empty in *)
+              let decompositionTime = decompositionTime +. Sys.time() -. startDecompositionTime in
+              check_procedure varsIntvsMapPrioritiesMaps polyConstraints unsatPolyConstraintsCodes strTestUS
+                                                          iaTime testingTime usTime parsingTime decompositionTime                
+           )
           )
         )
       )

@@ -97,6 +97,7 @@ let rec contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap es
         print_endline ("Contracted using " ^ h#to_string_infix ^ " to\n" ^ log_intervals varsIntvsMap);
         flush stdout;
       ); *)
+
       (* if newContracted then
         contract_polyConstraints uk_cl unsatPolyConstraintsCodes varsIntvsMap esl (contracted || newContracted)
       else *)

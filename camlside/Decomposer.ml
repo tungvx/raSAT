@@ -1,5 +1,6 @@
 open Variable
 open Interval
+open Ast
 
 
 let add_new_varsIntvsPriority priority addedVarsIntvsMap currentvarsIntvsMapPrioritiesMaps =
@@ -9,7 +10,7 @@ let add_new_varsIntvsPriority priority addedVarsIntvsMap currentvarsIntvsMapPrio
   with Not_found -> FloatMap.add priority ([addedVarsIntvsMap]) currentvarsIntvsMapPrioritiesMaps
 
 
-let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps) =
+let decompose_var esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps) =
   (*let (narrowed, newIntv) = polyCons#backward_interval_propagate var intv varsIntvsMiniSATCodesMap in*)
   let lowerBound = intv.low in
   let upperBound = intv.high in
@@ -21,15 +22,16 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
       if upperBound = infinity then lowerBound +. 10. 
       else 0.5 *. lowerBound +. 0.5 *. upperBound
   in
+  let varType = polyCons#get_varType var in
   let unknown = 
-    if varType = "Int" then floor newPoint < lowerBound || ceil newPoint > upperBound
+    if varType = intType then floor newPoint < lowerBound || ceil newPoint > upperBound
     else newPoint < lowerBound || newPoint > upperBound
   in
   if unknown then
     (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps)
   else
     let lowerIntv = 
-      if varType = "Int" then
+      if varType = intType then
         let tmpNewPoint = floor newPoint in
         {low=lowerBound; high=tmpNewPoint}
       else 
@@ -38,7 +40,7 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
     (* print_endline("lowerIntv" ^ lowerIntv#to_string);
     flush stdout; *)
     let upperIntv = 
-      if varType = "Int" then
+      if varType = intType then
         let tmpNewPoint = ceil newPoint in
         {low=tmpNewPoint;high=upperBound}
       else 
@@ -93,7 +95,8 @@ let decompose_var varType esl varsIntvsMap polyCons var (intv, varSen, isPositiv
 
 
 (*Binary balance decomposition on intervals*)
-let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps polyCons unkownPolyConstraints maxDecomposedVarsNum esl = 
+let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps polyCons 
+    unkownPolyConstraints maxDecomposedVarsNum esl usedVarsSet = 
   (* print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
   flush stdout; *)
   let startTime = Sys.time() in
@@ -147,18 +150,22 @@ let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMa
     flush stdout;*)
     let decomposedVarsList = 
       if infVar <> "" then [(infVar, 0., 0)]
-      else polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet 
+      else 
+        let tmp = polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
+              (*(VariablesSet.cardinal reducedVarsSet)*) (VariablesSet.union reducedVarsSet usedVarsSet) 
+        in
+        if List.length tmp = 0 then 
+          polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
+              (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet
+        else
+          tmp
     in
     let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
       let intvMiniSATCode = StringMap.find var varsIntvsMap in
       StringMap.add var (intvMiniSATCode, varSen, isPositiveSen) currentVarsIntvsMiniSATCodesIsPositiveSenMap
     in
-    let decomposedVarsIntvsMiniSATCodesIsPositiveMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in
-    let varType =
-      if polyCons#get_logic = "QF_NIA" then "Int"
-      else "Real"
-    in 
-    StringMap.fold (decompose_var varType esl varsIntvsMap polyCons) decomposedVarsIntvsMiniSATCodesIsPositiveMap (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps)
+    let decomposedVarsIntvsMiniSATCodesIsPositiveMap = List.fold_left add_varIntvMiniSATCode StringMap.empty decomposedVarsList in 
+    StringMap.fold (decompose_var esl varsIntvsMap polyCons) decomposedVarsIntvsMiniSATCodesIsPositiveMap (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps)
 
 
 (* (*Binary balance decomposition on intervals*)

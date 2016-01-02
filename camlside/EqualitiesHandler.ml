@@ -9,20 +9,22 @@ open IA
 open Interval
 
 let check_equality polyCons varsSet varsIntvsMap = 
-  let getFirstPoint var varsIntvsMap = 
+  let getTwoPoints var (currentFirstPoint, currentSecondPoint) = 
     let intv = StringMap.find var varsIntvsMap in
-    StringMap.add var {low=intv.low; high=intv.low} varsIntvsMap
+    let varSATDirection =polyCons#get_varSATDirection var in
+    if varSATDirection = 1 || varSATDirection = 0 then
+      (StringMap.add var {low=intv.low; high=intv.low} currentFirstPoint,
+       StringMap.add var {low=intv.high; high=intv.high} currentSecondPoint)
+    else
+      (StringMap.add var {low=intv.high; high=intv.high} currentFirstPoint,
+       StringMap.add var {low=intv.low; high=intv.low} currentSecondPoint)
   in
-  let firstPoint = VariablesSet.fold getFirstPoint varsSet varsIntvsMap in
+  let (firstPoint, secondPoint) = VariablesSet.fold getTwoPoints varsSet (varsIntvsMap, varsIntvsMap) in
+  
   let firstBound = polyCons#get_bound firstPoint in
   (* print_endline ("First Bound: " ^ log_intervals firstPoint ^ sprintf_I "%f" firstBound);
   flush stdout; *)
 
-  let getSecondPoint var varsIntvsMap = 
-    let intv = StringMap.find var varsIntvsMap in
-    StringMap.add var {low=intv.high; high=intv.high} varsIntvsMap
-  in
-  let secondPoint = VariablesSet.fold getSecondPoint varsSet varsIntvsMap in
   let secondBound = polyCons#get_bound secondPoint in
   (* print_endline ("Second Bound: "^ log_intervals secondPoint  ^ sprintf_I "%f" secondBound);
   flush stdout; *)
@@ -48,25 +50,25 @@ let check_equality polyCons varsSet varsIntvsMap =
 
 let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet = 
   match polyConstraints with 
-  | [] -> (true, [])
+  | [] -> (true, [], consideredVarsSet)
   | h::t -> 
     match varsSetCandidates with
-    | Nil -> (false, polyConstraints) 
+    | Nil -> (false, polyConstraints, consideredVarsSet) 
     | Cons(varsList, tail) ->
     let varsSet = List.fold_right VariablesSet.add varsList VariablesSet.empty in
     let commonVarsSet = VariablesSet.inter consideredVarsSet varsSet in
     if VariablesSet.is_empty commonVarsSet then
       if check_equality h varsSet varsIntvsMap then
         match t with
-        | [] -> (true, [])
+        | [] -> (true, [], VariablesSet.union consideredVarsSet varsSet)
         | l::m ->
           let varsList = l#get_varsList in
           let newVarsSetCandidates = power_set varsList in
-          let (result, _) = 
+          let (result, _, newConsideredVarsSet) = 
             check_equalities_extra t newVarsSetCandidates varsIntvsMap (VariablesSet.union consideredVarsSet varsSet)
           in
           if result then
-            (true, [])
+            (true, [], newConsideredVarsSet)
           else
             check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
       else check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
@@ -77,7 +79,7 @@ let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap co
 (* polyConstraints is a list of polynomial constraints, each constraints must be an equation *)
 let rec check_equalities polyConstraints varsIntvsMap consideredVarsSet = 
   match polyConstraints with 
-  | [] -> (true, [])
+  | [] -> (true, [], consideredVarsSet)
   | h::t -> (
     (* print_endline "Checking Equations";
     flush stdout; *)
