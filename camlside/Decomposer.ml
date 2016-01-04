@@ -2,6 +2,8 @@ open Variable
 open Interval
 open Ast
 
+(* let isUnknown = ref false;; *)
+
 
 let add_new_varsIntvsPriority priority addedVarsIntvsMap currentvarsIntvsMapPrioritiesMaps =
   try
@@ -143,7 +145,13 @@ let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMa
     in
     let learntClauses = VariablesSet.fold add_learnt_var varsSet (polysMiniSATCodeString ^ " 0") in
     ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false) *)
-    (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps)
+    let newEsl = esl /. 10. in
+    (* if newEsl = esl then (* No more search is possible *)
+      (isUnknown := true;
+       (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps))
+    else *)
+      (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap
+                                                                         varsIntvsMapPrioritiesMaps)
   else (*Continue decomposition*)
     
     (*print_endline (string_of_bool polyCons#isInfinite);
