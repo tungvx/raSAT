@@ -37,7 +37,8 @@ HEADERS=[PROBLEM, N_VARS, MAX_VARS, N_APIS, TIME, IA_TIME, TESTING_TIME, US_CORE
          MINISAT_CALLS, RASAT_CLAUSES, DECOMPOSED_LEARNED_CLAUSES, UNKNOWN_LEARNED_CLAUSES
          RESULT, RASAT_RESULT, EQ, NEQ]
 
-default_result = {PROBLEM:os.path.join(root, filename),
+default_result = {
+          PROBLEM:os.path.join(root, filename),
           N_VARS: 0,
           MAX_VARS: 0,
           N_APIS: 0,
@@ -58,7 +59,8 @@ default_result = {PROBLEM:os.path.join(root, filename),
           RESULT: 'unknown',
           raSATResult: 'unknown', 
           EQ: '0',
-          NEQ: '0'}
+          NEQ: '0'
+}
 
 def remove_tmp(root, filename):
   # Remove temp files
@@ -82,6 +84,25 @@ def remove_tmp(root, filename):
   except OSError:
     pass
 
+def set_result(result, root, filename):
+  try:
+    with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
+      reader = csv.reader(csvfile)
+      output = reader.next()
+
+      # set numbers
+      for index in range(1, 4):
+        result[HEADERS[index]] = output[index]
+
+      for index in range(4, 18):
+        result[HEADERS[index]] += float(output[index])
+      
+
+      for index in range(18, 21):
+        result[HEADERS[index]] = output[index]
+  except IOError:
+    result[RASAT_RESULT] = 'timeout'
+
 def solve(filename):
   global root, initSbox, initLowerBound, initUpperBound, timeout
 
@@ -104,39 +125,59 @@ def solve(filename):
     pass
 
   # Run command to solve constraints:
-  try:
-    subprocess.run(["./raSAT", os.path.join(root, filename), 
-                  'lb=' + str(lowerBound) + ' ' + str(upperBound)], timeout=timeout)
-  except TimeoutExpired:
-    return result
+  bounds = ['lb=-10 10', 'lb=-inf inf']
+  boundsNum = len(bounds)
+  boundIndex = 0
+  while (result[RASAT_RESULT] != 'sat' and result[TIME] < timeout and boundIndex < boundsNum):
+    try:
+      subprocess.run(["./raSAT", os.path.join(root, filename), bounds[boundIndex]], timeout=timeout- result[TIME])
+    except TimeoutExpired:
+      return result
 
-  try:
-    with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
-      reader = csv.reader(csvfile)
-      output = reader.next()
-      nVars = output[1]
-      maxVars = output[2]
-      nAPIs = output[3]
-      time += float(output[4])
-      iaTime += float(output[5])
-      testingTime += float(output[6])
-      usTime += float(output[7])
-      parsingTime += float(output[8])
-      decompositionTime += float(output[9])
-      miniSATTime += float(output[10])
-      miniSATVars += float(output[11])
-      miniSATClauses += float(output[12])
-      miniSATCalls += float(output[13])
-      raSATClauses += float(output[14])
-      decomposedLearnedClauses += float(output[15])
-      UNSATLearnedClauses += float(output[16])
-      unknownLearnedClauses += float(output[17])
-      isEquation = output[18]
-      isNotEquation = output[19]
-      raSATResult = output[20]
-      csvfile.close()
-  except IOError:
-    raSATResult = 'timeout'
+    set_result(result, root, filename)
+
+    if raSATResult != 'sat':
+      boundIndex += 1
+
+    # Remove temp files
+    remove_tmp(root, filename)
+
+    try:
+      subprocess.Popen(["./raSAT", os.path.join(root, filename), 'lb=' + str(lowerBound) + ' ' + str(upperBound)])
+      proc.wait()
+      signal.alarm(0)
+    except Alarm:
+      proc.kill()
+      raSAT_result = 'timeout'
+      pass
+
+    try:
+      with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
+        reader = csv.reader(csvfile)
+        output = reader.next()
+        nVars = output[1]
+        maxVars = output[2]
+        nAPIs = output[3]
+        time += float(output[4])
+        iaTime += float(output[5])
+        testingTime += float(output[6])
+        usTime += float(output[7])
+        parsingTime += float(output[8])
+        decompositionTime += float(output[9])
+        miniSATTime += float(output[10])
+        miniSATVars += float(output[11])
+        miniSATClauses += float(output[12])
+        miniSATCalls += float(output[13])
+        raSATClauses += float(output[14])
+        decomposedLearnedClauses += float(output[15])
+        UNSATLearnedClauses += float(output[16])
+        unknownLearnedClauses += float(output[17])
+        isEquation = output[18]
+        isNotEquation = output[19]
+        raSATResult = output[20]
+        csvfile.close()
+    except IOError:
+      raSATResult = 'timeout'
 
 
 
@@ -157,67 +198,7 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
       
       
         
-      if raSATResult == 'unsat':
-
-        # Remove temp files
-        try:
-          os.remove(os.path.join(root, filename) + '.tmp')
-        except OSError:
-          pass
-          
-        try:
-          os.remove(os.path.join(root, filename)[:-5] + '.in')
-        except OSError:
-          pass
-       
-        try:
-          os.remove(os.path.join(root, filename)[:-5] + '.out')
-        except OSError:
-          pass
-          
-        try:
-          os.remove(os.path.join(root, filename)[:-5] + '.rs')
-        except OSError:
-          pass
-
-        signal.signal(signal.SIGALRM, alarm_handler)
-        signal.alarm(timeout)
-        try:
-          proc = subprocess.Popen(["./raSAT", os.path.join(root, filename), 'lb=' + str(lowerBound) + ' ' + str(upperBound)])
-          proc.wait()
-          signal.alarm(0)
-        except Alarm:
-          proc.kill()
-          raSAT_result = 'timeout'
-          pass
-
-        try:
-          with open(os.path.join(root, filename) + '.tmp', 'rb') as csvfile:
-            reader = csv.reader(csvfile)
-            output = reader.next()
-            nVars = output[1]
-            maxVars = output[2]
-            nAPIs = output[3]
-            time += float(output[4])
-            iaTime += float(output[5])
-            testingTime += float(output[6])
-            usTime += float(output[7])
-            parsingTime += float(output[8])
-            decompositionTime += float(output[9])
-            miniSATTime += float(output[10])
-            miniSATVars += float(output[11])
-            miniSATClauses += float(output[12])
-            miniSATCalls += float(output[13])
-            raSATClauses += float(output[14])
-            decomposedLearnedClauses += float(output[15])
-            UNSATLearnedClauses += float(output[16])
-            unknownLearnedClauses += float(output[17])
-            isEquation = output[18]
-            isNotEquation = output[19]
-            raSATResult = output[20]
-            csvfile.close()
-        except IOError:
-          raSATResult = 'timeout'
+      
       
       if raSATResult == 'sat' or raSATResult == 'unsat':
         solvedProblems += 1     
