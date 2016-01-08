@@ -339,12 +339,12 @@ class polynomialConstraint boolExprInit variables =
       self#set_varsSen sortedVarsSen;
       self#set_varSATDirectionMap sortedVarsSen;
       satLength <- computedSatLength;
-      (* let sat = 
+      let sat = 
         if sat = 0 then 
           self#check_sat_using_derivatives varsIntvsMap
         else 
           sat
-      in *)
+      in
       (sat, bound, computedSatLength)
     
     (* This method does not update isInfinite field, and varsSen is not computed *)

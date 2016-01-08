@@ -954,13 +954,13 @@ module Caml = struct
         string_of_int (-unsatCode) ^ " " ^ currentUnsatCore
       in
       let unsatCore = 
-        (* if !isUnknown then
+        if !isUnknown then
           let add_miniSATCode polyCons currentSet = 
             IntSet.add (polyCons#get_miniSATCode) currentSet
           in
           let unsatPolyConstraintsCodes = List.fold_right add_miniSATCode polyConstraints IntSet.empty in
           IntSet.fold get_unsatcore unsatPolyConstraintsCodes "0" 
-        else *)
+        else
           IntSet.fold get_unsatcore unsatPolyConstraintsCodes "0"
       in
       
@@ -969,9 +969,9 @@ module Caml = struct
       flush stdout; *)
       
       let returnSAT = 
-        (* if !isUnknown then 
+        if !isUnknown then 
           0
-        else *)
+        else
           -1
       in
 
@@ -1134,7 +1134,7 @@ module Caml = struct
     let varsIntvsMap = VariablesSet.fold add_intv varsSet StringMap.empty in *)
     let varsIntvsMapPrioritiesMaps = FloatMap.singleton esl [varsIntvsMap] in
 
-    (* isUnknown := false; *)
+    isUnknown := false;
 
     (*let tmp1 = new af2 2 in
     tmp1#set_a {low= (~-.) 75.;high= (~-.) 75.};
