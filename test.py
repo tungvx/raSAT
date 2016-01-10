@@ -9,7 +9,15 @@ import re
 from subprocess import TimeoutExpired
 import time
 
-SOLVED_PROBLEM="*.smt2"
+SMT2=".smt2"
+
+BOUNDED_SMT2 = '.bound'
+
+LOWER_BOUND = '(- 1000)'
+UPPER_BOUND = '1000'
+
+TIME_OUT = "timeout"
+ERROR = "error"
 
 PROBLEM='Problem' 
 N_VARS='nVars'
@@ -65,25 +73,62 @@ default_result = {
           NEQ: '0'
 }
 
+def gen_bounds(root, filename):
+  filePath = os.path.join(root, filename)
+  with open(filePath, 'r') as inputFile:
+    content = inputFile.read()
+    # content = content.replace('(check-sat)', '').strip()
+    # content = content.replace('(exit)', '').strip()
+
+    asserts = []
+    for m in re.finditer(r"\(declare-fun (.*) \(\) (Real|Int)\)", content):
+      asserts.append('(assert (>= {} {}))'.format (m.group(1), LOWER_BOUND))
+      asserts.append('(assert (<= {} {}))'.format (m.group(1), UPPER_BOUND))
+
+    # content += '\n' + '\n'.join(asserts)
+    # content += '\n(check-sat)\n'
+    # content += '(exit)\n'
+
+    # add assertions into the content:
+    content = content.replace('(check-sat)', '\n'.join(asserts) + '\n(check-sat)')
+
+    # print (content)
+
+    # Write content into new file:
+    with open(filePath + BOUNDED_SMT2, 'w+') as boundFile:
+      boundFile.write(content)
+
+    return filename + BOUNDED_SMT2
+
+def generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM):
+  if SMT2 == SOLVED_PROBLEM:
+    return smt2Filename
+  elif BOUNDED_SMT2 == SOLVED_PROBLEM:
+    if os.path.isfile(os.path.join(root, smt2Filename+SOLVED_PROBLEM)):
+      return smt2Filename+SOLVED_PROBLEM
+    return gen_bounds(root, smt2Filename)
+
+
 def remove_tmp(root, filename):
   # Remove temp files
+  filePath = os.path.join(root, filename)
   try:
     os.remove(os.path.join(root, filename) + '.tmp')
   except OSError:
     pass
     
   try:
-    os.remove(os.path.join(root, filename)[:-5] + '.in')
+    os.remove(os.path.splitext(filePath)[0] + '.in')
   except OSError:
     pass
  
   try:
-    os.remove(os.path.join(root, filename)[:-5] + '.out')
+    os.remove(os.path.splitext(filePath)[0] + '.out')
   except OSError:
     pass
     
   try:
-    os.remove(os.path.join(root, filename)[:-5] + '.rs')
+    os.remove(os.path.splitext(filePath)[0] + '.rs')
   except OSError:
     pass
 
@@ -111,6 +156,8 @@ def set_result(result, root, filename):
 def solve(args):
   # global root, initSbox, initLowerBound, initUpperBound, timeout
   (filename,root, initSbox, initLowerBound, initUpperBound, timeout) = args
+
+  # print ('solving', filename)
 
   startingTime = time.time()
 
@@ -142,6 +189,14 @@ def solve(args):
     try:
       subprocess.call(["./raSAT", os.path.join(root, filename), bounds[boundIndex]], timeout=timeout)
     except TimeoutExpired:
+      result[RASAT_RESULT] = TIME_OUT
+      # Remove temp files
+      remove_tmp(root, filename)
+      return result
+    except:
+      result[RASAT_RESULT] = ERROR
+      # Remove temp files
+      remove_tmp(root, filename)
       return result
 
     set_result(result, root, filename)
@@ -157,21 +212,48 @@ def solve(args):
 
 
 
-def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile, PROCESSES_NUM):
+def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
   with concurrent.futures.ProcessPoolExecutor(PROCESSES_NUM) as executor:
     with open(os.path.join(directory, resultFile), 'w+', 1) as csvfile:
       spamwriter = csv.DictWriter(csvfile, fieldnames=HEADERS)
       spamwriter.writeheader()
-      for root, dirnames, filenames in os.walk(directory):
-        results = executor.map(solve, [(filename,root, initSbox, initLowerBound, 
-                                        initUpperBound, timeout) 
-                                      for filename in fnmatch.filter(filenames, SOLVED_PROBLEM)])
-        for result in results:
-          for key in result:
-            result[key] = str(result[key])
-          spamwriter.writerow(result)
+      solvedFiles = []
 
-# run ('Test/smtlib-20140121/QF_NRA/zankl/', -10, 10, 0.1, 10, '1-5-8-11.csv', 2)
+      for root, dirnames, filenames in os.walk(directory):
+        for smt2Filename in fnmatch.filter(filenames, '*'+SMT2):
+          solvedFileName = generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM)
+          solvedFiles.append((solvedFileName, root))
+
+
+      # results = executor.map(solve, [(filename,root, initSbox, initLowerBound, 
+      #                                 initUpperBound, timeout) 
+      #                               for (filename, root) in solvedFiles])
+
+      # for result in results:
+      #   for key in result:
+      #     result[key] = str(result[key])
+      #   spamwriter.writerow(result)
+
+
+      futureObjects = []
+      for (filename, root) in solvedFiles:
+        future = executor.submit(solve, (filename, root, initSbox, initLowerBound, 
+                                          initUpperBound, timeout,))
+        futureObjects.append(future)
+      for future in futureObjects:
+        try:
+          result = future.result()
+        except Exception as e:
+          print (e)
+          continue
+        for key in result:
+          result[key] = str(result[key])
+        spamwriter.writerow(result)          
+
+      
+
+# gen_bounds('./Test/smtlib-20140121/QF_NRA/zankl/', 'matrix-1-all-11.smt2', -1000, 1000)
+# run ('Test/test', -10, 10, 0.1, 10, '1-5-8-11.csv', 2, '.smt2')
 #run ('zankl', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('QF_NRA/meti-tarski', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')
@@ -180,4 +262,3 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
 #run ('Test/smtlib-20140121/QF_NIA/calypto', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/leipzig', -10, 10, 0.1, 60, 'result.xls')
 #run ('Test/smtlib-20140121/QF_NIA/mcm', -10, 10, 0.1, 60, 'result.xls')
-
