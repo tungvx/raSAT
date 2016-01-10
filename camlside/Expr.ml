@@ -218,8 +218,9 @@ let rec reify variables = function
       Div (polyExpr1, polyExpr2, polType, {low=neg_infinity;high=infinity}, new IA.af2 0)
 (*Simplify an expression*)  
 let reduce e variables = 
-  let newE = reify variables (eval e) in 
-  (* print_endline ("Simplified " ^ string_infix_of_polyExpr e ^ " to " ^ string_infix_of_polyExpr newE);
-  flush stdout; *)
-  newE
+  e
+  (* let newE = reify variables (eval e) in 
+  print_endline ("Simplified " ^ string_infix_of_polyExpr e ^ " to " ^ string_infix_of_polyExpr newE);
+  flush stdout;
+  newE *)
 

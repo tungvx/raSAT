@@ -7,7 +7,7 @@ open Expr
 
 (* ============================= START of polynomialConstraint class ================================= *)
 (* Class for storing informations of a constraint *)
-class polynomialConstraint boolExprInit variables =
+class polynomialConstraint boolExprInit (variables:(int StringMap.t)) =
   let varsSetInit = get_varsSet_polyCons boolExprInit in
   let (isPositiveDirected, isEquation, isNotEquation) = 
     match boolExprInit with
@@ -907,9 +907,9 @@ let rec string_infix_of_constraints constraints = match constraints with
   | Single polyCons ->  polyCons#to_string_infix
   | NSingle polyCons -> "not" ^ polyCons#to_string_infix
   | And(c1, c2)  -> 
-	  "( " ^ string_infix_of_constraints c1 ^ " And\n" ^ string_infix_of_constraints c2 ^ ")"
+	  "( " ^ string_infix_of_constraints c1 ^ " and " ^ string_infix_of_constraints c2 ^ ")"
 	| Or(c1, c2) -> 
-	  "( " ^ string_infix_of_constraints c1 ^ " Or\n" ^ string_infix_of_constraints c2 ^ ")"
+	  "( " ^ string_infix_of_constraints c1 ^ " or " ^ string_infix_of_constraints c2 ^ ")"
 	| BVar var -> var
 	| NBVar var -> "not " ^ var
 	  

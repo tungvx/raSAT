@@ -13,6 +13,7 @@ open Interval
 open Smtlib_syntax
 open InfiniteList
 open Icp
+open Printf
 
 module Caml = struct
   let inf_I = {low=neg_infinity;high=infinity}
@@ -736,10 +737,12 @@ module Caml = struct
 
       (* let constraints = List.rev constraints in *)
 
-      let mergedBoolExp = get_boolExp_from_list constraints in
-      (*print_endline (string_prefix_of_constraints mergedBoolExp);
-      flush stdout;*)
-      [mergedBoolExp]
+      (* let mergedBoolExp = get_boolExp_from_list constraints in
+      print_endline (string_prefix_of_constraints mergedBoolExp);
+      flush stdout;
+      [mergedBoolExp] *)
+
+      constraints
       
       
   and get_variables = function   
@@ -817,6 +820,52 @@ module Caml = struct
     | None, Some intv2 -> Some intv2
     | None, None -> None
 
+  and output_hys variables constraints fileName lb ub = 
+    (* Convert to .hys file *)
+    let oc = open_out (Filename.chop_extension fileName ^ ".hys") in
+    fprintf oc "-- translated from %s\n" fileName;
+    (* Output variables *)
+    fprintf oc "DECL\n    -- the variables\n";
+    let gen_hys_variables var varType (floatString, isFisrtFloat, intString, isFirstInt, 
+                                       boolString, isFirstBool) = 
+      if varType = realType then
+        if isFisrtFloat then
+          (floatString ^ " " ^ var, false, intString, isFirstInt, boolString, isFirstBool)
+        else
+          (floatString ^ ", " ^ var, false, intString, isFirstInt, boolString, isFirstBool)
+      else if varType = intType then
+        if isFisrtFloat then
+          (floatString, isFisrtFloat, intString ^ " " ^ var, false, boolString, isFirstBool)
+        else
+          (floatString, isFisrtFloat, intString ^ ", " ^ var, false, boolString, isFirstBool)
+      else if varType = boolType then
+        if isFirstBool then
+          (floatString, isFisrtFloat, intString, isFirstInt, boolString ^ " " ^ var, false)
+        else
+          (floatString, isFisrtFloat, intString, isFirstInt, boolString ^ ", " ^ var, false)
+      else  
+        (floatString, isFisrtFloat, intString, isFirstInt, boolString, isFirstBool)
+    in
+    let initialBounds = sprintf "[%s, %s]" (string_of_float lb) (string_of_float ub) in
+    let (floatVariables,isFisrtFloat,intVariables,isFirstInt,boolVariables,isFirstBool) = 
+      StringMap.fold gen_hys_variables variables (sprintf "float %s" initialBounds, true, 
+                                                  sprintf "int %s" initialBounds, true,
+                                                  "boole", true) 
+    in
+    if not isFisrtFloat then fprintf oc "    %s;\n" floatVariables;
+    if not isFirstInt then fprintf oc "    %s;\n" intVariables;
+    if not isFirstBool then fprintf oc "    %s;\n" boolVariables;
+
+    fprintf oc "EXPR\n    -- the constraints to be solved\n";
+
+    (* Output constraints: *)
+    let gen_hys_constraint boolConstraint currentString = 
+      currentString ^ "    " ^ string_infix_of_constraints boolConstraint ^ ";\n"
+    in
+    let constraintsString = List.fold_right gen_hys_constraint constraints "" in
+    fprintf oc "%s\n" constraintsString;    
+    close_out  oc;
+    exit 0;;
 
   (*get miniSat form of interval constraints*)
   let genSatForm fileName lb ub logic inFile =
@@ -843,6 +892,9 @@ module Caml = struct
       | None -> []
       | Some(x) -> get_constraints StringMap.empty functions variables x;
     in
+
+    output_hys variables constraints fileName lb ub;
+
     (*print_endline "finished getting constraints";
     flush stdout;*)
     let boolCons = List.nth constraints 0 in
