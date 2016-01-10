@@ -9,7 +9,7 @@ OC=ocamlopt
 #CFLAGS=-I $(OCAMLDIR)/caml
 #------------------------------------------------------------------------------
 
-SOURCES = multiset.ml fpu.ml fpu_rename.ml fpu_rename_all.ml interval.ml InfiniteList.ml Variable.ml IA.ml Assignments.ml Util.ml ast.ml Expr.ml PolynomialConstraint.ml icp.ml Testing.ml smtlib_util.ml smtlib_syntax.ml smtlib_parse.mly smtlib_lex.mll str.cma Decomposer.ml EqualitiesHandler.ml UnsatCore.ml Caml.ml #example.ml
+SOURCES = ast.ml smtlib_util.ml smtlib_syntax.ml smtlib_parse.mly smtlib_lex.mll str.cma Caml.ml #example.ml
 
 RESULT = a
 
@@ -19,22 +19,19 @@ include OCamlMakefile
 
 #------------------------------------------------------------------------------
 
-modcaml.o: multiset.cmx InfiniteList.cmx Variable.cmx Util.cmx ast.cmx Expr.cmx PolynomialConstraint.cmx icp.cmx Testing.cmx Exp.cmx Expr.cmx IA.cmx Caml.cmx Assignments.cmx smtlib_util.cmx smtlib_syntax.cmx smtlib_parse.cmx smtlib_lex.cmx Decomposer.cmx EqualitiesHandler.cmx UnsatCore.cmx fpu.cmx fpu_rename.cmx fpu_rename_all.cmx interval.cmx
+modcaml.o: ast.cmx Caml.cmx smtlib_util.cmx smtlib_syntax.cmx smtlib_parse.cmx smtlib_lex.cmx
 
-	$(OC) -output-obj -o modcaml.o multiset.cmx fpu.cmx fpu_rename.cmx fpu_rename_all.cmx interval.cmx InfiniteList.cmx Variable.cmx IA.cmx Assignments.cmx Util.cmx ast.cmx Expr.cmx PolynomialConstraint.cmx icp.cmx Testing.cmx smtlib_util.cmx smtlib_syntax.cmx smtlib_parse.cmx smtlib_lex.cmx Decomposer.cmx EqualitiesHandler.cmx UnsatCore.cmx Caml.cmx
+	$(OC) -output-obj -o modcaml.o ast.cmx smtlib_util.cmx smtlib_syntax.cmx smtlib_parse.cmx smtlib_lex.cmx Caml.cmx
 
-$(OCAML_LIB): modcaml.o chcw.o
+$(OCAML_LIB): modcaml.o
 	rm -f $(OCAML_LIB)
 	cp $(OCAMLDIR)/libasmrun.a $(OCAML_LIB)
 
-	ar r $(OCAML_LIB) chcw.o modcaml.o
+	ar r $(OCAML_LIB) modcaml.o
 	#ranlib $@
 	#rm -f $@
 	#ar rc $@  chcw.o
 	#ranlib $@
-
-chcw.o:
-	gcc -W -Wall -O5 -I $(OCAMLDIR)/caml -c chcw.c
 
 c:
 	rm -f $(OCAML_LIB) modcaml.o chcw.o

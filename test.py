@@ -16,6 +16,9 @@ BOUNDED_SMT2 = '.bound'
 LOWER_BOUND = '(- 1000)'
 UPPER_BOUND = '1000'
 
+TIME_OUT = "timeout"
+ERROR = "error"
+
 PROBLEM='Problem' 
 N_VARS='nVars'
 MAX_VARS='maxVars' 
@@ -154,7 +157,7 @@ def solve(args):
   # global root, initSbox, initLowerBound, initUpperBound, timeout
   (filename,root, initSbox, initLowerBound, initUpperBound, timeout) = args
 
-  print ('solving', filename)
+  # print ('solving', filename)
 
   startingTime = time.time()
 
@@ -186,6 +189,12 @@ def solve(args):
     try:
       subprocess.call(["./raSAT", os.path.join(root, filename), bounds[boundIndex]], timeout=timeout)
     except TimeoutExpired:
+      result[RASAT_RESULT] = TIME_OUT
+      # Remove temp files
+      remove_tmp(root, filename)
+      return result
+    except:
+      result[RASAT_RESULT] = ERROR
       # Remove temp files
       remove_tmp(root, filename)
       return result
@@ -209,21 +218,42 @@ def run(directory, initLowerBound, initUpperBound, initSbox, timeout, resultFile
       spamwriter = csv.DictWriter(csvfile, fieldnames=HEADERS)
       spamwriter.writeheader()
       solvedFiles = []
+
       for root, dirnames, filenames in os.walk(directory):
         for smt2Filename in fnmatch.filter(filenames, '*'+SMT2):
           solvedFileName = generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM)
           solvedFiles.append((solvedFileName, root))
 
-      results = executor.map(solve, [(filename,root, initSbox, initLowerBound, 
-                                      initUpperBound, timeout) 
-                                    for (filename, root) in solvedFiles])
-      for result in results:
+
+      # results = executor.map(solve, [(filename,root, initSbox, initLowerBound, 
+      #                                 initUpperBound, timeout) 
+      #                               for (filename, root) in solvedFiles])
+
+      # for result in results:
+      #   for key in result:
+      #     result[key] = str(result[key])
+      #   spamwriter.writerow(result)
+
+
+      futureObjects = []
+      for (filename, root) in solvedFiles:
+        future = executor.submit(solve, (filename, root, initSbox, initLowerBound, 
+                                          initUpperBound, timeout,))
+        futureObjects.append(future)
+      for future in futureObjects:
+        try:
+          result = future.result()
+        except Exception as e:
+          print (e)
+          continue
         for key in result:
           result[key] = str(result[key])
-        spamwriter.writerow(result)
+        spamwriter.writerow(result)          
+
+      
 
 # gen_bounds('./Test/smtlib-20140121/QF_NRA/zankl/', 'matrix-1-all-11.smt2', -1000, 1000)
-# run ('Test/test', -10, 10, 0.1, 10, '1-5-8-11.csv', 1, '.bound')
+# run ('Test/test', -10, 10, 0.1, 10, '1-5-8-11.csv', 2, '.smt2')
 #run ('zankl', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('QF_NRA/meti-tarski', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')
