@@ -787,6 +787,8 @@ let genSatForm fileName lb ub =
     | Some(x) -> get_constraints StringMap.empty functions variables x;
   in
 
+  let constraints = List.rev constraints in 
+  let constraints = remove_div_boolExpr_list constraints in
   output_hys variables constraints fileName lb ub;;
 
 genSatForm Sys.argv.(1) Sys.argv.(2) Sys.argv.(3)
