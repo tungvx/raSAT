@@ -29,12 +29,12 @@ def generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM):
   solvedFileName = os.path.splitext(smt2Filename)[0]+SOLVED_PROBLEM
   # print (solvedFileName)
   if HYS == SOLVED_PROBLEM:
-    if not os.path.isfile(os.path.join(root, solvedFileName)):
-      subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), "-inf", "inf"])
+    # if not os.path.isfile(os.path.join(root, solvedFileName)):
+    subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), "-inf", "inf"])
     
   elif HYS_BOUNDED == SOLVED_PROBLEM:
-    if not os.path.isfile(os.path.join(root, solvedFileName)):
-      subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), LOWER_BOUND, UPPER_BOUND])
+    # if not os.path.isfile(os.path.join(root, solvedFileName)):
+    subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), LOWER_BOUND, UPPER_BOUND])
   
   return solvedFileName
 
@@ -56,6 +56,7 @@ def solve(args):
     return result
     
   result[TIME] = time.time() - startTime
+  iOut = iOut.strip()
   # print (iOut)
   if iOut == 'UNSATISFIABLE':
     result[ISAT_RESULT] = 'unsat'
@@ -64,6 +65,8 @@ def solve(args):
   elif iOut.startswith('CANDIDATE SOLUTION'):
     result[ISAT_RESULT] = 'unknown'
 
+  # print (result[ISAT_RESULT])
+  # print (result)
   return result
     
 

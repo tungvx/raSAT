@@ -399,7 +399,7 @@ let rec string_infix_of_boolExpr boolExpr =
     "(" ^ string_infix_of_boolExpr c1 ^ " and " ^ string_infix_of_boolExpr c2 ^ ")"
   | Or(c1, c2) -> 
     "(" ^ string_infix_of_boolExpr c1 ^ " or " ^ string_infix_of_boolExpr c2 ^ ")"
-  | BVar var -> var
+  | BVar var -> remove_forbidden_char var
   | Not c -> "(not " ^ string_infix_of_boolExpr c ^ ")"
   | True -> "(0 = 0)"
   | False -> "(0 != 0)"

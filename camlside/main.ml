@@ -719,6 +719,7 @@ and output_hys variables constraints fileName outName lb ub =
   fprintf oc "DECL\n    -- the variables\n";
   let gen_hys_variables var varType (floatString, isFisrtFloat, intString, isFirstInt, 
                                      boolString, isFirstBool) = 
+    let var = remove_forbidden_char var in
     if varType = realType then
       if isFisrtFloat then
         (floatString ^ " " ^ var, false, intString, isFirstInt, boolString, isFirstBool)
@@ -730,7 +731,6 @@ and output_hys variables constraints fileName outName lb ub =
       else
         (floatString, isFisrtFloat, intString ^ ", " ^ var, false, boolString, isFirstBool)
     else if varType = boolType then
-      let var = remove_forbidden_char var in
       if isFirstBool then
         (floatString, isFisrtFloat, intString, isFirstInt, boolString ^ " " ^ var, false)
       else
