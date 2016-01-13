@@ -2,60 +2,67 @@ import fnmatch
 import os
 import subprocess
 import csv
+import time
+import concurrent.futures
+import re
+from subprocess import TimeoutExpired
 
-LOWER_BOUND = -1000
-UPPER_BOUND = 1000
+LOWER_BOUND = "-1000"
+UPPER_BOUND = "1000"
 
 HYS = ".hys"
 HYS_BOUNDED = ".hys.bound"
+SMT2 = ".smt2"
+
+TIME_OUT = "timeout"
+SAT = "sat"
+UNSAT = "unsat"
+UNKNOWN = "unknown"
+
+PROBLEM='Problem'
+TIME='time'
+ISAT_RESULT="isatResult"
+
+HEADERS = [PROBLEM, TIME, ISAT_RESULT]
 
 def generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM):
+  solvedFileName = os.path.splitext(smt2Filename)[0]+SOLVED_PROBLEM
+  # print (solvedFileName)
   if HYS == SOLVED_PROBLEM:
-    subprocess.call(["./smt22hys", os.path.join(root, filename), -1000, 1000])
-    return smt2Filename
-  elif BOUNDED_SMT2 == SOLVED_PROBLEM:
-    if os.path.isfile(os.path.join(root, smt2Filename+SOLVED_PROBLEM)):
-      return smt2Filename+SOLVED_PROBLEM
-    return gen_bounds(root, smt2Filename)
+    if not os.path.isfile(os.path.join(root, solvedFileName)):
+      subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), "-inf", "inf"])
+    
+  elif HYS_BOUNDED == SOLVED_PROBLEM:
+    if not os.path.isfile(os.path.join(root, solvedFileName)):
+      subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), LOWER_BOUND, UPPER_BOUND])
+  
+  return solvedFileName
 
-def run(directory, timeout, resultFile):
-  solvedProblems = 0
-  with open(os.path.join(directory, resultFile), 'wb') as csvfile:
-    spamwriter = csv.writer(csvfile)
-    spamwriter.writerow(['Problem', 'time', 'isat3 Result'])
-    csvfile.close()
-  for root, dirnames, filenames in os.walk(directory):
-    for filename in fnmatch.filter(filenames, '*.hys'):
-      startTime = datetime.datetime.now()
-      result = 'unknown'
-      signal.signal(signal.SIGALRM, alarm_handler)
-      signal.alarm(timeout)
-      try: 
-        proc = subprocess.Popen(["./isat3", '-I', os.path.join(root, filename)], stdout=subprocess.PIPE)
-        result=proc.stdout.readline().strip()
-        signal.alarm(0)
-      except Alarm:
-        result = 'timeout'
-        
-      time = datetime.datetime.now() - startTime
-      time = time.seconds + time.microseconds/1E6  
-      if result == 'UNSATISFIABLE':
-        result = 'unsat'
-        solvedProblems += 1
-      elif result.startswith('SATISFIABLE'):
-        result = 'sat'
-        solvedProblems += 1
-      elif result.startswith('CANDIDATE SOLUTION'):
-        result = 'unknown'
-      with open(os.path.join(directory, resultFile), 'a') as csvfile:
-        spamwriter = csv.writer(csvfile)
-        spamwriter.writerow([os.path.join(root, filename), time, result])
-        csvfile.close()
+def solve(args):
+  (filename, root, timeout) = args
 
-  with open(os.path.join(directory, resultFile), 'a') as csvfile:
-    spamwriter = csv.writer(csvfile)
-    spamwriter.writerow(['Problem', 'time', solvedProblems])
-    csvfile.close()
+  result= {PROBLEM:os.path.join(root, filename)}
+
+  startTime = time.time()
+  try: 
+    proc = subprocess.Popen(["./isat3", '-I', os.path.join(root, filename)],stdout=subprocess.PIPE,universal_newlines = True)
+    iOut, iErr = proc.communicate(timeout=timeout)
+  except TimeoutExpired:
+    proc.kill()
+    result[TIME] = time.time() - startTime
+    result[ISAT_RESULT] = TIME_OUT
+    return result
+    
+  result[TIME] = time.time() - startTime
+  # print (iOut)
+  if iOut == 'UNSATISFIABLE':
+    result[ISAT_RESULT] = 'unsat'
+  elif iOut.startswith('SATISFIABLE'):
+    result[ISAT_RESULT] = 'sat'
+  elif iOut.startswith('CANDIDATE SOLUTION'):
+    result[ISAT_RESULT] = 'unknown'
+
+  return result
     
 
 def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
@@ -83,8 +90,7 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
 
       futureObjects = []
       for (filename, root) in solvedFiles:
-        future = executor.submit(solve, (filename, root, initSbox, initLowerBound, 
-                                          initUpperBound, timeout,))
+        future = executor.submit(solve, (filename, root, timeout,))
         futureObjects.append(future)
       for future in futureObjects:
         try:
@@ -98,7 +104,8 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
 
 
 #run("nonlinear/keymaera", 60, "isat3.xls")
-run("test", 60, "isat3.xls", 2, ".hys")
+# run("Test/", 10, "isat3.xls", 2, ".hys.bound")
+# run("Test/", 10, "isat3.xls", 2, ".hys.bound")
 #run ('zankl', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('QF_NRA/meti-tarski', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')

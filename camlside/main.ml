@@ -711,9 +711,9 @@ and get_boolExp_from_list = function
   | boolExp :: remainingBoolExps -> And(boolExp, get_boolExp_from_list remainingBoolExps)
   
 
-and output_hys variables constraints fileName lb ub = 
+and output_hys variables constraints fileName outName lb ub = 
   (* Convert to .hys file *)
-  let oc = open_out (Filename.chop_extension fileName ^ ".hys") in
+  let oc = open_out outName in
   fprintf oc "-- translated from %s\n" fileName;
   (* Output variables *)
   fprintf oc "DECL\n    -- the variables\n";
@@ -758,7 +758,7 @@ and output_hys variables constraints fileName lb ub =
   close_out  oc;;
 
 (*get miniSat form of interval constraints*)
-let genSatForm fileName lb ub =
+let genSatForm fileName outName lb ub =
   let ic = open_in fileName in
   let lexbuf = Lexing.from_channel ic in  
   let parsed =  Smtlib_parse.main Smtlib_lex.token lexbuf in
@@ -789,6 +789,6 @@ let genSatForm fileName lb ub =
 
   let constraints = List.rev constraints in 
   let constraints = remove_div_boolExpr_list constraints in
-  output_hys variables constraints fileName lb ub;;
+  output_hys variables constraints fileName outName lb ub;;
 
-genSatForm Sys.argv.(1) Sys.argv.(2) Sys.argv.(3)
+genSatForm Sys.argv.(1) Sys.argv.(2) Sys.argv.(3) Sys.argv.(4)
