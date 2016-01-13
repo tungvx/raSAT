@@ -360,17 +360,20 @@ let rec remove_div_boolExpr_list = function
   | [] -> []
   | h :: t ->  (remove_div_boolExpr h) :: (remove_div_boolExpr_list t)
 
+
+let remove_forbidden_char var = Str.global_replace (Str.regexp "\\.") "____" var  
+
 (*==================== START string_infix_of_polyExpr ==============================*)	
 (* This function converts a polynomial expression into infix string form *)
 let rec string_infix_of_polyExpr = function
-  | Var (x, _) -> x (* "(" ^ x ^ ", " ^ string_of_bool changed ^ ")" *)
+  | Var (x, _) -> remove_forbidden_char x (* "(" ^ x ^ ", " ^ string_of_bool changed ^ ")" *)
 	| Add(e1, e2, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ " + " ^ (string_infix_of_polyExpr e2) ^ ")" 
 	| Sub(e1, e2, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ " - " ^ (string_infix_of_polyExpr e2) ^ ")"
   | SSub(e, _) -> "(- " ^ (string_infix_of_polyExpr e) ^ ")"
 	| Mul(e1, e2, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ " * " ^ (string_infix_of_polyExpr e2) ^ ")"
 	| Div(e1, e2, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ " / " ^ (string_infix_of_polyExpr e2) ^ ")"
 	| Cons (c, _) -> c
-  | Pow (var, multiplicity, _) -> "(pow " ^ var ^ " " ^ string_of_int multiplicity ^ ")"
+  | Pow (var, multiplicity, _) -> "(pow " ^ remove_forbidden_char var ^ " " ^ string_of_int multiplicity ^ ")"
   | Mod (e1, e2) -> "(" ^ (string_infix_of_polyExpr e1) ^ " mod " ^ (string_infix_of_polyExpr e2) ^ ")"
 (*==================== END string_infix_of_polyExpr ==============================*)	
 

@@ -39,7 +39,9 @@ def generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM):
   return solvedFileName
 
 def solve(args):
-  (filename, root, timeout) = args
+  (smt2Filename, SOLVED_PROBLEM, root, timeout) = args
+
+  filename = generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM)
 
   result= {PROBLEM:os.path.join(root, filename)}
 
@@ -70,12 +72,10 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
     with open(os.path.join(directory, resultFile), 'w+', 1) as csvfile:
       spamwriter = csv.DictWriter(csvfile, fieldnames=HEADERS)
       spamwriter.writeheader()
-      solvedFiles = []
+      smt2Files = []
 
       for root, dirnames, filenames in os.walk(directory):
-        for smt2Filename in fnmatch.filter(filenames, '*'+SMT2):
-          solvedFileName = generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM)
-          solvedFiles.append((solvedFileName, root))
+        smt2Files += [(smt2Filename, root) for smt2Filename in fnmatch.filter(filenames, '*'+SMT2)]
 
 
       # results = executor.map(solve, [(filename,root, initSbox, initLowerBound, 
@@ -89,8 +89,8 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
 
 
       futureObjects = []
-      for (filename, root) in solvedFiles:
-        future = executor.submit(solve, (filename, root, timeout,))
+      for (smt2Filename, root) in smt2Files:
+        future = executor.submit(solve, (smt2Filename, SOLVED_PROBLEM, root, timeout,))
         futureObjects.append(future)
       for future in futureObjects:
         try:

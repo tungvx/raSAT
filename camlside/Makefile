@@ -7,6 +7,8 @@ OCAMLDIR:= "$(shell ocamlc -where)"
 
 SOURCES = ast.ml smtlib_util.ml smtlib_syntax.ml smtlib_parse.mly smtlib_lex.mll str.cma main.ml
 
+LIBS = str
+
 RESULT = smt22hys
 
 LDFLAGS = -static
