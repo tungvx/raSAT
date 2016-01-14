@@ -361,7 +361,7 @@ let rec remove_div_boolExpr_list = function
   | h :: t ->  (remove_div_boolExpr h) :: (remove_div_boolExpr_list t)
 
 
-let remove_forbidden_char var = Str.global_replace (Str.regexp "\\.") "____" var  
+let remove_forbidden_char var = Str.global_replace (Str.regexp "[\\.|#~]") "____" var  
 
 (*==================== START string_infix_of_polyExpr ==============================*)	
 (* This function converts a polynomial expression into infix string form *)
