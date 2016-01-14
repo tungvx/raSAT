@@ -2,17 +2,13 @@ import fnmatch
 import os
 import subprocess
 import csv
-import time
 import concurrent.futures
 import re
 from subprocess import TimeoutExpired
+import time
 
-LOWER_BOUND = "-1000"
-UPPER_BOUND = "1000"
-
-HYS = ".hys"
-HYS_BOUNDED = ".hys.bound"
-SMT2 = ".smt2"
+SMT2=".smt2"
+BOUNDED_SMT2 = '.bound'
 
 TIME_OUT = "timeout"
 SAT = "sat"
@@ -21,22 +17,52 @@ UNKNOWN = "unknown"
 
 PROBLEM='Problem'
 TIME='time'
-ISAT_RESULT="isatResult"
+RESULT = 'result'
+DREAL_RESULT="isatResult"
 
-HEADERS = [PROBLEM, TIME, ISAT_RESULT]
+HEADERS = [PROBLEM, TIME, RESULT, DREAL_RESULT]
+
+SMT2=".smt2"
+
+BOUNDED_SMT2 = '.bound'
+
+LOWER_BOUND = '(- 1000)'
+UPPER_BOUND = '1000'
+
+def gen_bounds(root, filename):
+  filePath = os.path.join(root, filename)
+  with open(filePath, 'r') as inputFile:
+    content = inputFile.read()
+    # content = content.replace('(check-sat)', '').strip()
+    # content = content.replace('(exit)', '').strip()
+
+    asserts = []
+    for m in re.finditer(r"\(declare-fun (.*) \(\) (Real|Int)\)", content):
+      asserts.append('(assert (>= {} {}))'.format (m.group(1), LOWER_BOUND))
+      asserts.append('(assert (<= {} {}))'.format (m.group(1), UPPER_BOUND))
+
+    # content += '\n' + '\n'.join(asserts)
+    # content += '\n(check-sat)\n'
+    # content += '(exit)\n'
+
+    # add assertions into the content:
+    content = content.replace('(check-sat)', '\n'.join(asserts) + '\n(check-sat)')
+
+    # print (content)
+
+    # Write content into new file:
+    with open(filePath + BOUNDED_SMT2, 'w+') as boundFile:
+      boundFile.write(content)
+
+    return filename + BOUNDED_SMT2
 
 def generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM):
-  solvedFileName = os.path.splitext(smt2Filename)[0]+SOLVED_PROBLEM
-  # print (solvedFileName)
-  if HYS == SOLVED_PROBLEM:
-    # if not os.path.isfile(os.path.join(root, solvedFileName)):
-    subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), "-inf", "inf"])
-    
-  elif HYS_BOUNDED == SOLVED_PROBLEM:
-    # if not os.path.isfile(os.path.join(root, solvedFileName)):
-    subprocess.call(["./smt22hys", os.path.join(root, smt2Filename), os.path.join(root, solvedFileName), LOWER_BOUND, UPPER_BOUND])
-  
-  return solvedFileName
+  if SMT2 == SOLVED_PROBLEM:
+    return smt2Filename
+  elif BOUNDED_SMT2 == SOLVED_PROBLEM:
+    if os.path.isfile(os.path.join(root, smt2Filename+SOLVED_PROBLEM)):
+      return smt2Filename+SOLVED_PROBLEM
+    return gen_bounds(root, smt2Filename)
 
 def solve(args):
   (smt2Filename, SOLVED_PROBLEM, root, timeout) = args
@@ -45,27 +71,35 @@ def solve(args):
 
   result= {PROBLEM:os.path.join(root, filename)}
 
+  #try to get the result of the problem:
+  try:
+    f = open(os.path.join(root, filename))
+    '(set-info :status sat)'
+    m = re.search('\(set-info :status (sat|unsat|unknown)\)', f.read())
+    if m:
+      result[RESULT]=m.group(1)
+  except IOError:
+    pass
+
   startTime = time.time()
   try: 
-    proc = subprocess.Popen(["./isat3", '-I', os.path.join(root, filename)],stdout=subprocess.PIPE,universal_newlines = True)
+    proc = subprocess.Popen(["./dReal", os.path.join(root, filename)],stdout=subprocess.PIPE,universal_newlines = True)
     iOut, iErr = proc.communicate(timeout=timeout)
   except TimeoutExpired:
     proc.kill()
     result[TIME] = time.time() - startTime
-    result[ISAT_RESULT] = TIME_OUT
+    result[DREAL_RESULT] = TIME_OUT
     return result
     
   result[TIME] = time.time() - startTime
   iOut = iOut.strip()
   # print (iOut)
-  if iOut == 'UNSATISFIABLE':
-    result[ISAT_RESULT] = 'unsat'
-  elif iOut.startswith('SATISFIABLE'):
-    result[ISAT_RESULT] = 'sat'
-  elif iOut.startswith('CANDIDATE SOLUTION'):
-    result[ISAT_RESULT] = 'unknown'
+  if iOut == 'unsat':
+    result[DREAL_RESULT] = 'unsat'
+  elif iOut.startswith('delta-sat'):
+    result[DREAL_RESULT] = 'delta-sat'
 
-  # print (result[ISAT_RESULT])
+  # print (result[DREAL_RESULT])
   # print (result)
   return result
     
@@ -103,12 +137,10 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
           continue
         for key in result:
           result[key] = str(result[key])
-        spamwriter.writerow(result)   
-
+        spamwriter.writerow(result) 
 
 #run("nonlinear/keymaera", 60, "isat3.xls")
-# run("Test/", 10, "isat3.xls", 2, ".hys.bound")
-# run("Test/", 10, "isat3.xls", 2, ".hys.bound")
+run("test", 60, "dReal.csv", 2, SMT2)
 #run ('zankl', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('QF_NRA/meti-tarski', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')
