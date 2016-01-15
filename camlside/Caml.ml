@@ -849,6 +849,8 @@ module Caml = struct
     (* print_endline (string_infix_of_constraints boolCons);
     flush stdout;
     raise (Failure "Tung dep trai"); *)
+    
+    let boolCons = remove_div_boolCons boolCons in
 
     let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = 
         miniSATExpr_of_constraints boolCons (!miniSATIndex) IntMap.empty logic StringMap.empty 
