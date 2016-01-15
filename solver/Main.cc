@@ -350,7 +350,7 @@ int main(int argc, char* argv[]) {
 	 */
 	{ //Start process for combination of SAT and IA  
 	  //double initial_time = cpuTime();
-		bool check = true;
+		bool check = false;
 		lbool ret = l_False;
 		int finalRes = -1; //Initial state is unsat for solver
 		string logResult;
