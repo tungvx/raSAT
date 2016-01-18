@@ -41,74 +41,6 @@ type poly_constraint =
   | Le of poly_expr
 
 
-let rec remove_div_polyExpr_extra = function
-  | Add(Div(e1, e2,_,_,_), Div(e3,e4,_,_,_), polType,intv, af2) -> 
-    Div(Add(Mul(e1, e4, polType,intv, af2), Mul(e2, e3, polType,intv, af2), polType,intv, af2), Mul(e2, e4, polType,intv, af2), polType,intv, af2)
-  | Add(Div(e1, e2, _,_,_), e3, polType,intv, af2) -> 
-    Div(Add(e1, Mul(e2, e3, polType,intv, af2), polType,intv, af2), e2, polType,intv, af2)
-  | Add(e1, Div(e3, e4, _,_,_), polType,intv, af2) -> 
-    Div(Add(Mul(e1, e4, polType,intv, af2), e3, polType,intv, af2), e4, polType,intv, af2)
-  | Add(e1, e3, polType,intv, af2) -> Add(e1, e3, polType,intv, af2)
-
-  | Sub(Div(e1, e2, _,_,_), Div(e3,e4, _,_,_), polType,intv, af2) -> 
-    Div(Sub(Mul(e1, e4, polType,intv, af2), Mul(e2, e3, polType,intv, af2), polType,intv, af2), Mul(e2, e4, polType,intv, af2), polType,intv, af2)
-  | Sub(Div(e1, e2, _,_,_), e3, polType,intv, af2) -> 
-    Div(Sub(e1, Mul(e2, e3, polType,intv, af2), polType,intv, af2), e2, polType,intv, af2)
-  | Sub(e1, Div(e3, e4, _,_,_), polType,intv, af2) -> 
-    Div(Sub(Mul(e1, e4, polType,intv, af2), e3, polType,intv, af2), e4, polType,intv, af2)
-  | Sub(e1, e3, polType,intv, af2) -> Sub(e1, e3, polType,intv, af2)
-
-  | Mul(Div(e1, e2, _,_,_), Div(e3, e4, _,_,_), polType,intv, af2) ->
-    Div(Mul(e1, e3, polType,intv, af2), Mul(e2,e4,polType,intv, af2), polType,intv, af2)
-  | Mul(Div(e1, e2,_,_,_), e3, polType,intv, af2) ->
-    Div(Mul(e1, e3, polType,intv, af2), e2, polType,intv, af2)
-  | Mul(e1, Div(e3, e4, _,_,_), polType,intv, af2) ->
-    Div(Mul(e1, e3, polType,intv, af2), e4, polType,intv, af2)
-  | Mul(e1, e3, polType,intv, af2) -> Mul(e1, e3, polType,intv, af2)
-
-  | Div(Div(e1, e2, _,_,_), Div(e3, e4, _,_,_), polType,intv, af2) ->
-    Div(Mul(e1, e4, polType,intv, af2), Mul(e2,e3,polType,intv, af2), polType,intv, af2)
-  | Div(Div(e1, e2,_,_,_), e3, polType,intv, af2) ->
-    Div(e1, Mul(e2, e3, polType,intv, af2), polType,intv, af2)
-  | Div(e1, Div(e3, e4, _,_,_), polType,intv, af2) ->
-    Div(Mul(e1, e4, polType,intv, af2), e3, polType,intv, af2)
-  | Div(e1, e3, polType,intv, af2) -> Div(e1, e3, polType,intv, af2)
-
-  | Mod(e1, e2, intv) -> Mod(e1, e2, intv)
-
-  | Cons(c, isInit, polType,intv, af2) -> Cons(c, isInit, polType,intv, af2)
-
-  | Var (var, polType,intv, af2, isChanged) -> Var(var, polType,intv, af2, isChanged)
-  
-  | Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form) -> Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form) 
-
-
-
-let rec remove_div_polyExpr = function
-  | Add (e1, e2, polType,intv, af2) ->
-    let removedDivE1 = remove_div_polyExpr e1 in
-    let removedDivE2 = remove_div_polyExpr e2 in
-    remove_div_polyExpr_extra (Add(removedDivE1, removedDivE2, polType,intv, af2))
-  | Sub (e1, e2, polType,intv, af2) ->
-    let removedDivE1 = remove_div_polyExpr e1 in
-    let removedDivE2 = remove_div_polyExpr e2 in
-    remove_div_polyExpr_extra (Sub(removedDivE1, removedDivE2, polType,intv, af2))
-  | Mul (e1, e2, polType,intv, af2) ->
-    let removedDivE1 = remove_div_polyExpr e1 in
-    let removedDivE2 = remove_div_polyExpr e2 in
-    remove_div_polyExpr_extra (Mul(removedDivE1, removedDivE2, polType,intv, af2))
-  | Div (e1, e2, polType,intv, af2) ->
-    let removedDivE1 = remove_div_polyExpr e1 in
-    let removedDivE2 = remove_div_polyExpr e2 in
-    remove_div_polyExpr_extra (Div(removedDivE1, removedDivE2, polType,intv, af2))
-  | Mod (e1, e2,intv) ->
-    let removedDivE1 = remove_div_polyExpr e1 in
-    let removedDivE2 = remove_div_polyExpr e2 in
-    remove_div_polyExpr_extra (Mod(removedDivE1, removedDivE2,intv))
-  | Cons(c, isInit, polType,intv, af2) -> Cons(c, isInit, polType,intv, af2)
-  | Var (var, polType,intv, af2, isChanged) -> Var(var, polType,intv, af2, isChanged)
-  | Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form) -> Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form) 
-
 let rec pow_to_mul (Pow(var, multiplicity, polType, varIntv, _,_, af2Form)) =
   if multiplicity == 1 then 
     Var (var, polType, varIntv , af2Form, false)
@@ -522,8 +454,9 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
     if initialized then 
       (false, (Cons (c, true, polType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
     else 
-      let af2Form = Util.toAf2 {low=c;high=c} 0 varsNum in
-      (true, (Cons (c, true, polType, oldIntv, af2Form)), oldIntv, VariablesSet.empty)
+      let varIntv = {low=c;high=c} in
+      let af2Form = Util.toAf2 varIntv 0 varsNum in
+      (true, (Cons (c, true, polType, varIntv, af2Form)), varIntv, VariablesSet.empty)
   | Var (var, varType, oldIntv, af2Form, af2Changed) -> 
     let intv = StringMap.find var varsIntvsMap in
     
@@ -1580,3 +1513,79 @@ let rec contract_polyExpr polyExpr intv varsIntvsMap esl =
       )
     else (true, StringMap.empty)  
   else (false, varsIntvsMap)
+
+
+let rec remove_div_polyExpr_extra = function
+  | Add(Div(e1, e2,_,_,_), Div(e3,e4,_,_,_), polType,intv, af2) -> 
+    Div(Add(Mul(e1, e4, polType,intv, af2), Mul(e2, e3, polType,intv, af2), polType,intv, af2), Mul(e2, e4, polType,intv, af2), polType,intv, af2)
+  | Add(Div(e1, e2, _,_,_), e3, polType,intv, af2) -> 
+    Div(Add(e1, Mul(e2, e3, polType,intv, af2), polType,intv, af2), e2, polType,intv, af2)
+  | Add(e1, Div(e3, e4, _,_,_), polType,intv, af2) -> 
+    Div(Add(Mul(e1, e4, polType,intv, af2), e3, polType,intv, af2), e4, polType,intv, af2)
+  | Add(e1, e3, polType,intv, af2) -> Add(e1, e3, polType,intv, af2)
+
+  | Sub(Div(e1, e2, _,_,_), Div(e3,e4, _,_,_), polType,intv, af2) -> 
+    Div(Sub(Mul(e1, e4, polType,intv, af2), Mul(e2, e3, polType,intv, af2), polType,intv, af2), Mul(e2, e4, polType,intv, af2), polType,intv, af2)
+  | Sub(Div(e1, e2, _,_,_), e3, polType,intv, af2) -> 
+    Div(Sub(e1, Mul(e2, e3, polType,intv, af2), polType,intv, af2), e2, polType,intv, af2)
+  | Sub(e1, Div(e3, e4, _,_,_), polType,intv, af2) -> 
+    Div(Sub(Mul(e1, e4, polType,intv, af2), e3, polType,intv, af2), e4, polType,intv, af2)
+  | Sub(e1, e3, polType,intv, af2) -> Sub(e1, e3, polType,intv, af2)
+
+  | Mul(Div(e1, e2, _,_,_), Div(e3, e4, _,_,_), polType,intv, af2) ->
+    Div(Mul(e1, e3, polType,intv, af2), Mul(e2,e4,polType,intv, af2), polType,intv, af2)
+  | Mul(Div(e1, e2,_,_,_), e3, polType,intv, af2) ->
+    Div(Mul(e1, e3, polType,intv, af2), e2, polType,intv, af2)
+  | Mul(e1, Div(e3, e4, _,_,_), polType,intv, af2) ->
+    Div(Mul(e1, e3, polType,intv, af2), e4, polType,intv, af2)
+  | Mul(e1, e3, polType,intv, af2) -> Mul(e1, e3, polType,intv, af2)
+
+  | Div(Div(e1, e2, _,_,_), Div(e3, e4, _,_,_), polType,intv, af2) ->
+    Div(Mul(e1, e4, polType,intv, af2), Mul(e2,e3,polType,intv, af2), polType,intv, af2)
+  | Div(Div(e1, e2,_,_,_), e3, polType,intv, af2) ->
+    Div(e1, Mul(e2, e3, polType,intv, af2), polType,intv, af2)
+  | Div(e1, Div(e3, e4, _,_,_), polType,intv, af2) ->
+    Div(Mul(e1, e4, polType,intv, af2), e3, polType,intv, af2)
+  | Div(e1, e3, polType,intv, af2) -> Div(e1, e3, polType,intv, af2)
+
+  | Mod(e1, e2, intv) -> Mod(e1, e2, intv)
+
+  | Cons(c, isInit, polType,intv, af2) -> Cons(c, isInit, polType,intv, af2)
+
+  | Var (var, polType,intv, af2, isChanged) -> Var(var, polType,intv, af2, isChanged)
+  
+  | Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form) ->
+    Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form)
+
+
+let rec remove_div_polyExpr = function
+  | Add (e1, e2, polType,intv, af2) ->
+    let removedDivE1 = remove_div_polyExpr e1 in
+    let removedDivE2 = remove_div_polyExpr e2 in
+    remove_div_polyExpr_extra (Add(removedDivE1, removedDivE2, polType,intv, af2))
+  | Sub (e1, e2, polType,intv, af2) ->
+    let removedDivE1 = remove_div_polyExpr e1 in
+    let removedDivE2 = remove_div_polyExpr e2 in
+    remove_div_polyExpr_extra (Sub(removedDivE1, removedDivE2, polType,intv, af2))
+  | Mul (e1, e2, polType,intv, af2) ->
+    let removedDivE1 = remove_div_polyExpr e1 in
+    let removedDivE2 = remove_div_polyExpr e2 in
+    remove_div_polyExpr_extra (Mul(removedDivE1, removedDivE2, polType,intv, af2))
+  | Div (e1, e2, polType,intv, af2) ->
+    let removedDivE1 = remove_div_polyExpr e1 in
+    let removedDivE2 = remove_div_polyExpr e2 in
+    remove_div_polyExpr_extra (Div(removedDivE1, removedDivE2, polType,intv, af2))
+  | Mod (e1, e2,intv) ->
+    let removedDivE1 = remove_div_polyExpr e1 in
+    let removedDivE2 = remove_div_polyExpr e2 in
+    remove_div_polyExpr_extra (Mod(removedDivE1, removedDivE2,intv))
+  | Cons(c, isInit, polType,intv, af2) -> Cons(c, isInit, polType,intv, af2)
+  | Var (var, polType,intv, af2, isChanged) -> Var(var, polType,intv, af2, isChanged)
+  | Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form) ->
+     Pow(var, multiplicity, polType, varIntv, af2Changed, intv, af2Form)
+
+let rec get_sub_remove_div poly1 poly2 = 
+  let polType = get_type_polyExprs poly1 poly2 in
+  let poly = Sub(poly1, poly2, polType, {low=neg_infinity;high=infinity}, new IA.af2 0) in
+
+  (* remove_div_polyExpr *) poly

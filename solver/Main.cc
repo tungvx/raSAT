@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = false;
+	bool debug = true;
 	bool statistics = true;
 	bool smtComp = false;
 	double initial_time = cpuTime();
@@ -350,7 +350,7 @@ int main(int argc, char* argv[]) {
 	 */
 	{ //Start process for combination of SAT and IA  
 	  //double initial_time = cpuTime();
-		bool check = false;
+		bool check = true;
 		lbool ret = l_False;
 		int finalRes = -1; //Initial state is unsat for solver
 		string logResult;

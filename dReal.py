@@ -10,6 +10,8 @@ import time
 SMT2=".smt2"
 BOUNDED_SMT2 = '.bound'
 
+BOUNDED_DREAL = BOUNDED_SMT2 + SMT2
+
 TIME_OUT = "timeout"
 SAT = "sat"
 UNSAT = "unsat"
@@ -21,10 +23,6 @@ RESULT = 'result'
 DREAL_RESULT="isatResult"
 
 HEADERS = [PROBLEM, TIME, RESULT, DREAL_RESULT]
-
-SMT2=".smt2"
-
-BOUNDED_SMT2 = '.bound'
 
 LOWER_BOUND = '(- 1000)'
 UPPER_BOUND = '1000'
@@ -51,18 +49,22 @@ def gen_bounds(root, filename):
     # print (content)
 
     # Write content into new file:
-    with open(filePath + BOUNDED_SMT2, 'w+') as boundFile:
+    with open(filePath + BOUNDED_DREAL, 'w+') as boundFile:
       boundFile.write(content)
 
-    return filename + BOUNDED_SMT2
+    return filename + BOUNDED_DREAL
 
 def generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM):
   if SMT2 == SOLVED_PROBLEM:
     return smt2Filename
   elif BOUNDED_SMT2 == SOLVED_PROBLEM:
-    if os.path.isfile(os.path.join(root, smt2Filename+SOLVED_PROBLEM)):
-      return smt2Filename+SOLVED_PROBLEM
     return gen_bounds(root, smt2Filename)
+
+def remove_file(filePath):
+  try:
+    os.remove(filePath)
+  except OSError:
+    pass
 
 def solve(args):
   (smt2Filename, SOLVED_PROBLEM, root, timeout) = args
@@ -89,6 +91,7 @@ def solve(args):
     proc.kill()
     result[TIME] = time.time() - startTime
     result[DREAL_RESULT] = TIME_OUT
+    # remove_file(result[PROBLEM])
     return result
     
   result[TIME] = time.time() - startTime
@@ -101,6 +104,7 @@ def solve(args):
 
   # print (result[DREAL_RESULT])
   # print (result)
+  # remove_file(result[PROBLEM])
   return result
     
 
@@ -112,7 +116,11 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
       smt2Files = []
 
       for root, dirnames, filenames in os.walk(directory):
-        smt2Files += [(smt2Filename, root) for smt2Filename in fnmatch.filter(filenames, '*'+SMT2)]
+        for filename in filenames:
+          if filename.endswith(BOUNDED_DREAL):
+              remove_file(os.path.join(root, filename))
+          elif filename.endswith(SMT2):
+            smt2Files.append((filename, root))
 
 
       # results = executor.map(solve, [(filename,root, initSbox, initLowerBound, 
@@ -140,7 +148,7 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
         spamwriter.writerow(result) 
 
 #run("nonlinear/keymaera", 60, "isat3.xls")
-run("test", 60, "dReal.csv", 2, SMT2)
+# run("test", 60, "dReal.csv", 2, BOUNDED_SMT2)
 #run ('zankl', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('QF_NRA/meti-tarski', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')

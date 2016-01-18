@@ -7,7 +7,7 @@ open Expr
 
 (* ============================= START of polynomialConstraint class ================================= *)
 (* Class for storing informations of a constraint *)
-class polynomialConstraint boolExprInit variables =
+class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
   let varsSetInit = get_varsSet_polyCons boolExprInit in
   let (isPositiveDirected, isEquation, isNotEquation) = 
     match boolExprInit with
@@ -159,13 +159,6 @@ class polynomialConstraint boolExprInit variables =
         oldString ^ var ^ ": " ^ string_of_float sen ^ "; "
       in
       List.fold_left add_string_var_sen "" varsSen
-      
-    method remove_div = match self#get_constraint with
-    | Eq(e1, e2) ->
-      let removedDivE1 = remove_div_polyExpr e1 in
-      let removedDivE2 = remove_div_polyExpr e2 in
-      remove_div_boolExpr_extra (Eq(removedDivE1, removedDivE2))
-    | _ -> expr2
 
     method get_varsList = 
       if List.length varsSen = varsNum then self#get_n_varsSen varsNum
@@ -847,15 +840,6 @@ type smt_poly_expr =
   | SPoly of poly_expr
   | Poly of bool_constraint * poly_expr
   | POr of smt_poly_expr * smt_poly_expr
-  
-
-let rec remove_div_boolCons = function
-  | Single polyCons -> polyCons#remove_div
-  | NSingle polyCons -> not_of_boolCons (polyCons#remove_div)
-  | And (boolCons1, boolCons2) -> And(remove_div_boolCons boolCons1, remove_div_boolCons boolCons2)
-  | Or (boolCons1, boolCons2) -> Or(remove_div_boolCons boolCons1, remove_div_boolCons boolCons2)
-  | BVar var -> BVar var
-  | NBVar var -> NBVar var
 
 let rec get_varsSet_boolCons = function
   | Single polyCons -> polyCons#get_varsSet
@@ -1046,3 +1030,4 @@ let rec log_ia polyConstraints = match polyConstraints with
   | [] -> ""
   | polyCons::remaining -> polyCons#log_ia ^ "\n" ^ log_ia remaining
 (*==================== START log_ia ==============================*)		
+ 

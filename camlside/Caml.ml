@@ -69,6 +69,9 @@ module Caml = struct
     |QualIdentifierId (_ , identifier1) ->  get_string_identifier identifier1
     |QualIdentifierAs (_ , identifier3 , sort4) ->  raise (Failure "Not supported syntax line 129")
 
+  and get_poly_cons_from_string str theoryType = 
+    let floatValue = float_of_string str in
+    SPoly (Cons (floatValue, false, theoryType, inf_I, new IA.af2 0))
   and get_poly_specCons = function 
     |SpecConstsDec (_ , str1) ->  
       if !theory = intTheory then
@@ -77,12 +80,12 @@ module Caml = struct
         flush stdout;
         raise (Failure errorMessage);
       else
-        SPoly (Cons (float_of_string str1, false, realType, inf_I, new IA.af2 0))
+        get_poly_cons_from_string str1 realType
     |SpecConstNum (_ , str1) ->  
       if !theory = realTheory then
-        SPoly(Cons (float_of_string str1, false, realType, inf_I, new IA.af2 0))
+        get_poly_cons_from_string str1 realType
       else 
-        SPoly(Cons (float_of_string str1, false, intType, inf_I, new IA.af2 0))
+        get_poly_cons_from_string str1 intType
     |SpecConstString (_ , str1) ->  
       let errorMessage = "Int/Real theories do not accept string constants" in
       print_endline errorMessage;
@@ -418,6 +421,12 @@ module Caml = struct
           StringMap.add var term1 varTermMap
       )      
 
+  and gen_polyCons boolExpr variables = 
+      let newPolyCons = new polynomialConstraint boolExpr variables in
+      newPolyCons#set_miniSATCode !miniSATIndex;
+      miniSATIndex := !miniSATIndex + 1;
+      newPolyCons
+
   and get_le_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
     | [poly] -> []
@@ -433,20 +442,33 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_le_constraint_extra smtPoly11 smtPoly2 variables, get_le_constraint_extra smtPoly12 smtPoly2 variables)
 
   and get_le_constraint_extra_extra poly1 poly2 variables = 
-    let polyCons = match poly1, poly2 with
-      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Le (reduce poly1  variables)) variables
-      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Gr (reduce poly2  variables)) variables
-      | _ -> 
-        let polType = get_type_polyExprs poly1 poly2 in
-        new polynomialConstraint (Le (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0))  variables)) variables
-    in
-      polyCons#set_miniSATCode !miniSATIndex;
-      
-      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
-      flush stdout; *)
+    let poly = get_sub_remove_div poly1  poly2 in
 
-      miniSATIndex := !miniSATIndex + 1;
-      Single (polyCons)
+    get_le_constraint_extra_extra_extra poly variables
+
+  and get_le_constraint_extra_extra_extra poly variables = match poly with
+    | Div(e1, e2, polType,intv, af2) ->
+      let reducedE1 = reduce e1 variables in
+      let reducedE2 = reduce e2 variables in
+
+      let posE2PolyCons = gen_polyCons (Gr reducedE2) variables in
+      let lePolyCons = gen_polyCons (Le reducedE1) variables in
+      let posConstraint = And(Single posE2PolyCons, Single lePolyCons) in
+
+      let negE2PolyCons = gen_polyCons (Le reducedE2) variables in
+      let grPolyCons = gen_polyCons (Gr reducedE1) variables in
+      let negConstraint = And(Single negE2PolyCons, Single grPolyCons) in      
+
+      (* e2 cannot be both neg and pos *)
+      let notBotthSignsConsE2 = Or(NSingle posE2PolyCons, NSingle negE2PolyCons) in
+
+      (* hueristics: e1 need not to be both neg and pos *)
+      let notBotthSignsConsE1 = Or(NSingle lePolyCons, NSingle grPolyCons) in
+
+      And(Or(posConstraint, negConstraint), And(notBotthSignsConsE2, notBotthSignsConsE1))
+    | e -> 
+      let lePolyCons = gen_polyCons (Le (reduce e variables)) variables in
+      Single (lePolyCons)
 
   and get_leq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input") 
@@ -463,20 +485,33 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_leq_constraint_extra smtPoly11 smtPoly2 variables, get_leq_constraint_extra smtPoly12 smtPoly2 variables)
 
   and get_leq_constraint_extra_extra poly1 poly2 variables = 
-    let polyCons = match poly1, poly2 with
-      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Leq (reduce poly1 variables)) variables
-      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Geq (reduce poly2 variables)) variables
-      | _ -> 
-        let polType = get_type_polyExprs poly1 poly2 in
-        new polynomialConstraint (Leq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables)) variables
-    in
-      polyCons#set_miniSATCode !miniSATIndex;
+    let poly = get_sub_remove_div poly1  poly2 in
 
-      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
-      flush stdout; *)
+    get_leq_constraint_extra_extra_extra poly variables
 
-      miniSATIndex := !miniSATIndex + 1;
-      Single (polyCons)
+  and get_leq_constraint_extra_extra_extra poly variables = match poly with
+    | Div(e1, e2, polType,intv, af2) ->
+      let reducedE1 = reduce e1 variables in
+      let reducedE2 = reduce e2 variables in
+
+      let posE2PolyCons = gen_polyCons (Gr reducedE2) variables in
+      let leqPolyCons = gen_polyCons (Leq reducedE1) variables in
+      let posConstraint = And(Single posE2PolyCons, Single leqPolyCons) in
+
+      let negE2PolyCons = gen_polyCons (Le reducedE2) variables in
+      let geqPolyCons = gen_polyCons (Geq reducedE1) variables in
+      let negConstraint = And(Single negE2PolyCons, Single geqPolyCons) in  
+
+      (* e2 cannot be both neg and pos *)
+      let notBotthSignsConsE2 = Or(NSingle posE2PolyCons, NSingle negE2PolyCons) in   
+
+      (* heuristics: e1 needs not to be both neg and pos *)
+      let notBotthSignsConsE1 = Or(NSingle leqPolyCons, NSingle geqPolyCons) in
+
+      And(Or(posConstraint, negConstraint), And(notBotthSignsConsE1, notBotthSignsConsE2))
+    | e -> 
+      let leqPolyCons = gen_polyCons (Leq (reduce e variables)) variables in
+      Single (leqPolyCons)
 
   and get_gr_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -493,20 +528,32 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_gr_constraint_extra smtPoly11 smtPoly2 variables, get_gr_constraint_extra smtPoly12 smtPoly2 variables)
 
   and get_gr_constraint_extra_extra poly1 poly2 variables = 
-    let polyCons = match poly1, poly2 with
-      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Gr (reduce poly1 variables)) variables
-      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Le (reduce poly2 variables)) variables
-      | _ -> 
-        let polType = get_type_polyExprs poly1 poly2 in
-        new polynomialConstraint (Gr (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables)) variables
-    in
-      polyCons#set_miniSATCode !miniSATIndex;
+    let poly = get_sub_remove_div poly1  poly2 in
 
-      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
-      flush stdout; *)
+    get_gr_constraint_extra_extra_extra poly variables
 
-      miniSATIndex := !miniSATIndex + 1;
-      Single (polyCons)
+  and get_gr_constraint_extra_extra_extra poly variables = match poly with
+    | Div(e1, e2, polType,intv, af2) ->
+      let reducedE1 = reduce e1 variables in
+      let reducedE2 = reduce e2 variables in
+
+      let posE2PolyCons = gen_polyCons (Gr reducedE2) variables in
+      let grPolyCons = gen_polyCons (Gr reducedE1) variables in
+      let posConstraint = And(Single posE2PolyCons, Single grPolyCons) in
+
+      let negE2PolyCons = gen_polyCons (Le reducedE2) variables in
+      let lePolyCons = gen_polyCons (Le reducedE1) variables in
+      let negConstraint = And(Single negE2PolyCons, Single lePolyCons) in
+
+      (* e2 cannot be both neg and pos *)
+      let notBotthSignsConsE2 = Or(NSingle posE2PolyCons, NSingle negE2PolyCons) in
+
+      let notBotthSignsConsE1 = Or(NSingle grPolyCons, NSingle lePolyCons) in
+
+      And(Or(posConstraint, negConstraint), And(notBotthSignsConsE1, notBotthSignsConsE2))
+    | e -> 
+      let grPolyCons = gen_polyCons (Gr (reduce e variables)) variables in
+      Single (grPolyCons)
 
   and get_geq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -523,20 +570,32 @@ module Caml = struct
     | (POr(smtPoly11, smtPoly12), _) -> Or(get_geq_constraint_extra smtPoly11 smtPoly2 variables, get_geq_constraint_extra smtPoly12 smtPoly2 variables)
 
   and get_geq_constraint_extra_extra poly1 poly2 variables = 
-    let polyCons = match poly1, poly2 with
-      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Geq (reduce poly1 variables)) variables
-      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Leq (reduce poly2 variables)) variables
-      | _ -> 
-        let polType = get_type_polyExprs poly1 poly2 in
-        new polynomialConstraint (Geq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables)) variables
-    in
-      polyCons#set_miniSATCode !miniSATIndex;
+    let poly = get_sub_remove_div poly1  poly2 in
 
-      (* print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
-      flush stdout; *)
+    get_geq_constraint_extra_extra_extra poly variables
 
-      miniSATIndex := !miniSATIndex + 1;
-      Single (polyCons)
+  and get_geq_constraint_extra_extra_extra poly variables = match poly with
+    | Div(e1, e2, polType,intv, af2) ->
+      let reducedE1 = reduce e1 variables in
+      let reducedE2 = reduce e2 variables in
+
+      let posE2PolyCons = gen_polyCons (Gr reducedE2) variables in
+      let geqPolyCons = gen_polyCons (Geq reducedE1) variables in
+      let posConstraint = And(Single posE2PolyCons, Single geqPolyCons) in
+
+      let negE2PolyCons = gen_polyCons (Le reducedE2) variables in
+      let leqPolyCons = gen_polyCons (Leq reducedE1) variables in
+      let negConstraint = And(Single negE2PolyCons, Single leqPolyCons) in      
+
+      (* e2 cannot be both neg and pos *)
+      let notBotthSignsConsE2 = Or(NSingle posE2PolyCons, NSingle negE2PolyCons) in
+
+      let notBotthSignsConsE1 = Or(NSingle geqPolyCons, NSingle leqPolyCons) in
+
+      And(Or(posConstraint, negConstraint), And(notBotthSignsConsE1, notBotthSignsConsE2))
+    | e -> 
+      let geqPolyCons = gen_polyCons (Geq (reduce e variables)) variables in
+      Single (geqPolyCons)
 
   and get_eq_constraint polys variables = match polys with
     | [] ->  raise (Failure "Wrong Input")
@@ -579,24 +638,21 @@ module Caml = struct
       Or(get_eq_constraint_extra smtPoly11 smtPoly2 variables, get_eq_constraint_extra smtPoly12 smtPoly2 variables)
 
   and get_eq_constraint_extra_extra poly1 poly2 variables = 
-    let polyCons = match poly1, poly2 with
-      | (_, Cons (0., _, _, _, _)) -> new polynomialConstraint (Eq (reduce poly1 variables)) variables
-      | (Cons (0., _, _, _, _), _) -> new polynomialConstraint (Eq (reduce poly2 variables)) variables
-      | _ -> 
-        let polType = get_type_polyExprs poly1 poly2 in
-        new polynomialConstraint (Eq (reduce (Sub(poly1, poly2, polType, inf_I, new IA.af2 0)) variables)) variables
-    in
+    let poly = get_sub_remove_div poly1  poly2 in
 
-    polyCons#set_miniSATCode !miniSATIndex;
+    get_eq_constraint_extra_extra_extra poly variables
 
+  and get_eq_constraint_extra_extra_extra poly variables = match poly with
+    | Div(e1, e2, polType,intv, af2) ->
+      let nonZeroE2PolyCons = gen_polyCons (Neq (reduce e2 variables)) variables in
 
-    (* print_endline ("Sub between " ^ (string_infix_of_polyExpr poly1) ^ " and "
-                    ^ (string_infix_of_polyExpr poly2));
-    print_endline (polyCons#to_string_infix ^ ": " ^ string_of_int !miniSATIndex);
-    flush stdout; *)
+      let eqPolyCons = gen_polyCons (Eq (reduce e1 variables)) variables in
 
-    miniSATIndex := !miniSATIndex + 1;
-    Single (polyCons)
+      And(Single nonZeroE2PolyCons, Single eqPolyCons)
+    | e -> 
+      let eqPolyCons = gen_polyCons (Eq (reduce e variables)) variables in
+      Single (eqPolyCons)
+
 
   and get_constraint_term varTermMap functions (variables:(int Variable.StringMap.t))
                                                       varsPolysMap varsConstraintsMap = function 
@@ -849,8 +905,6 @@ module Caml = struct
     (* print_endline (string_infix_of_constraints boolCons);
     flush stdout;
     raise (Failure "Tung dep trai"); *)
-    
-    let boolCons = remove_div_boolCons boolCons in
 
     let (miniSATExpr, index, miniSATCodesConstraintsMap, ma, isEquation, isNotEquation, _) = 
         miniSATExpr_of_constraints boolCons (!miniSATIndex) IntMap.empty logic StringMap.empty 
@@ -1171,7 +1225,7 @@ module Caml = struct
     Random.self_init();
 		let startTime = Sys.time() in
 
-		(* print_endline ("Solution: " ^ strCheck); *)
+		print_endline ("Solution: " ^ strCheck);
     (* print_string ("Solution: ");
 		flush stdout; *)
 
@@ -1190,8 +1244,8 @@ module Caml = struct
     flush stdout; *)
 
     (*let polyConstraints = List.rev polyConstraints in*)
-    (* print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
-    flush stdout; *)
+    print_endline(string_infix_of_polynomialConstraints polyConstraints); (* In PolynomialConstraint.ml *)
+    flush stdout;
     (* raise (Failure "Tung dep trai 1"); *)
     (* raise (Failure "Tung dep trai"); *)
     (* print_endline ("\nIntervals: \n" ^ log_intervals varsIntvsMiniSATCodesMap); (* string_of_intervals is defined in Assignments.ml *)
