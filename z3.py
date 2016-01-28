@@ -10,8 +10,6 @@ import time
 SMT2=".smt2"
 BOUNDED_SMT2 = '.bound'
 
-BOUNDED_DREAL = BOUNDED_SMT2 + SMT2
-
 TIME_OUT = "timeout"
 SAT = "sat"
 UNSAT = "unsat"
@@ -20,22 +18,12 @@ UNKNOWN = "unknown"
 PROBLEM='Problem'
 TIME='time'
 RESULT = 'result'
-DREAL_RESULT="isatResult"
+Z3_RESULT="z3Result"
 
-HEADERS = [PROBLEM, TIME, RESULT, DREAL_RESULT]
+HEADERS = [PROBLEM, TIME, RESULT, Z3_RESULT]
 
 LOWER_BOUND = '(- 1000)'
 UPPER_BOUND = '1000'
-
-
-def remove_status(root, filename):
-  filePath = os.path.join(root, filename)
-  with open(filePath, 'r') as inputFile:
-    content = inputFile.read()
-    content = content.replace("(set-info :status sat)", "")
-    content = content.replace("(set-info :status unsat)", "")
-  with open(filePath, 'w') as inputFile:
-    inputFile.write(content)
 
 def gen_bounds(root, filename):
   filePath = os.path.join(root, filename)
@@ -59,10 +47,10 @@ def gen_bounds(root, filename):
     # print (content)
 
     # Write content into new file:
-    with open(filePath + BOUNDED_DREAL, 'w+') as boundFile:
+    with open(filePath + BOUNDED_SMT2, 'w+') as boundFile:
       boundFile.write(content)
 
-    return filename + BOUNDED_DREAL
+    return filename + BOUNDED_SMT2
 
 def generate_if_not_exists(root, smt2Filename, SOLVED_PROBLEM):
   if SMT2 == SOLVED_PROBLEM:
@@ -93,27 +81,19 @@ def solve(args):
   except IOError:
     pass
 
-  # Remove annotation:
-  remove_status(root, filename)
-
   startTime = time.time()
   try: 
-    proc = subprocess.Popen(["./dReal", os.path.join(root, filename)],stdout=subprocess.PIPE,universal_newlines = True)
+    proc = subprocess.Popen(["./bin/z3", os.path.join(root, filename), '-T:' + str(timeout)],stdout=subprocess.PIPE,universal_newlines = True)
     iOut, iErr = proc.communicate(timeout=timeout)
   except TimeoutExpired:
     proc.kill()
     result[TIME] = time.time() - startTime
-    result[DREAL_RESULT] = TIME_OUT
+    result[Z3_RESULT] = TIME_OUT
     # remove_file(result[PROBLEM])
     return result
     
   result[TIME] = time.time() - startTime
-  iOut = iOut.strip()
-  # print (iOut)
-  if iOut == 'unsat':
-    result[DREAL_RESULT] = 'unsat'
-  elif iOut.startswith('delta-sat'):
-    result[DREAL_RESULT] = 'delta-sat'
+  result[Z3_RESULT] = iOut.strip()
 
   # print (result[DREAL_RESULT])
   # print (result)
@@ -130,9 +110,7 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
 
       for root, dirnames, filenames in os.walk(directory):
         for filename in filenames:
-          if filename.endswith(BOUNDED_DREAL):
-              remove_file(os.path.join(root, filename))
-          elif filename.endswith(SMT2):
+          if filename.endswith(SMT2):
             smt2Files.append((filename, root))
 
 
@@ -161,7 +139,7 @@ def run(directory, timeout, resultFile, PROCESSES_NUM, SOLVED_PROBLEM):
         spamwriter.writerow(result) 
 
 #run("nonlinear/keymaera", 60, "isat3.xls")
-# run("QF_NRA/hong", 10, "dReal.csv", 2, BOUNDED_SMT2)
+# run("test", 60, "dReal.csv", 2, BOUNDED_SMT2)
 #run ('zankl', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('QF_NRA/meti-tarski', -10, 10, 0.1, 500, 'with_dependency_sensitivity_restartSmallerBox_boxSelectionUsingSensitivity.xls')
 #run ('Test/meti-tarski', -1, 1, 0.1, 60, 'result.xls')

@@ -30,10 +30,14 @@ RESULT='result'
 RASAT = "raSAT"
 ISAT = "isat"
 DREAL = "dReal"
+Z3 = 'z3'
+SMT_RAT = "smt-rat"
 tools = {
   RASAT:'raSATResult',
   ISAT: 'isatResult',
-  DREAL: 'isatResult'
+  DREAL: 'isatResult',
+  Z3: 'z3Result',
+  SMT_RAT:'z3Result'
 }
 
 TOOL_RESULT=tools[sys.argv[3]]
@@ -83,6 +87,8 @@ with open(sys.argv[2], 'wb') as outfile:
 
             key = output[PROBLEM].replace(".bound", "")
             key = key.replace(".hys", ".smt2")
+            # print key
+            key = key.replace(".smt2.smt2", ".smt2")
             try:
               problemStatus = status[key]
             except:
