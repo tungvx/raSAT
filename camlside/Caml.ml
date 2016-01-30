@@ -1038,10 +1038,10 @@ module Caml = struct
       let varsIntvsMap = List.hd varsIntvsMaps in
       
       
-      (* print_endline "---------------------------NEW----------------------";
+      print_endline "---------------------------NEW----------------------";
       print_endline ("esl: " ^ string_of_float esl);
       print_endline (log_intervals varsIntvsMap);
-      flush stdout; *)
+      flush stdout;
       
 
       let varsIntvsMapPrioritiesMaps = match List.tl varsIntvsMaps with
