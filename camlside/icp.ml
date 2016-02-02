@@ -46,10 +46,10 @@ let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyCo
       let res1 = h#check_sat_varsSen_setIsInfinite_setBounds_setEasiness varsIntvsMap in
       
 
-      print_endline (h#log_ia);
+      (* print_endline (h#log_ia);
       print_endline ("Easiness: " ^ string_of_float h#get_easiness);
       flush stdout;
-      print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1);
+      print_endline ("End check sat IA of " ^ h#to_string_infix ^ ", result: " ^ string_of_int res1); *)
       (* print_endline ("\nIntervals1: " ^ string_of_intervals varsIntvsMap); *)
       (* flush stdout; *)
       
@@ -125,8 +125,8 @@ let rec icp unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints
     (* raise (Failure "Tung dep trai"); *)
     if contracted then (
       
-      print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
-      flush stdout;
+      (* print_endline ("Contracted to \n" ^ log_intervals varsIntvsMap);
+      flush stdout; *)
 
       if StringMap.is_empty varsIntvsMap then (-1, unsatPolyConstraintsCodes, uk_cl, validPolyConstraints, varsIntvsMap, iaTime, usTime)
       else icp unsatPolyConstraintsCodes [] validPolyConstraints uk_cl varsIntvsMap esl iaTime usTime

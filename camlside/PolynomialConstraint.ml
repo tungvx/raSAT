@@ -467,8 +467,8 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
       flush stdout;*)
       let (sat, value) = checkSAT_computeValues self#get_constraint varsTCsMap in
       
-      print_endline ("Test case: " ^ log_assignment varsTCsMap);
-      flush stdout;
+      (* print_endline ("Test case: " ^ log_assignment varsTCsMap);
+      flush stdout; *)
 
       testValue <- value; 
       sat
