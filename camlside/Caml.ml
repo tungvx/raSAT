@@ -1821,8 +1821,17 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         (*print_endline "Start Testing";
         flush stdout;*)
         let startTestingTime = Sys.time() in
-        let (tc, sTest, clTest_US, a, b) = 
-          test uk_cl varsIntvsMiniSATCodesMap (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *)
+
+        let varsIntvsMiniSATCodesMap_to_varsIntvsMaps var (interval, _) oldMap = 
+          StringMap.add var interval oldMap
+        in
+        let varsIntvsMap = StringMap.fold varsIntvsMiniSATCodesMap_to_varsIntvsMaps 
+                varsIntvsMiniSATCodesMap StringMap.empty 
+        in
+        let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
+          test uk_cl varsIntvsMiniSATCodesMap(* test is defined in Testing.ml *)
+          (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
+          
         in
         (*print_endline ("UNSAT constraints num: " ^ string_of_int b);
         flush stdout;*)
@@ -1837,9 +1846,9 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
          let validPolyConstraints = List.rev validPolyConstraints in
          let iaLog = log_ia validPolyConstraints in
 
-         let assignmentsLog = log_assignment a in (* log_assignment is in Assignments.ml *)
+         let assignmentsLog = log_assignment satVarsTCsMap in (* log_assignment is in Assignments.ml *)
          let testLog = log_test uk_cl in
-         let assignmentsString = string_of_assignment a in
+         let assignmentsString = string_of_assignment satVarsTCsMap in
          let uk_cl_string = string_postfix_of_polyConstraints uk_cl in
          (sTest, assignmentsString , uk_cl_string, intvLog ^ iaLog ^ assignmentsLog ^ testLog, (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", "", 
               string_postfix_of_polyConstraints validPolyConstraints ^ " ; " ^ string_of_intervals varsIntvsMiniSATCodesMap
@@ -1849,17 +1858,21 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         (
          let startDecompositionTime = Sys.time() in
          (* If the uk_cl are equalities, then we implement some tricks for solving them. *)
-         let (isEqualitiesSAT, unsatPolyConstraints) = 
-           if can_apply_imvt uk_cl && is_all_equations uk_cl then (* is_all_equalities is defined in ast.ml *)
-             check_equalities uk_cl varsIntvsMiniSATCodesMap VariablesSet.empty (* check_equalities is defined in Equalities_handler.ml *)
-           else (false, uk_cl)
+         let (isEqualitiesSAT, unsatPolyConstraints, usedVarsSet) = 
+           if can_apply_imvt testUNSATPolyConstraints && is_all_equations testUNSATPolyConstraints then (* is_all_equalities is defined in ast.ml *)
+              let add_var_tc var tc currentMap =
+                StringMap.add var ((new IA.interval tc tc), 0) currentMap
+              in
+              let varsIntvsMiniSATCodesMap = StringMap.fold add_var_tc satVarsTCsMap varsIntvsMiniSATCodesMap in
+              check_equalities testUNSATPolyConstraints varsIntvsMiniSATCodesMap generatedVarsSet (* check_equalities is defined in Equalities_handler.ml *)
+           else (false, testUNSATPolyConstraints, generatedVarsSet)
          in
            if isEqualitiesSAT then 
              let intvLog = log_intervals varsIntvsMiniSATCodesMap in
              let validPolyConstraints = List.rev validPolyConstraints in
              let iaLog = log_ia validPolyConstraints in
-             let assignmentsLog = log_assignment a in (* log_assignment is in Assignments.ml *)
-             let testLog = log_test uk_cl in
+             let assignmentsLog = log_assignment satVarsTCsMap in (* log_assignment is in Assignments.ml *)
+             let testLog = log_test testSATPolyConstraints in
              (1, "", "", intvLog ^ iaLog ^ assignmentsLog ^ testLog ^ (get_allLogs uk_cl), (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), 
                    "", "", "", "", iaTime, testingTime, usTime, parsingTime, decompositionTime)
            else (
@@ -1867,13 +1880,19 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
               (*Balance interval decomposition*)
               (*let (sInterval, sLearn, isDecomp) = dynamicDecom assIntv dIntv checkVarID nextMiniSATCode clTest_US esl in*)
 
+              let rec get_hardest_polyCons result = function
+                | [] -> result
+                | polyCons :: remainingConstraints -> 
+                  let result = 
+                    if result#get_easiness <= polyCons#get_easiness then 
+                      result
+                    else
+                      polyCons
+                  in 
+                  get_hardest_polyCons result remainingConstraints
+              in
               let decomposedExpr = 
-                (*if (is_boolExpr_equation (List.hd clTest_US)#get_constraint) then
-                  let firstInequation = first_inequation uk_cl in
-                  match firstInequation with
-                  |[] -> [List.hd unsatPolyConstraints]
-                  | _ -> firstInequation
-                else*) clTest_US
+                [get_hardest_polyCons (List.hd testUNSATPolyConstraints) (List.tl testUNSATPolyConstraints)]
               in
               (*print_endline "decomposing";
               (*print_endline(bool_expr_list_to_infix_string decomposedExpr);*)
