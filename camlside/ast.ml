@@ -616,11 +616,8 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
     let (vChanged, v', vIntv, changedVarsV) = poly_eval_ci varsIntvsMap varsNum cached v in
     let changedVars = VariablesSet.union changedVarsU changedVarsV in
     if uChanged || vChanged then 
-      let intv = {low=0;high=max(v.low, v.high)-1} in
-      let newIntv = 
-        if polType = intType then 
-          contract_integer intv 
-        else 
+      let intv = {low=0.;high= max 0. ((max (abs_float (vIntv.low)) (abs_float (vIntv.high))) -. 1.)} in
+      let newIntv =  
           intv
       in
       (* if (compare_intv newIntv oldIntv) then 
