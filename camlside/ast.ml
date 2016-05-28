@@ -125,6 +125,7 @@ and get_varsSet_polyExpr = function
   | Cons (f, _, _, _, _) -> VariablesSet.empty
   | Var (var, _, _, _, _) -> VariablesSet.singleton var
   | Pow(var, _, _, _, _, _, _) -> VariablesSet.singleton var
+  | Mod(polyExpr1, polyExpr2, _) -> VariablesSet.union (get_varsSet_polyExpr polyExpr1) (get_varsSet_polyExpr polyExpr2)
 
 let not_of_polyConstraint = function 
   | Eq polyExpr -> Neq polyExpr
@@ -259,6 +260,7 @@ let rec evalFloat varsTCMap = function
 	| Mul (u,v, _, _, _) -> evalFloat varsTCMap u *. evalFloat varsTCMap v
 	| Div (u, v, _, _, _) -> evalFloat varsTCMap u /. evalFloat varsTCMap v
   | Pow (var, multiplicity, _, _, _, _, _) -> StringMap.find var varsTCMap ** (float_of_int multiplicity)
+  | Mod (u, v, _) -> float_of_int ((truncate (evalFloat varsTCMap u)) mod (truncate (evalFloat varsTCMap v)))
 
 (* Check whether a boolean expression is SAT or not, provided the assignments of variables. *)
 (* The values of sides also returned *)
@@ -296,6 +298,7 @@ let rec string_infix_of_polyExpr = function
 	| Div(e1, e2, _, _, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") / (" ^ (string_infix_of_polyExpr e2) ^ ")"
 	| Cons (c, _, _, _, _) -> string_of_float c
   | Pow (var, multiplicity, _, _, _, _, _) -> var ^ " ^ " ^ string_of_int multiplicity
+  | Mod(e1, e2, _) -> "(" ^ (string_infix_of_polyExpr e1) ^ ") mod (" ^ (string_infix_of_polyExpr e2) ^ ")"
 (*==================== END string_infix_of_polyExpr ==============================*)	
 
 (*==================== START string_infix_of_polyExprs ==============================*)	
@@ -336,6 +339,7 @@ let rec string_prefix_of_polyExp = function
   | Mul (e1, e2, _, _, _) -> "(* " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
   | Div (e1, e2, _, _, _) -> "(/ " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
   | Pow (var, multiplicity, _, _, _, _, _) -> "( " ^ "** " ^ var ^ " " ^ string_of_int multiplicity ^ ")"
+  | Mod (e1, e2, _) -> "(mod " ^ (string_prefix_of_polyExp e1) ^ " " ^ (string_prefix_of_polyExp e2) ^ ")"
 (*==================== END string_prefix_of_polyExp ==============================*)
 
 
@@ -361,6 +365,7 @@ let rec string_postfix_of_polyExpr = function
   | Mul (e1, e2, _, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "* "
   | Div (e1, e2, _, _, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "/ "
   | Pow (var, multiplicity, _, _, _, _, _) -> var ^ " " ^ string_of_int multiplicity ^ " ** "
+  | Mod (e1, e2, _) -> (string_postfix_of_polyExpr e1) ^ (string_postfix_of_polyExpr e2) ^ "mod "
 (*==================== END string_postfix_of_polyExpr ==============================*)
 
 
@@ -606,6 +611,24 @@ let rec poly_eval_ci varsIntvsMap varsNum cached = function
         (true, Div(u', v', polType, newIntv, af2Form), newIntv, changedVars)
     else 
       (false, Div(u', v', polType, oldIntv, af2Form), oldIntv, changedVars)
+  | Mod (u, v, oldIntv) -> 
+    let (uChanged, u', uIntv, changedVarsU) = poly_eval_ci varsIntvsMap varsNum cached u in 
+    let (vChanged, v', vIntv, changedVarsV) = poly_eval_ci varsIntvsMap varsNum cached v in
+    let changedVars = VariablesSet.union changedVarsU changedVarsV in
+    if uChanged || vChanged then 
+      let intv = {low=0;high=max(v.low, v.high)-1} in
+      let newIntv = 
+        if polType = intType then 
+          contract_integer intv 
+        else 
+          intv
+      in
+      (* if (compare_intv newIntv oldIntv) then 
+        (false, Div(u', v', newIntv, af2Form), newIntv, changedVars)
+      else *) 
+        (true, Mod(u', v', newIntv), newIntv, changedVars)
+    else 
+      (false, Mod(u', v', oldIntv), oldIntv, changedVars)
   | Pow (var, multiplicity, polType, oldVarIntv, af2Changed, oldIntv, af2Form) -> 
     let varIntv = StringMap.find var varsIntvsMap in
     if compare_intv varIntv oldVarIntv then
