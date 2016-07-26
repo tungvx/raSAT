@@ -1,0 +1,2 @@
+Problem,nVars,maxVars,nAPIs,time,iaTime,testingTime,usCoreTime,parsingTime,decompositionTime,miniSATTime,miniSATVars,miniSATClauses,miniSATCalls,raSATClauses,decomposedLearnedClauses,UNSATLearnedClauses,unknownLearnedClauses,result,raSATResult,EQ,NEQ
+Test/smtlib-20140121/QF_NRA/zankl/407644/matrix-1-all-47.smt2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,unknown,timeout,0,0
