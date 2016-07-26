@@ -1,0 +1,10 @@
+-- translated from ../Test/test/gen-09.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] a, b;
+EXPR
+    -- the constraints to be solved
+    b > a;
+    (b * b) = 2;
+    (2 * a) = 1;
+
