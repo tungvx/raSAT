@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = true;
+	bool debug = false;
 	bool statistics = false;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
