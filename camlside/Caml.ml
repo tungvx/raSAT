@@ -1847,10 +1847,16 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
          let iaLog = log_ia validPolyConstraints in
 
          let assignmentsLog = log_assignment satVarsTCsMap in (* log_assignment is in Assignments.ml *)
+         (* let assignmentsLog = log_assignment_smtlib satVarsTCsMap in (* log_assignment_smtlib is in Assignments.ml *) *)
          let testLog = log_test uk_cl in
          let assignmentsString = string_of_assignment satVarsTCsMap in
          let uk_cl_string = string_postfix_of_polyConstraints uk_cl in
-         (sTest, assignmentsString , uk_cl_string, intvLog ^ iaLog ^ assignmentsLog ^ testLog, (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", "", 
+         let satlog = log_intervals_testcases varsIntvsMiniSATCodesMap satVarsTCsMap in
+
+         (* let result_log = intvLog ^ iaLog ^ assignmentsLog ^ testLog ^ satlog in *)
+         let result_log = satlog in
+
+         (sTest, assignmentsString , uk_cl_string, result_log, (originalVarsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, nextMiniSATCode), "", "", "", 
               string_postfix_of_polyConstraints validPolyConstraints ^ " ; " ^ string_of_intervals varsIntvsMiniSATCodesMap
               , iaTime, testingTime, usTime, parsingTime, decompositionTime)
         )

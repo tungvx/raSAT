@@ -49,7 +49,18 @@ let rec log_assignment ass =
     var ^" = "^ string_of_float testcase ^ "\n" ^ oldString
   in
   StringMap.fold add_string_of_newAssignment ass ""
-(* |================================= END string_of_assignment =================================|*)
+(* |================================= END log_assignment =================================|*)
+
+(* |================================ START log_assignment_smtlib ================================|*) 
+(* | Function for logging the assignments as smt-lib format        |*)
+(* | . ass: is the map from the variables into assigned values                                  |*)
+(* |____________________________________________________________________________________________|*)
+let rec log_assignment_smtlib ass =
+  let add_string_of_newAssignment var testcase oldString = 
+    "assert(= " ^ var ^ " " ^ string_of_float testcase ^ ")\n" ^ oldString
+  in
+  StringMap.fold add_string_of_newAssignment ass ""
+(* |================================= END log_assignment_smtlib =================================|*)
 
 
 (* =================================== START string_of_intervals =========================================== *)
@@ -71,5 +82,21 @@ let rec log_intervals intvMap =
   StringMap.fold add_string_of_newInterval intvMap ""
 (* =================================== END log_intervals ============================================== *)
  
+
+(* =================================== START log_intervals_testcases =========================================== *)
+(* This functions converts the list of intervals of variables or their test cases
+    into the smt-lib format*)
+let rec log_intervals_testcases intvMap ass =
+  let add_string_of_newInterval var (interval, _) oldString =
+    try
+      let testcase = StringMap.find var ass in
+      "(assert (= " ^ var ^ " " ^ Printf.sprintf "%f" testcase ^ "))\n" ^ oldString
+    with 
+      | _ -> "(assert (>= " ^ var ^ " " ^ Printf.sprintf "%f" interval#l ^ "))\n" 
+              ^ "(assert (<= " ^ var ^ " " ^ Printf.sprintf "%f" interval#h ^ "))\n" 
+              ^ oldString
+  in 
+  StringMap.fold add_string_of_newInterval intvMap ""
+(* =================================== END log_intervals_testcases ============================================== *) 
 
 (* \/\/\/\/\/\/\/\/\/\/ MODULE for assignments related definitions and operations \/\/\/\/\/\/\\/\/\/\/\/\/\/\/\/\/*)
