@@ -237,7 +237,7 @@ int main(int argc, char* argv[]) {
 	//cout << "SMT file: " << smtfile << endl;
 	int nvar = num_var(smtfile);
 	//cout << "number of variables: "<<nvar<<endl;
-  string logic = get_logic(smtfile);
+  	string logic = get_logic(smtfile);
   //cout << "Logic:" << logic << "t" << endl;
 
 //	cout << "Run6" << endl;
@@ -283,7 +283,7 @@ int main(int argc, char* argv[]) {
 
 	//get information for polynomial constraints: number of variables, constraints
 
-  double parsingStart = cpuTime();
+  	double parsingStart = cpuTime();
 	//ebg -> form of minisat in string 
 	CAMLlocal3(satInfo, intvInfo, miniSATCodesConstraintsMap);
 	caml_register_global_root (&satInfo);

@@ -767,10 +767,10 @@ let genSatForm fileName lb ub logic inFile =
   close_out oc;
   let rec generateIntvInfo var (varsIntvsMiniSATCodesMap, miniSATCodesVarsIntvsMap, index) =
     let intv =
-    try
-      StringMap.find var varsIntvsMap
-    with Not_found ->
-      {low=neg_infinity; high=infinity}
+      try
+        StringMap.find var varsIntvsMap
+      with Not_found ->
+        {low=neg_infinity; high=infinity}
     in
     let intv = inter_I_I intv {low=lb; high=ub} in
     let interval = new IA.interval intv.low intv.high in
