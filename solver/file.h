@@ -130,7 +130,7 @@ string toFilein(char * filename) {
 	string str = string(filename);
 	int pos = str.find_last_of('.');
 	string sub = str.substr(0, pos);
-	return sub + ".in";
+	return sub + "0.3.in";
 }
 
 //change file name to file out of MiniSAT
@@ -138,7 +138,7 @@ string toFileout(char * filename) {
 	string str = string(filename);
 	int pos = str.find_last_of('.');
 	string sub = str.substr(0, pos);
-	return sub + ".out";
+	return sub + "0.3.out";
 }
 
 //change filename from SMT benchmark file to ebg file

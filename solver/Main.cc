@@ -211,8 +211,8 @@ int main(int argc, char* argv[]) {
   //iRRAM::iRRAM_exec(testIRRAM, 0);
   //return 0;
 	////cout << "Run" << endl;
-	bool debug = true;
-	bool statistics = true;
+	bool debug = false;
+	bool statistics = false;
 	bool smtComp = false;
 	double initial_time = cpuTime();
 	/* Initialize Caml code */
@@ -732,7 +732,7 @@ int main(int argc, char* argv[]) {
 			if (!check) {
 				// file for output compact result
 				ofstream final_result;
-				final_result.open((string(smtfile) + ".tmp").c_str());
+				final_result.open((string(smtfile) + ".0.3.tmp").c_str());
 
 				// For theory result
 				double totalTime = cpuTime() - initial_time;

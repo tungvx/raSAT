@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Run: python smt.py filename.smt2 timeout
 # timeout is in seconds
 
@@ -36,7 +37,7 @@ def run_raSAT (filename, bounds, timeout):
 
   command = "timeout " + str(timeout) + " " + os.path.join(current_path, RASAT) + " " + filename + " " + bounds
   proc = subprocess.Popen(command, shell=True)
-  print command
+  # print command
   proc.wait()
   try:
     with open(filename + '.0.3.tmp', 'r') as outfile:
