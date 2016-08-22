@@ -1,3 +1,6 @@
+# raSAT executables files:
+raSAT-[0-9]*.[0-9]*
+
 *.annot
 *.cmo
 *.cma
