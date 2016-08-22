@@ -78,3 +78,7 @@ releases/
 *.mtc1
 *.out
 *.synctex.gz
+
+# executables:
+veriT
+z3
