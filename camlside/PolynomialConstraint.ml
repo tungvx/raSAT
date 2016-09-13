@@ -306,7 +306,8 @@ class polynomialConstraint boolExprInit =
 	    |Gr e -> 
 		    (string_infix_of_polyExpr e) ^ " = " ^ iaString ^ " > 0"  
     
-    method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) = 
+    method generateTCs assignedVarsSet (varsIntvsMiniSATCodesMap:((IA.interval * int) Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) 
+                        (neededVarsNum: int) = 
       (*print_endline ("\n" ^ self#to_string_infix);
       flush stdout;*)
       (*print_endline ("\n\nSelecting api: " ^ self#to_string_infix ^ " - miniSATCode: " ^ string_of_int self#get_miniSATCode);
@@ -316,6 +317,21 @@ class polynomialConstraint boolExprInit =
       let neededVarsSet = VariablesSet.diff varsSet assignedVarsSet in
       let check_mem (var, _, _) = VariablesSet.mem var neededVarsSet in
       let neededVarsSen = List.filter check_mem varsSen in
+
+      let rec get_needed_varsen neededVarsSen current_list = function
+        | 0 -> current_list
+        | n ->
+          assert(n > 0);
+          match neededVarsSen with
+          | [] -> current_list
+          | h::t -> get_needed_varsen t (h::current_list) (n - 1)
+          
+      in
+      let neededVarsSen = get_needed_varsen neededVarsSen [] neededVarsNum in 
+
+      Printf.printf "Generating test values for %d variables using previous strat\n" (List.length neededVarsSen);
+      flush stdout;
+
       (* This function generates test cases for one variable *)
       let rec generate_tc_var interval tcNum isFirst varSen isVarPositiveDirected =
         (*print_endline ("TcNum: " ^ string_of_int tcNum);
