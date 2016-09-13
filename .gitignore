@@ -1,3 +1,11 @@
+# executables
+z3
+veriT
+
+# report files
+*.csv
+
+
 *.annot
 *.cmo
 *.cma
