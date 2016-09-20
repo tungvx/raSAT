@@ -49,6 +49,8 @@ camlside/a
 Test/bin/raSAT
 Test/raSAT
 bin/raSAT
+bin/raSAT-0.2
+bin/raSAT*
 solver/Test
 Test/smtlib-20140121/QF_NRA/nonlinear
 Test/smtlib-20140121/QF_LRA

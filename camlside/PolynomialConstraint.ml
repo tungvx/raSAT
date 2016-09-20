@@ -329,8 +329,8 @@ class polynomialConstraint boolExprInit =
       in
       let neededVarsSen = get_needed_varsen neededVarsSen [] neededVarsNum in 
 
-      Printf.printf "Generating test values for %d variables using previous strat\n" (List.length neededVarsSen);
-      flush stdout;
+      (* Printf.printf "Generating test values for %d variables using previous strat\n" (List.length neededVarsSen);
+      flush stdout; *)
 
       (* This function generates test cases for one variable *)
       let rec generate_tc_var interval tcNum isFirst varSen isVarPositiveDirected =

@@ -173,8 +173,8 @@ let rec test_extra_incremental abstractTCInfList varsIntvsMap testSATPolyConstra
           VariablesSet.fold add_var neededVarsSet [] 
         in
 
-        Printf.printf "Generating test values for %d variables using pairwise strategy\n" (List.length neededVarsList);
-        flush stdout;
+        (* Printf.printf "Generating test values for %d variables using pairwise strategy\n" (List.length neededVarsList);
+        flush stdout; *)
 
         assert (List.length neededVarsList = 10);
 
@@ -271,8 +271,8 @@ let rec test polyConstraints varsIntvsMaps =
   in
   let varsSet = StringMap.fold add_var varsSATDirectionMap VariablesSet.empty in
 
-  print_endline ("Total number of variables: " ^ string_of_int( VariablesSet.cardinal varsSet));
-  flush stdout;
+  (* print_endline ("Total number of variables: " ^ string_of_int( VariablesSet.cardinal varsSet));
+  flush stdout; *)
 
   (* sort the polynomial constraings using dependency, which make the additional test data generation minimal *)
   (*let rec find_min_additionalTCGen_polyCons checkedVarsSet checkedPolyConstraints remainingPolyConstraints currentResult currentAdditionalTCs = match remainingPolyConstraints with
