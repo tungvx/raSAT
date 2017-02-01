@@ -1,0 +1,1 @@
+rm *.in *.out *.tmp
