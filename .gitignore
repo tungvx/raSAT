@@ -50,7 +50,7 @@ Test/bin/raSAT
 Test/bin/raSAT-0.2
 Test/bin/raSAT-0.3
 Test/raSAT
-bin/raSAT
+bin/raSAT*
 solver/Test
 Test/smtlib-20140121/QF_NRA/nonlinear
 Test/smtlib-20140121/QF_LRA
