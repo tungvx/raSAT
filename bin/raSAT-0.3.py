@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # Run: python smt.py filename.smt2 timeout
 # timeout is in seconds
 

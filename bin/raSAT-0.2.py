@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # Run: python smt.py filename.smt2 timeout
 # timeout is in seconds
 
@@ -31,11 +31,11 @@ def remove_tmp (filename, version):
     os.remove(os.path.splitext(filename)[0] + '.' + version +  '.in')
   except OSError:
     pass
-def run_raSAT (filename, bounds):
+def run_raSAT (filename, bounds, sbox, timeout):
   # remove tmps files:
   remove_tmp(filename, "0.2")
 
-  command = os.path.join(current_path, RASAT) + " " + filename + " " + bounds
+  command = os.path.join(current_path, RASAT) + " " + filename + " " + bounds + " " + sbox + " " + timeout
   proc = subprocess.Popen(command, shell=True)
   # print command
   proc.wait()
@@ -48,15 +48,19 @@ def run_raSAT (filename, bounds):
 
   return raSATResult
 
-def run(filename, initLowerBound, initUpperBound):
+def run(filename, initLowerBound, initUpperBound, timeout):
   lowerBound = initLowerBound
   upperBound = initUpperBound
   raSATResult = UNKNOWN
+  sbox = 1.
   while (raSATResult == 'unknown'):
-    raSATResult = run_raSAT(filename, 'lb="' + str(lowerBound) + ' ' + str(upperBound) + '"')
+    sbox = sbox / 10.
+    raSATResult = run_raSAT(filename, 'lb="' + str(lowerBound) + ' ' + str(upperBound) + '"',
+                            "sbox="+str(sbox), "tout="+str(timeout))
     
     if raSATResult == 'unsat':
-      raSATResult = run_raSAT(filename, 'lb="-inf inf"')  
+      raSATResult = run_raSAT(filename, 'lb="-inf inf"', 
+                            "sbox="+str(sbox),"tout="+str(timeout))  
   print raSATResult
 
   # remove tmps files:
@@ -68,5 +72,6 @@ os.chmod(os.path.join(current_path, RASAT), st.st_mode | stat.S_IEXEC)
 if len(sys.argv) < 2:
   print 'Syntax is:\n python smt.py filename.smt2 timeout'
 else:
-  run(sys.argv[1], -10, 10)
+  timeout = float(os.environ.get('STAREXEC_CPU_LIMIT'))
+  run(sys.argv[1], -10, 10, timeout)
 
