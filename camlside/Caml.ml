@@ -1830,7 +1830,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         in
         let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
           (* test uk_cl varsIntvsMiniSATCodesMap *) (* test is defined in Testing.ml *)
-          (0, [], uk_cl, StringMap.empty, VariablesSet.empty)
+          (-1, [], uk_cl, StringMap.empty, VariablesSet.empty)
           (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
           
         in
