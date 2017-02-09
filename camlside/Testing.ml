@@ -32,11 +32,11 @@ let get_element inputList =
   Random.self_init();
   
   (* (1) (2) need to change (10) *)
-  get_first inputList []
+  (* get_first inputList [] *)
   
-  (* (* (10) need to change line (1) and (2)*)
+  (* (10) need to change line (1) and (2)*)
   let randomIndex = Random.int (List.length inputList) in
-  remove inputList randomIndex [] *)
+  remove inputList randomIndex []
 
 (*(* This is the helping function for the test function*)
 let rec test_extra abstractTCInfList varsIntvsMiniSATCodesMap unsatPolyCons indicesSortedPolyConstraintsMap polyConstraintsNum sortedPolyConstraintsMapLength varsSATDirectionMap miniSATCodesSATPolyConstraintsMap remainingTime = 

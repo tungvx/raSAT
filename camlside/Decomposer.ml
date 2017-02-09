@@ -85,12 +85,26 @@ let decompose_var esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (u
       else if upperBound = infinity then 
         let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (esl /. 10.) upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
         add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps  
-      else if lowerEasiness < upperEasiness then 
+      
+      (* (5) *)
+     (*  else if lowerEasiness < upperEasiness then 
         let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
         add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
       else
         let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
-        add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
+        add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps *)
+
+      (* (7) *)
+      else 
+      begin
+        Random.self_init();
+        if Random.bool() then 
+          let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
+          add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps
+        else 
+          let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
+          add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps          
+      end
     in
     (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps)
     

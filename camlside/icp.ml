@@ -15,13 +15,13 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
     else if currentEasiness > newEasiness then h :: (insertionSort_byEasiness polyCons t)*)
     
     (* (1) need to change (2) *)
-    if currentEasiness < newEasiness then h :: (insertionSort_byEasiness polyCons t)
-    else polyCons :: polyConstraints
+    (* if currentEasiness < newEasiness then h :: (insertionSort_byEasiness polyCons t)
+    else polyCons :: polyConstraints *)
     
-    (*(* (10) need to change (1) and (2) *)
+    (* (10) need to change (1) and (2) *)
     Random.self_init();
     if Random.bool() then h :: (insertionSort_byEasiness polyCons t)
-    else polyCons :: polyConstraints*)
+    else polyCons :: polyConstraints
 
 (*Rewrite eval_all for UNSAT cores computations*)
 let rec eval_all res unsatPolyConstraintsCodes uk_cl validPolyConstraints polyConstraints varsIntvsMap iaTime usTime =
