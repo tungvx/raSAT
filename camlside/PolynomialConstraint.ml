@@ -448,7 +448,13 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
             Random.self_init();
             let randomIndex = Random.int (List.length varsSen) in
             let ((var, varSen, isPositiveSen), remainingVarsSen) = remove varsSen randomIndex [] in
-            if VariablesSet.mem var varsSet then (var, varSen, isPositiveSen) :: (get_n_random remainingVarsSen (n - 1))
+            if VariablesSet.mem var varsSet then 
+              let isVarPositiveDirected = 
+                if varSen = 0. then 0
+                else if isPositiveSen = isPositiveDirected then 1
+                else -1
+              in
+              (var, varSen, isVarPositiveDirected) :: (get_n_random remainingVarsSen (n - 1))
             else get_n_random remainingVarsSen n
           )
           else []
