@@ -16,13 +16,7 @@ let rec insertionSort_byEasiness polyCons polyConstraints = match polyConstraint
     
     (* (1) need to change (2) *)
     if currentEasiness < newEasiness then h :: (insertionSort_byEasiness polyCons t)
-    else if currentEasiness > newEasiness then polyCons :: polyConstraints
-    
-    else (
-      Random.self_init();
-      if Random.bool() then h :: (insertionSort_byEasiness polyCons t)
-      else polyCons :: polyConstraints
-    )
+    else polyCons :: polyConstraints
     
     (*(* (10) need to change (1) and (2) *)
     Random.self_init();

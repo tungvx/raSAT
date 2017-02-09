@@ -20,11 +20,11 @@ Settings:
   (4) UNSAT-directed using IA-Testing.
     . Caml.ml, line 1257, 1108, 1156-1158
   (5) SAT-directed using eainess
-    . Caml.ml, line 1254, 1186-1234, 1224
+    . Decomposer.ml, line 1254, 1186-1234, 1224
   (6) UNSAT-directed using easiness
     . Caml.ml, line 1254, 1186-1230, 1228
   (7) Random
-    . Caml.ml, line 1236
+    . Decomposer.ml, line 1236
   
 4. Test generation
   (11) Using Sensitivity: PolynomialConstraint.ml  
