@@ -1077,9 +1077,9 @@ module Caml = struct
 
           let startTestingTime = Sys.time() in
           let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
-            test uk_cl varsIntvsMap(* test is defined in Testing.ml *)
+            (* test uk_cl varsIntvsMap *) (* test is defined in Testing.ml *)
             (* test_icp uk_cl varsIntvsMap StringMap.empty VariablesSet.empty esl (remainingTime -. Sys.time() +. startTime) (* test is defined in Testing.ml *) *)
-            
+            (-1, [], uk_cl, StringMap.empty, VariablesSet.empty)  
           in
           (*let (sTest, clTest_US, a) = evalTest assIntv uk_cl checkVarID strTestUS in*)
           (*let (tc, sTest, clTest_US, a) =  search_tc2 uk_cl assIntv strTestUS esl in *)
