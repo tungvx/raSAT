@@ -1,13 +1,13 @@
 Settings:
 1. Selecting API for testing:
   (1) Difficulty first: 
-    . Caml.ml, line 937, 942
+    . icp.ml 
     . Testing.ml, line 12    
   (2) Easy first: 
     . Caml.ml, line 937, 938
     . Testing.ml, line 12
   (10) Random: 
-    . Caml.ml line 952
+    . icp
     . Testing.ml, line 15
 2. Selecting Variable:
   (8) With sensitivity
