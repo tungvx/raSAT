@@ -599,8 +599,8 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
             lowerBase +. randomNum
 
     method generateTCs assignedVarsSet (varsIntvsMap:(Interval.interval Variable.StringMap.t)) priorityNum (varsSATDirectionMap: (int Variable.StringMap.t)) = 
-      (*print_endline ("\n" ^ self#to_string_infix);
-      flush stdout;*)
+      (* print_endline ("\n" ^ self#to_string_infix);
+      flush stdout; *)
       (* print_endline ("\n\nSelecting api: " ^ self#to_string_infix ^ " - miniSATCode: " ^ string_of_int self#get_miniSATCode);
       print_endline ("Variables sensitivity: " ^ self#string_of_varsSen);
       print_string ("Selecting variables: ");
@@ -753,7 +753,6 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
         | (var, varSen, isPositiveSen) :: t ->
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
-          let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
           let isVarPositiveDirected = 0 in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
