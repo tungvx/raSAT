@@ -6,26 +6,22 @@ def generate (k_int, n_int, r_int):
   r = str(r_int)
   f = open (k + '-' + n + '-' + r + '.smt2', 'w')
   f.write ('(set-logic QF_NRA)\n')
-  f.write ('(set-info :source | x_1^n + x_2^n + ... + x_k^n < 1 and (x_1 - r)^n + (x_2 - r)^n + ... + (x_k - r)^n <1 |)\n')
+  f.write ('(set-info :source | for i = 1, ..., {0}: x_i^{1} + x_{4}(i+1)%{3}{5}^{1} < 1 and (x_i - r)^{1} + (x_{4}(i+1)%{3}{5} - {2})^{1} <1 |)\n'.format(k, n, r, str(k_int+1), '{', '}'))
 
   # Declare variables:
   for point in range(0, k_int + 1):
     f.write('(declare-fun x_' + str(point) + ' () Real)\n')
 
-  # Output first constraint:
-  firstPolynomial = '+ (^ x_1 ' + n + ') '
-
-  for point in range(0, k_int):
-    f.write ('(assert (< (+ (^ x_' + str(point) + ' ' + n + ') (^ x_' + str(point+1) + ' ' + n + ')) 1))\n')
-    
-  f.write ('(assert (< (+ (^ x_' + k + ' ' + n + ') (^ x_0 ' + n + ')) 1))\n')
+  for point in range(0, k_int+1):
+    f.write ('(assert (< (+ (* ' + ' '.join(['x_' + str(point)]*n_int) + 
+            ') (* ' + ' '.join(['x_' + str((point+1)%(k_int+1))]*n_int) + ')) 1))\n')
 
   # Output second constraint
-  secondPolynomial = '+ (^ (- x_1 ' + r + ') ' + n + ') '
-  for point in range(0, k_int):
-    f.write ('(assert (< (+ (^ (- x_' + str(point) + ' ' + r + ') ' + n + ') (^ (- x_' + str(point+1) + ' ' + r + ') ' + n + ')) 1))\n') 
-    
-  f.write ('(assert (< (+ (^ (- x_' + k + ' ' + r + ') ' + n + ') (^ (- x_0 ' + r + ') ' + n + ')) 1))\n')
+  for point in range(0, k_int+1):
+    f.write ('(assert (< (+ (* ' + 
+              ' '.join(['(- x_' + str(point) + ' ' + r + ')']*n_int) + 
+            ') (* ' + ' '.join(['(- x_' + str((point+1)%(k_int+1)) + ' ' + r + ')']*n_int) + 
+            ')) 1))\n') 
   
   # final commands:
   f.write("(check-sat)")

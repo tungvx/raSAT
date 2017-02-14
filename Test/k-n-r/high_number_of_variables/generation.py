@@ -6,28 +6,33 @@ def generate (k_int, n_int, r_int):
   r = str(r_int)
   f = open (k + '-' + n + '-' + r + '.smt2', 'w')
   f.write ('(set-logic QF_NRA)\n')
-  f.write ('(set-info :source | x_1^n + x_2^n + ... + x_k^n < 1 and (x_1 - r)^n + (x_2 - r)^n + ... + (x_k - r)^n <1 |)\n')
+  f.write ('(set-info :source | x_1^{1} + ... + x_{0}^{1} < 1 and (x_1 - {2})^{1} + ... + (x_{0} - {2})^{1} <1 |)\n'.format(k, n, r))
 
   # Declare variables:
   for point in range(1, k_int + 1):
     f.write('(declare-fun x_' + str(point) + ' () Real)\n')
 
   # Output first constraint:
-  firstPolynomial = '+ (^ x_1 ' + n + ') '
+  firstPolynomial = []
 
-  for point in range(2, k_int):
-    firstPolynomial = '+ (' + firstPolynomial + '(^ x_' + str(point) + ' ' + n + ')) '
-    
-  firstPolynomial = firstPolynomial + '(^ x_' + k + ' ' + n + ') '
-  f.write ('(assert (< (' + firstPolynomial + ') 1))\n')
+  for point in range(1, k_int+1):
+    firstPolynomial.append('(* ' + ' '.join(['x_' + str(point)]*n_int)+')')
+  
+  firstPolynomial_string = ' '.join(firstPolynomial)
+  if len(firstPolynomial) > 1:
+    firstPolynomial_string = '+ ' + firstPolynomial_string
+
+  f.write ('(assert (< (' + firstPolynomial_string + ') 1))\n')
 
   # Output second constraint
-  secondPolynomial = '+ (^ (- x_1 ' + r + ') ' + n + ') '
-  for point in range(2, k_int):
-    secondPolynomial = '+ (' + secondPolynomial + '(^ (- x_' + str(point) + ' ' + r + ') ' + n + ')) '
+  secondPolynomial = []
+  for point in range(1, k_int+1):
+    secondPolynomial.append('(* ' + ' '.join(['(- x_' + str(point) + ' ' + r + ')']*n_int) + ')')
     
-  secondPolynomial = secondPolynomial + '(^ (- x_' + k + ' ' + r + ') ' + n + ') '
-  f.write ('(assert (< (' + secondPolynomial + ') 1))\n')
+  secondPolynomial_string = ' '.join(secondPolynomial)
+  if len(secondPolynomial) > 1:
+    secondPolynomial_string = '+ ' + secondPolynomial_string
+  f.write ('(assert (< (' + secondPolynomial_string + ') 1))\n')
   f.write("(check-sat)")
 
 # high variables:
