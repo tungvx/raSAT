@@ -633,8 +633,10 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
 		          if isFirst && (baseNum >= 0.1 -. max_float) then baseNum (*+. randomNum*)
 		          else baseNum +. randomNum 
 		        in*)
-		        if isVarPositiveDirected = -1 then [lowerBound]
-		        else if isVarPositiveDirected = 1 then [upperBound]
+		        if isVarPositiveDirected = -1 then 
+              lowerBound :: (generate_tc_var intv (tcNum - 1) false varSen 0)
+		        else if isVarPositiveDirected = 1 then 
+              upperBound :: (generate_tc_var intv (tcNum - 1) false varSen 0)
 		        else
 		          let tc =
 		            (*if isInfinite || tcNum > 1 || varSen = 0. then
@@ -808,7 +810,7 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
           print_endline ("isVarPositiveDirected = 0 && priorityNum > 0: " ^ string_of_bool (isVarPositiveDirected = 0 && priorityNum > 0));
           flush stdout;*)
           let (testcases, newPriorityNum, newIsFirst) =
-            if isFirst && isVarPositiveDirected = 0 && priorityNum > 0 then (
+            if isFirst && priorityNum > 0 then (
               (*print_string (var ^ " ");
               flush stdout;*)
               (generate_tc_var intv 2 true varSen isVarPositiveDirected, priorityNum - 1, false)
