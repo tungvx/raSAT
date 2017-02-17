@@ -749,7 +749,6 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
         | (var, varSen, isPositiveSen) :: t ->
           (*print_endline (var(* ^ ": " ^ string_of_float varSen ^ ": " ^ string_of_bool isPositiveSen*));
           flush stdout;*)
-          let isVarPositiveDirected = StringMap.find var varsSATDirectionMap in
           let isVarPositiveDirected = 0 in
           (*print_endline ("isVarPositiveDirected: " ^ string_of_int isVarPositiveDirected);
           print_endline ("isVarPositiveDirected = 0: " ^ string_of_bool (isVarPositiveDirected = 0));
@@ -823,8 +822,8 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)
-      (*generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)*)
+      (* generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*) *)
+      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
   
