@@ -1146,8 +1146,8 @@ module Caml = struct
                   in 
                   get_hardest_polyCons result remainingConstraints
               in
-              let decomposedExpr = 
-                get_hardest_polyCons (List.hd testUNSATPolyConstraints) (List.tl testUNSATPolyConstraints)
+              let (decomposedExpr, _) = 
+                get_element testUNSATPolyConstraints
               in
               (*print_endline "decomposing";
               (*print_endline(bool_expr_list_to_infix_string decomposedExpr);*)
