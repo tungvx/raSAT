@@ -159,14 +159,17 @@ let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMa
     let decomposedVarsList = 
       if infVar <> "" then [(infVar, 0., 0)]
       else 
-        let tmp = polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
+        (* let tmp = polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
               (*(VariablesSet.cardinal reducedVarsSet)*) (VariablesSet.union reducedVarsSet usedVarsSet) 
         in
         if List.length tmp = 0 then 
           polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
               (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet
         else
-          tmp
+          tmp *)
+
+        polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
+              (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet
     in
     let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
       let intvMiniSATCode = StringMap.find var varsIntvsMap in

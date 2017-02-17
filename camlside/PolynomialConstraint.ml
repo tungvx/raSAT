@@ -822,8 +822,8 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
       
       (*generateTCs_extra neededVarsSen [] priorityNum*)
       (*generateTCs_extra_random neededVarsSen [] priorityNum*)
-      (* generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*) *)
-      generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*)
+      generateTCs_extra_1VarChosen neededVarsSen [] priorityNum true (*(8)*)
+      (* generateTCs_extra_1VarChosen_random neededVarsSen [] priorityNum true (*(9)*) *)
   end;;
 (* ============================= END of polynomialConstraint class =================================== *)
   
