@@ -1897,8 +1897,8 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                   in 
                   get_hardest_polyCons result remainingConstraints
               in
-              let decomposedExpr = 
-                [get_hardest_polyCons (List.hd testUNSATPolyConstraints) (List.tl testUNSATPolyConstraints)]
+              let (decomposedExpr, _) = 
+                get_element testUNSATPolyConstraints
               in
               (*print_endline "decomposing";
               (*print_endline(bool_expr_list_to_infix_string decomposedExpr);*)
@@ -1912,7 +1912,7 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
                 if isDecomposed then 
                   (newInterval, newLearn, newBumpVars, isDecomposed)
                 else*)
-                  dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap  nextMiniSATCode (List.hd decomposedExpr) 
+                  dynamicDecom varsIntvsMiniSATCodesMap originalVarsIntvsMiniSATCodesMap miniSATCodesVarsIntvsMap  nextMiniSATCode decomposedExpr 
                                 uk_cl maxDecomposedVarsNum esl (remainingTime -. Sys.time() +. startTime) in
 			        (*print_endline "after decomposed";
 			        flush stdout;*)
