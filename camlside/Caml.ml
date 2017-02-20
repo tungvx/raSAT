@@ -1188,7 +1188,7 @@ module Caml = struct
       StringMap.add var {low = neg_infinity; high = infinity} currentVarsIntvsMap
     in  
     let varsIntvsMap = VariablesSet.fold add_intv varsSet StringMap.empty in *)
-    let varsIntvsMapPrioritiesMaps = FloatMap.singleton esl [varsIntvsMap] in
+    let varsIntvsMapPrioritiesMaps = FloatMap.singleton 0.125 [varsIntvsMap] in
 
     isUnknown := false;
 

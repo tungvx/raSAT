@@ -4,6 +4,10 @@ open Ast
 
 let isUnknown = ref false;;
 
+let off_set = 8.;;
+
+let new_esl esl = 
+  ldexp esl (-3)
 
 let add_new_varsIntvsPriority priority addedVarsIntvsMap currentvarsIntvsMapPrioritiesMaps =
   try
@@ -19,10 +23,10 @@ let decompose_var esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (u
   let newPoint = 
     if lowerBound = neg_infinity then 
       if upperBound = infinity then 0.
-      else upperBound -. 10.
+      else upperBound -. off_set
     else 
-      if upperBound = infinity then lowerBound +. 10. 
-      else 0.5 *. lowerBound +. 0.5 *. upperBound
+      if upperBound = infinity then lowerBound +. off_set
+      else ldexp lowerBound (-1) +. ldexp upperBound (-1)
   in
   let varType = polyCons#get_varType var in
   let unknown = 
@@ -30,7 +34,7 @@ let decompose_var esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (u
     else newPoint < lowerBound || newPoint > upperBound
   in
   if unknown then
-    (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap varsIntvsMapPrioritiesMaps)
+    (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (new_esl esl) varsIntvsMap varsIntvsMapPrioritiesMaps)
   else
     let lowerIntv = 
       if varType = intType then
@@ -80,10 +84,10 @@ let decompose_var esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (u
       else if upperSAT = -1 then 
         add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps
       else if lowerBound = neg_infinity then 
-        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (esl /. 10.) lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
+        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (new_esl esl) lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
         add_new_varsIntvsPriority esl upperVarsIntvsMap varsIntvsMapPrioritiesMaps  
       else if upperBound = infinity then 
-        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (esl /. 10.) upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
+        let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority (new_esl esl) upperVarsIntvsMap varsIntvsMapPrioritiesMaps in
         add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps  
       else if lowerEasiness < upperEasiness then 
         let varsIntvsMapPrioritiesMaps = add_new_varsIntvsPriority esl lowerVarsIntvsMap varsIntvsMapPrioritiesMaps in
@@ -145,12 +149,12 @@ let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMa
     in
     let learntClauses = VariablesSet.fold add_learnt_var varsSet (polysMiniSATCodeString ^ " 0") in
     ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false) *)
-    let newEsl = esl /. 10. in
+    let newEsl = new_esl esl in
     if newEsl = esl then (* No more search is possible *)
       (isUnknown := true;
        (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps))
     else
-      (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (esl /. 10.) varsIntvsMap
+      (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (new_esl esl) varsIntvsMap
                                                                          varsIntvsMapPrioritiesMaps)
   else (*Continue decomposition*)
     

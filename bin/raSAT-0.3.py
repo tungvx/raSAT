@@ -68,5 +68,5 @@ os.chmod(os.path.join(current_path, RASAT), st.st_mode | stat.S_IEXEC)
 if len(sys.argv) < 2:
   print 'Syntax is:\n python smt.py filename.smt2 timeout'
 else:
-  run(sys.argv[1], -10, 10)
+  run(sys.argv[1], -8, 8)
 
