@@ -54,7 +54,7 @@ def run(filename, initLowerBound, initUpperBound, timeout):
   raSATResult = UNKNOWN
   sbox = 1.
   while (raSATResult == 'unknown'):
-    sbox = sbox / 10.
+    sbox = sbox / 8.
     raSATResult = run_raSAT(filename, 'lb="' + str(lowerBound) + ' ' + str(upperBound) + '"',
                             "sbox="+str(sbox), "tout="+str(timeout))
     
@@ -73,5 +73,5 @@ if len(sys.argv) < 2:
   print 'Syntax is:\n python smt.py filename.smt2 timeout'
 else:
   timeout = float(os.environ.get('STAREXEC_CPU_LIMIT'))
-  run(sys.argv[1], -10, 10, timeout)
+  run(sys.argv[1], -8, 8, timeout)
 

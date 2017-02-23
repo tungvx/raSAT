@@ -1445,10 +1445,10 @@ let rec eval_all res us uk_cl validPolyConstraints polyConstraints ia varsIntvsM
         let newPoint = 
           if lowerBound = neg_infinity then 
             if upperBound = infinity then 0.
-            else upperBound -. 10.
+            else upperBound -. 8.
           else 
-            if upperBound = infinity then lowerBound +. 10. 
-            else 0.5 *. lowerBound +. 0.5 *. upperBound
+            if upperBound = infinity then lowerBound +. 8. 
+            else ldexp lowerBound (-1) +. ldexp upperBound (-1)
               (*if varSen = 0. || upperBound /. 2. -. lowerBound /. 2. <  esl then 0.5 *. lowerBound +. 0.5 *. upperBound
               else if isPositiveSen = polyCons#isPositiveDirected then upperBound -. esl 
               else lowerBound +. esl*)
