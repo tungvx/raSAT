@@ -55,14 +55,14 @@ let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap co
     match varsSetCandidates with
     | Nil -> (false, polyConstraints, consideredVarsSet) 
     | Cons(varsList, tail) ->
-    let varsSet = List.fold_right VariablesSet.add varsList VariablesSet.empty in
-    let commonVarsSet = VariablesSet.inter consideredVarsSet varsSet in
-    if VariablesSet.is_empty commonVarsSet then
+      let varsSet = List.fold_right VariablesSet.add varsList VariablesSet.empty in
       if check_equality h varsSet varsIntvsMap then
         match t with
         | [] -> (true, [], VariablesSet.union consideredVarsSet varsSet)
         | l::m ->
-          let varsList = l#get_varsList in
+          let varsList = 
+            l#get_varsList_not_in_set (VariablesSet.union consideredVarsSet varsSet) 
+          in
           let newVarsSetCandidates = power_set varsList in
           let (result, _, newConsideredVarsSet) = 
             check_equalities_extra t newVarsSetCandidates varsIntvsMap (VariablesSet.union consideredVarsSet varsSet)
@@ -72,8 +72,6 @@ let rec check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap co
           else
             check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
       else check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
-    else
-      check_equalities_extra polyConstraints (tail()) varsIntvsMap consideredVarsSet
   
 
 (* polyConstraints is a list of polynomial constraints, each constraints must be an equation *)
@@ -83,7 +81,7 @@ let rec check_equalities polyConstraints varsIntvsMap consideredVarsSet =
   | h::t -> (
     (* print_endline "Checking Equations";
     flush stdout; *)
-    let varsList = h#get_varsList in
+    let varsList = h#get_varsList_not_in_set consideredVarsSet in
     let varsSetCandidates = power_set varsList in
     check_equalities_extra polyConstraints varsSetCandidates varsIntvsMap consideredVarsSet 
   )

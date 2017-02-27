@@ -1,6 +1,7 @@
 open Variable
 open Interval
 open Ast
+open Testing
 
 let isUnknown = ref false;;
 
@@ -98,16 +99,7 @@ let decompose_var esl varsIntvsMap polyCons var (intv, varSen, isPositiveSen) (u
     in
     (unsatPolyConstraintsCodes, varsIntvsMapPrioritiesMaps)
     
-
-
-(*Binary balance decomposition on intervals*)
-let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps polyCons 
-    unkownPolyConstraints maxDecomposedVarsNum esl usedVarsSet = 
-  (* print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
-  flush stdout; *)
-  let startTime = Sys.time() in
-  (* let add_varsSet currentVarsSet polyCons = VariablesSet.union polyCons#get_varsSet currentVarsSet in
-  let varsSet = List.fold_left add_varsSet VariablesSet.empty unkownPolyConstraints in *)
+let get_decomposed_vars_list_pol polyCons esl varsIntvsMap maxDecomposedVarsNum = 
   let varsSet = polyCons#get_varsSet in
 
   let not_smallIntv intv =
@@ -138,17 +130,37 @@ let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMa
     )
   in
   let (reducedVarsSet, infVar) = (*varsSet*) VariablesSet.fold add_notSmallInterval varsSet (VariablesSet.empty, "") in
-  if VariablesSet.is_empty reducedVarsSet then (*Stop decomposition*) 
-    (* let add_learnt_var var learntVars = 
-      let (_, varId) = StringMap.find var varsIntvsMiniSATCodesMap in
-      "-" ^ string_of_int varId ^ " " ^ learntVars
-    in
-    let polysMiniSATCodeString = 
-      if polyCons#get_miniSATCode > 0 then "-" ^ string_of_int polyCons#get_miniSATCode
-      else string_of_int (polyCons#get_miniSATCode)
-    in
-    let learntClauses = VariablesSet.fold add_learnt_var varsSet (polysMiniSATCodeString ^ " 0") in
-    ((miniSATCodesVarsIntvsMap, nextMiniSATCode), learntClauses, "", false) *)
+  if VariablesSet.is_empty reducedVarsSet then
+    []
+  else 
+    if infVar <> "" then [(infVar, 0., 0)]
+    else 
+      polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
+      (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet
+
+let rec get_decomposed_vars_list_pols polyConstraints esl varsIntvsMap maxDecomposedVarsNum =
+  match polyConstraints with
+  | [] -> []
+  | _ ->
+    let (h, t) = get_element polyConstraints in
+    get_decomposed_vars_list h t esl varsIntvsMap maxDecomposedVarsNum
+
+and get_decomposed_vars_list polyCons unkownPolyConstraints esl varsIntvsMap maxDecomposedVarsNum = 
+  match get_decomposed_vars_list_pol polyCons esl varsIntvsMap maxDecomposedVarsNum with
+  | [] -> get_decomposed_vars_list_pols unkownPolyConstraints esl varsIntvsMap maxDecomposedVarsNum
+  | decomposedVarsList -> decomposedVarsList
+
+(*Binary balance decomposition on intervals*)
+let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMaps polyCons 
+    unkownPolyConstraints maxDecomposedVarsNum esl usedVarsSet = 
+  (* print_endline ("Decomposing: " ^ polyCons#to_string_infix ^ ": " ^ string_of_int polyCons#get_miniSATCode);
+  flush stdout; *)
+  let startTime = Sys.time() in
+  (* let add_varsSet currentVarsSet polyCons = VariablesSet.union polyCons#get_varsSet currentVarsSet in
+  let varsSet = List.fold_left add_varsSet VariablesSet.empty unkownPolyConstraints in *)
+  
+  match get_decomposed_vars_list polyCons unkownPolyConstraints esl varsIntvsMap maxDecomposedVarsNum with
+  | [] ->
     let newEsl = new_esl esl in
     if newEsl = esl then (* No more search is possible *)
       (isUnknown := true;
@@ -156,25 +168,7 @@ let dynamicDecom varsIntvsMap unsatPolyConstraintsCodes varsIntvsMapPrioritiesMa
     else
       (unsatPolyConstraintsCodes, add_new_varsIntvsPriority (new_esl esl) varsIntvsMap
                                                                          varsIntvsMapPrioritiesMaps)
-  else (*Continue decomposition*)
-    
-    (*print_endline (string_of_bool polyCons#isInfinite);
-    flush stdout;*)
-    let decomposedVarsList = 
-      if infVar <> "" then [(infVar, 0., 0)]
-      else 
-        (* let tmp = polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
-              (*(VariablesSet.cardinal reducedVarsSet)*) (VariablesSet.union reducedVarsSet usedVarsSet) 
-        in
-        if List.length tmp = 0 then 
-          polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
-              (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet
-        else
-          tmp *)
-
-        polyCons#get_n_varsSen_fromSet maxDecomposedVarsNum 
-              (*(VariablesSet.cardinal reducedVarsSet)*) reducedVarsSet
-    in
+  | decomposedVarsList ->
     let add_varIntvMiniSATCode currentVarsIntvsMiniSATCodesIsPositiveSenMap (var, varSen, isPositiveSen) = 
       let intvMiniSATCode = StringMap.find var varsIntvsMap in
       StringMap.add var (intvMiniSATCode, varSen, isPositiveSen) currentVarsIntvsMiniSATCodesIsPositiveSenMap

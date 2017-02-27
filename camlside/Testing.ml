@@ -320,7 +320,9 @@ let rec test polyConstraints varsIntvsMaps =
           remainingPolyConstraints, newPriorityNum), fun() -> Nil) 
   in 
   (*let (tc, sTest, clTest_US, varsTCsMap, b) = test_extra abstractTCInfList varsIntvsMaps firstPolyCons (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap IntMap.empty (remainingTime -. Sys.time() +. startTime) in*)
-  let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = test_extra_incremental abstractTCInfList varsIntvsMaps [] [] StringMap.empty VariablesSet.empty (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap in
+  let (sTest, testSATPolyConstraints, testUNSATPolyConstraints, satVarsTCsMap, generatedVarsSet) = 
+    test_extra_incremental abstractTCInfList varsIntvsMaps [] [] StringMap.empty VariablesSet.empty (*indicesSortedPolyConstraintsMap*) polyConstraintsNum (*1*) varsSATDirectionMap 
+  in
   if sTest = 1 || (is_all_equations testUNSATPolyConstraints && can_apply_imvt testUNSATPolyConstraints ) then
    (*  let printString = "Test Result: " ^ string_of_int sTest in
     print_endline printString;

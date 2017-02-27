@@ -164,6 +164,15 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
       if List.length varsSen = varsNum then self#get_n_varsSen varsNum
       else varsList
 
+    method get_varsList_not_in_set excluded_varsSet =
+      if List.length varsSen = varsNum then 
+        self#get_n_varsSen_not_in_set varsNum excluded_varsSet
+      else 
+        let not_in var = 
+          not (VariablesSet.mem var excluded_varsSet)
+        in
+        List.filter not_in varsList
+
     method private check_sat_posDerivative lowerSign upperSign = match self#get_constraint with
     | Eq _ -> 
       if lowerSign = 1 || upperSign = -1 then -1
@@ -406,7 +415,20 @@ class polynomialConstraint boolExprInit (variables:(int Variable.StringMap.t)) =
           else []
       in
       get_n_first varsSen n
-      
+    
+    method get_n_varsSen_not_in_set n excluded_varsSet = 
+      let rec get_n_first varsSen n = match varsSen with 
+        | [] -> []
+        | (var, sen, _) :: t ->
+          if n >= 1 then 
+            if VariablesSet.mem var excluded_varsSet then 
+              get_n_first t (n - 1)
+            else 
+              var :: (get_n_first t (n - 1))
+          else []
+      in
+      get_n_first varsSen n
+
    (* get n-first variables by varsSen, the selected variables must be in the given set *)
     method get_n_varsSen_fromSet n varsSet = 
       (*let rec string_of_varsSen varsSen = 
