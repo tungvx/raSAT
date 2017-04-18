@@ -116,7 +116,7 @@ let get_decomposed_vars_list_pol polyCons esl varsIntvsMap maxDecomposedVarsNum 
       true
   in
   let add_notSmallInterval var (reducedVarsSet, infVar) = 
-    let intv = StringMap.find var varsIntvsMap in
+    let intv = Util.get_var_intv var varsIntvsMap in
     if not_smallIntv intv then 
       let newInfVar = 
         if intv.high = infinity || intv.low = neg_infinity then var
